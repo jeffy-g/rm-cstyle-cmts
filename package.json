@@ -1,0 +1,20 @@
+{
+    "name": "remove-cstyle-comments",
+    "version": "1.0.0",
+    "description": "remove c style comments from text file(javascript source, json file etc...",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo hello!"
+    },
+    "keywords": [
+        "remove",
+        "delete",
+        "comment",
+        "comments",
+        "javascript",
+        "json",
+        "text"
+    ],
+    "author": "motrohi",
+    "license": "Apache-2.0"
+}
