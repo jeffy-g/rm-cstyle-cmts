@@ -1,10 +1,10 @@
 {
-    "name": "remove-cstyle-comments",
+    "name": "rm-cstyle-cmts",
     "version": "1.0.0",
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "index.js",
     "scripts": {
-        "test": "echo hello!"
+        "test": "node test.js"
     },
     "repository": {
         "type": "git",
@@ -19,6 +19,6 @@
         "json",
         "text"
     ],
-    "author": "motrohi",
+    "author": "jeffy-g",
     "license": "Apache-2.0"
 }

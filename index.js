@@ -18,17 +18,21 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 
-// NOTE: use regexp document: "remove C style comments."
-// /(\s*\/\*[\s\S]*?(.*)\*\/\s*$)|(\s*\/\/.*\s*$)|(^[\s]$)|(^[\n])|([\n]$)/gm;
+// NOTE: regex source for readability.
 const RE_SOURCE = `
 (\\s*\\/\\*[\\s\\S]*?(.*)\\*\\/\\s*$)|  (?# /* */ style block comment)
-(\\s*\\/\\/.*\\s*$)|                    (?# // style block comment)
+(\\s*\\/\\/.*\\s*$)|                    (?# // style line comment)
 (^[\\s]$)|                              (?# empty lines)
 ([\\n]$)
 `;
 
-// NOTE: replace by regexp document: "use util.getRegexpSource test#3 update simple"
+// NOTE: remove unnecessaries.
 const RE_C_STYLE_COMMENT = new RegExp(RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, ""), "gm");
+
+/**
+ * remove c style comments form "source" content.
+ * @param {string} source c style commented text source.
+ */
 function removeCStyleComments(source) {
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
@@ -37,14 +41,3 @@ function removeCStyleComments(source) {
 }
 
 module.exports = removeCStyleComments;
-
-/**
-[tests]
-
-rmc = require("./");
-fs = require("fs");
-
-tsc = fs.readFileSync("./big.json", 'utf-8');
-console.log(rmc(tsc));
-
-*/
