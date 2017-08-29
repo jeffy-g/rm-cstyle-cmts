@@ -20,12 +20,25 @@ console.log(rmc(tsc));
 
 ```json
  ----------- before contents ----------
-// see: http://json.schemastore.org/tsconfig
+
+/**
+ * block comment.
+ */
+// coments line.!!-+*
+
+    /**
+ * block comment.
+ */// test
+const $3 = { keyCode: $1, key: "$5" }; // these are invalid line(for sample
+
+
+/* -- block comment.
+ */ // see: http://json.schemastore.org/tsconfig
 {
     "compilerOptions": {
         "sourceMap": false,
         // 2017/6/1 22:18:29
-        "removeComments": true,
+        "removeComments": true, // after line comment!!!!!
 
         "declaration": true,
         // 2017/5/18 20:53:47
@@ -37,17 +50,21 @@ console.log(rmc(tsc));
         // Stylize errors and messages using color and context (experimental).
         "pretty": true,
         //
-        //"checkJs": true,
+        //"checkJs": true,   /* */
         "rootDir": "./ts",
+        /**/
         "outDir": "./js",
+        /* after line comment!!!!! */
 
         "listFiles": false,
         "newLine": "LF",
         // "experimentalDecorators": true,
         // "emitDecoratorMetadata": false,
-        // firefox で動かすなら target :"es5" が better?
+        // NOTE: "es6" -> firefox では class declare がerror に.
+        // firefox で動かすなら target :"es5" とすること.
+        // NOTE: 2017/8/22 16:27:22 es5 では const, let が support されていない.
         "target": "es6",
-        // NOTE: amd or umd? commonjs?
+        // NOTE: amd のほうが記述は少ないか. しかし umd は可読性が高いように思う.
         "module": "es2015", // for webpack
 
         // do not genarate custom helper functions.
@@ -67,7 +84,7 @@ console.log(rmc(tsc));
 
         // https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#unused-labels
         "allowUnusedLabels": true,
-        // "outFile": "all",
+        // "outFile": "regexp-all",
         // 暗黙のany型の宣言をエラー
         // 厳密に型を決めたいとき、anyのものは全てエラーとする
         "noImplicitAny": false,
@@ -82,8 +99,10 @@ console.log(rmc(tsc));
         "ts/external"
     ]
 }
- ----------- after contents -----------
 
+
+ ----------- after contents -----------
+const $3 = { keyCode: $1, key: "$5" };
 {
     "compilerOptions": {
         "sourceMap": false,

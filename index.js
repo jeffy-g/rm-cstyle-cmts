@@ -20,10 +20,10 @@ limitations under the License.
 
 // NOTE: regex source for readability.
 const RE_SOURCE = `
-(\\s*\\/\\*[\\s\\S]*?(.*)\\*\\/\\s*$)|  (?# /* */ style block comment)
-(\\s*\\/\\/.*\\s*$)|                    (?# // style line comment)
-(^[\\s]$)|                              (?# empty lines)
-([\\n]$)
+(\\s*\\/\\*[\\s\\S]*?(.*)\\*\\/(?:\\s*$|\\s*))| (?# /* */ style block comment)
+(\\s*\\/\\/.*\\s*$)|                            (?# // style block comment)
+(^[\\s]$)|                                      (?# empty lines)
+(^[\\n])
 `;
 
 // NOTE: remove unnecessaries.
@@ -33,11 +33,26 @@ const RE_C_STYLE_COMMENT = new RegExp(RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$
  * remove c style comments form "source" content.
  * @param {string} source c style commented text source.
  */
-function removeCStyleComments(source) {
+// function removeCStyleComments(source) {
+//     if (typeof source !== "string") {
+//         throw new TypeError("invalid text content!");
+//     }
+//     return source.replace(RE_C_STYLE_COMMENT, "");
+// }
+function rm_cs_c2(source) {
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
     }
-    return source.replace(RE_C_STYLE_COMMENT, "");
+
+    const re = RE_C_STYLE_COMMENT;
+    let m; // RegExpExecArray
+    while (m = re.exec(source)) {
+        let left = source.substring(0, m.index);
+        let right = source.substring(m.index + m[0].length);
+        source = left + right;
+        re.lastIndex = m.index;
+    }
+    return source;
 }
 
-module.exports = removeCStyleComments;
+module.exports = rm_cs_c2;
