@@ -19,6 +19,7 @@ limitations under the License.
 */
 
 // NOTE: regex source for readability.
+// regexp document: "remove C style comments. ++4-3-1"
 const RE_SOURCE = `
 (\\s*\\/\\*[\\s\\S]*?(.*)\\*\\/(?:\\s*$|\\s*))| (?# /* */ style block comment)
 (\\s*\\/\\/.*\\s*$)|                            (?# // style line comment)
