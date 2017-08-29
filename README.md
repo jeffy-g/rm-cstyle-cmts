@@ -9,11 +9,11 @@ remove c style comments from text file(javascript source, json file etc...
 const rmc = require("rm-cstyle-cmts");
 const fs = require("fs");
 
-const tsc = fs.readFileSync("./tsconfig.json", 'utf-8');
+const json = fs.readFileSync("./sample-tsconfig.json", 'utf-8');
 console.info(" ----------- before contents ----------");
-console.log(tsc);
+console.log(json);
 console.info(" ----------- after contents -----------");
-console.log(rmc(tsc));
+console.log(rmc(json));
 ```
 
 ### then
