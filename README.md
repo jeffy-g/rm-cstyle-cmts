@@ -51,24 +51,18 @@ const $3 = { keyCode: $1, key: "$5" }; // these are invalid line(for sample
         "pretty": true,
         //
         //"checkJs": true,   /* */
-        "rootDir": "./ts",
-        /**/
-        "outDir": "./js",
-        /* after line comment!!!!! */
+        "rootDir": "./ts",            /**/
+        "outDir": "./js",     /* after line comment!!!!! */
 
         "listFiles": false,
         "newLine": "LF",
         // "experimentalDecorators": true,
         // "emitDecoratorMetadata": false,
-        // NOTE: "es6" -> firefox では class declare がerror に.
-        // firefox で動かすなら target :"es5" とすること.
-        // NOTE: 2017/8/22 16:27:22 es5 では const, let が support されていない.
         "target": "es6",
-        // NOTE: amd のほうが記述は少ないか. しかし umd は可読性が高いように思う.
+        // NOTE: amd or umd, commonjs?
         "module": "es2015", // for webpack
 
         // do not genarate custom helper functions.
-        // NOTE: for r.js build is set "true"
         "noEmitHelpers": false,
 
         "typeRoots": [
@@ -84,7 +78,6 @@ const $3 = { keyCode: $1, key: "$5" }; // these are invalid line(for sample
 
         // https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#unused-labels
         "allowUnusedLabels": true,
-        // "outFile": "regexp-all",
         // 暗黙のany型の宣言をエラー
         // 厳密に型を決めたいとき、anyのものは全てエラーとする
         "noImplicitAny": false,
@@ -136,4 +129,5 @@ const $3 = { keyCode: $1, key: "$5" };
         "ts/external"
     ]
 }
+
 ```
