@@ -3,6 +3,16 @@ remove c style comments from text file(javascript source, json file etc...
 
 ## npm package name: rm-cstyle-cmts
 
+### function signature
+```ts
+/**
+ * remove c style comments form "source" content.
+ * @param {string} source c style commented text source.
+ * @param {boolean} is_multi_process_use multi thread like?
+ */
+declare function removeCStyleComments(source: string, is_multi_process_use: boolean = false): string;
+```
+
 ### usage
 
 ```js
