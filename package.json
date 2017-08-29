@@ -8,7 +8,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/jeffy-g/remove-cstyle-comments.git"
+        "url": "git+https://github.com/jeffy-g/rm-cstyle-cmts.git"
     },
     "keywords": [
         "remove",
