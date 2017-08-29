@@ -29,16 +29,16 @@ const RE_SOURCE = `
 // NOTE: remove unnecessaries.
 const RE_C_STYLE_COMMENT = new RegExp(RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, ""), "gm");
 
-/**
- * remove c style comments form "source" content.
- * @param {string} source c style commented text source.
- */
 // function removeCStyleComments(source) {
 //     if (typeof source !== "string") {
 //         throw new TypeError("invalid text content!");
 //     }
 //     return source.replace(RE_C_STYLE_COMMENT, "");
 // }
+/**
+ * remove c style comments form "source" content.
+ * @param {string} source c style commented text source.
+ */
 function rm_cs_c2(source) {
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
