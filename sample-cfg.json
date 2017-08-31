@@ -1,0 +1,80 @@
+
+/**
+ * block comment.
+ */
+// coments line.!!-+*
+
+    /**
+ * block comment.
+ */// test
+const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
+
+
+/* -- block comment.
+ */ // see: http://json.schemastore.org/tsconfig
+{
+    "compilerOptions": {
+        "sourceMap": false,
+        // 2017/6/1 22:18:29
+        "removeComments": true, // after line comment!!!!!
+
+        "declaration": true,
+        // 2017/5/18 20:53:47
+        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
+        invalid quote string?
+        ",
+        // statistics
+        "diagnostics": false,
+        //"inlineSourceMap": true,
+        //"inlineSources": true,
+        // Stylize errors and messages using color and context (experimental).
+        "pretty": true,
+        //
+        //"checkJs": true,   /* */
+        "rootDir": "/[\r\n]+/",            /**/
+        "outDir": "./js/[\r\n]+/**/",     /* after line comment!!!!! */
+
+        // this is bad syntax.
+        "listFiles": `
+            somethins*
+        `,
+        "newLine": "LF",
+        // "experimentalDecorators": true,
+        // "emitDecoratorMetadata": false,
+        "target": "es6",
+        // NOTE: amd or umd, commonjs?
+        "module": "es2015", // for webpack
+
+        // do not genarate custom helper functions.
+        "noEmitHelpers": false,
+
+        "typeRoots": [
+            "tools",
+            "node_modules/@types/"
+        ],
+        "types": [
+            "jquery", "chrome", "resource"
+        ],
+        // "lib": [
+        //     "es2015.promise", "es6", "esnext", "dom"
+        // ],
+
+        // https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#unused-labels
+        "allowUnusedLabels": true,
+        // 暗黙のany型の宣言をエラー
+        // 厳密に型を決めたいとき、anyのものは全てエラーとする
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+
+        // NOTE: test use.
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "include": ["ts"],
+    "exclude": [
+        "ts/external",
+        "!./ts/*.ts",
+        "!./ts/external/*.ts"
+    ]
+}
+

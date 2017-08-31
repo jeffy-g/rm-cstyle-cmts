@@ -6,9 +6,9 @@
         "removeComments": true,
         "declaration": false,
         // statistics
-        "diagnostics": false,
-        //"inlineSourceMap": true,
-        //"inlineSources": true,
+        "diagnostics": true,
+        // "inlineSourceMap": true,
+        // "inlineSources": true,
         // Stylize errors and messages using color and context (experimental).
         "pretty": true,
         //
@@ -19,7 +19,7 @@
         "listFiles": false,
         "newLine": "LF",
 
-        "target": "es5",
+        "target": "es6",
         "module": "commonjs",
 
         "noEmitHelpers": false,

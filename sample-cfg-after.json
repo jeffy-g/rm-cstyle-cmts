@@ -1,0 +1,40 @@
+const $3 = { keyCode: "$1", "key": "$5" }; 
+{
+    "compilerOptions": {
+        "sourceMap": false,
+        "removeComments": true, 
+        "declaration": true,
+        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
+        invalid quote string?
+        ",
+        "diagnostics": false,
+        "pretty": true,
+        "rootDir": "/[\r\n]+/",            
+        "outDir": "./js/[\r\n]+/**/",     
+        "listFiles": `
+            somethins*
+        `,
+        "newLine": "LF",
+        "target": "es6",
+        "module": "es2015", 
+        "noEmitHelpers": false,
+        "typeRoots": [
+            "tools",
+            "node_modules/@types/"
+        ],
+        "types": [
+            "jquery", "chrome", "resource"
+        ],
+        "allowUnusedLabels": true,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "include": ["ts"],
+    "exclude": [
+        "ts/external",
+        "!./ts/*.ts",
+        "!./ts/external/*.ts"
+    ]
+}

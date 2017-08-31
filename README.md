@@ -6,30 +6,49 @@ remove c style comments from text file(javascript source, json file etc...
 ### function signature
 ```ts
 /**
- * remove c style comments form "source" content.
+ * #### remove c style comments form "source" content.  
+ * 
+ * step 1:  
+ *  - remove line comments, multi line comments.  
+ *  - and search the regexp literal. if found then concat it to results.  
+ * 
+ * step 2:  
+ *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
+ * 
  * @param {string} source c style commented text source.
- * @param {boolean} is_multi_process_use multi thread like?
+ * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
  */
-declare function removeCStyleComments(source: string, is_multi_process_use: boolean = false): string;
+declare function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true): string;
 ```
 
-### usage
+## usage
 
 ```js
 const rmc = require("rm-cstyle-cmts");
 const fs = require("fs");
 
-const json = fs.readFileSync("./sample-tsconfig.json", 'utf-8');
+const name = "sample-cfg";
+const json = fs.readFileSync(`./${name}.json`, 'utf-8');
+
 console.info(" ----------- before contents ----------");
 console.log(json);
+
+// remove blank line and whitespaces.
+let after = rmc(json, !0);
 console.info(" ----------- after contents -----------");
-console.log(rmc(json));
+console.log(after);
+
+fs.writeFile(`./${name}-after.json`, after, 'utf-8', function() {
+    console.log("written data...");
+});
+
 ```
 
-### then
+## then
 
+#### before
+> sample-tsconfig.json
 ```json
- ----------- before contents ----------
 
 /**
  * block comment.
@@ -39,7 +58,7 @@ console.log(rmc(json));
     /**
  * block comment.
  */// test
-const $3 = { keyCode: $1, key: "$5" }; // these are invalid line(for sample
+const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
 
 
 /* -- block comment.
@@ -52,7 +71,9 @@ const $3 = { keyCode: $1, key: "$5" }; // these are invalid line(for sample
 
         "declaration": true,
         // 2017/5/18 20:53:47
-        "declarationDir": "./project.d.ts",
+        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
+        invalid quote string?
+        ",
         // statistics
         "diagnostics": false,
         //"inlineSourceMap": true,
@@ -61,10 +82,13 @@ const $3 = { keyCode: $1, key: "$5" }; // these are invalid line(for sample
         "pretty": true,
         //
         //"checkJs": true,   /* */
-        "rootDir": "./ts",            /**/
-        "outDir": "./js",     /* after line comment!!!!! */
+        "rootDir": "/[\r\n]+/",            /**/
+        "outDir": "./js/[\r\n]+/**/",     /* after line comment!!!!! */
 
-        "listFiles": false,
+        // this is bad syntax.
+        "listFiles": `
+            somethins*
+        `,
         "newLine": "LF",
         // "experimentalDecorators": true,
         // "emitDecoratorMetadata": false,
@@ -99,27 +123,36 @@ const $3 = { keyCode: $1, key: "$5" }; // these are invalid line(for sample
     },
     "include": ["ts"],
     "exclude": [
-        "ts/external"
+        "ts/external",
+        "!./ts/*.ts",
+        "!./ts/external/*.ts"
     ]
 }
 
 
- ----------- after contents -----------
-const $3 = { keyCode: $1, key: "$5" };
+```
+#### after
+> sample-tsconfig-after.json
+```
+const $3 = { keyCode: "$1", "key": "$5" }; 
 {
     "compilerOptions": {
         "sourceMap": false,
-        "removeComments": true,
+        "removeComments": true, 
         "declaration": true,
-        "declarationDir": "./project.d.ts",
+        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
+        invalid quote string?
+        ",
         "diagnostics": false,
         "pretty": true,
-        "rootDir": "./ts",
-        "outDir": "./js",
-        "listFiles": false,
+        "rootDir": "/[\r\n]+/",            
+        "outDir": "./js/[\r\n]+/**/",     
+        "listFiles": `
+            somethins*
+        `,
         "newLine": "LF",
         "target": "es6",
-        "module": "es2015",
+        "module": "es2015", 
         "noEmitHelpers": false,
         "typeRoots": [
             "tools",
@@ -136,8 +169,9 @@ const $3 = { keyCode: $1, key: "$5" };
     },
     "include": ["ts"],
     "exclude": [
-        "ts/external"
+        "ts/external",
+        "!./ts/*.ts",
+        "!./ts/external/*.ts"
     ]
 }
-
 ```

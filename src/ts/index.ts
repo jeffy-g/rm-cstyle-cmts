@@ -17,58 +17,36 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+import * as replace from "./replace";
 
-// NOTE: regex source for readability.
-// regexp document: "remove C style comments. ++4-3-1"
-const RE_SOURCE = `
-(\\s*\\/\\*[\\s\\S]*?(.*)\\*\\/(?:\\s*$|\\s*))| (?# /* */ style block comment)
-(\\s*\\/\\/.*\\s*$)|                            (?# // style line comment)
-(^[\\s]$)|                                      (?# empty lines)
-(^[\\n])
-`;
-
-// NOTE: remove unnecessaries.
-const RE_C_STYLE_COMMENT = new RegExp(RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, ""), "gm");
-
-// const get_regex_flags = (re: RegExp): string => {
-//     let flags = "";
-//     re.global && (flags = "g");
-//     re.ignoreCase && (flags += "i");
-//     re.multiline && (flags += "m");
-//     re.unicode && (flags += "u");
-//     re.sticky && (flags += "y");
-//     // RegExp `dotAll` mode / `s` flag (at chrome
-//     // re.dotAll && (flags += "s");
-//     return flags;
-// }
-// function removeCStyleComments(source) {
-//     if (typeof source !== "string") {
-//         throw new TypeError("invalid text content!");
-//     }
-//     return source.replace(RE_C_STYLE_COMMENT, "");
-// }
 /**
- * remove c style comments form "source" content.
+ * #### remove c style comments form "source" content.  
+ * 
+ * step 1:  
+ *  - remove line comments, multi line comments.  
+ *  - and search the regexp literal. if found then concat it to results.  
+ * 
+ * step 2:  
+ *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
+ * 
  * @param {string} source c style commented text source.
- * @param {boolean} is_multi_process_use multi thread like?
+ * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
  */
-function removeCStyleComments(source: string, is_multi_process_use: boolean = false): string {
+function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true): string {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
     }
-
-    const re = !is_multi_process_use ? RE_C_STYLE_COMMENT: new RegExp(RE_C_STYLE_COMMENT.source, "gm");
-
-    let m: RegExpExecArray;
-    while (m = re.exec(source)) {
-        let left = source.substring(0, m.index);
-        let right = source.substring(m.index + m[0].length);
-        source = left + right;
-        re.lastIndex = m.index;
-    }
-
-    return source;
+    /**
+     * 
+     */
+    const replacer = new replace.ReplaceFrontEnd(source);
+    source = replacer.apply();
+    /* remove whitespaces. /^[\s]+$|[\r\n]+$|^[\r\n](?=\S)/gm */
+    // NOTE: this combination does not do the intended work...
+    // return remove_whitespaces? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
+    // NOTE: these are good.
+    return rm_blank_line_n_ws? source.replace(/^[\s]+$/gm, "").replace(/[\r\n]+$/gm, "").replace(/^[\r\n]/gm, ""): source;
 }
 
 export = removeCStyleComments;
