@@ -24,21 +24,22 @@ declare function removeCStyleComments(source: string, rm_blank_line_n_ws: boolea
 ## usage
 
 ```js
-const rmc = require("rm-cstyle-cmts");
-const fs = require("fs");
+var rmc = require("rm-cstyle-cmts");
+var fs = require("fs");
 
-const name = "sample-cfg";
-const json = fs.readFileSync(`./${name}.json`, 'utf-8');
+var name = "sample-cfg";
+var extension = "json";
+var json = fs.readFileSync(`./${name}.${extension}`, 'utf-8');
 
 console.info(" ----------- before contents ----------");
 console.log(json);
 
 // remove blank line and whitespaces.
-let after = rmc(json, !0);
+var after = rmc(json, !0);
 console.info(" ----------- after contents -----------");
 console.log(after);
 
-fs.writeFile(`./${name}-after.json`, after, 'utf-8', function() {
+fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
     console.log("written data...");
 });
 
@@ -88,13 +89,16 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
         // this is bad syntax.
         "listFiles": `
             somethins*
+    
+ ---
+
         `,
         "newLine": "LF",
         // "experimentalDecorators": true,
         // "emitDecoratorMetadata": false,
         "target": "es6",
         // NOTE: amd or umd, commonjs?
-        "module": "es2015", // for webpack
+        "module": "", // for webpack
 
         // do not genarate custom helper functions.
         "noEmitHelpers": false,
@@ -149,10 +153,13 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "outDir": "./js/[\r\n]+/**/",     
         "listFiles": `
             somethins*
+    
+ ---
+
         `,
         "newLine": "LF",
         "target": "es6",
-        "module": "es2015", 
+        "module": "", 
         "noEmitHelpers": false,
         "typeRoots": [
             "tools",

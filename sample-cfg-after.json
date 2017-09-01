@@ -13,10 +13,13 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "outDir": "./js/[\r\n]+/**/",     
         "listFiles": `
             somethins*
+    
+ ---
+
         `,
         "newLine": "LF",
         "target": "es6",
-        "module": "es2015", 
+        "module": "", 
         "noEmitHelpers": false,
         "typeRoots": [
             "tools",

@@ -37,13 +37,16 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
         // this is bad syntax.
         "listFiles": `
             somethins*
+    
+ ---
+
         `,
         "newLine": "LF",
         // "experimentalDecorators": true,
         // "emitDecoratorMetadata": false,
         "target": "es6",
         // NOTE: amd or umd, commonjs?
-        "module": "es2015", // for webpack
+        "module": "", // for webpack
 
         // do not genarate custom helper functions.
         "noEmitHelpers": false,

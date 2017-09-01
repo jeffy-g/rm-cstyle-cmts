@@ -19,6 +19,16 @@ limitations under the License.
 */
 import * as replace from "./replace";
 
+// for String.replace
+declare type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
+
+// replace without quoted.
+const _rwq: StringReplacer = (all, bq: string, dq: string, sq: string, index: number) => {
+    if (bq || dq || sq) {
+        return all;
+    }
+    return "";
+};
 /**
  * #### remove c style comments form "source" content.  
  * 
@@ -44,9 +54,15 @@ function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true
     source = replacer.apply();
     /* remove whitespaces. /^[\s]+$|[\r\n]+$|^[\r\n](?=\S)/gm */
     // NOTE: this combination does not do the intended work...
-    // return remove_whitespaces? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
+    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
+    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
+
     // NOTE: these are good.
-    return rm_blank_line_n_ws? source.replace(/^[\s]+$/gm, "").replace(/[\r\n]+$/gm, "").replace(/^[\r\n]/gm, ""): source;
+    // DONE: fix: cannot keep blank line at es6 template string.
+    return rm_blank_line_n_ws? source
+        .replace(/^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq)
+        .replace(/[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq)
+        .replace(/^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
 }
 
 export = removeCStyleComments;

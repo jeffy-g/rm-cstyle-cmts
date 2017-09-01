@@ -25,7 +25,7 @@ interface IReplacementContext {
 }
 interface ICharVisitor {
     /** register by self. */
-    injectTo(registries: IStringMap<ICharVisitor>): void;
+    injectTo(registry: IStringMap<ICharVisitor>): void;
 
     /**
      * #### main function.  
@@ -50,24 +50,14 @@ interface IStringMap<T> {
  *```
  */
 class QuoteVistor implements ICharVisitor {
-    /**
-     * 
-     * @param registries 
-     */
-    injectTo(registries: IStringMap<ICharVisitor>): void {
-        registries["'"] = this;
-        registries['"'] = this;
-        registries["`"] = this;
+    injectTo(registry: IStringMap<ICharVisitor>): void {
+        registry["'"] = this;
+        registry['"'] = this;
+        registry["`"] = this;
     }
-    /**
-     * 
-     * @param char 
-     * @param source 
-     * @param context 
-     */
     visit(char: string, source: string, context: IReplacementContext): boolean {
         let index = context.offset;
-         // quote が見つかり次第 visit をかけるので必要ないだろうが一応検証
+         // maybe will not need it. because it will apply visit as soon as quote is found.
         if (source[index - 1] !== "\\") {
             let next = index + 1;
             let ch: string;
@@ -100,28 +90,15 @@ const RE_CRLF = /[\r\n]+/g;
  */
 const RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g;
 
-
 /**
  * ```
  *   case "/":
  *```
  */
 class SlashVistor implements ICharVisitor {
-
-    /**
-     * 
-     * @param registries 
-     */
-    injectTo(registries: IStringMap<ICharVisitor>): void {
-        registries["/"] = this;
+    injectTo(registry: IStringMap<ICharVisitor>): void {
+        registry["/"] = this;
     }
-
-    /**
-     * 
-     * @param char 
-     * @param source 
-     * @param context 
-     */
     visit(char: string, source: string, context: IReplacementContext): boolean {
 
         // fetch current offset.
@@ -133,13 +110,9 @@ class SlashVistor implements ICharVisitor {
 
         // check line comment.
         if (ch === "/") {
-            // index += 2;
-            // while (index < length && source[index++] !== "\n");
-            // // update offset, not include "\n".
-            // context.offset = index - 2;
-            // return true;
             RE_CRLF.lastIndex = index + 2;
             let m = RE_CRLF.exec(source);
+            // update offset.
             context.offset = RE_CRLF.lastIndex - m[0].length;
             // context.content += m[0];
             return true;
@@ -156,7 +129,7 @@ class SlashVistor implements ICharVisitor {
                 index++;
             }
             // update offset.
-            context.offset = index  + 2;
+            context.offset = index + 2;
             return true;
         }
 
@@ -170,7 +143,7 @@ class SlashVistor implements ICharVisitor {
             throw new SyntaxError("invalid regexp literal?");
         }
         // update offset.
-        context.offset = index  + m[0].length;
+        context.offset = index + m[0].length;
         context.content += source.substring(index, context.offset);
 
         return true;
