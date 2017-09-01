@@ -32,12 +32,12 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
         //
         //"checkJs": true,   /* */
         "rootDir": "/[\r\n]+/",            /**/
-        "outDir": "./js/[\r\n]+/**/",     /* after line comment!!!!! */
+        "outDir": "./js/[\r\n]+/**/\\",     /* after line comment!!!!! */
 
         // this is bad syntax.
         "listFiles": `
             somethins*
-    
+    \\
  ---
 
         `,
@@ -53,10 +53,10 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
 
         "typeRoots": [
             "tools",
-            "node_modules/@types/"
+            "node_modules/@types\\/"
         ],
         "types": [
-            "jquery", "chrome", "resource"
+            "jquery", "chrome", "\resource\\"
         ],
         // "lib": [
         //     "es2015.promise", "es6", "esnext", "dom"

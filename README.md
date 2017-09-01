@@ -48,7 +48,7 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 ## then
 
 #### before
-> sample-tsconfig.json
+> sample-cfg.json.json
 ```json
 
 /**
@@ -84,12 +84,12 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
         //
         //"checkJs": true,   /* */
         "rootDir": "/[\r\n]+/",            /**/
-        "outDir": "./js/[\r\n]+/**/",     /* after line comment!!!!! */
+        "outDir": "./js/[\r\n]+/**/\\",     /* after line comment!!!!! */
 
         // this is bad syntax.
         "listFiles": `
             somethins*
-    
+    \\
  ---
 
         `,
@@ -105,10 +105,10 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
 
         "typeRoots": [
             "tools",
-            "node_modules/@types/"
+            "node_modules/@types\\/"
         ],
         "types": [
-            "jquery", "chrome", "resource"
+            "jquery", "chrome", "\resource\\"
         ],
         // "lib": [
         //     "es2015.promise", "es6", "esnext", "dom"
@@ -136,8 +136,8 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
 
 ```
 #### after
-> sample-tsconfig-after.json
-```
+> sample-cfg.json-after.json
+```json
 const $3 = { keyCode: "$1", "key": "$5" }; 
 {
     "compilerOptions": {
@@ -150,10 +150,10 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "diagnostics": false,
         "pretty": true,
         "rootDir": "/[\r\n]+/",            
-        "outDir": "./js/[\r\n]+/**/",     
+        "outDir": "./js/[\r\n]+/**/\\",     
         "listFiles": `
             somethins*
-    
+    \\
  ---
 
         `,
@@ -163,10 +163,10 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "noEmitHelpers": false,
         "typeRoots": [
             "tools",
-            "node_modules/@types/"
+            "node_modules/@types\\/"
         ],
         "types": [
-            "jquery", "chrome", "resource"
+            "jquery", "chrome", "\resource\\"
         ],
         "allowUnusedLabels": true,
         "noImplicitAny": false,
@@ -181,4 +181,33 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "!./ts/external/*.ts"
     ]
 }
+```
+## performance
+
+> sample-cfg.json 2,165byte with remove blank line and whitespaces (at node v8.4.0, intel core i5-2500k 3.3ghz
+```c
+>node test
+ --------------- start benchmark ---------------
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 89.167ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 81.415ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 79.385ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 79.447ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.779ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.467ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.578ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.042ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.780ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.861ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.118ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.990ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.727ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.647ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.646ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.009ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.069ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.024ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 79.603ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.917ms
+ ---------------- end benchmark ----------------
+written data...
 ```

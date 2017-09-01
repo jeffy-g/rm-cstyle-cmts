@@ -10,10 +10,10 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "diagnostics": false,
         "pretty": true,
         "rootDir": "/[\r\n]+/",            
-        "outDir": "./js/[\r\n]+/**/",     
+        "outDir": "./js/[\r\n]+/**/\\",     
         "listFiles": `
             somethins*
-    
+    \\
  ---
 
         `,
@@ -23,10 +23,10 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "noEmitHelpers": false,
         "typeRoots": [
             "tools",
-            "node_modules/@types/"
+            "node_modules/@types\\/"
         ],
         "types": [
-            "jquery", "chrome", "resource"
+            "jquery", "chrome", "\resource\\"
         ],
         "allowUnusedLabels": true,
         "noImplicitAny": false,

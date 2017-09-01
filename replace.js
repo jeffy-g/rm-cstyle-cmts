@@ -1,5 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var RE_CRLF = /[\r\n]+/g;
+var RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g;
+var ESCAPE = "\\";
 var QuoteVistor = (function () {
     function QuoteVistor() {
     }
@@ -10,15 +13,22 @@ var QuoteVistor = (function () {
     };
     QuoteVistor.prototype.visit = function (char, source, context) {
         var index = context.offset;
-        if (source[index - 1] !== "\\") {
+        if (source[index - 1] !== ESCAPE) {
             var next = index + 1;
+            var in_escape = false;
             var ch = void 0;
-            var length_1 = source.length;
-            while (next < length_1) {
-                if (source[next] === char && source[next - 1] !== "\\") {
+            var limiter = source.length;
+            while (next < limiter) {
+                if ((ch = source[next]) === ESCAPE) {
+                    in_escape = !in_escape;
+                }
+                else if (!in_escape && ch === char) {
                     context.content += source.substring(index, ++next);
                     context.offset = next;
                     return true;
+                }
+                else {
+                    in_escape = false;
                 }
                 next++;
             }
@@ -27,8 +37,6 @@ var QuoteVistor = (function () {
     };
     return QuoteVistor;
 }());
-var RE_CRLF = /[\r\n]+/g;
-var RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g;
 var SlashVistor = (function () {
     function SlashVistor() {
     }
@@ -46,13 +54,7 @@ var SlashVistor = (function () {
             return true;
         }
         if (ch === "*") {
-            index += 2;
-            while (index < length) {
-                if (source[index] === "*" && source[index + 1] === "/") {
-                    break;
-                }
-                index++;
-            }
+            index = source.indexOf("*/", index + 2);
             context.offset = index + 2;
             return true;
         }
