@@ -35,16 +35,18 @@ var INNER = 1000;
  */
 function benchmark(rm_ws) {
     var tag = `${name}.${extension}, rm_blank_line_n_ws=${rm_ws}, loop=${INNER}`;
+    var stat = fs.statSync(`./${name}.${extension}`);
     var ret;
+    console.log("file size: ", stat.size);
     for (var a = OUTER; a--;) {
         console.time(tag);
         for (var b = INNER; b--;) {
-            ret = rmc(json, rm_ws);
+            ret = rmc(json, rm_ws, false);
         }
         console.timeEnd(tag);
     }
     fs.writeFile(`./${name}-after.${extension}`, ret, 'utf-8', function() {
-        console.log("written data...");
+        console.log(`${name}-after.${extension} written...`);
     });
 }
 

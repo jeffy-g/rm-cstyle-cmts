@@ -56,8 +56,8 @@ const RE_CRLF = /[\r\n]+/g;
  *  /\/(.*[^\\\r\n](?=\/))\/([gimuysx]*)/g
  * ```
  */
-// NOTE: regexp document -> match regexp literal@mini-ext-mode#nocapture
-const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g
+// NOTE: regexp document -> match regexp literal@mini#nocapture
+const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
 // const RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*(?!\/)/g;
 
 const ESCAPE = "\\";
@@ -129,7 +129,7 @@ class SlashVistor implements ICharVisitor {
             RE_CRLF.lastIndex = index + 2;
             m = RE_CRLF.exec(source);
             // update offset.
-            context.offset = RE_CRLF.lastIndex - m[0].length;
+            context.offset = m? RE_CRLF.lastIndex - m[0].length: index + 2;
             // context.content += m[0];
             return true;
         }
@@ -198,9 +198,10 @@ class SlashVistor implements ICharVisitor {
             //     }
             //     index++;
             // }
-            index = source.indexOf("*/", index + 2);
+            // context.offset = index;
+            const close = source.indexOf("*/", index + 2);
             // update offset.
-            context.offset = index + 2;
+            context.offset = close === -1? index + 2: close + 2;
             return true;
         }
 
@@ -234,6 +235,10 @@ export class ReplaceFrontEnd {
     constructor(private subject: string) {
         new QuoteVistor().injectTo(this.visitors);
         new SlashVistor().injectTo(this.visitors);
+    }
+    setSubject(s: string): this {
+        this.subject = s;
+        return this;
     }
     /**
      * it returns result string content.

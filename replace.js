@@ -51,12 +51,12 @@ var SlashVistor = (function () {
         if (ch === "/") {
             RE_CRLF.lastIndex = index + 2;
             m = RE_CRLF.exec(source);
-            context.offset = RE_CRLF.lastIndex - m[0].length;
+            context.offset = m ? RE_CRLF.lastIndex - m[0].length : index + 2;
             return true;
         }
         if (ch === "*") {
-            index = source.indexOf("*/", index + 2);
-            context.offset = index + 2;
+            var close_1 = source.indexOf("*/", index + 2);
+            context.offset = close_1 === -1 ? index + 2 : close_1 + 2;
             return true;
         }
         RE_REGEXP_PATTERN.lastIndex = index;
@@ -77,6 +77,10 @@ var ReplaceFrontEnd = (function () {
         new QuoteVistor().injectTo(this.visitors);
         new SlashVistor().injectTo(this.visitors);
     }
+    ReplaceFrontEnd.prototype.setSubject = function (s) {
+        this.subject = s;
+        return this;
+    };
     ReplaceFrontEnd.prototype.apply = function () {
         var context = {
             offset: 0,

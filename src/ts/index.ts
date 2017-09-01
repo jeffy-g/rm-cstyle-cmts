@@ -26,6 +26,11 @@ declare type StringReplacer = (matchBody: string, ...args: (string | number)[]) 
 const _rwq: StringReplacer = (all, bq: string, dq: string, sq: string, index: number) => {
     return (bq || dq || sq)? all: "";
 };
+
+const re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+const re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+const re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+const REPLACER = new replace.ReplaceFrontEnd("");
 /**
  * #### remove c style comments form "source" content.  
  * 
@@ -38,16 +43,19 @@ const _rwq: StringReplacer = (all, bq: string, dq: string, sq: string, index: nu
  * 
  * @param {string} source c style commented text source.
  * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
+ * @param {boolean} is_multi_t use multi process?, default is "false".
  */
-function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true): string {
+function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true, is_multi_t: boolean = false): string {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
     }
+
+    // Is nearly equal processing speed?
+    const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
     /**
      * 
      */
-    const replacer = new replace.ReplaceFrontEnd(source);
     source = replacer.apply();
     /* remove whitespaces. /^[\s]+$|[\r\n]+$|^[\r\n](?=\S)/gm */
     // NOTE: this combination does not do the intended work...
@@ -57,9 +65,9 @@ function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true
     // NOTE: these are good.
     // DONE: fix: cannot keep blank line at es6 template string.
     return rm_blank_line_n_ws? source
-        .replace(/^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq)
-        .replace(/[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq)
-        .replace(/^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
+        .replace(re_blank, _rwq)
+        .replace(re_crlf_end, _rwq)
+        .replace(re_crlf_start, _rwq): source;
 }
 
 export = removeCStyleComments;
