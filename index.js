@@ -1,10 +1,7 @@
 "use strict";
 var replace = require("./replace");
 var _rwq = function (all, bq, dq, sq, index) {
-    if (bq || dq || sq) {
-        return all;
-    }
-    return "";
+    return (bq || dq || sq) ? all : "";
 };
 /**
  * #### remove c style comments form "source" content.  

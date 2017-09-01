@@ -24,10 +24,7 @@ declare type StringReplacer = (matchBody: string, ...args: (string | number)[]) 
 
 // replace without quoted.
 const _rwq: StringReplacer = (all, bq: string, dq: string, sq: string, index: number) => {
-    if (bq || dq || sq) {
-        return all;
-    }
-    return "";
+    return (bq || dq || sq)? all: "";
 };
 /**
  * #### remove c style comments form "source" content.  

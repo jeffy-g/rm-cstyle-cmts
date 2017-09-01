@@ -56,7 +56,9 @@ const RE_CRLF = /[\r\n]+/g;
  *  /\/(.*[^\\\r\n](?=\/))\/([gimuysx]*)/g
  * ```
  */
-const RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g;
+// NOTE: regexp document -> match regexp literal@mini-ext-mode#nocapture
+const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g
+// const RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*(?!\/)/g;
 
 const ESCAPE = "\\";
 /**
@@ -121,10 +123,11 @@ class SlashVistor implements ICharVisitor {
         // limiter.
         const length = source.length;
 
+        let m: RegExpExecArray;
         // check line comment.
         if (ch === "/") {
             RE_CRLF.lastIndex = index + 2;
-            let m = RE_CRLF.exec(source);
+            m = RE_CRLF.exec(source);
             // update offset.
             context.offset = RE_CRLF.lastIndex - m[0].length;
             // context.content += m[0];
@@ -206,12 +209,13 @@ class SlashVistor implements ICharVisitor {
         //  o LF does not have to worry.
         RE_REGEXP_PATTERN.lastIndex = index;
         // only execute once, this is important!
-        const m = RE_REGEXP_PATTERN.exec(source);
-        if (m === null) {
-            throw new SyntaxError("invalid regexp literal?");
+        m = RE_REGEXP_PATTERN.exec(source);
+        if (m === null || source[m.index - 1] === "/") {
+            return false;
+            // throw new SyntaxError("invalid regexp literal?");
         }
         // update offset.
-        context.offset = index + m[0].length;
+        context.offset = RE_REGEXP_PATTERN.lastIndex;
         context.content += source.substring(index, context.offset);
 
         return true;

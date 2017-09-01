@@ -11,12 +11,12 @@ var json = fs.readFileSync(`./${name}.${extension}`, 'utf-8');
 /**
  * simple test.
  */
-function simple_test() {
+function simple_test(rm_ws) {
     console.info(" ----------- before contents ----------");
     console.log(json);
     
     // remove blank line and whitespaces.
-    var after = rmc(json, !0);
+    var after = rmc(json, rm_ws);
     console.info(" ----------- after contents -----------");
     console.log(after);
     

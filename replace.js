@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var RE_CRLF = /[\r\n]+/g;
-var RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g;
+var RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
 var ESCAPE = "\\";
 var QuoteVistor = (function () {
     function QuoteVistor() {
@@ -47,10 +47,11 @@ var SlashVistor = (function () {
         var index = context.offset;
         var ch = source[index + 1];
         var length = source.length;
+        var m;
         if (ch === "/") {
             RE_CRLF.lastIndex = index + 2;
-            var m_1 = RE_CRLF.exec(source);
-            context.offset = RE_CRLF.lastIndex - m_1[0].length;
+            m = RE_CRLF.exec(source);
+            context.offset = RE_CRLF.lastIndex - m[0].length;
             return true;
         }
         if (ch === "*") {
@@ -59,11 +60,11 @@ var SlashVistor = (function () {
             return true;
         }
         RE_REGEXP_PATTERN.lastIndex = index;
-        var m = RE_REGEXP_PATTERN.exec(source);
-        if (m === null) {
-            throw new SyntaxError("invalid regexp literal?");
+        m = RE_REGEXP_PATTERN.exec(source);
+        if (m === null || source[m.index - 1] === "/") {
+            return false;
         }
-        context.offset = index + m[0].length;
+        context.offset = RE_REGEXP_PATTERN.lastIndex;
         context.content += source.substring(index, context.offset);
         return true;
     };
