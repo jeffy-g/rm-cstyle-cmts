@@ -38,7 +38,7 @@ declare interface IRemoveCStyleCommentsTypeSig {
 // }
 // declare var module: NodeModule;
 
-const latest_version = "v1.2.4";
+const latest_version = "v1.3.0";
 /**
  * singleton instance for single process use.
  */
@@ -65,7 +65,7 @@ function setVersion(v: string): void {
             re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
             re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
             break;
-        case "v1.2.4":
+        case "v1.3.0":
             _rwq = (all, bq: string, index: number) => {
                 return bq? all: "";
             };
@@ -123,7 +123,7 @@ module.exports = removeCStyleComments;
 module.exports.setVersion = setVersion;
 module.exports.version = latest_version;
 
-// const version = "v1.2.4";
+// const version = "v1.3.0";
 // module.exports = {
 //     version,
 //     snipe: removeCStyleComments
