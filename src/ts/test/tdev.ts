@@ -21,6 +21,22 @@ limitations under the License.
 ///<reference path="../replace.ts"/>
 // test development javascript file.
 
+declare global {
+    interface String {
+        repeat(n: number): string;
+    }
+}
+if (!String.prototype.repeat) {
+    String.prototype.repeat = function(n: number): string {
+        let str = this;
+        while(n--)
+            str += str;
+
+        return str;
+    }
+}
+
+
 interface ISource {
     /** [only name] */
     name: string;
@@ -29,7 +45,6 @@ interface ISource {
     /** .extension */
     extension: string;
 }
-
 
 import * as fs from "fs";
 // 2017/9/3 0:21:58 cannot work...why?
@@ -40,6 +55,7 @@ import * as path from "path";
 const rmc = require("../");
 
 import {AverageCalculator} from "./average";
+
 
 /**
  * get arguments helper.  

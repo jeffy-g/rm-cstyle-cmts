@@ -1,21 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const RE_CRLF = /[\r\n]+/g;
-const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
-const ESCAPE = "\\";
-class QuoteVistor {
-    injectTo(registry) {
+var RE_CRLF = /[\r\n]+/g;
+var RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
+var ESCAPE = "\\";
+var QuoteVistor = (function () {
+    function QuoteVistor() {
+    }
+    QuoteVistor.prototype.injectTo = function (registry) {
         registry["'"] = this;
         registry['"'] = this;
         registry["`"] = this;
-    }
-    visit(char, source, context) {
-        let index = context.offset;
+    };
+    QuoteVistor.prototype.visit = function (char, source, context) {
+        var index = context.offset;
         if (source[index - 1] !== ESCAPE) {
-            let next = index + 1;
-            let in_escape = false;
-            let ch;
-            const limiter = source.length;
+            var next = index + 1;
+            var in_escape = false;
+            var ch = void 0;
+            var limiter = source.length;
             while (next < limiter) {
                 if ((ch = source[next]) === ESCAPE) {
                     in_escape = !in_escape;
@@ -32,20 +34,23 @@ class QuoteVistor {
             }
         }
         throw new TypeError("invalid string quotes??");
+    };
+    return QuoteVistor;
+}());
+var SlashVistor = (function () {
+    function SlashVistor() {
     }
-}
-class SlashVistor {
-    injectTo(registry) {
+    SlashVistor.prototype.injectTo = function (registry) {
         registry["/"] = this;
-    }
-    visit(char, source, context) {
-        let index = context.offset;
-        const length = source.length;
+    };
+    SlashVistor.prototype.visit = function (char, source, context) {
+        var index = context.offset;
+        var length = source.length;
         if (index + 1 >= length) {
             return false;
         }
-        let ch = source[index + 1];
-        let m;
+        var ch = source[index + 1];
+        var m;
         if (ch === "/") {
             RE_CRLF.lastIndex = index + 2;
             m = RE_CRLF.exec(source);
@@ -53,11 +58,11 @@ class SlashVistor {
             return true;
         }
         if (ch === "*") {
-            const close = source.indexOf("*/", index + 2);
-            context.offset = (close === -1 ? index : close) + 2;
+            var close_1 = source.indexOf("*/", index + 2);
+            context.offset = (close_1 === -1 ? index : close_1) + 2;
             return true;
         }
-        const re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
+        var re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
         re.lastIndex = index;
         m = re.exec(source);
         if (m === null || source[m.index - 1] === "/") {
@@ -66,29 +71,30 @@ class SlashVistor {
         context.offset = re.lastIndex;
         context.content += source.substring(index, context.offset);
         return true;
-    }
-}
-class ReplaceFrontEnd {
-    constructor(subject) {
+    };
+    return SlashVistor;
+}());
+var ReplaceFrontEnd = (function () {
+    function ReplaceFrontEnd(subject) {
         this.subject = subject;
         this.visitors = {};
         new QuoteVistor().injectTo(this.visitors);
         new SlashVistor().injectTo(this.visitors);
     }
-    setSubject(s) {
+    ReplaceFrontEnd.prototype.setSubject = function (s) {
         this.subject = s;
         return this;
-    }
-    apply() {
-        const context = {
+    };
+    ReplaceFrontEnd.prototype.apply = function () {
+        var context = {
             offset: 0,
             content: ""
         };
-        let source = this.subject;
-        let limit = source.length;
+        var source = this.subject;
+        var limit = source.length;
         while (context.offset < limit) {
-            let ch = source[context.offset];
-            let visitor = this.visitors[ch];
+            var ch = source[context.offset];
+            var visitor = this.visitors[ch];
             if (visitor && visitor.visit(ch, source, context)) {
                 ;
             }
@@ -98,6 +104,7 @@ class ReplaceFrontEnd {
             }
         }
         return context.content;
-    }
-}
+    };
+    return ReplaceFrontEnd;
+}());
 exports.ReplaceFrontEnd = ReplaceFrontEnd;
