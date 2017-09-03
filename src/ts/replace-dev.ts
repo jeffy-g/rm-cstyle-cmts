@@ -17,13 +17,6 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-
-declare global {
-    interface IStringMap<T> {
-        [key: string]: T;
-    }
-}
-
 interface IReplacementContext {
     /** content offset(read, write */
     offset: number;
@@ -45,6 +38,10 @@ interface ICharVisitor {
     /** optional use. */
     // setContext(context: IReplacementContext): void;
 }
+interface IStringMap<T> {
+    [key: string]: T;
+}
+
 
 
 /**

@@ -1,37 +1,46 @@
 "use strict";
-var replace = require("./replace");
-var _rwq = function (all, bq, dq, sq, index) {
-    return (bq || dq || sq) ? all : "";
-};
-var re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-var re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-var re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-var REPLACER = new replace.ReplaceFrontEnd("");
-/**
- * #### remove c style comments form "source" content.  
- * 
- * step 1:  
- *  - remove line comments, multi line comments.  
- *  - and search the regexp literal. if found then concat it to results.  
- * 
- * step 2:  
- *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
- * 
- * @param {string} source c style commented text source.
- * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
- * @param {boolean} is_multi_t use multi process?, default is "false".
- */
-function removeCStyleComments(source, rm_blank_line_n_ws, is_multi_t) {
-    if (rm_blank_line_n_ws === void 0) { rm_blank_line_n_ws = true; }
-    if (is_multi_t === void 0) { is_multi_t = false; }
+Object.defineProperty(exports, "__esModule", { value: true });
+const replace = require("./replace");
+const latest_version = "v1.2.4";
+const REPLACER = new replace.ReplaceFrontEnd("");
+let _rwq;
+let re_blank;
+let re_crlf_end;
+let re_crlf_start;
+function setVersion(v) {
+    switch (v) {
+        case "v1.2.3":
+            _rwq = (all, bq, dq, sq, index) => {
+                return (bq || dq || sq) ? all : "";
+            };
+            re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+            re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+            re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+            break;
+        case "v1.2.4":
+            _rwq = (all, bq, index) => {
+                return bq ? all : "";
+            };
+            re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
+            re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
+            re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)/gm;
+            break;
+    }
+    module.exports.version = v;
+}
+const removeCStyleComments = (source, rm_blank_line_n_ws = true, is_multi_t = false) => {
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
     }
-    var replacer = is_multi_t ? new replace.ReplaceFrontEnd(source) : REPLACER.setSubject(source);
+    const replacer = is_multi_t ? new replace.ReplaceFrontEnd(source) : REPLACER.setSubject(source);
     source = replacer.apply();
     return rm_blank_line_n_ws ? source
         .replace(re_blank, _rwq)
         .replace(re_crlf_end, _rwq)
         .replace(re_crlf_start, _rwq) : source;
-}
+};
+setVersion(latest_version);
 module.exports = removeCStyleComments;
+module.exports.setVersion = setVersion;
+module.exports.version = latest_version;
+//# sourceMappingURL=index.js.map

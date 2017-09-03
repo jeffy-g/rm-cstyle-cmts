@@ -21,16 +21,63 @@ import * as replace from "./replace";
 
 // for String.replace
 declare type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
+declare interface IRemoveCStyleCommentsTypeSig {
+    (a: string, b?: boolean, c?: boolean): string;
+    setVersion(v: string): void;
+    version: string;
+}
 
-// replace without quoted.
-const _rwq: StringReplacer = (all, bq: string, dq: string, sq: string, index: number) => {
-    return (bq || dq || sq)? all: "";
-};
+interface NodeModule {
+    exports: IRemoveCStyleCommentsTypeSig;
+    require: NodeRequireFunction;
+    id: string;
+    filename: string;
+    loaded: boolean;
+    parent: NodeModule | null;
+    children: NodeModule[];
+}
+declare var module: NodeModule;
 
-const re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-const re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-const re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+const latest_version = "v1.2.4";
+/**
+ * singleton instance for single process use.
+ */
 const REPLACER = new replace.ReplaceFrontEnd("");
+
+/**  */
+let _rwq: StringReplacer;
+// replace without quoted.
+let re_blank: RegExp;
+let re_crlf_end: RegExp;
+let re_crlf_start: RegExp;
+
+/**
+ * change use version.
+ * @param v specify version tag
+ */
+function setVersion(v: string): void {
+    switch(v) {
+        case "v1.2.3":
+            _rwq = (all, bq: string, dq: string, sq: string, index: number) => {
+                return (bq || dq || sq)? all: "";
+            };
+            re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+            re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+            re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+            break;
+        case "v1.2.4":
+            _rwq = (all, bq: string, index: number) => {
+                return bq? all: "";
+            };
+            re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
+            re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
+            re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)/gm;
+            break;
+    }
+    module.exports.version = v;
+}
+
+
 /**
  * #### remove c style comments form "source" content.  
  * 
@@ -45,7 +92,8 @@ const REPLACER = new replace.ReplaceFrontEnd("");
  * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
  * @param {boolean} is_multi_t use multi process?, default is "false".
  */
-function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true, is_multi_t: boolean = false): string {
+// function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true, is_multi_t: boolean = false): string {
+const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (source, rm_blank_line_n_ws = true, is_multi_t = false): string => {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
@@ -70,4 +118,14 @@ function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true
         .replace(re_crlf_start, _rwq): source;
 }
 
-export = removeCStyleComments;
+setVersion(latest_version);
+module.exports = removeCStyleComments;
+module.exports.setVersion = setVersion;
+module.exports.version = latest_version;
+
+// const version = "v1.2.4";
+// module.exports = {
+//     version,
+//     snipe: removeCStyleComments
+// };
+

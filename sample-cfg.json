@@ -7,7 +7,7 @@
     /**
  * block comment.
  */// test
-const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
+const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; // these are invalid line(for sample
 
 
 /* -- block comment.
@@ -79,4 +79,5 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
         "!./ts/*.ts",
         "!./ts/external/*.ts"
     ]
-}///**/
+/* syntax error */
+}/*/*//

@@ -1,7 +1,7 @@
 // see: http://json.schemastore.org/tsconfig
 {
     "compilerOptions": {
-        "sourceMap": false,
+        "sourceMap": true,
         // 2017/6/1 22:18:29
         "removeComments": true,
         "declaration": false,
@@ -19,7 +19,7 @@
         "listFiles": false,
         "newLine": "LF",
 
-        "target": "es5",
+        "target": "es6",
         "module": "commonjs",
 
         "noEmitHelpers": false,
@@ -27,11 +27,15 @@
         "noImplicitAny": false,
         "strictNullChecks": false,
 
+        "allowJs": true,
+        "checkJs": true,
         // NOTE: test use.
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
     "files": [
-        "./src/ts/index.ts"
+        "./src/ts/index.ts",
+        "./src/ts/test/tdev.ts",
+        "./src/ts/index-dev.ts"
     ]
 }
