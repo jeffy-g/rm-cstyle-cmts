@@ -28,7 +28,7 @@ function setVersion(v) {
     }
     module.exports.version = v;
 }
-const removeCStyleComments = (source, rm_blank_line_n_ws = true, is_multi_t = false) => {
+function removeCStyleComments(source, rm_blank_line_n_ws = true, is_multi_t = false) {
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
     }
@@ -38,7 +38,8 @@ const removeCStyleComments = (source, rm_blank_line_n_ws = true, is_multi_t = fa
         .replace(re_blank, _rwq)
         .replace(re_crlf_end, _rwq)
         .replace(re_crlf_start, _rwq) : source;
-};
+}
+;
 setVersion(latest_version);
 module.exports = removeCStyleComments;
 module.exports.setVersion = setVersion;

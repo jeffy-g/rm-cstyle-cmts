@@ -36,8 +36,9 @@ import * as fs from "fs";
 // const path = /** @type {NodeJS.path} */ require("path");
 import * as path from "path";
 
-import * as rmc from "../";
-// const rmc = require("../");
+// import * as rmc from "../";
+const rmc = require("../");
+
 import {AverageCalculator} from "./average";
 
 /**
@@ -99,6 +100,7 @@ function parseFilePath(npath: string): ISource {
  *   -f: read file path -f sample-cfg.json
  * 
  *   -l: inner loop time typeof integer
+ *   -p: read performance log from pipe
  * ```
  */
 const settings = getExtraArgs();
@@ -111,21 +113,11 @@ let extension = ".json";
 /** [only name].extension */
 let simple_name = "sample-cfg.json";
 
-// g.ts 14,618 byte
-// let basename = "src/ts/g", extension = "ts";
-
-// rr.js 29,371 byte
-// let basename = "rr", extension = "js";
-// let full_name = `${basename}.${extension}`;
-
 let OUTER = 20;
 let INNER = 1000;
 
 /** share source content */
 let source_text;
-
-/** remove blank line and more? */
-let rmove_blank_n_ws = !!settings.r
 
 /**
  * performance measurement.
@@ -147,17 +139,9 @@ function benchmark(rm_ws: boolean, output_result: boolean = false) {
     });
 }
 
-
-// read log: when -log option then
-if (settings.log) {
-    let log = fs.readFileSync(settings.log, 'utf-8');
-    console.log(log);
-    process.exit(0);
-}
-
 // from pipe: when -p option then
 // USE:
-// node test/tdev -r -f sample-cfg.json -l 300 | node test/tdev -p
+// node test/tdev -r -f sample-cfg.json | node test/tdev -p
 // node test/tdev -r -f rr.js -l 300 | node test/tdev -p
 if (settings.p) {
     process.stdin.resume();
@@ -178,7 +162,9 @@ if (settings.p) {
             AverageCalculator.average(inputs)
         );
     });
-    // process.exit(0);
+
+    console.log(`${"\u2192  ".repeat(10)} performance log started...`);
+
 } else {
     // file: when -f optiion then
     if (settings.f) {
@@ -191,6 +177,9 @@ if (settings.p) {
     if (settings.l) {
         INNER = parseInt(settings.l);
     }
+    
+    /** remove blank line and more? */
+    let rmove_blank_n_ws = !!settings.r
 
     source_text = fs.readFileSync(`${basename}${extension}`, 'utf-8');
 

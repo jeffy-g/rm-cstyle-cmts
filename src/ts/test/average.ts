@@ -63,7 +63,8 @@ export namespace AverageCalculator {
                 });
                 const min = Math.min(total_averages[0], total_averages[1]);
                 const max = Math.max(total_averages[0], total_averages[1]);
-                console.log("vs performance percentage: %f\%", min / max);
+                // 😏 -> \u1F60F cannot print javascript?
+                console.log(" -------> vs performance percentage: %s\% ------->", (min / max * 100).toFixed(6));
             }
         }
         // cache current entry tag.
