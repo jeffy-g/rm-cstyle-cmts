@@ -28,7 +28,7 @@ interface IReplacementContext {
     /** content offset(read, write */
     offset: number;
     /** replecement result */
-    content: string;
+    result: string;
 }
 interface ICharVisitor {
     /** register by self. */
@@ -95,7 +95,7 @@ class QuoteVistor implements ICharVisitor {
                     in_escape = !in_escape;
                 }
                 else if (!in_escape && ch === char) {
-                    context.content += source.substring(index, ++next);
+                    context.result += source.substring(index, ++next);
                     context.offset = next;
                     return true;
                 } else {
@@ -141,61 +141,6 @@ class SlashVistor implements ICharVisitor {
             // context.content += m[0];
             return true;
         }
-
-        /*
-        NOTE: 20 loop of 1000times.
-        
-          js file 13,912byte with remove blank line and whitespaces (at node v8.4.0
-          see: test.js#function benchmark(rm_ws)
-
-            [indexOf]
-            --------------- start benchmark ---------------
-            inner: 394.818ms
-            inner: 381.545ms
-            inner: 376.714ms
-            inner: 378.061ms
-            inner: 375.673ms
-            inner: 375.337ms
-            inner: 376.861ms
-            inner: 376.345ms
-            inner: 376.964ms
-            inner: 376.485ms
-            inner: 376.277ms
-            inner: 375.161ms
-            inner: 378.346ms
-            inner: 375.391ms
-            inner: 376.776ms
-            inner: 376.737ms
-            inner: 374.692ms
-            inner: 377.200ms
-            inner: 383.704ms
-            inner: 385.004ms
-            ---------------- end benchmark ----------------
-
-            [while]
-            --------------- start benchmark ---------------
-            inner: 402.874ms
-            inner: 391.760ms
-            inner: 389.673ms
-            inner: 387.628ms
-            inner: 388.392ms
-            inner: 387.901ms
-            inner: 390.548ms
-            inner: 388.978ms
-            inner: 386.949ms
-            inner: 386.864ms
-            inner: 386.983ms
-            inner: 388.051ms
-            inner: 387.297ms
-            inner: 388.448ms
-            inner: 388.665ms
-            inner: 386.803ms
-            inner: 386.904ms
-            inner: 387.058ms
-            inner: 385.242ms
-            inner: 386.875ms
-            ---------------- end benchmark ----------------
-        */
         // check multi line comment.
         if (ch === "*") {
             // index += 2;
@@ -227,7 +172,7 @@ class SlashVistor implements ICharVisitor {
         }
         // update offset.
         context.offset = re.lastIndex;
-        context.content += source.substring(index, context.offset);
+        context.result += source.substring(index, context.offset);
 
         return true;
     }
@@ -256,13 +201,14 @@ export class ReplaceFrontEnd {
     apply(): string {
         const context: IReplacementContext = {
             offset: 0,
-            content: ""
+            result: ""
         };
         let source = this.subject;
         let limit = source.length;
+        const registry = this.visitors;
         while (context.offset < limit) {
             let ch = source[context.offset];
-            let visitor = this.visitors[ch];
+            let visitor = registry[ch];
             if (visitor && visitor.visit(ch, source, context)) {
                 ; // do nothing
                 // quote part.
@@ -270,11 +216,11 @@ export class ReplaceFrontEnd {
                 // // single or multi line start, or regexp literal start?
                 // case "/":
             } else {
-                context.content += ch;
+                context.result += ch;
                 context.offset++;
             }
         }
 
-        return context.content;
+        return context.result;
     }
 }
