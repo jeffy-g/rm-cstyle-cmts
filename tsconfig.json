@@ -1,7 +1,7 @@
 // see: http://json.schemastore.org/tsconfig
 {
     "compilerOptions": {
-        "sourceMap": true,
+        "sourceMap": false,
         // 2017/6/1 22:18:29
         "removeComments": true,
         "declaration": false,

@@ -43,4 +43,3 @@ setVersion(latest_version);
 module.exports = removeCStyleComments;
 module.exports.setVersion = setVersion;
 module.exports.version = latest_version;
-//# sourceMappingURL=index.js.map

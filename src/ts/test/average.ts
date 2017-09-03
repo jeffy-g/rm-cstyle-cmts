@@ -35,31 +35,43 @@ export namespace AverageCalculator {
     const regex = /(?:loop=(\d+):\s(\d+\.\d+)ms)|(version:\s.+)|(--done--)/g;
     // create closure
     /**
-     * 
+     * set true to "showlog_per_entry" param if need.
+     * @param showlog_per_entry
      */
     const averageReplacer = (showlog_per_entry: boolean = false): AverageReplacer => {
+        // entry caption text.
         const explain = "average for each run";
+        // average caluclator.
         const _averager = {
             entries: {} as { [x: string]: IBenchmarkResult },
             addEntry: function(title) { !this.entries[title] && (this.entries[title] = []); },
             done: function() {
                 const keys = Object.keys(this.entries), that = this;
+                const total_averages: number[] = [];
                 keys.forEach(item => {
                     let sum = 0;
                     const size = that.entries[item].length as number;
                     (<IBenchmarkResult[]>that.entries[item]).forEach(element => sum += element.average);
+                    // add top average.
+                    total_averages.push(sum / size);
+                    // format message.
                     let msg = `${item}, total ${explain}: ${(sum / size).toFixed(6)} ms`;
                     // output average result.
                     console.log(msg);
                     // 
                     RegexpApp && RegexpApp.notifyMessage(`<span style="color: green">${msg}</span>`, 0);
                 });
+                const min = Math.min(total_averages[0], total_averages[1]);
+                const max = Math.max(total_averages[0], total_averages[1]);
+                console.log("vs performance percentage: %f\%", min / max);
             }
         }
+        // cache current entry tag.
         let current_title: string;
         if (!averager) {
             averager = _averager;
         }
+        // replacement body.
         const _rp: AverageReplacer = (all, loop, ms, title, deadline, index) => {
             if (title) {
                 current_title = title, averager.addEntry(title), console.log(`@${title}`);
@@ -76,6 +88,7 @@ export namespace AverageCalculator {
             else if (deadline) { averager.done(); }
             return all;
         }
+        // return replacer.
         return _rp;
     };
 
@@ -83,8 +96,9 @@ export namespace AverageCalculator {
      * inputs の log を regexp を使って解析し, 平均値を console に書き出します.  
      * inputs の内容は変更されません
      * @param inputs the performance log text.
+     * @param showlog_per_entry set true to "showlog_per_entry" param if need. default false
      */
-    export function average(inputs: string, showlog_per_entry: boolean = true): string {
+    export function average(inputs: string, showlog_per_entry: boolean = false): string {
         return inputs.replace(regex, averageReplacer(showlog_per_entry));
     }
 }

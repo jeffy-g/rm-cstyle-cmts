@@ -121,9 +121,12 @@ let simple_name = "sample-cfg.json";
 let OUTER = 20;
 let INNER = 1000;
 
+/** share source content */
+let source_text;
+
+/** remove blank line and more? */
 let rmove_blank_n_ws = !!settings.r
 
-let source_text = fs.readFileSync(`${basename}${extension}`, 'utf-8');
 /**
  * performance measurement.
  */
@@ -153,7 +156,9 @@ if (settings.log) {
 }
 
 // from pipe: when -p option then
-// USE: node test/tdev -r -f rr.js -l 300 | node test/tdev -p
+// USE:
+// node test/tdev -r -f sample-cfg.json -l 300 | node test/tdev -p
+// node test/tdev -r -f rr.js -l 300 | node test/tdev -p
 if (settings.p) {
     process.stdin.resume();
     process.stdin.setEncoding('utf8');
@@ -167,10 +172,11 @@ if (settings.p) {
         // inputs.split('\n').forEach(function () {
         //     // なんか処理する
         // });
-        AverageCalculator.average(inputs);
-        // console.log(
-        //     AverageCalculator.average(inputs)
-        // );
+        // AverageCalculator.average(inputs);
+        console.log(
+            `\n${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
+            AverageCalculator.average(inputs)
+        );
     });
     // process.exit(0);
 } else {
@@ -185,8 +191,11 @@ if (settings.p) {
     if (settings.l) {
         INNER = parseInt(settings.l);
     }
-    
-    console.log(process.argv);
+
+    source_text = fs.readFileSync(`${basename}${extension}`, 'utf-8');
+
+    // console.log(process.argv);
+    console.dir(settings, { color: true });
     console.log(" --------------- start benchmark ---------------");
     benchmark(rmove_blank_n_ws);
     console.log(" ---------------- end benchmark ----------------");
