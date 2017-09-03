@@ -27,16 +27,16 @@ declare interface IRemoveCStyleCommentsTypeSig {
     version: string;
 }
 
-interface NodeModule {
-    exports: IRemoveCStyleCommentsTypeSig;
-    require: NodeRequireFunction;
-    id: string;
-    filename: string;
-    loaded: boolean;
-    parent: NodeModule | null;
-    children: NodeModule[];
-}
-declare var module: NodeModule;
+// interface NodeModule {
+//     exports: IRemoveCStyleCommentsTypeSig;
+//     require: NodeRequireFunction;
+//     id: string;
+//     filename: string;
+//     loaded: boolean;
+//     parent: NodeModule | null;
+//     children: NodeModule[];
+// }
+// declare var module: NodeModule;
 
 const latest_version = "v1.2.4";
 /**
@@ -92,8 +92,8 @@ function setVersion(v: string): void {
  * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
  * @param {boolean} is_multi_t use multi process?, default is "false".
  */
-// function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true, is_multi_t: boolean = false): string {
-const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (source, rm_blank_line_n_ws = true, is_multi_t = false): string => {
+function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true, is_multi_t: boolean = false): string {
+// const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (source, rm_blank_line_n_ws = true, is_multi_t = false): string => {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
@@ -116,7 +116,7 @@ const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (source, rm_blank_lin
         .replace(re_blank, _rwq)
         .replace(re_crlf_end, _rwq)
         .replace(re_crlf_start, _rwq): source;
-}
+};
 
 setVersion(latest_version);
 module.exports = removeCStyleComments;

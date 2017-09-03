@@ -21,6 +21,22 @@ limitations under the License.
 ///<reference path="../replace.ts"/>
 // test development javascript file.
 
+declare global {
+    interface String {
+        repeat(n: number): string;
+    }
+}
+if (!String.prototype.repeat) {
+    String.prototype.repeat = function(n: number): string {
+        let str = this;
+        while(n--)
+            str += str;
+
+        return str;
+    }
+}
+
+
 interface ISource {
     /** [only name] */
     name: string;
@@ -30,15 +46,16 @@ interface ISource {
     extension: string;
 }
 
-
 import * as fs from "fs";
 // 2017/9/3 0:21:58 cannot work...why?
 // const path = /** @type {NodeJS.path} */ require("path");
 import * as path from "path";
 
-import * as rmc from "../";
-// const rmc = require("../");
+// import * as rmc from "../";
+const rmc = require("../");
+
 import {AverageCalculator} from "./average";
+
 
 /**
  * get arguments helper.  
@@ -99,6 +116,7 @@ function parseFilePath(npath: string): ISource {
  *   -f: read file path -f sample-cfg.json
  * 
  *   -l: inner loop time typeof integer
+ *   -p: read performance log from pipe
  * ```
  */
 const settings = getExtraArgs();
@@ -111,19 +129,12 @@ let extension = ".json";
 /** [only name].extension */
 let simple_name = "sample-cfg.json";
 
-// g.ts 14,618 byte
-// let basename = "src/ts/g", extension = "ts";
-
-// rr.js 29,371 byte
-// let basename = "rr", extension = "js";
-// let full_name = `${basename}.${extension}`;
-
 let OUTER = 20;
 let INNER = 1000;
 
-let rmove_blank_n_ws = !!settings.r
+/** share source content */
+let source_text;
 
-let source_text = fs.readFileSync(`${basename}${extension}`, 'utf-8');
 /**
  * performance measurement.
  */
@@ -144,16 +155,10 @@ function benchmark(rm_ws: boolean, output_result: boolean = false) {
     });
 }
 
-
-// read log: when -log option then
-if (settings.log) {
-    let log = fs.readFileSync(settings.log, 'utf-8');
-    console.log(log);
-    process.exit(0);
-}
-
 // from pipe: when -p option then
-// USE: node test/tdev -r -f rr.js -l 300 | node test/tdev -p
+// USE:
+// node test/tdev -r -f sample-cfg.json | node test/tdev -p
+// node test/tdev -r -f rr.js -l 300 | node test/tdev -p
 if (settings.p) {
     process.stdin.resume();
     process.stdin.setEncoding('utf8');
@@ -167,12 +172,15 @@ if (settings.p) {
         // inputs.split('\n').forEach(function () {
         //     // なんか処理する
         // });
-        AverageCalculator.average(inputs);
-        // console.log(
-        //     AverageCalculator.average(inputs)
-        // );
+        // AverageCalculator.average(inputs);
+        console.log(
+            `\n${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
+            AverageCalculator.average(inputs)
+        );
     });
-    // process.exit(0);
+
+    console.log(`${"\u2192  ".repeat(10)} performance log started...`);
+
 } else {
     // file: when -f optiion then
     if (settings.f) {
@@ -186,7 +194,13 @@ if (settings.p) {
         INNER = parseInt(settings.l);
     }
     
-    console.log(process.argv);
+    /** remove blank line and more? */
+    let rmove_blank_n_ws = !!settings.r
+
+    source_text = fs.readFileSync(`${basename}${extension}`, 'utf-8');
+
+    // console.log(process.argv);
+    console.dir(settings, { color: true });
     console.log(" --------------- start benchmark ---------------");
     benchmark(rmove_blank_n_ws);
     console.log(" ---------------- end benchmark ----------------");
