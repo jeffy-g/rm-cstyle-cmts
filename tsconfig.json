@@ -14,13 +14,14 @@
         //
         //"checkJs": true,
         "rootDir": "./src/ts",
-        "outDir": "./",
+        "outDir": "./bin",
 
         "listFiles": false,
         "newLine": "LF",
 
         "target": "es5",
         "module": "commonjs",
+        "moduleResolution": "node",
 
         "noEmitHelpers": false,
 
@@ -35,7 +36,6 @@
     },
     "files": [
         "./src/ts/index.ts",
-        "./src/ts/test/tdev.ts",
-        "./src/ts/index-dev.ts"
+        "./src/ts/test/index.ts"
     ]
 }

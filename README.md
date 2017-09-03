@@ -40,7 +40,7 @@ console.info(" ----------- after contents -----------");
 console.log(after);
 
 fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
-    console.log("written data...");
+    console.log("data written...");
 });
 
 ```
@@ -59,7 +59,7 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
     /**
  * block comment.
  */// test
-const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
+const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; // these are invalid line(for sample
 
 
 /* -- block comment.
@@ -131,14 +131,13 @@ const $3 = { keyCode: "$1", "key": "$5" }; // these are invalid line(for sample
         "!./ts/*.ts",
         "!./ts/external/*.ts"
     ]
-}
-
-
+/* syntax error */
+}/*/*//
 ```
 #### after
 > sample-cfg.json-after.json
 ```json
-const $3 = { keyCode: "$1", "key": "$5" }; 
+const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; 
 {
     "compilerOptions": {
         "sourceMap": false,
@@ -180,34 +179,77 @@ const $3 = { keyCode: "$1", "key": "$5" };
         "!./ts/*.ts",
         "!./ts/external/*.ts"
     ]
-}
+}/
 ```
 ## performance
 
-> sample-cfg.json 2,165byte with remove blank line and whitespaces (at node v8.4.0, intel core i5-2500k 3.3ghz
+> sample-cfg.json 2,205byte,  
+> with remove blank line and whitespaces and without (at node v8.4.0, intel core i5-2500k 3.3ghz
+
 ```c
->node test
+> node ./bin/test/ -r -f sample-cfg.json | node ./bin/test/ -p
+
+→ → → → → → → → performance log started...
+order => version: v1.3.0, case sample-cfg.json, size: 2205 bytes, keep more blank line: false
+order => version: v1.3.0, case sample-cfg.json, size: 2205 bytes, keep more blank line: true
+
+→ → → → → → → → performance ratio: 64.087021%
+[version: v1.3.0, case sample-cfg.json, size: 2205 bytes, keep more blank line: false] {
+    set average: 49.093350 ms, total average for each run: 0.049093 ms
+}
+[version: v1.3.0, case sample-cfg.json, size: 2205 bytes, keep more blank line: true] {
+    set average: 76.604200 ms, total average for each run: 0.076604 ms
+}
+
+
+↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓
+ { r: true, f: 'sample-cfg.json' }
  --------------- start benchmark ---------------
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 89.167ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 81.415ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 79.385ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 79.447ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.779ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.467ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.578ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.042ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.780ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.861ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.118ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.990ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.727ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.647ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.646ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.009ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.069ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 78.024ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 79.603ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.917ms
+version: v1.3.0, case sample-cfg.json, size: 2205 bytes, keep more blank line: false
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 58.110ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 49.934ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.575ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 49.267ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 49.113ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.702ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 49.742ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.790ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.328ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.159ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.360ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.158ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.494ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.465ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.454ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.430ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.276ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.173ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.216ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 48.121ms
  ---------------- end benchmark ----------------
-written data...
+ --------------- start benchmark ---------------
+version: v1.3.0, case sample-cfg.json, size: 2205 bytes, keep more blank line: true
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.460ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.674ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 77.197ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.446ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.933ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.418ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.391ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.471ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.462ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.438ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.410ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.410ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.360ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.383ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.397ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.373ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.467ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.833ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.987ms
+sample-cfg.json, rm_blank_line_n_ws=true, loop=1000: 76.574ms
+ ---------------- end benchmark ----------------
+--done--
+sample-cfg-after.json written...
 ```

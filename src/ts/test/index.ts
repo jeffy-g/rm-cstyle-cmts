@@ -17,9 +17,9 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-//<reference path="../../../node_modules/@types/node/index.d.ts"/>
+// test development javascript.
+
 ///<reference path="../replace.ts"/>
-// test development javascript file.
 
 declare global {
     interface String {
@@ -28,9 +28,9 @@ declare global {
 }
 if (!String.prototype.repeat) {
     String.prototype.repeat = function(n: number): string {
-        let str = this;
+        let str = "";
         while(n--)
-            str += str;
+            str += this;
 
         return str;
     }
@@ -47,15 +47,21 @@ interface ISource {
 }
 
 import * as fs from "fs";
-// 2017/9/3 0:21:58 cannot work...why?
-// const path = /** @type {NodeJS.path} */ require("path");
 import * as path from "path";
 
+// NOTE: not necessary in this implementation. 
 // import * as rmc from "../";
-const rmc = require("../");
 
-import {AverageCalculator} from "./average";
+// NOTE: reference to module.exports["default"]
+// although the main function works, other functions do not work...
+// import rmc from "../";
 
+// NOTE: can work this.
+// -> return value of require is any
+const rmc: IRemoveCStyleCommentsTypeSig = require("../");
+
+// import { ContractorPattern } from "./contractor";
+import * as ContractorPattern from "./contractor";
 
 /**
  * get arguments helper.  
@@ -97,10 +103,14 @@ path.parse('/home/user/dir/file.txt');
 */
 /**
  * 
- * @param npath 
+ * @param file_path 
  */
-function parseFilePath(npath: string): ISource {
-    let parsed_p = path.parse(npath);
+// full_path  : F:\local-links\javascript\node-projects\projects\remove-cstyle-comments\sample-cfg.json
+// basename   : sample-cfg.json
+// simple_name: sample-cfg
+// extension  : .json
+function parseFilePath(file_path: string): ISource {
+    let parsed_p = path.parse(file_path);
     return {
         name: path.resolve(parsed_p.dir, parsed_p.name),
         simple_name: parsed_p.base,
@@ -115,7 +125,7 @@ function parseFilePath(npath: string): ISource {
  *   -r: remove blank line and whitespaces.(boolean)
  *   -f: read file path -f sample-cfg.json
  * 
- *   -l: inner loop time typeof integer
+ *   -l: inner loop counter value, typeof integer
  *   -p: read performance log from pipe
  * ```
  */
@@ -137,12 +147,14 @@ let source_text;
 
 /**
  * performance measurement.
+ * @param rm_ws remove blank line and whitespaces.
+ * @param output_result 
  */
-function benchmark(rm_ws: boolean, output_result: boolean = false) {
+function benchmark(rm_ws: boolean, output_result: boolean = false): void {
     const tag = `${simple_name}, rm_blank_line_n_ws=${rm_ws}, loop=${INNER}`;
     const stat = fs.statSync(`${basename}${extension}`);
     let ret;
-    console.log(`version: %s, case ${simple_name}, size: %d bytes`, rmc.version, stat.size);
+    console.log(`version: ${rmc.version}, case ${simple_name}, size: ${stat.size} bytes, keep more blank line: ${rmc.isKeep}`);
     for (let a = OUTER; a--;) {
         console.time(tag);
         for (let b = INNER; b--;) {
@@ -151,7 +163,7 @@ function benchmark(rm_ws: boolean, output_result: boolean = false) {
         console.timeEnd(tag);
     }
     output_result && fs.writeFile(`${basename}-after${extension}`, ret, 'utf-8', function() {
-        console.log(`${basename}-after${extension} written...`);
+        console.log(`${path.basename(`${basename}${extension}`, extension)}-after${extension} written...`);
     });
 }
 
@@ -160,28 +172,26 @@ function benchmark(rm_ws: boolean, output_result: boolean = false) {
 // node test/tdev -r -f sample-cfg.json | node test/tdev -p
 // node test/tdev -r -f rr.js -l 300 | node test/tdev -p
 if (settings.p) {
+
     process.stdin.resume();
     process.stdin.setEncoding('utf8');
 
     let inputs = "";
     process.stdin.on('data', function (chunk: string) {
-        // 入力されてきた文字列をひたすら連結
         inputs += chunk;
     });
     process.stdin.on('end', function () {
-        // inputs.split('\n').forEach(function () {
-        //     // なんか処理する
-        // });
-        // AverageCalculator.average(inputs);
         console.log(
             `\n${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
-            AverageCalculator.average(inputs)
+            ContractorPattern.average(inputs, !!0)
         );
     });
-
-    console.log(`${"\u2192  ".repeat(10)} performance log started...`);
+    // ✈: \u2708
+    console.log("");
+    console.log(`${"\u2708  ".repeat(8)}performance log started...`);
 
 } else {
+
     // file: when -f optiion then
     if (settings.f) {
         let c = parseFilePath(settings.f);
@@ -196,34 +206,19 @@ if (settings.p) {
     
     /** remove blank line and more? */
     let rmove_blank_n_ws = !!settings.r
-
     source_text = fs.readFileSync(`${basename}${extension}`, 'utf-8');
 
     // console.log(process.argv);
     console.dir(settings, { color: true });
     console.log(" --------------- start benchmark ---------------");
-    benchmark(rmove_blank_n_ws);
-    console.log(" ---------------- end benchmark ----------------");
-    
-    rmc.setVersion("v1.2.3");
-    console.log(" --------------- start benchmark ---------------");
     benchmark(rmove_blank_n_ws, !0);
     console.log(" ---------------- end benchmark ----------------");
+ 
+    // version 1.2.3
+    rmc.keepMoreBlankLine(true);
+    console.log(" --------------- start benchmark ---------------");
+    benchmark(rmove_blank_n_ws);
+    console.log(" ---------------- end benchmark ----------------");
     console.log("--done--");
-    
-    /*
-    const NS_PER_SEC = 1e9;
-    const time = process.hrtime();
-    console.log("time=", time);
-    // [ 1800216, 25 ]
-    
-    setTimeout(() => {
-      const diff = process.hrtime(time);
-      console.log("diff=", diff);
-      // [ 1, 552 ]
-      console.log(`Benchmark took ${diff[0] * NS_PER_SEC + diff[1]} nanoseconds`);
-      // benchmark took 1000000552 nanoseconds
-    }, 1000);
-     */
 }
 

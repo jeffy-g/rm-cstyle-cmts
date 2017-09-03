@@ -19,81 +19,103 @@ limitations under the License.
 */
 import * as replace from "./replace";
 
-// for String.replace
-declare type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
-declare interface IRemoveCStyleCommentsTypeSig {
-    (a: string, b?: boolean, c?: boolean): string;
-    setVersion(v: string): void;
-    version: string;
+declare global {
+    /**
+     * remove c style comments interface.
+     */
+    interface IRemoveCStyleCommentsTypeSig {
+        /**
+         * #### remove c style comments form "source" content.  
+         * 
+         * step 1:  
+         *  - remove line comments, multi line comments.  
+         *  - and search the regexp literal. if found then concat it to results.  
+         * 
+         * step 2:  
+         *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
+         * 
+         * @param {string} source c style commented text source.
+         * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
+         * @param {boolean} is_multi_t use multi process?, default is "false".
+         */
+        (source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
+        /**
+         * maintain blank lines in double quotes and single quotes. (if need
+         */
+        keepMoreBlankLine?(is: boolean): void;
+
+        /**
+         * current keepMoreBlankLine state.
+         */
+        readonly isKeep?: boolean;
+
+        version?: string;
+    }
+    // for String.replace
+    type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
 }
 
-// interface NodeModule {
-//     exports: IRemoveCStyleCommentsTypeSig;
-//     require: NodeRequireFunction;
-//     id: string;
-//     filename: string;
-//     loaded: boolean;
-//     parent: NodeModule | null;
-//     children: NodeModule[];
-// }
-// declare var module: NodeModule;
 
+/** TODO: edit jsdoc */
 const latest_version = "v1.3.0";
 /**
- * singleton instance for single process use.
+ * singleton instance for synchronous use.
  */
 const REPLACER = new replace.ReplaceFrontEnd("");
 
-/**  */
+/** TODO: edit jsdoc */
 let _rwq: StringReplacer;
+
 // replace without quoted.
+/** TODO: edit jsdoc */
 let re_blank: RegExp;
+/** TODO: edit jsdoc */
 let re_crlf_end: RegExp;
+/** TODO: edit jsdoc */
 let re_crlf_start: RegExp;
 
 /**
- * change use version.
- * @param v specify version tag
+ * maintain blank lines in double quotes and single quotes. (if need
+ * @param is ...
  */
-function setVersion(v: string): void {
-    switch(v) {
-        case "v1.2.3":
-            _rwq = (all, bq: string, dq: string, sq: string, index: number) => {
-                return (bq || dq || sq)? all: "";
-            };
-            re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-            re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-            re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-            break;
-        case "v1.3.0":
-            _rwq = (all, bq: string, index: number) => {
-                return bq? all: "";
-            };
-            re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
-            re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
-            re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)/gm;
-            break;
+function keepMoreBlankLine(is: boolean): void {
+    if (is) {
+        // case "v1.2.3":
+        // _rwq = (all, bq: string, dq: string, sq: string, index: number) => {
+        //     return (bq || dq || sq)? all: "";
+        // };
+        // re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+        // re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+        // re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
+
+        // ["\r", "\n", "'", `"`, "`", " "].map(v => v.charCodeAt(0).toString(2));
+        _rwq = (all, index: number) => {
+            const q = all[0];
+            return (q === "`" || q === `"` || q === `'`)? all: "";
+        };
+        re_blank = /^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'/gm;
+        re_crlf_end = /[\r\n]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'/gm;
+        re_crlf_start = /^[\r\n]|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'/gm;
+    } else {
+        // case "v1.3.0":
+        // _rwq = (all, bq: string, index: number) => {
+        //     return bq? all: "";
+        // };
+        // re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
+        // re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
+        // re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)/gm;
+        _rwq = (all, index: number) => {
+            return all[0] === "`"? all: "";
+        };
+        re_blank = /^[\s]+$|`(?:\\[\s\S]|[^`])*`/gm;
+        re_crlf_end = /[\r\n]+$|`(?:\\[\s\S]|[^`])*`/gm;
+        re_crlf_start = /^[\r\n]|`(?:\\[\s\S]|[^`])*`/gm;
     }
-    module.exports.version = v;
+    module.exports.isKeep = is;
 }
 
 
-/**
- * #### remove c style comments form "source" content.  
- * 
- * step 1:  
- *  - remove line comments, multi line comments.  
- *  - and search the regexp literal. if found then concat it to results.  
- * 
- * step 2:  
- *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
- * 
- * @param {string} source c style commented text source.
- * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
- * @param {boolean} is_multi_t use multi process?, default is "false".
- */
-function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true, is_multi_t: boolean = false): string {
-// const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (source, rm_blank_line_n_ws = true, is_multi_t = false): string => {
+const removeCStyleComments: IRemoveCStyleCommentsTypeSig = function(source, rm_blank_line_n_ws = true, is_multi_t = false): string {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
@@ -118,14 +140,26 @@ function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true
         .replace(re_crlf_start, _rwq): source;
 };
 
-setVersion(latest_version);
+
+// NOTE: export default
+// removeCStyleComments.version = latest_version;
+// removeCStyleComments.keepMoreBlankLine = keepMoreBlankLine;
+// export default removeCStyleComments;
+
+// interface NodeModule {
+//     exports: IRemoveCStyleCommentsTypeSig;
+//     require: NodeRequireFunction;
+//     id: string;
+//     filename: string;
+//     loaded: boolean;
+//     parent: NodeModule | null;
+//     children: NodeModule[];
+// }
+// declare var module: NodeModule;
 module.exports = removeCStyleComments;
-module.exports.setVersion = setVersion;
 module.exports.version = latest_version;
+module.exports.keepMoreBlankLine = keepMoreBlankLine;
+module.exports.isKeep = false;
 
-// const version = "v1.3.0";
-// module.exports = {
-//     version,
-//     snipe: removeCStyleComments
-// };
-
+// default: maintain blank line in back quote.
+keepMoreBlankLine(module.exports.isKeep);
