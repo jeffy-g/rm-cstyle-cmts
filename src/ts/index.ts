@@ -49,7 +49,8 @@ declare global {
          */
         readonly isKeep?: boolean;
 
-        version?: string;
+        /** package version */
+        readonly version?: string;
     }
     // for String.replace
     type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
@@ -74,6 +75,8 @@ let re_crlf_end: RegExp;
 /** TODO: edit jsdoc */
 let re_crlf_start: RegExp;
 
+/** state of "keep more blank line" */
+let is_keep = false;
 /**
  * maintain blank lines in double quotes and single quotes. (if need
  * @param is ...
@@ -111,9 +114,8 @@ function keepMoreBlankLine(is: boolean): void {
         re_crlf_end = /[\r\n]+$|`(?:\\[\s\S]|[^`])*`/gm;
         re_crlf_start = /^[\r\n]|`(?:\\[\s\S]|[^`])*`/gm;
     }
-    module.exports.isKeep = is;
+    is_keep = is;
 }
-
 
 const removeCStyleComments: IRemoveCStyleCommentsTypeSig = function(source, rm_blank_line_n_ws = true, is_multi_t = false): string {
 
@@ -140,6 +142,31 @@ const removeCStyleComments: IRemoveCStyleCommentsTypeSig = function(source, rm_b
         .replace(re_crlf_start, _rwq): source;
 };
 
+// create readonly property "isKeep"
+Object.defineProperty(
+    removeCStyleComments, "isKeep", {
+        get: function () { return is_keep; },
+        enumerable: true,
+        configurable: false
+    }
+);
+// create readonly property "version"
+Object.defineProperty(
+    removeCStyleComments, "version", {
+        get: function () { return latest_version; },
+        enumerable: true,
+        configurable: false
+    }
+);
+// create readonly property "isKeep"
+Object.defineProperty(
+    removeCStyleComments, "keepMoreBlankLine", {
+        enumerable: true,
+        configurable: false,
+        value: keepMoreBlankLine
+    }
+);
+
 
 // NOTE: export default
 // removeCStyleComments.version = latest_version;
@@ -157,9 +184,9 @@ const removeCStyleComments: IRemoveCStyleCommentsTypeSig = function(source, rm_b
 // }
 // declare var module: NodeModule;
 module.exports = removeCStyleComments;
-module.exports.version = latest_version;
-module.exports.keepMoreBlankLine = keepMoreBlankLine;
-module.exports.isKeep = false;
+// module.exports.version = latest_version;
+// module.exports.keepMoreBlankLine = keepMoreBlankLine;
+// module.exports.isKeep = false;
 
 // default: maintain blank line in back quote.
-keepMoreBlankLine(module.exports.isKeep);
+keepMoreBlankLine(false);
