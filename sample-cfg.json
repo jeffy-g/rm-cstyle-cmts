@@ -4,11 +4,19 @@
  */
 // coments line.!!-+*
 
-    /**
+/**
  * block comment.
- */// test
+ */ // test
 const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; // these are invalid line(for sample
 
+const classes = `header ${ isLargeScreen() && item.isCollapsed ?
+    'icon-expander' : 'icon-collapser' }`;
+
+const classes = `header ${(
+    isLargeScreen() && `icon-${
+        item.isCollapsed ? 'expander' : 'collapser'
+    }`)
+}`;
 
 /* -- block comment.
  */ // see: http://json.schemastore.org/tsconfig
@@ -31,8 +39,10 @@ const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; // these are invalid
         "pretty": true,
         //
         //"checkJs": true,   /* */
-        "rootDir": "/[\r\n]+/",            /**/
-        "outDir": "./js/[\r\n]+/**/\\",     /* after line comment!!!!! */
+        "rootDir": "/[\r\n]+/",
+        /**/
+        "outDir": "./js/[\r\n]+/**/\\",
+        /* after line comment!!!!! */
 
         // this is bad syntax.
         "listFiles": `
@@ -75,9 +85,10 @@ const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; // these are invalid
     },
     "include": ["ts"],
     "exclude": [
-        "ts/external",
-        "!./ts/*.ts",
-        "!./ts/external/*.ts"
-    ]
-/* syntax error */
-}/*/*//
+            "ts/external",
+            "!./ts/*.ts",
+            "!./ts/external/*.ts"
+        ]
+        /* syntax error */
+} /*/*/
+/

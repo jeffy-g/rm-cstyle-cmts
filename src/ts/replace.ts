@@ -107,7 +107,7 @@ class QuoteVistor implements ICharVisitor {
         throw new TypeError("invalid string quotes??");
     }
 }
-
+   
 /**
  * ```
  *   case "/":

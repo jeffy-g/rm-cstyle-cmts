@@ -26,14 +26,12 @@ for /f "usebackq delims=" %a in (`%CMD%`) do set NODE_PATH=%a
 echo %NODE_PATH%
 */
 
-// TODO: 2017/8/21 0:39:12 rewrite as typescript
 // ------------------------------- need imports ----------------------------------
 const fs = require('fs');
 const util = require('util');
 
-const del = require('del'); // global install
+const del = require('del');   // global install
 const gulp = require('gulp'); // global install
-
 
 
 // ------------------------------- constant variables ----------------------------------

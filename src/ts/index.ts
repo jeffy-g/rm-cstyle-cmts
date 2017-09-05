@@ -60,7 +60,7 @@ declare global {
 }
 
 /**  */
-// const pkg = JSON.parse(
+// const pkg = JSON.parse(     
 //     fs.readFileSync("./package.json", 'utf-8')
 // );
 /** TODO: edit jsdoc */

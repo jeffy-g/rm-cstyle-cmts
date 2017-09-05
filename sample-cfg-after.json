@@ -1,4 +1,11 @@
 const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; 
+const classes = `header ${ isLargeScreen() && item.isCollapsed ?
+    'icon-expander' : 'icon-collapser' }`;
+const classes = `header ${(
+    isLargeScreen() && `icon-${
+        item.isCollapsed ? 'expander' : 'collapser'
+    }`)
+}`;
 {
     "compilerOptions": {
         "sourceMap": false,
@@ -9,8 +16,8 @@ const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" };
         ",
         "diagnostics": false,
         "pretty": true,
-        "rootDir": "/[\r\n]+/",            
-        "outDir": "./js/[\r\n]+/**/\\",     
+        "rootDir": "/[\r\n]+/",
+        "outDir": "./js/[\r\n]+/**/\\",
         "listFiles": `
             somethins*
     \\
@@ -36,8 +43,9 @@ const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" };
     },
     "include": ["ts"],
     "exclude": [
-        "ts/external",
-        "!./ts/*.ts",
-        "!./ts/external/*.ts"
-    ]
-}/
+            "ts/external",
+            "!./ts/*.ts",
+            "!./ts/external/*.ts"
+        ]
+} 
+/
