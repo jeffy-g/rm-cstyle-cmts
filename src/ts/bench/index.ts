@@ -46,7 +46,7 @@ import * as path from "path";
 
 // NOTE: can work this.
 // -> return value of require is any
-const rmc: IRemoveCStyleCommentsTypeSig = require("rm-cstyle-cmts");
+const rmc: IRemoveCStyleCommentsTypeSig = require("../");
 
 // import { ContractorPattern } from "./contractor";
 import * as ContractorPattern from "./contractor";
