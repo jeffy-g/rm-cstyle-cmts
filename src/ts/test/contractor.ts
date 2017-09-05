@@ -17,7 +17,6 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-///<reference path="../replace.ts"/>
 
 // for String.replace
 declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: string, deadline: string, index: number) => string;
@@ -74,7 +73,7 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
                 lapr.push(average_sum / size);
                 // format message.
                 msg += `[${tag}] {
-    set average: ${(tspent_sum / size).toFixed(6)} ms, total ${explain}: ${(average_sum / size).toFixed(6)} ms
+    average of entries: ${(tspent_sum / size).toFixed(6)} ms, total ${explain}: ${(average_sum / size).toFixed(6)} ms
 }\n`;
             });
 
