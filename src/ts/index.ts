@@ -160,14 +160,14 @@ module.exports = Object.defineProperties(
             .replace(re_crlf_start, _rwq): source;
     }, {
         // create readonly property "isKeep"
-        "isKeep": {
-            get: function () { return is_keep; },
+        isKeep: {
+            get: (): boolean => is_keep,
             enumerable: true,
             configurable: false,
         },
         // create readonly property "version"
-        "version": {
-            get: function () { return latest_version; },
+        version: {
+            get: (): string => latest_version,
             enumerable: true,
             configurable: false,
         },
