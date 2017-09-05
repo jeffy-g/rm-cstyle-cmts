@@ -78,7 +78,7 @@ let re_crlf_start: RegExp;
 /** state of "keep more blank line" */
 let is_keep = false;
 /**
- * maintain blank lines in double quotes and single quotes. (if need
+ * maintain blank lines in ["] or [']. (if need
  * @param is ...
  */
 function keepMoreBlankLine(is: boolean): void {
@@ -117,62 +117,6 @@ function keepMoreBlankLine(is: boolean): void {
     is_keep = is;
 }
 
-const removeCStyleComments: IRemoveCStyleCommentsTypeSig = function(source, rm_blank_line_n_ws = true, is_multi_t = false): string {
-
-    if (typeof source !== "string") {
-        throw new TypeError("invalid text content!");
-    }
-
-    // Is nearly equal processing speed?
-    const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-    /**
-     * 
-     */
-    source = replacer.apply();
-    /* remove whitespaces. /^[\s]+$|[\r\n]+$|^[\r\n](?=\S)/gm */
-    // NOTE: this combination does not do the intended work...
-    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
-    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
-
-    // NOTE: these are good.
-    // DONE: fix: cannot keep blank line at es6 template string.
-    return rm_blank_line_n_ws? source
-        .replace(re_blank, _rwq)
-        .replace(re_crlf_end, _rwq)
-        .replace(re_crlf_start, _rwq): source;
-};
-
-// create readonly property "isKeep"
-Object.defineProperty(
-    removeCStyleComments, "isKeep", {
-        get: function () { return is_keep; },
-        enumerable: true,
-        configurable: false
-    }
-);
-// create readonly property "version"
-Object.defineProperty(
-    removeCStyleComments, "version", {
-        get: function () { return latest_version; },
-        enumerable: true,
-        configurable: false
-    }
-);
-// create readonly property "isKeep"
-Object.defineProperty(
-    removeCStyleComments, "keepMoreBlankLine", {
-        enumerable: true,
-        configurable: false,
-        value: keepMoreBlankLine
-    }
-);
-
-
-// NOTE: export default
-// removeCStyleComments.version = latest_version;
-// removeCStyleComments.keepMoreBlankLine = keepMoreBlankLine;
-// export default removeCStyleComments;
-
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;
 //     require: NodeRequireFunction;
@@ -183,10 +127,62 @@ Object.defineProperty(
 //     children: NodeModule[];
 // }
 // declare var module: NodeModule;
-module.exports = removeCStyleComments;
+
+module.exports = Object.defineProperties(
+    (source, rm_blank_line_n_ws = true, is_multi_t = false): string => {
+
+        if (typeof source !== "string") {
+            throw new TypeError("invalid text content!");
+        }
+
+        // Is nearly equal processing speed?
+        const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
+        /**
+         * 
+         */
+        source = replacer.apply();
+        /* remove whitespaces. /^[\s]+$|[\r\n]+$|^[\r\n](?=\S)/gm */
+        // NOTE: this combination does not do the intended work...
+        // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
+        // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
+
+        // NOTE: these are good.
+        // DONE: fix: cannot keep blank line at es6 template string.
+        return rm_blank_line_n_ws? source
+            .replace(re_blank, _rwq)
+            .replace(re_crlf_end, _rwq)
+            .replace(re_crlf_start, _rwq): source;
+    }, {
+        // create readonly property "isKeep"
+        "isKeep": {
+            get: function () { return is_keep; },
+            enumerable: true,
+            configurable: false,
+        },
+        // create readonly property "version"
+        "version": {
+            get: function () { return latest_version; },
+            enumerable: true,
+            configurable: false,
+        },
+        "keepMoreBlankLine": {
+            enumerable: true,
+            configurable: false,
+            writable: false,
+            value: keepMoreBlankLine
+        }
+    }
+) as IRemoveCStyleCommentsTypeSig;
+
+// default: maintain blank line in back quote.
+keepMoreBlankLine(false);
+
+// module.exports = removeCStyleComments;
 // module.exports.version = latest_version;
 // module.exports.keepMoreBlankLine = keepMoreBlankLine;
 // module.exports.isKeep = false;
 
-// default: maintain blank line in back quote.
-keepMoreBlankLine(false);
+// NOTE: export default
+// removeCStyleComments.version = latest_version;
+// removeCStyleComments.keepMoreBlankLine = keepMoreBlankLine;
+// export default removeCStyleComments;
