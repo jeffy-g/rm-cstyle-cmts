@@ -53,7 +53,6 @@ const JS_FILEs_PATTERN = `${JS_DEST_DIR}/**/*.js`;
  * @param {File?} vinyl 
  * @param {string} dest 
  */
-// 2017/8/13 20:56:56
 function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/gulpjs/vinyl
     let x = vinyl.cwd.length + 1;
     let relative_dir = vinyl.base.substring(x);
