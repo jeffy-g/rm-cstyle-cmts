@@ -32,6 +32,7 @@ const util = require('util');
 
 const del = require('del');   // global install
 const gulp = require('gulp'); // global install
+const tsc = require('gulp-typescript');  // global install
 
 
 // ------------------------------- constant variables ----------------------------------
@@ -74,9 +75,28 @@ ${paths.join('\n')}
 });
 
 /**
+ * task "tsc"
+ */
+gulp.task('tsc', ["clean"], function(cb) {
+    // const compiler = tsc.createProject('tsconfig.json');
+    // gulp.src(TS_FILEs_PATTERN)
+    // .pipe(compiler()())
+    // .pipe(
+    //     gulp.dest(JS_DEST_DIR)
+    // ).on("end", function() {
+    //     cb();
+    // });
+    const compiler = tsc.createProject('tsconfig.json');
+    // cannot took dependent source.
+    // const result = compiler.src().pipe(compiler());
+    const result = gulp.src(TS_FILEs_PATTERN).pipe(compiler());
+    return result.js.pipe(gulp.dest(JS_DEST_DIR));
+});
+
+/**
  * task "dist"
  */
-gulp.task('dist', function(cb) {
+gulp.task('dist', ["tsc"], function(cb) {
     gulp.src([
         "package.json", "sample-cfg.json", "sample-cfg-after.json", "readme.md",
         JS_FILEs_PATTERN

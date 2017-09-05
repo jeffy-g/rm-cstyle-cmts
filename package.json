@@ -6,7 +6,8 @@
     "scripts": {
         "test": "node ./bin/bench/ -r -f sample-cfg.json -l 1500 | node ./bin/bench/ -p",
         "build": "tsc",
-        "dist": "gulp clean && tsc && gulp dist"
+        "dist": "gulp dist",
+        "publish": "npm publish ./dist"
     },
     "repository": {
         "type": "git",
@@ -28,6 +29,10 @@
     "author": "jeffy-g",
     "license": "Apache-2.0",
     "devDependencies": {
-        "@types/node": "^8.0.26"
+        "@types/node": "^8.0.26",
+        "del": "^3.0.0",
+        "gulp": "^3.9.1",
+        "gulp-typescript": "^3.2.2",
+        "typescript": "^2.5.2"
     }
 }
