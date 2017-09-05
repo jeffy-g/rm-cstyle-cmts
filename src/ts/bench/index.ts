@@ -160,7 +160,7 @@ function benchmark(rm_ws: boolean, output_result: boolean = false): void {
     const tag = `${src.simple_name}, rm_blank_line_n_ws=${rm_ws}, loop=${INNER}`;
     const stat = fs.statSync(src.full_path);
     let ret;
-    console.log(`version: ${rmc.version}, case ${src.simple_name}, size: ${stat.size} bytes, keep more blank line: ${rmc.isKeep}`);
+    console.log(`version: ${rmc.version}, {case ${src.simple_name}, size: ${stat.size} bytes}, keep more blank line: ${rmc.isKeep}`);
     for (let a = OUTER; a--;) {
         console.time(tag);
         for (let b = INNER; b--;) {
@@ -219,7 +219,7 @@ if (settings.p) {
     benchmark(rmove_blank_n_ws, !0);
     console.log(" ---------------- end benchmark ----------------");
  
-    // version 1.2.3
+    // version 1.3.1
     rmc.keepMoreBlankLine(true);
     console.log(" --------------- start benchmark ---------------");
     benchmark(rmove_blank_n_ws);

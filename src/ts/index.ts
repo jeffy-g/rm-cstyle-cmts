@@ -17,6 +17,9 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+import * as fs from "fs";
+import * as path from "path";
+
 import * as replace from "./replace";
 
 declare global {
@@ -56,9 +59,12 @@ declare global {
     type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
 }
 
-
+/**  */
+// const pkg = JSON.parse(
+//     fs.readFileSync("./package.json", 'utf-8')
+// );
 /** TODO: edit jsdoc */
-const latest_version = "v1.3.0";
+const latest_version = "v1.3.3"; //pkg.version;
 /**
  * singleton instance for synchronous use.
  */
