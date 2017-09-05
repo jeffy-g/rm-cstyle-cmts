@@ -32,11 +32,11 @@ const classes = `header ${(
         invalid quote string?
         ",
         // statistics
-        "diagnostics": false,
+        "diagnostics": '',
         //"inlineSourceMap": true,
         //"inlineSources": true,
         // Stylize errors and messages using color and context (experimental).
-        "pretty": true,
+        "pretty": ``,
         //
         //"checkJs": true,   /* */
         "rootDir": "/[\r\n]+/",
@@ -51,7 +51,7 @@ const classes = `header ${(
  ---
 
         `,
-        "newLine": "LF",
+        "newLine": /LF/m,
         // "experimentalDecorators": true,
         // "emitDecoratorMetadata": false,
         "target": "es6",
@@ -85,10 +85,9 @@ const classes = `header ${(
     },
     "include": ["ts"],
     "exclude": [
-            "ts/external",
-            "!./ts/*.ts",
-            "!./ts/external/*.ts"
-        ]
-        /* syntax error */
-} /*/*/
-/
+        "ts/external",
+        "!./ts/*.ts",
+        "!./ts/external/*.ts"
+    ]
+/* syntax error */
+}/*/*//

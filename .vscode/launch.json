@@ -8,12 +8,12 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/test/tdev.js",
+            "program": "${workspaceRoot}/bin/bench/index.js",
             "args": [
-                
+                "-f", "es6.js"
             ],
             "outFiles": [
-                "${workspaceRoot}/*.js"
+                "${workspaceRoot}/bin/*.js"
             ]
         }
     ]

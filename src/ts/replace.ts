@@ -95,6 +95,9 @@ class QuoteVistor implements ICharVisitor {
                     in_escape = !in_escape;
                 }
                 else if (!in_escape && ch === char) {
+                    // const str = source.substring(index, ++next);
+                    // console.log(`--[${str}]--`);
+                    // context.result += str;
                     context.result += source.substring(index, ++next);
                     context.offset = next;
                     return true;
@@ -104,7 +107,7 @@ class QuoteVistor implements ICharVisitor {
                 next++;
             }
         }
-        throw new TypeError("invalid string quotes??");
+        throw new TypeError("invalid string quotes??, offset=" + source.substring(context.offset));
     }
 }
 
@@ -137,8 +140,9 @@ class SlashVistor implements ICharVisitor {
             RE_CRLF.lastIndex = index + 2;
             m = RE_CRLF.exec(source);
             // update offset. when new line character not found(eof) then...
-            context.offset = m? RE_CRLF.lastIndex - m[0].length: length;
-            // context.content += m[0];
+            context.offset = m? RE_CRLF.lastIndex: length;
+            // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
+            m && (context.result += m[0]);
             return true;
         }
         // check multi line comment.
@@ -159,19 +163,23 @@ class SlashVistor implements ICharVisitor {
         }
 
         // check regexp literal
+        RE_CRLF.lastIndex = index + 1;
+        m = RE_CRLF.exec(source);
+        // const x = m? m.index: length;
+        // NOTE: It was necessary to extract the character strings of the remaining lines...
+        const remaining = source.substring(index, m? m.index: length);
+
         // NOTE:
         //  o LF does not have to worry.
         // RE_REGEXP_PATTERN
         const re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
-        re.lastIndex = index;
         // only execute once, this is important!
-        m = re.exec(source);
-        if (m === null || source[m.index - 1] === "/") {
+        m = re.exec(remaining);
+        if (m === null || remaining[m.index - 1] === "/") {
             return false;
-            // throw new SyntaxError("invalid regexp literal?");
         }
         // update offset.
-        context.offset = re.lastIndex;
+        context.offset = index + re.lastIndex;
         context.result += source.substring(index, context.offset);
 
         return true;

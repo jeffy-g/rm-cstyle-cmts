@@ -133,7 +133,6 @@ function parseFilePath(file_path: string): ISourcePath {
 /**
  * ```
  * options:
- *   -r: remove blank line and whitespaces.(boolean)
  *   -f: read file path -f sample-cfg.json
  * 
  *   -l: inner loop counter value, typeof integer
@@ -145,22 +144,24 @@ const settings = getExtraArgs();
 let OUTER = 20;
 let INNER = 1000;
 
-// sample-cfg.josn 2,208 byte
-let src: ISourcePath = parseFilePath("sample-cfg.json");
+// test source
+let src: ISourcePath;
 
 /** share source content */
 let source_text;
 
+// let emit_result = 0;
 /**
  * performance measurement.
  * @param rm_ws remove blank line and whitespaces.
  * @param output_result 
  */
-function benchmark(rm_ws: boolean, output_result: boolean = false): void {
+function benchmark(rm_ws: boolean, output_result: boolean = true): void {
     const tag = `${src.simple_name}, rm_blank_line_n_ws=${rm_ws}, loop=${INNER}`;
     const stat = fs.statSync(src.full_path);
+
     let ret;
-    console.log(`version: ${rmc.version}, {case ${src.simple_name}, size: ${stat.size} bytes}, keep more blank line: ${rmc.isKeep}`);
+    console.log(`version: ${rmc.version}, {case ${src.simple_name}, size: ${stat.size} bytes}, remove_blanks=${rm_ws}`);
     for (let a = OUTER; a--;) {
         console.time(tag);
         for (let b = INNER; b--;) {
@@ -168,62 +169,73 @@ function benchmark(rm_ws: boolean, output_result: boolean = false): void {
         }
         console.timeEnd(tag);
     }
-    let after_path = src.addSuffix("-after");
-    output_result && fs.writeFile(after_path, ret, 'utf-8', function() {
-        console.log(`${path.basename(after_path, src.ext)} written...`);
-    });
+
+    if (output_result) {
+        let after_path = src.addSuffix("-rm_ws-" + rm_ws);
+        fs.writeFile(after_path, ret, 'utf-8', function() {
+            console.log(`${path.basename(after_path)} written...`);
+        });
+    }
 }
 
-// from pipe: when -p option then
+// from pipe or log file: when -p option then
 // USE:
-// node test/tdev -r -f sample-cfg.json | node test/tdev -p
-// yarn test/tdev -r -f sample-cfg.json | yarn test/tdev -p
-// node test/tdev -r -f rr.js -l 300 | node test/tdev -p
+// node ./bin/bench/ -f sample-cfg.json -l 1500 | node ./bin/bench/ -p
 if (settings.p) {
 
-    process.stdin.resume();
-    process.stdin.setEncoding('utf8');
-
-    let inputs = "";
-    process.stdin.on('data', function (chunk: string) {
-        inputs += chunk;
-    });
-    process.stdin.on('end', function () {
+    const emitResult = (): void => {
         console.log(
             `\n${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
             ContractorPattern.average(inputs, !!0)
         );
-    });
-    // ✈: \u2708
-    console.log("");
-    console.log(`${"\u2708  ".repeat(8)}performance log started...`);
+    }
+    let inputs = "";
+
+    // from pipe.
+    if (typeof settings.p === "boolean") {
+        process.stdin.resume();
+        process.stdin.setEncoding('utf8');
+        process.stdin.on('data', function (chunk: string) {
+            inputs += chunk;
+        });
+        process.stdin.on('end', function () {
+            emitResult();
+        });
+        // ✈: \u2708
+        console.log("");
+        console.log(`${"\u2708  ".repeat(8)}performance log started...`);
+    // from log file.
+    } else if (typeof settings.p === "string" && fs.existsSync(settings.p)) {
+        inputs = fs.readFileSync(settings.p, 'utf-8');
+        emitResult();
+    }
 
 } else {
 
     // file: when -f optiion then
-    if (settings.f) {
-        src = parseFilePath(settings.f);
-    }
+    src = parseFilePath(
+        typeof settings.f === "string"? settings.f: "sample-cfg.json"
+    );
+
     // loop: when -l option then
     if (settings.l) {
         INNER = parseInt(settings.l);
     }
-    
-    /** remove blank line and more? */
-    let rmove_blank_n_ws = !!settings.r
+
     source_text = fs.readFileSync(src.full_path, 'utf-8');
 
-    // console.log(process.argv);
+    // @deprecated since v1.3.8
+    // rmc.keepMoreBlankLine(true);
     console.dir(settings, { color: true });
-    console.log(" --------------- start benchmark ---------------");
-    benchmark(rmove_blank_n_ws, !0);
-    console.log(" ---------------- end benchmark ----------------");
+    console.log(" --------------- start benchmark (!remove blanks) ---------------");
+    benchmark(false);
+    console.log(" ------------------------ end benchmark ------------------------");
  
-    // version 1.3.1
-    rmc.keepMoreBlankLine(true);
-    console.log(" --------------- start benchmark ---------------");
-    benchmark(rmove_blank_n_ws);
-    console.log(" ---------------- end benchmark ----------------");
+    // @deprecated since v1.3.8
+    // rmc.keepMoreBlankLine(false);
+    console.log(" --------------- start benchmark (remove blanks) ---------------");
+    benchmark(true);
+    console.log(" ------------------------ end benchmark ------------------------");
     console.log("--done--");
 }
 

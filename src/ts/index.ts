@@ -44,11 +44,13 @@ declare global {
         (source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
         /**
          * maintain blank lines in double quotes and single quotes. (if need
+         * @deprecated since v1.3.8
          */
         keepMoreBlankLine?(is: boolean): void;
 
         /**
          * current keepMoreBlankLine state.
+         * @deprecated since v1.3.8
          */
         readonly isKeep?: boolean;
 
@@ -64,64 +66,62 @@ declare global {
 //     fs.readFileSync("./package.json", 'utf-8')
 // );
 /** TODO: edit jsdoc */
-const latest_version = "v1.3.6"; //pkg.version;
+const latest_version = "v1.3.8"; //pkg.version;
 /**
  * singleton instance for synchronous use.
  */
 const REPLACER = new replace.ReplaceFrontEnd("");
 
-/** TODO: edit jsdoc */
-let _rwq: StringReplacer;
-
-// replace without quoted.
-/** TODO: edit jsdoc */
-let re_blank: RegExp;
-/** TODO: edit jsdoc */
-let re_crlf_end: RegExp;
-/** TODO: edit jsdoc */
-let re_crlf_start: RegExp;
-
-/** state of "keep more blank line" */
-let is_keep = false;
+/**
+ * state of "keep more blank line"
+ * @deprecated since v1.3.8
+ */
+let is_keep = true;
 /**
  * maintain blank lines in ["] or [']. (if need
  * @param is ...
+ * @deprecated since v1.3.8
  */
 function keepMoreBlankLine(is: boolean): void {
-    if (is) {
-        // case "v1.2.3":
-        // _rwq = (all, bq: string, dq: string, sq: string, index: number) => {
-        //     return (bq || dq || sq)? all: "";
-        // };
-        // re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-        // re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-        // re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm;
-
-        // ["\r", "\n", "'", `"`, "`", " "].map(v => v.charCodeAt(0).toString(2));
-        _rwq = (all, index: number) => {
-            const q = all[0];
-            return (q === "`" || q === `"` || q === `'`)? all: "";
-        };
-        re_blank = /^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'/gm;
-        re_crlf_end = /[\r\n]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'/gm;
-        re_crlf_start = /^[\r\n]|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'/gm;
-    } else {
-        // case "v1.3.0":
-        // _rwq = (all, bq: string, index: number) => {
-        //     return bq? all: "";
-        // };
-        // re_blank = /^[\s]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
-        // re_crlf_end = /[\r\n]+$|(`(?:\\[\s\S]|[^`])*`)/gm;
-        // re_crlf_start = /^[\r\n]|(`(?:\\[\s\S]|[^`])*`)/gm;
-        _rwq = (all, index: number) => {
-            return all[0] === "`"? all: "";
-        };
-        re_blank = /^[\s]+$|`(?:\\[\s\S]|[^`])*`/gm;
-        re_crlf_end = /[\r\n]+$|`(?:\\[\s\S]|[^`])*`/gm;
-        re_crlf_start = /^[\r\n]|`(?:\\[\s\S]|[^`])*`/gm;
-    }
     is_keep = is;
 }
+
+// /**  */
+// let _rwq: StringReplacer;
+
+// replace without quoted.
+/**
+ * `regex summary:`
+ * 
+ * - capture version:
+ * 
+ * ```
+ * ^([\s]+[\r\n]+)|       # headspaces@capture
+ * ([\s]+[\r\n]+)|        # spaces@capture
+ * ^([\s]+)$|             # spaces2@capture
+ * `(?:\\[\s\S]|[^`])*`|  # back quote
+ * "(?:\\[\s\S]|[^"])*"|  # double quote
+ * '(?:\\[\s\S]|[^'])*'|  # single quote
+ * \/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/]) # regex
+ * ```
+ * 
+ * - none capture version:
+ * 
+ * ```
+ * ^[\s]+[\r\n]+|       # headspaces
+ * ([\s]+[\r\n]+)|      # spaces@capture
+ * ^[\s]+$|             # spaces2
+ * `(?:\\[\s\S]|[^`])*`|  # back quote
+ * "(?:\\[\s\S]|[^"])*"|  # double quote
+ * '(?:\\[\s\S]|[^'])*'|  # single quote
+ * \/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/]) # regex
+ * 
+ *```
+ */
+const re_blank: RegExp =
+// /^([\s]+[\r\n]+)|([\s]+[\r\n]+)|^([\s]+)$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/gm;
+/^[\s]+[\r\n]+|([\s]+[\r\n]+)|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/gm;
+
 
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;
@@ -135,7 +135,7 @@ function keepMoreBlankLine(is: boolean): void {
 // declare var module: NodeModule;
 
 module.exports = Object.defineProperties(
-    (source, rm_blank_line_n_ws = true, is_multi_t = false): string => {
+    (source: string, rm_blank_line_n_ws = true, is_multi_t = false): string => {
 
         if (typeof source !== "string") {
             throw new TypeError("invalid text content!");
@@ -143,23 +143,39 @@ module.exports = Object.defineProperties(
 
         // Is nearly equal processing speed?
         const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-        /**
-         * 
-         */
         source = replacer.apply();
-        /* remove whitespaces. /^[\s]+$|[\r\n]+$|^[\r\n](?=\S)/gm */
+
         // NOTE: this combination does not do the intended work...
         // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
         // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
 
-        // NOTE: these are good.
-        // DONE: fix: cannot keep blank line at es6 template string.
-        return rm_blank_line_n_ws? source
-            .replace(re_blank, _rwq)
-            .replace(re_crlf_end, _rwq)
-            .replace(re_crlf_start, _rwq): source;
+        /* remove whitespaces.*/
+        if (rm_blank_line_n_ws) {
+            let NEW_LINE: string;
+            // specify new line character.
+            const m = /[\r\n]{1,2}/.exec(source);
+            if (m !== null) {
+                const crlf = m[0];
+                NEW_LINE = /\r\n/.test(crlf)? "\r\n": crlf[0];
+            } else NEW_LINE =  "";
+
+            return source.replace(
+                // BUG: 2017/9/6 20:23:40 #cannot beyond regex and cannot remove last new line char.
+                // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
+                re_blank,
+                (all, spaces: string, index: number, inputs: string) => {
+                    if (spaces) {
+                        return NEW_LINE;
+                        // return index === inputs.length - NEW_LINE.length? "": NEW_LINE;
+                    }
+                    const first = all[0];
+                    return (first === "`" || first === '"' || first === "'" || first === "/")? all: "";
+                });
+        }
+        return source;
     }, {
         // create readonly property "isKeep"
+        // NOTE: v.1.3.8 currently ignore this property value.
         isKeep: {
             get: (): boolean => is_keep,
             enumerable: true,
@@ -181,7 +197,8 @@ module.exports = Object.defineProperties(
 ) as IRemoveCStyleCommentsTypeSig;
 
 // default: maintain blank line in back quote.
-keepMoreBlankLine(false);
+// NOTE: v.1.3.8 currently ignore this function.
+// keepMoreBlankLine(true);
 
 // module.exports = removeCStyleComments;
 // module.exports.version = latest_version;

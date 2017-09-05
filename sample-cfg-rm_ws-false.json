@@ -1,33 +1,61 @@
+
+
+
+
+ 
 const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; 
+
 const classes = `header ${ isLargeScreen() && item.isCollapsed ?
     'icon-expander' : 'icon-collapser' }`;
+
 const classes = `header ${(
     isLargeScreen() && `icon-${
         item.isCollapsed ? 'expander' : 'collapser'
     }`)
 }`;
+
+ 
 {
     "compilerOptions": {
         "sourceMap": false,
+        
         "removeComments": true, 
+
         "declaration": true,
+        
         "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
         invalid quote string?
         ",
-        "diagnostics": false,
-        "pretty": true,
+        
+        "diagnostics": '',
+        
+        
+        
+        "pretty": ``,
+        
+        
         "rootDir": "/[\r\n]+/",
+        
         "outDir": "./js/[\r\n]+/**/\\",
+        
+
+        
         "listFiles": `
             somethins*
     \\
  ---
 
         `,
-        "newLine": "LF",
+        "newLine": /LF/m,
+        
+        
         "target": "es6",
+        
         "module": "", 
+
+        
         "noEmitHelpers": false,
+
         "typeRoots": [
             "tools",
             "node_modules/@types\\/"
@@ -35,17 +63,26 @@ const classes = `header ${(
         "types": [
             "jquery", "chrome", "\resource\\"
         ],
+        
+        
+        
+
+        
         "allowUnusedLabels": true,
+        
+        
         "noImplicitAny": false,
         "strictNullChecks": false,
+
+        
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
     "include": ["ts"],
     "exclude": [
-            "ts/external",
-            "!./ts/*.ts",
-            "!./ts/external/*.ts"
-        ]
-} 
-/
+        "ts/external",
+        "!./ts/*.ts",
+        "!./ts/external/*.ts"
+    ]
+
+}/
