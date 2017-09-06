@@ -228,13 +228,13 @@ if (settings.p) {
     // rmc.keepMoreBlankLine(true);
     console.dir(settings, { color: true });
     console.log(" --------------- start benchmark (!remove blanks) ---------------");
-    benchmark(false);
+    benchmark(!0);
     console.log(" ------------------------ end benchmark ------------------------");
  
     // @deprecated since v1.3.8
     // rmc.keepMoreBlankLine(false);
     console.log(" --------------- start benchmark (remove blanks) ---------------");
-    benchmark(true);
+    benchmark(!!0);
     console.log(" ------------------------ end benchmark ------------------------");
     console.log("--done--");
 }

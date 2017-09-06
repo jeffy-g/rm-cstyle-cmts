@@ -17,19 +17,23 @@ remove c style comments from text file(javascript source, json file etc...
  * 
  * @param {string} source c style commented text source.
  * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
+ * @param {boolean} is_multi_t use multi process?, default is "false".
  */
-declare function removeCStyleComments(source: string, rm_blank_line_n_ws: boolean = true): string;
+declare function removeCStyleComments(source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
 ```
+
+## BUGS
+
+* [ ] `BUG:` #cannot keep blank line at nested es6 template string, `rm_blank_line_n_ws` flag is `true`. (at src/ts/index.ts
+* [ ] `BUG:` #cannot remove last new line char. (at src/ts/index.ts
+* [X] ~~*`FIXED:`? #cannot beyond regex. (at src/ts/index.ts*~~
+
 
 ## usage
 
 ```js
 var rmc = require("rm-cstyle-cmts");
 var fs = require("fs");
-
-// default: maintain blank line in back quote.
-// maintain blank lines in ["] or [']. (if need
-//rmc.keepMoreBlankLine(true);
 
 var name = "sample-cfg";
 var extension = "json";
@@ -39,7 +43,7 @@ console.info(" ----------- before contents ----------");
 console.log(json);
 
 // remove blank line and whitespaces.
-var after = rmc(json, !0);
+var after = rmc(json/*, true*/);
 console.info(" ----------- after contents -----------");
 console.log(after);
 
@@ -52,277 +56,296 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 ## then
 
 #### before
-> sample-cfg.json.json
-```json
+> samples/es6.js
+```javascript
 
+     
+     ;
+  
 /**
- * block comment.
- */
+* block comment.
+*/
+;
+
 // coments line.!!-+*
 
-    /**
- * block comment.
- */// test
-const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; // these are invalid line(for sample
+/**
+* block comment.
+*/// test
+const $3 = { keyCode: $1, key: "$5\"this is\
+test" };
 
+const gm = 234;
+  ; ;; ;
 
-/* -- block comment.
- */ // see: http://json.schemastore.org/tsconfig
-{
-    "compilerOptions": {
-        "sourceMap": false,
-        // 2017/6/1 22:18:29
-        "removeComments": true, // after line comment!!!!!
+var i = 100 / 10 * 123.555/gm; // comment line
 
-        "declaration": true,
-        // 2017/5/18 20:53:47
-        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
-        invalid quote string?
-        ",
-        // statistics
-        "diagnostics": false,
-        //"inlineSourceMap": true,
-        //"inlineSources": true,
-        // Stylize errors and messages using color and context (experimental).
-        "pretty": true,
-        //
-        //"checkJs": true,   /* */
-        "rootDir": "/[\r\n]+/",            /**/
-        "outDir": "./js/[\r\n]+/**/\\",     /* after line comment!!!!! */
+var HTMLIZE_TEXT = {
+  title: `/anything/g`,
+  description: '--- nothing ---',
+  qre: "/(<button)\\s+([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*(>.*<\\/button>)/g.toString()",
+  re: /(<button)\s+([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*(>.*<\/button>)/g.toString(),
 
-        // this is bad syntax.
-        "listFiles": `
-            somethins*
-    \\
- ---
+  ere: `(^:[\\w ]+:\$)|           (?#heading text)
+(^[\\w ]+)(\\[[\\w\\+]+\\])| (?#text item)
+(?:([\\-]+)(\\[ X \\]))    (?#emulate close button)`,
+  
+  flags: "",
+  test_text: `:Key Binding:${ 234 }}
+}
+about                   [alt+A]
 
-        `,
-        "newLine": "LF",
-        // "experimentalDecorators": true,
-        // "emitDecoratorMetadata": false,
-        "target": "es6",
-        // NOTE: amd or umd, commonjs?
-        "module": "", // for webpack
+:On comment:\`\  \"\`\"\\
 
-        // do not genarate custom helper functions.
-        "noEmitHelpers": false,
+------------------------------[ X ]`,
+  test_textQ: ":Key Binding:\
+\
+about                   [alt+A]\
+\
+:On comment:\`\  \"\`\"\
+\
+------------------------------[ X ]",
 
-        "typeRoots": [
-            "tools",
-            "node_modules/@types\\/"
-        ],
-        "types": [
-            "jquery", "chrome", "\resource\\"
-        ],
-        // "lib": [
-        //     "es2015.promise", "es6", "esnext", "dom"
-        // ],
+     ok: "",
+      
+  test_textS: ':Key Binding:\
+\
+about                   [alt+A]\
+\
+:On comment:\`\ \' \"\`\"\
+\
+------------------------------[ X ]',
+  timestamp: 1499535241972
+};
+         
 
-        // https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#unused-labels
-        "allowUnusedLabels": true,
-        // 暗黙のany型の宣言をエラー
-        // 厳密に型を決めたいとき、anyのものは全てエラーとする
-        "noImplicitAny": false,
-        "strictNullChecks": false,
+let name = "apple";           
+// comment line.       
+const templete = `function ${name}() {
+   // comment line.
+   var some = ${
+       // comment line...
+       `12.5 / 50 * 100,
 
-        // NOTE: test use.
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
-    },
-    "include": ["ts"],
-    "exclude": [
-        "ts/external",
-        "!./ts/*.ts",
-        "!./ts/external/*.ts"
-    ]
-/* syntax error */
-}/*/*//
+       // might be a very important comment line.
+       things = "${name}",
+       obj={}`
+
+   };
+   /**
+    * multi line comment...
+    */
+   return true;
+}
+`;     
+
+;
+  
+
 ```
 #### after
-> sample-cfg.json-after.json
-```json
-const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; 
-{
-    "compilerOptions": {
-        "sourceMap": false,
-        "removeComments": true, 
-        "declaration": true,
-        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
-        invalid quote string?
-        ",
-        "diagnostics": false,
-        "pretty": true,
-        "rootDir": "/[\r\n]+/",            
-        "outDir": "./js/[\r\n]+/**/\\",     
-        "listFiles": `
-            somethins*
-    \\
- ---
+> samples/es6-rm_ws-true.js
+```javascript
+     ;
+;
+const $3 = { keyCode: $1, key: "$5\"this is\
+test" };
+const gm = 234;
+  ; ;; ;
+var i = 100 / 10 * 123.555/gm;
+var HTMLIZE_TEXT = {
+  title: `/anything/g`,
+  description: '--- nothing ---',
+  qre: "/(<button)\\s+([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*(>.*<\\/button>)/g.toString()",
+  re: /(<button)\s+([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*(>.*<\/button>)/g.toString(),
+  ere: `(^:[\\w ]+:\$)|           (?#heading text)
+(^[\\w ]+)(\\[[\\w\\+]+\\])| (?#text item)
+(?:([\\-]+)(\\[ X \\]))    (?#emulate close button)`,
+  flags: "",
+  test_text: `:Key Binding:${ 234 }}
+}
+about                   [alt+A]
 
-        `,
-        "newLine": "LF",
-        "target": "es6",
-        "module": "", 
-        "noEmitHelpers": false,
-        "typeRoots": [
-            "tools",
-            "node_modules/@types\\/"
-        ],
-        "types": [
-            "jquery", "chrome", "\resource\\"
-        ],
-        "allowUnusedLabels": true,
-        "noImplicitAny": false,
-        "strictNullChecks": false,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
-    },
-    "include": ["ts"],
-    "exclude": [
-        "ts/external",
-        "!./ts/*.ts",
-        "!./ts/external/*.ts"
-    ]
-}/
+:On comment:\`\  \"\`\"\\
+
+------------------------------[ X ]`,
+  test_textQ: ":Key Binding:\
+\
+about                   [alt+A]\
+\
+:On comment:\`\  \"\`\"\
+\
+------------------------------[ X ]",
+     ok: "",
+  test_textS: ':Key Binding:\
+\
+about                   [alt+A]\
+\
+:On comment:\`\ \' \"\`\"\
+\
+------------------------------[ X ]',
+  timestamp: 1499535241972
+};
+let name = "apple";
+const templete = `function ${name}() {
+   // comment line.
+   var some = ${
+       // comment line...
+       `12.5 / 50 * 100,
+       // might be a very important comment line.
+       things = "${name}",
+       obj={}`
+
+   };
+   /**
+    * multi line comment...
+    */
+   return true;
+}
+`;
+;
+
 ```
 ## performance
 
-> sample-cfg.json 2,205byte,  
+> es6.js 1,801 bytes,  
 > with remove blank line and whitespaces and without (at node v8.4.0, intel core i5-2500k 3.3ghz
 
 ```c
-$ node ./bin/bench/ -r -f sample-cfg.json -l 1500 | node ./bin/bench/ -p
+>node ./bin/bench/ -f samples/es6.js | node ./bin/bench/ -p
 
 ✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
-✔ order => version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: false
-✔ order => version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: true
+✔ order => version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=true
+✔ order => version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=false
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 76.902373%
-[version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: false] {
-    average of entries: 68.615950 ms, total average for each run: 0.045744 ms
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 59.092508%
+[version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=true] {
+    average of entries: 41.224600 ms, total average for each run: 0.041225 ms
 }
-[version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: true] {
-    average of entries: 89.224750 ms, total average for each run: 0.059483 ms
+[version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=false] {
+    average of entries: 24.360650 ms, total average for each run: 0.024361 ms
 }
 
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓
- { r: true, f: 'sample-cfg.json', l: '1500' }
- --------------- start benchmark ---------------
-version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: false
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 79.918ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 70.445ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 69.042ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 70.311ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 68.437ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.763ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.370ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 68.045ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.568ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.439ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 68.161ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.608ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.374ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.544ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.305ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.502ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 68.316ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.494ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.353ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 67.324ms
- ---------------- end benchmark ----------------
- --------------- start benchmark ---------------
-version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: true
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 88.206ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.300ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.306ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.296ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.670ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.334ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.675ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.736ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.517ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.474ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.553ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 90.718ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 95.405ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 97.654ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 97.508ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 89.184ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.942ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 88.062ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.668ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 87.287ms
- ---------------- end benchmark ----------------
+ { f: 'samples/es6.js' }
+ --------------- start benchmark (!remove blanks) ---------------
+version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=true
+es6.js, rm_blank_line_n_ws=true, loop=1000: 53.287ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 41.491ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 42.262ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 41.700ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 41.233ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 41.830ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.376ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.610ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.073ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.069ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.612ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.131ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.028ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.238ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.304ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.379ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 40.328ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 39.921ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 39.826ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 39.794ms
+ ------------------------ end benchmark ------------------------
+ --------------- start benchmark (remove blanks) ---------------
+version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=false
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.443ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.365ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.444ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.296ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.308ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.352ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.349ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.358ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.364ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.350ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.314ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.301ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.305ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.317ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.625ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.329ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.369ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.334ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.344ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 24.346ms
+ ------------------------ end benchmark ------------------------
 --done--
-sample-cfg-after written...
+es6-rm_ws-true.js written...
+es6-rm_ws-false.js written...
 ```
 
 > at node v5.12.0
 ```c
-$ node ./bin/bench/ -r -f sample-cfg.json -l 1500 | node ./bin/bench/ -p
+>node ./bin/bench/ -f samples/es6.js | node ./bin/bench/ -p
 
 ✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
-✔ order => version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: false
-✔ order => version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: true
+✔ order => version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=true
+✔ order => version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=false
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 89.075212%
-[version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: false] {
-    average of entries: 177.636950 ms, total average for each run: 0.118425 ms
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 70.551297%
+[version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=true] {
+    average of entries: 82.043850 ms, total average for each run: 0.082044 ms
 }
-[version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: true] {
-    average of entries: 199.423550 ms, total average for each run: 0.132949 ms
+[version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=false] {
+    average of entries: 57.883000 ms, total average for each run: 0.057883 ms
 }
 
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓
- { r: true, f: 'sample-cfg.json', l: '1500' }
- --------------- start benchmark ---------------
-version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: false
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 183.543ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 185.989ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 178.288ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.932ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 177.789ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.483ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.571ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.510ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.442ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 177.047ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 177.122ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.518ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.571ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.377ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.286ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 177.523ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 177.042ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.892ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.307ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 176.507ms
- ---------------- end benchmark ----------------
- --------------- start benchmark ---------------
-version: v1.3.3, {case sample-cfg.json, size: 2205 bytes}, keep more blank line: true
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 198.167ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 199.294ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.906ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.640ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.721ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 212.840ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 216.608ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.596ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.824ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.656ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.737ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 198.912ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.602ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 196.763ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.106ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 198.021ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.148ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.294ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 197.778ms
-sample-cfg.json, rm_blank_line_n_ws=true, loop=1500: 196.858ms
- ---------------- end benchmark ----------------
+ { f: 'samples/es6.js' }
+ --------------- start benchmark (!remove blanks) ---------------
+version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=true
+es6.js, rm_blank_line_n_ws=true, loop=1000: 90.197ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 82.381ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 82.811ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 83.426ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.212ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.110ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.324ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.930ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.302ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 82.244ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.560ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.192ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.288ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.684ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.207ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.291ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.052ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.326ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.196ms
+es6.js, rm_blank_line_n_ws=true, loop=1000: 81.144ms
+ ------------------------ end benchmark ------------------------
+ --------------- start benchmark (remove blanks) ---------------
+version: v1.4.0, {case es6.js, size: 1801 bytes}, remove_blanks=false
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.890ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.612ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 58.090ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.868ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.503ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.245ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.574ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.215ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.192ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.228ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.221ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.323ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.198ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.222ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.190ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.216ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.205ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 57.311ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 60.103ms
+es6.js, rm_blank_line_n_ws=false, loop=1000: 64.254ms
+ ------------------------ end benchmark ------------------------
 --done--
-sample-cfg-after written...
+es6-rm_ws-true.js written...
+es6-rm_ws-false.js written...
 ```

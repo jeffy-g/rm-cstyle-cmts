@@ -67,6 +67,7 @@ declare global {
 // );
 /** TODO: edit jsdoc */
 const latest_version = "v1.4.0"; //pkg.version;
+
 /**
  * singleton instance for synchronous use.
  */
@@ -77,17 +78,6 @@ const REPLACER = new replace.ReplaceFrontEnd("");
  * @deprecated since v1.3.8
  */
 let is_keep = true;
-/**
- * maintain blank lines in ["] or [']. (if need
- * @param is ...
- * @deprecated since v1.3.8
- */
-function keepMoreBlankLine(is: boolean): void {
-    is_keep = is;
-}
-
-// /**  */
-// let _rwq: StringReplacer;
 
 // replace without quoted.
 /**
@@ -119,7 +109,6 @@ function keepMoreBlankLine(is: boolean): void {
  *```
  */
 const re_blank: RegExp =
-// /^([\s]+[\r\n]+)|([\s]+[\r\n]+)|^([\s]+)$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/gm;
 /^[\s]+[\r\n]+|([\s]+[\r\n]+)|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/gm;
 
 
@@ -191,7 +180,9 @@ module.exports = Object.defineProperties(
             enumerable: true,
             configurable: false,
             writable: false,
-            value: keepMoreBlankLine
+            value: (is: boolean): void => {
+                is_keep = is;
+            }
         }
     }
 ) as IRemoveCStyleCommentsTypeSig;

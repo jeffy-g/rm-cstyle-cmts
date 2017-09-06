@@ -97,7 +97,7 @@ gulp.task('tsc', ["clean"], function(cb) {
  */
 gulp.task('dist', ["tsc"], function(cb) {
     gulp.src([
-        "package.json", "sample-cfg.json", "sample-cfg-after.json", "readme.md",
+        "package.json", "sample-cfg.json", "sample-cfg-after.json", "readme.md", "samples/*",
         JS_FILEs_PATTERN
     ]).pipe(gulp.dest(function(vinyl) {
         return convertRelativeDir(vinyl, DISTRIBUTION_DIR);

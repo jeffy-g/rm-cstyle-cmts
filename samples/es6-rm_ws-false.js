@@ -1,11 +1,9 @@
 
      
      ;
-     
-
+  
 
 ;
-
 
 
 
@@ -16,13 +14,11 @@ test" };
 const gm = 234;
   ; ;; ;
 
-
 var i = 100 / 10 * 123.555/gm; 
 
 var HTMLIZE_TEXT = {
   title: `/anything/g`,
   description: '--- nothing ---',
-  uid: "_uid_BgtGUK7L",
   qre: "/(<button)\\s+([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*(>.*<\\/button>)/g.toString()",
   re: /(<button)\s+([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*(>.*<\/button>)/g.toString(),
 
@@ -33,22 +29,16 @@ var HTMLIZE_TEXT = {
   flags: "",
   test_text: `:Key Binding:${ 234 }}
 }
-about this tool            [alt+A]
+about                   [alt+A]
 
-open settings              [alt+C]
-open shortcut tip          [alt+H]
-
-:On texteditor:\`\  \"\`\"\\
+:On comment:\`\  \"\`\"\\
 
 ------------------------------[ X ]`,
   test_textQ: ":Key Binding:\
 \
-about this tool            [alt+A]\
+about                   [alt+A]\
 \
-open settings              [alt+C]\
-open shortcut tip          [alt+H]\
-\
-:On texteditor:\`\  \"\`\"\
+:On comment:\`\  \"\`\"\
 \
 ------------------------------[ X ]",
 
@@ -56,20 +46,14 @@ open shortcut tip          [alt+H]\
       
   test_textS: ':Key Binding:\
 \
-about this tool            [alt+A]\
+about                   [alt+A]\
 \
-open settings              [alt+C]\
-open shortcut tip          [alt+H]\
-\
-:On texteditor:\`\ \' \"\`\"\
+:On comment:\`\ \' \"\`\"\
 \
 ------------------------------[ X ]',
   timestamp: 1499535241972
 };
-
-                   
-
-    
+         
 
 let name = "apple";           
 
@@ -91,9 +75,5 @@ const templete = `function ${name}() {
 }
 `;     
 
-
 ;
-
-
-
   
