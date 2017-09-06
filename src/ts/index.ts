@@ -42,20 +42,9 @@ declare global {
          * @param {boolean} is_multi_t use multi process?, default is "false".
          */
         (source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
-        /**
-         * maintain blank lines in double quotes and single quotes. (if need
-         * @deprecated since v1.3.8
-         */
-        keepMoreBlankLine?(is: boolean): void;
-
-        /**
-         * current keepMoreBlankLine state.
-         * @deprecated since v1.3.8
-         */
-        readonly isKeep?: boolean;
 
         /** package version */
-        readonly version?: string;
+        readonly version: string;
     }
     // for String.replace
     type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
@@ -66,7 +55,7 @@ declare global {
 //     fs.readFileSync("./package.json", 'utf-8')
 // );
 /** TODO: edit jsdoc */
-const latest_version = "v1.4.0"; //pkg.version;
+const latest_version = "v1.4.2"; //pkg.version;
 
 /**
  * singleton instance for synchronous use.
@@ -74,43 +63,25 @@ const latest_version = "v1.4.0"; //pkg.version;
 const REPLACER = new replace.ReplaceFrontEnd("");
 
 /**
- * state of "keep more blank line"
- * @deprecated since v1.3.8
- */
-let is_keep = true;
-
-// replace without quoted.
-/**
+ * regex: whitespaces, quoted string, regexp literal
+ * 
  * `regex summary:`
- * 
- * - capture version:
- * 
- * ```
- * ^([\s]+[\r\n]+)|       # headspaces@capture
- * ([\s]+[\r\n]+)|        # spaces@capture
- * ^([\s]+)$|             # spaces2@capture
- * `(?:\\[\s\S]|[^`])*`|  # back quote
- * "(?:\\[\s\S]|[^"])*"|  # double quote
- * '(?:\\[\s\S]|[^'])*'|  # single quote
- * \/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/]) # regex
- * ```
  * 
  * - none capture version:
  * 
  * ```
- * ^[\s]+[\r\n]+|       # headspaces
- * ([\s]+[\r\n]+)|      # spaces@capture
- * ^[\s]+$|             # spaces2
- * `(?:\\[\s\S]|[^`])*`|  # back quote
- * "(?:\\[\s\S]|[^"])*"|  # double quote
- * '(?:\\[\s\S]|[^'])*'|  # single quote
- * \/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/]) # regex
+ *  ^[\s]+[\r\n]+|        # headspaces
+ *  [\s]+$|               # spaces
+ *  ^[\s]+$|              # whitespace line
+ *  `(?:\\[\s\S]|[^`])*`| # back quote
+ *  "(?:\\[\s\S]|[^"])*"| # double quote
+ *  '(?:\\[\s\S]|[^'])*'| # single quote
+ *  \/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/]) # regex
  * 
  *```
  */
-const re_blank: RegExp =
-/^[\s]+[\r\n]+|([\s]+[\r\n]+)|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/gm;
-
+const re_ws_qs_re: RegExp =
+/^[\s]+[\r\n]+|[\s]+$|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/gm;
 
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;
@@ -140,49 +111,22 @@ module.exports = Object.defineProperties(
 
         /* remove whitespaces.*/
         if (rm_blank_line_n_ws) {
-            let NEW_LINE: string;
-            // specify new line character.
-            const m = /[\r\n]{1,2}/.exec(source);
-            if (m !== null) {
-                const crlf = m[0];
-                NEW_LINE = /\r\n/.test(crlf)? "\r\n": crlf[0];
-            } else NEW_LINE =  ""; // not multi line string?
-
             return source.replace(
                 // BUG: 2017/9/6 20:23:40 #cannot remove last new line char.
                 // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
                 // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-                re_blank, (all, spaces: string, index: number, inputs: string) => {
-                    if (spaces) {
-                        return NEW_LINE;
-                        // return index === inputs.length - NEW_LINE.length? "": NEW_LINE;
-                    }
+                re_ws_qs_re, (all, index: number, inputs: string) => {
                     const first = all[0];
-                    return (first === "`" || first === '"' || first === "'" || first === "/")? all: "";
+                    return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
                 });
         }
         return source;
     }, {
-        // create readonly property "isKeep"
-        // NOTE: v.1.3.8 currently ignore this property value.
-        isKeep: {
-            get: (): boolean => is_keep,
-            enumerable: true,
-            configurable: false,
-        },
         // create readonly property "version"
         version: {
             get: (): string => latest_version,
             enumerable: true,
             configurable: false,
-        },
-        "keepMoreBlankLine": {
-            enumerable: true,
-            configurable: false,
-            writable: false,
-            value: (is: boolean): void => {
-                is_keep = is;
-            }
         }
     }
 ) as IRemoveCStyleCommentsTypeSig;

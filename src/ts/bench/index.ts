@@ -178,6 +178,21 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
     }
 }
 
+/**
+ * 
+ * @param msg 
+ */
+function progress(msg?: string): void {
+    const output: any = process.stderr;
+    // clear the current line
+    output.clearLine();
+    // move the cursor to the start of the line
+    output.cursorTo(0);
+    // const x = /[\r\n]+/.exec(chunk);
+    // chunk = chunk.substring(0, x.index);
+    // write the message.
+    msg && output.write(msg);
+}
 // from pipe or log file: when -p option then
 // USE:
 // node ./bin/bench/ -f sample-cfg.json -l 1500 | node ./bin/bench/ -p
@@ -188,17 +203,24 @@ if (settings.p) {
             `\n${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
             ContractorPattern.average(inputs, !!0)
         );
+        // ContractorPattern.average(inputs, !!0);
     }
-    let inputs = "";
 
+    let inputs = "";
     // from pipe.
     if (typeof settings.p === "boolean") {
         process.stdin.resume();
         process.stdin.setEncoding('utf8');
+
+        const rotator = ["|", "/", "-", "\\", "|", "/", "-"];
+        let index = 0;
         process.stdin.on('data', function (chunk: string) {
             inputs += chunk;
+            // console.log(chunk);
+            progress(`performance measurement running [${rotator[index++ % rotator.length]}]`);
         });
         process.stdin.on('end', function () {
+            progress();
             emitResult();
         });
         // ✈: \u2708

@@ -2,17 +2,20 @@
 {
     "compilerOptions": {
         "sourceMap": false,
-        // 2017/6/1 22:18:29
         "removeComments": true,
-        "declaration": false,
+
+        // "declaration": true,
+        // "declarationDir": ".d-ts/",
+
         // statistics
         "diagnostics": true,
         // "inlineSourceMap": true,
         // "inlineSources": true,
         // Stylize errors and messages using color and context (experimental).
         "pretty": true,
-        //
-        //"checkJs": true,
+
+        "alwaysStrict": true,
+
         "rootDir": "./src/ts",
         "outDir": "./bin",
 
@@ -28,14 +31,14 @@
         "noImplicitAny": false,
         "strictNullChecks": false,
 
-        "allowJs": true,
-        "checkJs": true,
+        // "allowJs": true,
+        // "checkJs": true,
+
         // NOTE: test use.
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
-    "files": [
-        "./src/ts/index.ts",
-        "./src/ts/bench/index.ts"
+    "include": [
+        "./src/ts/"
     ]
 }

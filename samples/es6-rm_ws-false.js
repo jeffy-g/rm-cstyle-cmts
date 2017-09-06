@@ -1,4 +1,48 @@
 
+const test_text = `:Key Binding:${ 234 }}
+}
+about                   [alt+A]
+    ${
+    "nest-1:" + `:Key Binding:${ 234 }}
+    }
+
+        ${
+
+            // comment line...
+            "nest-2:" + `:Key Binding:${ `let abc = ${
+                Boolean("")
+            }` }}
+            }
+
+                // comment line in backquote
+                ${
+
+                    /**
+                    * triple nested es6 template string.
+                    */
+
+                    "nest-3:" + `:Key Binding:${ 234 }}
+                    }
+
+                    // comment line in backquote
+                    :On comment:\`\  \"\`\"\\
+
+                    ------------------------------[ X ]`
+                }
+            :On comment:\`\  \"\`\"\\
+
+            ------------------------------[ X ]`
+        }
+    :On comment:\`\  \"\`\"\\
+
+    ------------------------------[ X ]`
+
+    // comment line...
+    }
+:On comment:\`\  \"\`\"\\
+
+------------------------------[ X ]`;
+  
      
      ;
   
@@ -27,16 +71,13 @@ var HTMLIZE_TEXT = {
 (?:([\\-]+)(\\[ X \\]))    (?#emulate close button)`,
   
   flags: "",
-  test_text: `:Key Binding:${ 234 }}
+  test_text: `:Key Binding:{}
 }
-about                   [alt+A]
 
 :On comment:\`\  \"\`\"\\
 
 ------------------------------[ X ]`,
   test_textQ: ":Key Binding:\
-\
-about                   [alt+A]\
 \
 :On comment:\`\  \"\`\"\
 \
@@ -45,8 +86,6 @@ about                   [alt+A]\
      ok: "",
       
   test_textS: ':Key Binding:\
-\
-about                   [alt+A]\
 \
 :On comment:\`\ \' \"\`\"\
 \

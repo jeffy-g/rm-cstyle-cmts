@@ -46,14 +46,37 @@ interface ICharVisitor {
     // setContext(context: IReplacementContext): void;
 }
 
+// /**
+//  * 
+//  */
+// abstract class CharVisitorBase implements ICharVisitor {
+
+//     constructor(private characters: string, registry: IStringMap<ICharVisitor>) {
+//         this.injectTo(registry);
+//     }
+//     injectTo(registry: IStringMap<ICharVisitor>): void {
+//         const self = this;
+//         this.characters.split("").forEach(ch => {
+//             registry[ch] = self;
+//         });
+//     }
+//     abstract visit(char: string, source: string, context: IReplacementContext): boolean;
+// }
+
+
 /**
- * ```
- *   case "'":
- *   case '"':
- *   case "`":
+ * correctly evaluate single quote and double quote string,  
+ * and concat it to the result string.
+ *```
+ *   case [']: single quote
+ *   case ["]: double quote
  *```
  */
 class QuoteVistor implements ICharVisitor {
+
+    // constructor(registry: IStringMap<ICharVisitor>) {
+    //     super(`"'`, registry);
+    // }
     injectTo(registry: IStringMap<ICharVisitor>): void {
         registry["'"] = this;
         registry['"'] = this;
@@ -92,15 +115,23 @@ class QuoteVistor implements ICharVisitor {
     }
 }
 /**
- * ```
- *   case "`":
+ * In back quote string,  
+ * can define template string further by enclosing it with "${" and "}",  
+ * so special processing is required (at es6
+ *```
+ *   case [`]: back quote
  *```
  */
+// NOTE: 2017/9/7 23:44:25 
+// by improving the algorithm it is now possible to process correctly.
 class BackQuoteVistor implements ICharVisitor {
+
     injectTo(registry: IStringMap<ICharVisitor>): void {
         registry["`"] = this;
     }
+
     visit(char: string, source: string, context: IReplacementContext): boolean {
+
         const index = context.offset;
         // move next position.
         let next = index + 1;
@@ -110,26 +141,73 @@ class BackQuoteVistor implements ICharVisitor {
         let ch: string;
         // limiter
         const limiter = source.length;
-        // nested depth
-        let depth = 0;
-        // nested back quote flag.
-        let nested_bq = false;
 
+        // nested template depth
+        let depth = 0;
+        /**
+         * #### nested back quote depth.
+         * this is always the same as depth or one less.
+         * ```
+         * (depth + (0 or -1)) === bq_depth
+         * ```
+         */ 
+        let bq_depth = 0;
+
+        // LOOP: while (next < limiter) {
+        //     if ((ch = source[next]) === "\\") {
+        //         in_escape = !in_escape;
+        //     }
+        //     else if (!in_escape) {
+        //         if (ch === "`") {
+        //             if (depth > 0) {
+        //                 if (depth - 1 === bq_depth)
+        //                     bq_depth++;
+        //                 else if (depth === bq_depth)
+        //                     bq_depth--;
+        //             }
+        //             else if (depth === 0) {
+        //                 context.result += source.substring(index, ++next);
+        //                 context.offset = next;
+        //                 return true;
+        //             }
+        //         }
+        //         else if (ch === "$") {
+        //             if (source[next + 1] === "{") {
+        //                 next += 2, depth++;
+        //                 continue LOOP;
+        //             }
+        //         }
+        //         else if (ch === "}") {
+        //             // NOTE: can be decremented only when it is nested?
+        //             (depth > 0 && depth - 1 === bq_depth) && depth--;
+        //         }
+        //     } else {
+        //         in_escape = false;
+        //     }
+        //     next++;
+        // }
         LOOP: while (next < limiter) {
+            // fetch "next" char, if its back slash then toggle escape state.
             if ((ch = source[next]) === "\\") {
                 in_escape = !in_escape;
             }
+            // state is not escaped then let's check [`], "${", "}".
+            // however, "}" is ignore escape state?
             else if (!in_escape) {
                 switch (ch) {
                     case "`":
                         if (depth > 0) {
-                            nested_bq = !nested_bq;
+                            if (depth - 1 === bq_depth)  // can increment.
+                                bq_depth++;
+                            else if (depth === bq_depth) // can decrement.
+                                bq_depth--;
+                            // if (depth === bq_depth)
+                            //     bq_depth--;
+                            // else if (depth - 1 === bq_depth)
+                            //     bq_depth++;
                             break;
                         }
-                        if (!nested_bq) {
-                            // const str = source.substring(index, ++next);
-                            // console.log(`<[${str}]>`);
-                            // context.result += str;
+                        if (depth === 0) {
                             context.result += source.substring(index, ++next);
                             context.offset = next;
                             return true;
@@ -140,9 +218,10 @@ class BackQuoteVistor implements ICharVisitor {
                             next += 2, depth++;
                             continue LOOP;
                         }
+                        break;
                     case "}":
                         // NOTE: can be decremented only when it is nested?
-                        (depth > 0 && !nested_bq) && depth--;
+                        (depth > 0 && depth - 1 === bq_depth) && depth--;
                         break;
                 }
             } else {
@@ -167,8 +246,11 @@ const RE_CRLF = /[\r\n]+/g;
 const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
 
 /**
+ * when this character appears,  
+ * its necessary to verify the line comment, multi line comment, regex.  
+ * will need to set the priority as (line comment || multi line comment) > regex.
  * ```
- *   case "/":
+ *   case [/]: slash
  *```
  */
 class SlashVistor implements ICharVisitor {
@@ -178,7 +260,7 @@ class SlashVistor implements ICharVisitor {
     visit(char: string, source: string, context: IReplacementContext): boolean {
 
         // fetch current offset.
-        let index = context.offset;
+        const index = context.offset;
         // limiter.
         const length = source.length;
         // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
@@ -188,7 +270,7 @@ class SlashVistor implements ICharVisitor {
         }
 
         // fetch next char.
-        let ch = source[index + 1];
+        const ch = source[index + 1];
         let m: RegExpExecArray;
         // check line comment.
         if (ch === "/") {
@@ -273,17 +355,35 @@ export class ReplaceFrontEnd {
             let ch = source[context.offset];
             let visitor = registry[ch];
             if (visitor && visitor.visit(ch, source, context)) {
-                ; // do nothing
                 // quote part.
-                // case "'": case '"': case "`":
-                // // single or multi line start, or regexp literal start?
+                // case "'": case '"':
+                // back quote.
+                // case "`":
+                // single or multi line start, or regexp literal start?
                 // case "/":
+                ; // do nothing
             } else {
                 context.result += ch;
                 context.offset++;
             }
         }
-
+        // NOTE: In this case, the switch statement is a bit slow...
+        // while (context.offset < limit) {
+        //     let ch;
+        //     switch ((ch = source[context.offset])) {
+        //         case "'":
+        //         case '"':
+        //         case "`":
+        //         case "/":
+        //             if (registry[ch].visit(ch, source, context)) {
+        //                 break;
+        //             }
+        //         default:
+        //             context.result += ch;
+        //             context.offset++;
+        //             break;
+        //     }
+        // }
         return context.result;
     }
 }
