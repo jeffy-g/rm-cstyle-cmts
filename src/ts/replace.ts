@@ -46,24 +46,6 @@ interface ICharVisitor {
     // setContext(context: IReplacementContext): void;
 }
 
-
-/**
- * global flag for regexp.lastIndex.
- */
-const RE_CRLF = /[\r\n]+/g;
-
-/** rewrite the lastIndex and execute it only once.
- * 
- * * capture verstion:
- * ```
- *  /\/(.*[^\\\r\n](?=\/))\/([gimuysx]*)/g
- * ```
- */
-// NOTE: regexp document -> match regexp literal@mini#nocapture
-// const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
-// const RE_REGEXP_PATTERN = /\/.*[^\\\r\n](?=\/)\/[gimuysx]*(?!\/)/g;
-
-const ESCAPE = "\\";
 /**
  * ```
  *   case "'":
@@ -75,12 +57,11 @@ class QuoteVistor implements ICharVisitor {
     injectTo(registry: IStringMap<ICharVisitor>): void {
         registry["'"] = this;
         registry['"'] = this;
-        registry["`"] = this;
     }
     visit(char: string, source: string, context: IReplacementContext): boolean {
-        let index = context.offset;
+        const index = context.offset;
          // maybe will not need it. because it will apply visit as soon as quote is found.
-        if (source[index - 1] !== ESCAPE) {
+        // if (source[index - 1] !== "\\") {
             // move next position.
             let next = index + 1;
             // toggle escape flag.
@@ -91,7 +72,7 @@ class QuoteVistor implements ICharVisitor {
             const limiter = source.length;
 
             while (next < limiter) {
-                if ((ch = source[next]) === ESCAPE) {
+                if ((ch = source[next]) === "\\") {
                     in_escape = !in_escape;
                 }
                 else if (!in_escape && ch === char) {
@@ -106,10 +87,84 @@ class QuoteVistor implements ICharVisitor {
                 }
                 next++;
             }
-        }
-        throw new TypeError("invalid string quotes??, offset=" + source.substring(context.offset));
+        // }
+        throw new TypeError(`invalid string quotes??, offset=${index}, remaining=` + source.substring(index));
     }
 }
+/**
+ * ```
+ *   case "`":
+ *```
+ */
+class BackQuoteVistor implements ICharVisitor {
+    injectTo(registry: IStringMap<ICharVisitor>): void {
+        registry["`"] = this;
+    }
+    visit(char: string, source: string, context: IReplacementContext): boolean {
+        const index = context.offset;
+        // move next position.
+        let next = index + 1;
+        // toggle escape flag.
+        let in_escape = false;
+        // store "next" postion character. 
+        let ch: string;
+        // limiter
+        const limiter = source.length;
+        // nested depth
+        let depth = 0;
+        // nested back quote flag.
+        let nested_bq = false;
+
+        LOOP: while (next < limiter) {
+            if ((ch = source[next]) === "\\") {
+                in_escape = !in_escape;
+            }
+            else if (!in_escape) {
+                switch (ch) {
+                    case "`":
+                        if (depth > 0) {
+                            nested_bq = !nested_bq;
+                            break;
+                        }
+                        if (!nested_bq) {
+                            // const str = source.substring(index, ++next);
+                            // console.log(`<[${str}]>`);
+                            // context.result += str;
+                            context.result += source.substring(index, ++next);
+                            context.offset = next;
+                            return true;
+                        }
+                        break;
+                    case "$":
+                        if (source[next + 1] === "{") {
+                            next += 2, depth++;
+                            continue LOOP;
+                        }
+                    case "}":
+                        // NOTE: can be decremented only when it is nested?
+                        (depth > 0 && !nested_bq) && depth--;
+                        break;
+                }
+            } else {
+                in_escape = false;
+            }
+            next++;
+        }
+        throw new TypeError(`BackQuoteVistor error: offset=${index}, remaining=--[${source.substring(index)}]--`);
+    }
+}
+
+
+/**
+ * global flag for regexp.lastIndex.
+ */
+const RE_CRLF = /[\r\n]+/g;
+
+/**
+ *  rewrite the lastIndex and execute it only once.
+ */
+// NOTE: regexp document -> match regexp literal@mini#nocapture
+const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
 
 /**
  * ```
@@ -162,24 +217,23 @@ class SlashVistor implements ICharVisitor {
             return true;
         }
 
-        // check regexp literal
+        // ------------------- check regexp literal -------------------
         RE_CRLF.lastIndex = index + 1;
         m = RE_CRLF.exec(source);
-        // const x = m? m.index: length;
         // NOTE: It was necessary to extract the character strings of the remaining lines...
+        // const x = m? m.index: length;
         const remaining = source.substring(index, m? m.index: length);
 
         // NOTE:
         //  o LF does not have to worry.
-        // RE_REGEXP_PATTERN
-        const re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
+        RE_REGEXP_PATTERN.lastIndex = 0;
         // only execute once, this is important!
-        m = re.exec(remaining);
+        m = RE_REGEXP_PATTERN.exec(remaining);
         if (m === null || remaining[m.index - 1] === "/") {
             return false;
         }
         // update offset.
-        context.offset = index + re.lastIndex;
+        context.offset = index + RE_REGEXP_PATTERN.lastIndex;
         context.result += source.substring(index, context.offset);
 
         return true;
@@ -197,6 +251,7 @@ export class ReplaceFrontEnd {
     /**  */
     constructor(private subject: string) {
         new QuoteVistor().injectTo(this.visitors);
+        new BackQuoteVistor().injectTo(this.visitors);
         new SlashVistor().injectTo(this.visitors);
     }
     setSubject(s: string): this {

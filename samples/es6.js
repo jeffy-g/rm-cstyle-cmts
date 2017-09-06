@@ -35,8 +35,8 @@ var HTMLIZE_TEXT = {
 (?:([\\-]+)(\\[ X \\]))    (?#emulate close button)`,
   
   flags: "",
-  test_text: `:Key Binding:
-
+  test_text: `:Key Binding:${ 234 }}
+}
 about this tool            [alt+A]
 
 open settings              [alt+C]
@@ -84,8 +84,8 @@ const templete = `function ${name}() {
        `12.5 / 50 * 100,
 
        // might be a very important comment line.
-       things = "${name}"
-       `
+       things = "${name}",
+       obj={}`
 
    };
    /**

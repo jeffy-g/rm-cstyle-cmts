@@ -4,7 +4,7 @@
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "scripts": {
-        "test": "node ./bin/bench/ -f samples/es6.js -l 1500 | node ./bin/bench/ -p",
+        "test": "node ./bin/bench/ -f samples/es6.js -l 500 | node ./bin/bench/ -p",
         "build": "tsc",
         "dist": "gulp dist && npm publish ./dist",
         "publish": "npm publish ./dist"

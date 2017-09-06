@@ -10,7 +10,7 @@
             "name": "Launch Program",
             "program": "${workspaceRoot}/bin/bench/index.js",
             "args": [
-                "-f", "es6.js"
+                "-f", "samples/es6.js"
             ],
             "outFiles": [
                 "${workspaceRoot}/bin/*.js"

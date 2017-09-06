@@ -157,13 +157,13 @@ module.exports = Object.defineProperties(
             if (m !== null) {
                 const crlf = m[0];
                 NEW_LINE = /\r\n/.test(crlf)? "\r\n": crlf[0];
-            } else NEW_LINE =  "";
+            } else NEW_LINE =  ""; // not multi line string?
 
             return source.replace(
-                // BUG: 2017/9/6 20:23:40 #cannot beyond regex and cannot remove last new line char.
+                // BUG: 2017/9/6 20:23:40 #cannot remove last new line char.
+                // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
                 // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-                re_blank,
-                (all, spaces: string, index: number, inputs: string) => {
+                re_blank, (all, spaces: string, index: number, inputs: string) => {
                     if (spaces) {
                         return NEW_LINE;
                         // return index === inputs.length - NEW_LINE.length? "": NEW_LINE;
