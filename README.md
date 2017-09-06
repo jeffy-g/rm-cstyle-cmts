@@ -35,8 +35,8 @@ declare function removeCStyleComments(source: string, rm_blank_line_n_ws?: boole
 var rmc = require("rm-cstyle-cmts");
 var fs = require("fs");
 
-var name = "sample-cfg";
-var extension = "json";
+var name = "samples/es6";
+var extension = "js";
 var json = fs.readFileSync(`./${name}.${extension}`, 'utf-8');
 
 console.info(" ----------- before contents ----------");
@@ -144,7 +144,7 @@ const templete = `function ${name}() {
 
 ```
 #### after
-> samples/es6-rm_ws-true.js
+> samples/es6-after.js
 ```javascript
      ;
 ;
