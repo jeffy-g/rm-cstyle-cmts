@@ -55,7 +55,7 @@ declare global {
 //     fs.readFileSync("./package.json", 'utf-8')
 // );
 /** TODO: edit jsdoc */
-const latest_version = "v1.4.3"; //pkg.version;
+const latest_version = "v1.4.4"; //pkg.version;
 
 /**
  * singleton instance for synchronous use.
