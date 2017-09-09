@@ -37,8 +37,9 @@ if (!String.prototype.repeat) {
 import * as fs from "fs";
 import * as path from "path";
 
-// NOTE: not necessary in this implementation. 
-// import * as rmc from "../";
+// NOTE: not necessary in this implementation.
+//  -> found a way for this import statement to work on intellisense.
+import * as rmc from "../";
 
 // NOTE: reference to module.exports["default"]
 // although the main function works, other functions do not work...
@@ -46,7 +47,7 @@ import * as path from "path";
 
 // NOTE: can work this.
 // -> return value of require is any
-const rmc: IRemoveCStyleCommentsTypeSig = require("../");
+// const rmc: IRemoveCStyleCommentsTypeSig = require("../");
 
 // import { ContractorPattern } from "./contractor";
 import * as ContractorPattern from "./contractor";
@@ -129,6 +130,9 @@ function parseFilePath(file_path: string): ISourcePath {
     };
 }
 
+function formatNumber(n: number): string {
+    return n.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+}
 
 /**
  * ```
@@ -160,8 +164,11 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
     const tag = `${src.simple_name}, rm_blank_line_n_ws=${rm_ws}, loop=${INNER}`;
     const stat = fs.statSync(src.full_path);
 
-    let ret;
-    console.log(`version: ${rmc.version}, {case ${src.simple_name}, size: ${stat.size} bytes}, remove_blanks=${rm_ws}`);
+    console.log(`version: ${rmc.version}, {case ${src.simple_name}, size: ${
+        formatNumber(stat.size)
+    } bytes}, remove_blanks=${rm_ws}`);
+
+    let ret: string;
     for (let a = OUTER; a--;) {
         console.time(tag);
         for (let b = INNER; b--;) {
@@ -200,7 +207,7 @@ if (settings.p) {
 
     const emitResult = (): void => {
         console.log(
-            `\n${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
+            `${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
             ContractorPattern.average(inputs, !!0)
         );
         // ContractorPattern.average(inputs, !!0);
@@ -249,13 +256,11 @@ if (settings.p) {
     // @deprecated since v1.3.8
     // rmc.keepMoreBlankLine(true);
     console.dir(settings, { color: true });
-    console.log(" --------------- start benchmark (!remove blanks) ---------------");
+    console.log(" --------------- start benchmark (remove blanks) ---------------");
     benchmark(!0);
     console.log(" ------------------------ end benchmark ------------------------");
  
-    // @deprecated since v1.3.8
-    // rmc.keepMoreBlankLine(false);
-    console.log(" --------------- start benchmark (remove blanks) ---------------");
+    console.log(" --------------- start benchmark (!remove blanks) ---------------");
     benchmark(!!0);
     console.log(" ------------------------ end benchmark ------------------------");
     console.log("--done--");

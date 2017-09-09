@@ -55,7 +55,7 @@ declare global {
 //     fs.readFileSync("./package.json", 'utf-8')
 // );
 /** TODO: edit jsdoc */
-const latest_version = "v1.4.2"; //pkg.version;
+const latest_version = "v1.4.3"; //pkg.version;
 
 /**
  * singleton instance for synchronous use.
@@ -83,6 +83,19 @@ const REPLACER = new replace.ReplaceFrontEnd("");
 const re_ws_qs_re: RegExp =
 /^[\s]+[\r\n]+|[\s]+$|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/gm;
 
+/**
+ * If do not specify a multiline flag,  
+ * noticed that it matches the very first and last in the string ...
+ * 
+ * `regex summary:`
+ * 
+ * ```
+ * ^[\r\n]| # first new line
+ * [\r\n]$  # last new line
+ * ```
+ */
+const re_first_n_last_newline = /^[\r\n]|[\r\n]$/g;
+
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;
 //     require: NodeRequireFunction;
@@ -93,8 +106,10 @@ const re_ws_qs_re: RegExp =
 //     children: NodeModule[];
 // }
 // declare var module: NodeModule;
+// Same as module.exports
+// declare var exports: any;
 
-module.exports = Object.defineProperties(
+const removeCStyleComments = Object.defineProperties(
     (source: string, rm_blank_line_n_ws = true, is_multi_t = false): string => {
 
         if (typeof source !== "string") {
@@ -118,7 +133,10 @@ module.exports = Object.defineProperties(
                 re_ws_qs_re, (all, index: number, inputs: string) => {
                     const first = all[0];
                     return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
-                });
+            })
+            // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
+            .replace(re_first_n_last_newline, "");
+
         }
         return source;
     }, {
@@ -131,10 +149,7 @@ module.exports = Object.defineProperties(
     }
 ) as IRemoveCStyleCommentsTypeSig;
 
-// default: maintain blank line in back quote.
-// NOTE: v.1.3.8 currently ignore this function.
-// keepMoreBlankLine(true);
-
+export = removeCStyleComments;
 // module.exports = removeCStyleComments;
 // module.exports.version = latest_version;
 // module.exports.keepMoreBlankLine = keepMoreBlankLine;

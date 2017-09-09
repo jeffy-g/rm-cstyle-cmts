@@ -34,6 +34,8 @@ const del = require('del');   // global install
 const gulp = require('gulp'); // global install
 const tsc = require('gulp-typescript');  // global install
 
+const replacer = require('gulp-replace');// global install
+const rename = require('gulp-rename');   // global install
 
 // ------------------------------- constant variables ----------------------------------
 /** ts compiled out put. */
@@ -107,3 +109,41 @@ gulp.task('dist', ["tsc"], function(cb) {
     });
 });
 
+/**
+ * task "readme"  
+ * 
+ * when executing by itself, it is necessary to write out the necessary data file.  
+ * all processing can be completed by "emit-readme" command.
+ */
+gulp.task('readme', function(cb) {
+    // fetch data files.
+    const BEFORE = fs.readFileSync("./samples/es6.js", 'utf-8');
+    const AFTER = fs.readFileSync("./samples/es6-rm_ws-true.js", 'utf-8');
+    let NODE_V8 = fs.readFileSync("./logs/v8.log", 'utf-8');
+    let NODE_V5 = fs.readFileSync("./logs/v5.log", 'utf-8');
+
+    const SIZE = fs.statSync("./samples/es6.js").size;
+    // prepare for readme.
+    NODE_V8 = NODE_V8.replace(/(test).+/, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_V5 = NODE_V5.replace(/(test).+/, "$1").replace(/^\s+|\s+$/g, "");
+
+    // create readme.md form template.
+    gulp.src('./readme-template.md')
+    .pipe(
+        replacer(/@(SIZE|BEFORE|AFTER|NODE_V8|NODE_V5)/g, (all, tag) => {
+            switch(tag) {
+                case "SIZE": return SIZE.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+                case "BEFORE": return BEFORE;
+                case "AFTER": return AFTER;
+                case "NODE_V8": return NODE_V8;
+                case "NODE_V5": return NODE_V5;
+            }
+            return all;
+        })
+    )
+    .pipe(rename("readme.md"))
+    .pipe(gulp.dest('./')).on("end", () => {
+        // notify completion of task.
+        cb();
+    });
+});

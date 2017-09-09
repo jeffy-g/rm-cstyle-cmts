@@ -1,4 +1,3 @@
-
 const test_text = `:Key Binding:${ 234 }}
 }
 about                   [alt+A]
