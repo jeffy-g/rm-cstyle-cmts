@@ -368,7 +368,7 @@ es6-rm_ws-false.js written...
 ```
 
 > at node v5.12.0
-```js
+```ts
 > rm-cstyle-cmts@1.4.3 test
 > node -v && node ./bin/bench/ -f samples/es6.js -l 2000 | node ./bin/bench/ -p
 

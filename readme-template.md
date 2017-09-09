@@ -86,6 +86,6 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 ```
 
 > at node v5.12.0
-```js
+```ts
 @NODE_V5
 ```
