@@ -116,12 +116,15 @@ gulp.task("rm:nullfile", ["tsc"], function(cb) {
             }
         });
         fileList.length && console.log("file removed. because size was zero...", fileList);
+        // notify completion of task.
+        this.done && this.done();
     }
 
     fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: /.*\.d.ts$/, base: JS_DEST_DIR }));
-    fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({ re: /.*\.d.ts$/, base: JS_DEST_DIR + "/bench" }));
-    // notify completion of task.
-    cb();
+    fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({
+        re: /.*\.d.ts$/, base: JS_DEST_DIR + "/bench",
+        done: cb
+    }));
 });
 
 /**
@@ -175,5 +178,6 @@ gulp.task("readme", function(cb) {
     .pipe(gulp.dest('./')).on("end", () => {
         // notify completion of task.
         cb();
+        console.log("Please run 'gulp dist'");
     });
 });

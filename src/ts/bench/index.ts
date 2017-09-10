@@ -38,7 +38,6 @@ import * as path from "path";
 import * as rmc from "../";
 
 // NOTE: reference to module.exports["default"]
-// although the main function works, other functions do not work...
 // import rmc from "../";
 
 // NOTE: can work this.
@@ -215,7 +214,7 @@ if (settings.p) {
         process.stdin.resume();
         process.stdin.setEncoding('utf8');
 
-        const rotator = ["|", "/", "-", "\\", "|", "/", "-"];
+        const rotator = ["|", "/", "-", "\\", "|", "/", "-", "\\"];
         let index = 0;
         process.stdin.on('data', function (chunk: string) {
             inputs += chunk;

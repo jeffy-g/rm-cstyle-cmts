@@ -117,8 +117,10 @@ const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = 
     }
 
     // Is nearly equal processing speed?
-    const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-    source = replacer.apply();
+    // const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
+    source = (
+        is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source)
+    ).apply();
 
     // NOTE: this combination does not do the intended work...
     // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
@@ -152,8 +154,6 @@ const removeCStyleComments = Object.defineProperties(rmc, {
 export = removeCStyleComments;
 // module.exports = removeCStyleComments;
 // module.exports.version = latest_version;
-// module.exports.keepMoreBlankLine = keepMoreBlankLine;
-// module.exports.isKeep = false;
 
 // NOTE: export default
 // removeCStyleComments.version = latest_version;
