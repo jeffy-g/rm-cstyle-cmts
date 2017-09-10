@@ -23,9 +23,6 @@ import * as path from "path";
 import * as replace from "./replace";
 
 declare global {
-    /**
-     * remove c style comments interface.
-     */
     interface IRemoveCStyleCommentsTypeSig {
         /**
          * #### remove c style comments form "source" content.  
@@ -42,12 +39,16 @@ declare global {
          * @param {boolean} is_multi_t use multi process?, default is "false".
          */
         (source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
-
+    }
+    /**
+     * remove c style comments interface.
+     */
+    interface IRemoveCStyleCommentsModule extends IRemoveCStyleCommentsTypeSig {
         /** package version */
         readonly version: string;
     }
     // for String.replace
-    type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
+    // type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
 }
 
 /**  */
@@ -55,7 +56,7 @@ declare global {
 //     fs.readFileSync("./package.json", 'utf-8')
 // );
 /** TODO: edit jsdoc */
-const latest_version = "v1.4.4"; //pkg.version;
+const latest_version = "v1.4.5"; //pkg.version;
 
 /**
  * singleton instance for synchronous use.
@@ -63,7 +64,7 @@ const latest_version = "v1.4.4"; //pkg.version;
 const REPLACER = new replace.ReplaceFrontEnd("");
 
 /**
- * regex: whitespaces, quoted string, regexp literal
+ * regex: whitespaces, quoted string, regexp literal.
  * 
  * `regex summary:`
  * 
@@ -80,6 +81,7 @@ const REPLACER = new replace.ReplaceFrontEnd("");
  * 
  *```
  */
+// regexp document: "remove white spaces with replacer#comments removed"
 const re_ws_qs_re: RegExp =
 /^[\s]+[\r\n]+|[\s]+$|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/gm;
 
@@ -108,38 +110,36 @@ const re_first_n_last_newline = /^[\r\n]|[\r\n]$/g;
 // declare var module: NodeModule;
 // Same as module.exports
 // declare var exports: any;
+const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = true, is_multi_t = false): string => {
 
-const removeCStyleComments = Object.defineProperties(
-    (source: string, rm_blank_line_n_ws = true, is_multi_t = false): string => {
+    if (typeof source !== "string") {
+        throw new TypeError("invalid text content!");
+    }
 
-        if (typeof source !== "string") {
-            throw new TypeError("invalid text content!");
-        }
+    // Is nearly equal processing speed?
+    const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
+    source = replacer.apply();
 
-        // Is nearly equal processing speed?
-        const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-        source = replacer.apply();
+    // NOTE: this combination does not do the intended work...
+    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
+    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
 
-        // NOTE: this combination does not do the intended work...
-        // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
-        // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
+    /* remove whitespaces.*/
+    if (rm_blank_line_n_ws) {
+        return source.replace(
+            // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
+            // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
+            re_ws_qs_re, (all, index: number, inputs: string) => {
+                const first = all[0];
+                return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
+        })
+        // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
+        .replace(re_first_n_last_newline, "");
+    }
+    return source;
+}
 
-        /* remove whitespaces.*/
-        if (rm_blank_line_n_ws) {
-            return source.replace(
-                // BUG: 2017/9/6 20:23:40 #cannot remove last new line char.
-                // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
-                // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-                re_ws_qs_re, (all, index: number, inputs: string) => {
-                    const first = all[0];
-                    return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
-            })
-            // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
-            .replace(re_first_n_last_newline, "");
-
-        }
-        return source;
-    }, {
+const removeCStyleComments = Object.defineProperties(rmc, {
         // create readonly property "version"
         version: {
             get: (): string => latest_version,
@@ -147,7 +147,7 @@ const removeCStyleComments = Object.defineProperties(
             configurable: false,
         }
     }
-) as IRemoveCStyleCommentsTypeSig;
+) as IRemoveCStyleCommentsModule;
 
 export = removeCStyleComments;
 // module.exports = removeCStyleComments;

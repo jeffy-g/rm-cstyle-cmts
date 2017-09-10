@@ -18,12 +18,8 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 // test development javascript.
+// <reference types="rm-cstyle-cmts"/>
 
-declare global {
-    interface String {
-        repeat(n: number): string;
-    }
-}
 if (!String.prototype.repeat) {
     String.prototype.repeat = function(n: number): string {
         let str = "";

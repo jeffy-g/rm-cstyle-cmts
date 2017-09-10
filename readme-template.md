@@ -24,12 +24,16 @@ interface IRemoveCStyleCommentsTypeSig {
      * @param {boolean} is_multi_t use multi process?, default is "false".
      */
     (source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
-
+}
+/**
+ * remove c style comments interface.
+ */
+interface IRemoveCStyleCommentsModule extends IRemoveCStyleCommentsTypeSig {
     /** package version */
     readonly version: string;
 }
 
-module.exports = Object.defineProperties(...) as IRemoveCStyleCommentsTypeSig;
+module.exports = Object.defineProperties(...) as IRemoveCStyleCommentsModule;
 ```
 
 ## BUGS

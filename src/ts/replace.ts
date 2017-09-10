@@ -18,11 +18,6 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 
-declare global {
-    interface IStringMap<T> {
-        [key: string]: T;
-    }
-}
 
 interface IReplacementContext {
     /** content offset(read, write */

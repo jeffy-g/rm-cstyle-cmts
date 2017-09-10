@@ -27,11 +27,11 @@ echo %NODE_PATH%
 */
 
 // ------------------------------- need imports ----------------------------------
-const fs = require('fs');
-const util = require('util');
+const fs = require("fs");
+const util = require("util");
 
-const del = require('del');   // global install
-const gulp = require('gulp'); // global install
+const del = require("del");   // global install
+const gulp = require("gulp"); // global install
 const tsc = require('gulp-typescript');  // global install
 
 const replacer = require('gulp-replace');// global install
@@ -48,7 +48,7 @@ const DISTRIBUTION_DIR = "./dist";
 const TS_FILEs_PATTERN = './src/ts/**/*.ts';
 
 /**  */
-const JS_FILEs_PATTERN = `${JS_DEST_DIR}/**/*.js`;
+const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts}`;
 
 /**
  * 
@@ -65,7 +65,7 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
  * task "clean"
  */
 gulp.task("clean", function(cb) {
-    del([`${JS_DEST_DIR}/**/*.js`, DISTRIBUTION_DIR]).then(paths => {
+    del([`${JS_DEST_DIR}/**/*`, DISTRIBUTION_DIR]).then(paths => {
         console.log(
             `Deleted files and folders:
 ${paths.join('\n')}
@@ -78,7 +78,7 @@ ${paths.join('\n')}
 /**
  * task "tsc"
  */
-gulp.task('tsc', ["clean"], function(cb) {
+gulp.task("tsc", ["clean"], function(cb) {
     // const compiler = tsc.createProject('tsconfig.json');
     // gulp.src(TS_FILEs_PATTERN)
     // .pipe(compiler())
@@ -91,16 +91,46 @@ gulp.task('tsc', ["clean"], function(cb) {
     // cannot took dependent source.
     // const result = compiler.src().pipe(compiler());
     const result = gulp.src(TS_FILEs_PATTERN).pipe(compiler());
-    return result.js.pipe(gulp.dest(JS_DEST_DIR));
+    // return result.js.pipe(gulp.dest(JS_DEST_DIR));
+    return result.pipe(gulp.dest(JS_DEST_DIR));
+});
+
+
+/**
+ * remove file when size is zero.
+ */
+gulp.task("rm:nullfile", ["tsc"], function(cb) {
+    function _readdir_callback(err, files) {
+        if (err) console.log(err);
+        let fileList = [];
+        // const _this = this;
+        // NOTE: arrow function context bind "this".
+        files.forEach(file => {
+            if (this.re.test(file)) {
+                let relative_path = `${this.base}/${file}`;
+                // console.log(relative_path);
+                const stats = fs.statSync(relative_path);
+                if (stats.isFile() && stats.size === 0) {
+                    del.sync(relative_path), fileList.push(relative_path);
+                }
+            }
+        });
+        fileList.length && console.log("file removed. because size was zero...", fileList);
+    }
+
+    fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: /.*\.d.ts$/, base: JS_DEST_DIR }));
+    fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({ re: /.*\.d.ts$/, base: JS_DEST_DIR + "/bench" }));
+    // notify completion of task.
+    cb();
 });
 
 /**
  * task "dist"
  */
-gulp.task('dist', ["tsc"], function(cb) {
+gulp.task("dist", ["rm:nullfile"], function(cb) {
     gulp.src([
         "package.json", "sample-cfg*.json", "sample-cfg-after.json", "readme.md", "samples/*",
-        JS_FILEs_PATTERN
+        COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(function(vinyl) {
         return convertRelativeDir(vinyl, DISTRIBUTION_DIR);
     })).on("end", () => {
@@ -115,7 +145,7 @@ gulp.task('dist', ["tsc"], function(cb) {
  * when executing by itself, it is necessary to write out the necessary data file.  
  * all processing can be completed by "emit-readme" command.
  */
-gulp.task('readme', function(cb) {
+gulp.task("readme", function(cb) {
     // fetch data files.
     const BEFORE = fs.readFileSync("./samples/es6.js", 'utf-8');
     const AFTER = fs.readFileSync("./samples/es6-rm_ws-true.js", 'utf-8');
