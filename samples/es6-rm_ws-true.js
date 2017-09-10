@@ -1,4 +1,10 @@
+let gg = 10;
+var re = 10000 / 111.77*gg /gg;;;;
+const re4 = /\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/
+let ok2 = 12.2 / 33 * .9
+let ok3 = 12.2 / 33 * .9
 const test_text = `:Key Binding:${ 234 }}
+//                ^  <- parse by class BackQuoteVistor
 }
 about                   [alt+A]
     ${
@@ -38,8 +44,8 @@ about                   [alt+A]
 
 ------------------------------[ X ]`;
      ;
-;
 const $3 = { keyCode: $1, key: "$5\"this is\
+                               ^  <- parse by class QuoteVistor\
 test" };
 const gm = 234;
   ; ;; ;
@@ -57,18 +63,14 @@ var HTMLIZE_TEXT = {
 }
 
 :On comment:\`\  \"\`\"\\
-
 ------------------------------[ X ]`,
   test_textQ: ":Key Binding:\
 \
 :On comment:\`\  \"\`\"\
-\
 ------------------------------[ X ]",
-     ok: "",
   test_textS: ':Key Binding:\
 \
 :On comment:\`\ \' \"\`\"\
-\
 ------------------------------[ X ]',
   timestamp: 1499535241972
 };

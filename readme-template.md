@@ -93,3 +93,40 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 ```ts
 @NODE_V5
 ```
+
+## Regarding Verification of Regular Expression Literals:
+
+>
+>if regex literals contains quote marks and so on,  
+>since the parse of QuoteVisitor class fails, it is necessary to skip regular expression literals.
+>
+>also, most regular expression literals can be detected,  
+>in some cases incorrect detection is done in numerical calculation statement using "/".
+>
+>but in this program, this is not important :-
+>
+
+```php
+
+\/                   # regexp literal start@delimiter
+  (?![?*+\/])        # not meta character "?*+/" @anchor
+  (?:                # start non-capturing group $1
+    \\[\s\S]|        # escaped any character, or
+    \[               # class set start
+      (?:            # non-capturing group $2
+        \\[\s\S]|    # escaped any character, or
+        [^\]\r\n\\]  # without class set end, newline, backslash
+      )*             # end non-capturing group $2 (q: 0 or more
+    \]|              # class set end, or
+    [^\/\r\n\\]      # without slash, newline, backslash
+  )+                 # end non-capturing group $1 (q: 1 or more
+\/                   # regexp literal end@delimiter
+(?:                  # start non-capturing group $3
+  [gimuy]+\b|        # validate regex flags, but this pattern is imcomplete
+)                    # end non-capturing group $3
+(?![?*+\/])          # not meta character "?*+/" @anchor ...
+
+```
+as comment on samples/es6.js with descriptive explanation,
+
+please look there.

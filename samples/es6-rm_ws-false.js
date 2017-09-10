@@ -1,5 +1,26 @@
 
+let gg = 10;
+var re = 10000 / 111.77*gg /gg;;;;  
+
+
+
+
+
+const re4 = /\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/ 
+
+let ok2 = 12.2 / 33 * .9 
+
+
+
+
+let ok3 = 12.2 / 33 * .9
+
+
+
+
+
 const test_text = `:Key Binding:${ 234 }}
+//                ^  <- parse by class BackQuoteVistor
 }
 about                   [alt+A]
     ${
@@ -45,14 +66,9 @@ about                   [alt+A]
   
      
      ;
-  
-
-;
-
-
-
 
 const $3 = { keyCode: $1, key: "$5\"this is\
+                               ^  <- parse by class QuoteVistor\
 test" };
 
 const gm = 234;
@@ -60,11 +76,16 @@ const gm = 234;
 
 var i = 100 / 10 * 123.555/gm; 
 
+
 var HTMLIZE_TEXT = {
   title: `/anything/g`,
+  
   description: '--- nothing ---',
+  
   qre: "/(<button)\\s+([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*(>.*<\\/button>)/g.toString()",
+
   re: /(<button)\s+([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*(>.*<\/button>)/g.toString(),
+
 
   ere: `(^:[\\w ]+:\$)|           (?#heading text)
 (^[\\w ]+)(\\[[\\w\\+]+\\])| (?#text item)
@@ -75,25 +96,18 @@ var HTMLIZE_TEXT = {
 }
 
 :On comment:\`\  \"\`\"\\
-
 ------------------------------[ X ]`,
   test_textQ: ":Key Binding:\
 \
 :On comment:\`\  \"\`\"\
-\
 ------------------------------[ X ]",
-
-     ok: "",
-      
   test_textS: ':Key Binding:\
 \
 :On comment:\`\ \' \"\`\"\
-\
 ------------------------------[ X ]',
   timestamp: 1499535241972
 };
          
-
 let name = "apple";           
 
 const templete = `function ${name}() {

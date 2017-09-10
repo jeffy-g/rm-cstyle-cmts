@@ -137,12 +137,13 @@ function formatNumber(n: number): string {
  *   -f: read file path -f sample-cfg.json
  * 
  *   -l: inner loop counter value, typeof integer
+ *   -ol: outer loop counter value, typeof integer
  *   -p: read performance log from pipe
  * ```
  */
 const settings = getExtraArgs();
 
-const OUTER = 20;
+let OUTER = 20;
 let INNER = 1000;
 
 // test source
@@ -161,9 +162,9 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
     const tag = `${src.simple_name}, rm_blank_line_n_ws=${rm_ws}, loop=${INNER}`;
     const stat = fs.statSync(src.full_path);
 
-    console.log(`version: ${rmc.version}, {case ${src.simple_name}, size: ${
+    console.log(`version: ${rmc.version}, case: { source: ${src.simple_name}@${
         formatNumber(stat.size)
-    } bytes}, remove_blanks=${rm_ws}`);
+    }bytes, remove_blanks=${rm_ws} }, outerloop=${OUTER}, innerloop=${INNER}`);
 
     let ret: string;
     for (let a = OUTER; a--;) {
@@ -247,6 +248,10 @@ if (settings.p) {
     // loop: when -l option then
     if (settings.l) {
         INNER = parseInt(<string>settings.l);
+    }
+    // loop: when -ol option then
+    if (settings.ol) {
+        OUTER = parseInt(<string>settings.ol);
     }
 
     source_text = fs.readFileSync(src.full_path, "utf-8");

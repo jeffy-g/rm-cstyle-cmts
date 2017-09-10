@@ -23,6 +23,8 @@ interface IReplacementContext {
     offset: number;
     /** replecement result */
     result: string;
+    /** new line character at source. */
+    newline: string;
 }
 
 interface ICharVisitor {
@@ -147,39 +149,6 @@ class BackQuoteVistor implements ICharVisitor {
          */
         let bq_depth = 0;
 
-        // LOOP: while (next < limiter) {
-        //     if ((ch = source[next]) === "\\") {
-        //         in_escape = !in_escape;
-        //     }
-        //     else if (!in_escape) {
-        //         if (ch === "`") {
-        //             if (depth > 0) {
-        //                 if (depth - 1 === bq_depth)
-        //                     bq_depth++;
-        //                 else if (depth === bq_depth)
-        //                     bq_depth--;
-        //             }
-        //             else if (depth === 0) {
-        //                 context.result += source.substring(index, ++next);
-        //                 context.offset = next;
-        //                 return true;
-        //             }
-        //         }
-        //         else if (ch === "$") {
-        //             if (source[next + 1] === "{") {
-        //                 next += 2, depth++;
-        //                 continue LOOP;
-        //             }
-        //         }
-        //         else if (ch === "}") {
-        //             // NOTE: can be decremented only when it is nested?
-        //             (depth > 0 && depth - 1 === bq_depth) && depth--;
-        //         }
-        //     } else {
-        //         in_escape = false;
-        //     }
-        //     next++;
-        // }
         LOOP: while (next < limiter) {
             // fetch "next" char, if its back slash then toggle escape state.
             if ((ch = source[next]) === "\\") {
@@ -230,28 +199,48 @@ class BackQuoteVistor implements ICharVisitor {
 }
 
 /**
- * global flag for regexp.lastIndex.
- */
-const RE_CRLF = /[\r\n]+/g;
-
-/**
- *  rewrite the lastIndex and execute it only once.
+ * global flag for regexp.lastIndex.  
+ * rewrite the lastIndex and execute it only once.
+ * 
+ * `regex summary:`
+ * 
+ * ```
+ * \/                   # regexp literal start@delimiter
+ *   (?![?*+\/])        # not meta character "?*+/" @anchor
+ *   (?:                # start non-capturing group $1
+ *     \\[\s\S]|        # escaped any character, or
+ *     \[               # class set start
+ *       (?:            # non-capturing group $2
+ *         \\[\s\S]|    # escaped any character, or
+ *         [^\]\r\n\\]  # without class set end, newline, backslash
+ *       )*             # end non-capturing group $2 (q: 0 or more
+ *     \]|              # class set end, or
+ *     [^\/\r\n\\]      # without slash, newline, backslash
+ *   )+                 # end non-capturing group $1 (q: 1 or more
+ * \/                   # regexp literal end@delimiter
+ * (?:                  # start non-capturing group $3
+ *   [gimuy]+\b|        # validate regex flags, but this pattern is imcomplete
+ * )                    # end non-capturing group $3
+ * (?![?*+\/])          # not meta character "?*+/" @anchor ...
+ * ```
  */
 // NOTE: regexp document -> match regexp literal@mini#nocapture
 const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
 
 /**
  * when this character appears,  
- * its necessary to verify the line comment, multi line comment, regex.  
- * will need to set the priority as (line comment || multi line comment) > regex.
+ * its necessary to verify the line comment, multiline comment, regex.  
+ * will need to set the priority as (line comment || multiline comment) > regex.
  * ```
  *   case [/]: slash
  *```
  */
 class SlashVistor implements ICharVisitor {
+
     public injectTo(registry: IStringMap<ICharVisitor>): void {
         registry["/"] = this;
     }
+
     public visit(char: string, source: string, context: IReplacementContext): boolean {
 
         // fetch current offset.
@@ -265,24 +254,14 @@ class SlashVistor implements ICharVisitor {
         }
 
         // fetch next char.
-        const ch = source[index + 1];
-        let m: RegExpExecArray;
-        // check line comment.
-        if (ch === "/") {
-            RE_CRLF.lastIndex = index + 2;
-            m = RE_CRLF.exec(source);
-            // update offset. when new line character not found(eof) then...
-            context.offset = m? RE_CRLF.lastIndex: length;
-            // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
-            m && (context.result += m[0]);
-            return true;
-        }
-        // check multi line comment.
+        let ch = source[index + 1];
+        if (ch === void 0) return false;
+
+        // check multiline comment.
         if (ch === "*") {
             // index += 2;
             // while (index < length) {
             //     if (source[index] === "*" && source[index + 1] === "/") {
-            //         // console.log(source.substring(context.offset, index + 2));
             //         break;
             //     }
             //     index++;
@@ -294,93 +273,119 @@ class SlashVistor implements ICharVisitor {
             return true;
         }
 
-        // ------------------- check regexp literal -------------------
-        RE_CRLF.lastIndex = index + 1;
-        m = RE_CRLF.exec(source);
-        // NOTE: It was necessary to extract the character strings of the remaining lines...
-        // const x = m? m.index: length;
-        const remaining = source.substring(index, m? m.index: length);
+        // index + 1 ...
+        const x = source.indexOf(context.newline, index + 1);
+        L: do {
+            // check line comment.
+            if (ch === "/") {
+                // update offset. when new line character not found(eof) then...
+                context.offset = x === -1? length: x + context.newline.length;
+                // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
+                x === -1 || (context.result += context.newline);
+                return true;
+            }
 
-        // NOTE:
-        //  o LF does not have to worry.
-        RE_REGEXP_PATTERN.lastIndex = 0;
-        // only execute once, this is important!
-        m = RE_REGEXP_PATTERN.exec(remaining);
-        if (m === null || remaining[m.index - 1] === "/") {
-            return false;
-        }
-        // update offset.
-        context.offset = index + RE_REGEXP_PATTERN.lastIndex;
-        context.result += source.substring(index, context.offset);
+            // ------------------- check regexp literal -------------------
+            // NOTE: It was necessary to extract the character strings of the remaining lines...
+            // const x = m? m.index: length;
+            const remaining = source.substring(index, x === -1? length: x);
+            // NOTE:
+            //  o LF does not have to worry.
+            RE_REGEXP_PATTERN.lastIndex = 0;
+            // only execute once, this is important!
+            const m = RE_REGEXP_PATTERN.exec(remaining);
+            if (m === null) {
+                return false;
+            }
 
-        return true;
+            // means multiline comment.
+            if (remaining[m.index - 1] === "/") {
+                ch = "/";
+                context.result += source.substring(index, index + m.index - 1);
+                continue L;
+            } else {
+                // update offset.
+                context.offset = index + RE_REGEXP_PATTERN.lastIndex;
+                context.result += source.substring(index, context.offset);
+                return true;
+            }
+
+        } while (true);
+        // unreachable...
+        // return false;
     }
+}
+
+/**
+ * create IReplacementContext.
+ * @param source parsing source.
+ */
+function createWhite(source: string): IReplacementContext {
+    // specify new line character.
+    const m = /\n|\r\n|\r/.exec(source);
+    return {
+        offset: 0,
+        result: "",
+        newline: m? m[0]: ""
+    };
 }
 
 /**
  * NOTE:  
  * This class is implemented to correctly judge quoted string,  
- * line comment, multi line commnet, regexp literal,  
- * and delete line comment, multi line commnet. (maybe...
+ * line comment, multiline commnet, regexp literal,  
+ * and delete line comment, multiline commnet. (maybe...
  */
 export class ReplaceFrontEnd {
     private visitors: IStringMap<ICharVisitor> = {};
     private subject: string;
-    /**  */
+    /**
+     * 
+     * @param {string} subject text content of parse target.
+     */
     constructor(subject: string) {
         this.subject = subject;
         new QuoteVistor().injectTo(this.visitors);
         new BackQuoteVistor().injectTo(this.visitors);
         new SlashVistor().injectTo(this.visitors);
     }
+    /**
+     * set text content of parse target.
+     * @param {string} s text content of parse target.
+     */
     public setSubject(s: string): this {
         this.subject = s;
         return this;
     }
     /**
      * it returns result string content.
+     * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
      */
     public apply(): string {
-        const context: IReplacementContext = {
-            offset: 0,
-            result: ""
-        };
         const source = this.subject;
         const limit = source.length;
         const registry = this.visitors;
+
+        const context: IReplacementContext = createWhite(source);
+        let prev_offset = 0;
+
         while (context.offset < limit) {
             const ch = source[context.offset];
             const visitor = registry[ch];
-            if (visitor && visitor.visit(ch, source, context)) {
-                // quote part.
-                // case "'": case '"':
-                // back quote.
-                // case "`":
-                // single or multi line start, or regexp literal start?
-                // case "/":
-                // do nothing
+            if (visitor) {
+                context.result += source.substring(prev_offset, context.offset);
+                // if visit(...) returns true, context.offset has been updated.
+                prev_offset = !visitor.visit(ch, source, context)? context.offset++: context.offset;
             } else {
-                context.result += ch;
+                // increment scan position.
                 context.offset++;
             }
         }
-        // NOTE: In this case, the switch statement is a bit slow...
-        // while (context.offset < limit) {
-        //     let ch;
-        //     switch ((ch = source[context.offset])) {
-        //         case "'":
-        //         case '"':
-        //         case "`":
-        //         case "/":
-        //             if (registry[ch].visit(ch, source, context)) {
-        //                 break;
-        //             }
-        //         default:
-        //             context.result += ch;
-        //             context.offset++;
-        //             break;
-        //     }
-        // }
+        // when has remaining
+        if (limit - prev_offset > 0) {
+            context.result += source.substring(prev_offset, context.offset);
+        }
+
         return context.result;
     }
 }

@@ -107,6 +107,7 @@ const re_first_n_last_newline: RegExp = /^[\r\n]|[\r\n]$/g;
 // declare var module: NodeModule;
 // Same as module.exports
 // declare var exports: any;
+
 const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = true, is_multi_t = false): string => {
 
     if (typeof source !== "string") {

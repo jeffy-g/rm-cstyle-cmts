@@ -120,9 +120,10 @@ gulp.task("rm:nullfile", ["tsc"], function(cb) {
         this.done && this.done();
     }
 
-    fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: /.*\.d.ts$/, base: JS_DEST_DIR }));
+    const re_dts = /.*\.d.ts$/;
+    fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: re_dts, base: JS_DEST_DIR }));
     fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({
-        re: /.*\.d.ts$/, base: JS_DEST_DIR + "/bench",
+        re: re_dts, base: JS_DEST_DIR + "/bench",
         done: cb
     }));
 });
