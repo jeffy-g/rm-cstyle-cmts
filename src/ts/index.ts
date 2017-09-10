@@ -139,7 +139,7 @@ const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = 
         .replace(re_first_n_last_newline, "");
     }
     return source;
-}
+};
 
 const removeCStyleComments = Object.defineProperties(rmc, {
         // create readonly property "version"
