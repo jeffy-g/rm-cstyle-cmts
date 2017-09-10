@@ -28,22 +28,24 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
 // namespace ContractorPattern {
 
     interface IBenchmarkResult {
-        loop: number, ms: number, average: number
+        loop: number;
+        ms: number;
+        average: number;
     }
 
     // entry caption text.
-    const explain = "average for each run";
+    const explain: string = "average for each run";
 
     // contractor. (
-    const Contractor = {
+    const Contractor: IStringMap<any> = {
         entries: {} as { [x: string]: IBenchmarkResult[] },
         current_tag: null as string,
 
-        order: function(tag): void {
+        order: function(tag: string): void {
             !this.entries[tag] && (this.entries[tag] = []);
             this.current_tag = tag;
         },
-        record: function(loop, ms): number {
+        record: function(loop: any, ms: any): number {
             loop = parseInt(loop), ms = parseFloat(ms);
             /** average for each run */
             const average = (ms / loop);
@@ -85,7 +87,7 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
             // output result message.
             console.log(msg);
         }
-    }
+    };
 
     /**
      * set true to "showlog_per_entry" param if need.
@@ -97,15 +99,16 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
         return (all, loop, ms, tag, deadline, index) => {
             if (tag) { // ✔ :\u2714
                 contractor.order(tag), console.log(`\u2714 order => ${tag}`);
-            }
-            else if (loop) {
+            } else if (loop) {
                 const average = contractor.record(loop, ms);
                 // if want per entiry.
                 showlog_per_entry && console.log(
                     `loop: ${loop}, ${explain}: %s ms`, average.toFixed(6)
                 );
+            } else if (deadline) {
+                contractor.deadline();
             }
-            else if (deadline) { contractor.deadline(); }
+            // NOTE: always return match content.
             return all;
         };
     };
@@ -121,6 +124,6 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
      */
     export const average = (inputs: string, showlog_per_entry: boolean = false): string => {
         return inputs.replace(regex, emitReplacer(showlog_per_entry));
-    }
+    };
 // }
 

@@ -23,11 +23,13 @@ limitations under the License.
 if (!String.prototype.repeat) {
     String.prototype.repeat = function(n: number): string {
         let str = "";
-        while(n--)
+        while (n--) {
+            // tslint:disable-next-line:no-invalid-this
             str += this;
+        }
 
         return str;
-    }
+    };
 }
 
 import * as fs from "fs";
@@ -55,15 +57,15 @@ import * as ContractorPattern from "./contractor";
  * ```
  * if param value not specified -tag after then set value is "true".
  */
-function getExtraArgs(): IStringMap<any> {
+function getExtraArgs(): IStringMap<string|boolean> {
     const extra_index = 2;
-    const params: IStringMap<any> = {};
+    const params: IStringMap<string|boolean> = {};
     if (process.argv.length > extra_index) {
-        let args = process.argv;
+        const args = process.argv;
         for (let index = extra_index; index < args.length;) {
-            let opt = args[index++];
+            const opt = args[index++];
             if (opt && opt[0] === "-") {
-                let value: any = args[index];
+                let value: string|boolean = args[index];
                 if (value === void 0 || value[0] === "-") {
                     value = true;
                 } else {
@@ -92,7 +94,7 @@ declare interface ISourcePath {
     addSuffix(suffix: string): string;
 }
 
-//path.parse('/home/user/dir/file.txt');
+// path.parse('/home/user/dir/file.txt');
 // Returns:
 // { root: '/',
 //   dir: '/home/user/dir',
@@ -113,7 +115,7 @@ declare interface ISourcePath {
  * @param file_path 
  */
 function parseFilePath(file_path: string): ISourcePath {
-    let parsed_p = path.parse(file_path);
+    const parsed_p = path.parse(file_path);
     return {
         full_path: path.resolve(parsed_p.dir, parsed_p.base),
         basename: path.resolve(parsed_p.dir, parsed_p.name),
@@ -140,7 +142,7 @@ function formatNumber(n: number): string {
  */
 const settings = getExtraArgs();
 
-let OUTER = 20;
+const OUTER = 20;
 let INNER = 1000;
 
 // test source
@@ -173,8 +175,8 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
     }
 
     if (output_result) {
-        let after_path = src.addSuffix("-rm_ws-" + rm_ws);
-        fs.writeFile(after_path, ret, 'utf-8', function() {
+        const after_path = src.addSuffix(`-rm_ws-${rm_ws}`);
+        fs.writeFile(after_path, ret, "utf-8", function() {
             console.log(`${path.basename(after_path)} written...`);
         });
     }
@@ -185,6 +187,7 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
  * @param msg 
  */
 function progress(msg?: string): void {
+    // tslint:disable-next-line:no-any
     const output: any = process.stderr;
     // clear the current line
     output.clearLine();
@@ -206,22 +209,22 @@ if (settings.p) {
             ContractorPattern.average(inputs, !!0)
         );
         // ContractorPattern.average(inputs, !!0);
-    }
+    };
 
     let inputs = "";
     // from pipe.
     if (typeof settings.p === "boolean") {
         process.stdin.resume();
-        process.stdin.setEncoding('utf8');
+        process.stdin.setEncoding("utf8");
 
         const rotator = ["|", "/", "-", "\\", "|", "/", "-", "\\"];
         let index = 0;
-        process.stdin.on('data', function (chunk: string) {
+        process.stdin.on("data", function (chunk: string) {
             inputs += chunk;
             // console.log(chunk);
             progress(`performance measurement running [${rotator[index++ % rotator.length]}]`);
         });
-        process.stdin.on('end', function () {
+        process.stdin.on("end", function () {
             progress();
             emitResult();
         });
@@ -229,8 +232,8 @@ if (settings.p) {
         console.log("");
         console.log(`${"\u2708  ".repeat(8)}performance log started...`);
     // from log file.
-    } else if (typeof settings.p === "string" && fs.existsSync(settings.p)) {
-        inputs = fs.readFileSync(settings.p, 'utf-8');
+    } else if (typeof settings.p === "string" && fs.existsSync(<string>settings.p)) {
+        inputs = fs.readFileSync(<string>settings.p, "utf-8");
         emitResult();
     }
 
@@ -238,26 +241,25 @@ if (settings.p) {
 
     // file: when -f optiion then
     src = parseFilePath(
-        typeof settings.f === "string"? settings.f: "sample-cfg.json"
+        typeof settings.f === "string"? <string>settings.f: "sample-cfg.json"
     );
 
     // loop: when -l option then
     if (settings.l) {
-        INNER = parseInt(settings.l);
+        INNER = parseInt(<string>settings.l);
     }
 
-    source_text = fs.readFileSync(src.full_path, 'utf-8');
+    source_text = fs.readFileSync(src.full_path, "utf-8");
 
-    // @deprecated since v1.3.8
-    // rmc.keepMoreBlankLine(true);
     console.dir(settings, { color: true });
+    // with remove blank line and whitespaces.
     console.log(" --------------- start benchmark (remove blanks) ---------------");
     benchmark(!0);
     console.log(" ------------------------ end benchmark ------------------------");
- 
+
+    // without remove blank line and whitespaces.
     console.log(" --------------- start benchmark (!remove blanks) ---------------");
     benchmark(!!0);
     console.log(" ------------------------ end benchmark ------------------------");
     console.log("--done--");
 }
-

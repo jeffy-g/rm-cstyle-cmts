@@ -51,25 +51,22 @@ declare global {
     // type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
 }
 
-/**  */
-// const pkg = JSON.parse(     
-//     fs.readFileSync("./package.json", 'utf-8')
-// );
+const pkg: IStringMap<string> = require("../package.json");
 /** TODO: edit jsdoc */
-const latest_version = "v1.4.5"; //pkg.version;
+const latest_version: string = pkg.version;
 
 /**
  * singleton instance for synchronous use.
  */
-const REPLACER = new replace.ReplaceFrontEnd("");
+const REPLACER: replace.ReplaceFrontEnd = new replace.ReplaceFrontEnd("");
 
 /**
  * regex: whitespaces, quoted string, regexp literal.
- * 
+ *
  * `regex summary:`
- * 
+ *
  * - none capture version:
- * 
+ *
  * ```
  *  ^[\s]+[\r\n]+|        # headspaces
  *  [\s]+$|               # spaces
@@ -78,7 +75,7 @@ const REPLACER = new replace.ReplaceFrontEnd("");
  *  "(?:\\[\s\S]|[^"])*"| # double quote
  *  '(?:\\[\s\S]|[^'])*'| # single quote
  *  \/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/]) # regex
- * 
+ *
  *```
  */
 // regexp document: "remove white spaces with replacer#comments removed"
@@ -96,7 +93,7 @@ const re_ws_qs_re: RegExp =
  * [\r\n]$  # last new line
  * ```
  */
-const re_first_n_last_newline = /^[\r\n]|[\r\n]$/g;
+const re_first_n_last_newline: RegExp = /^[\r\n]|[\r\n]$/g;
 
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;
@@ -141,7 +138,7 @@ const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = 
     return source;
 };
 
-const removeCStyleComments = Object.defineProperties(rmc, {
+const removeCStyleComments: IRemoveCStyleCommentsModule = Object.defineProperties(rmc, {
         // create readonly property "version"
         version: {
             get: (): string => latest_version,
@@ -149,7 +146,7 @@ const removeCStyleComments = Object.defineProperties(rmc, {
             configurable: false,
         }
     }
-) as IRemoveCStyleCommentsModule;
+);
 
 export = removeCStyleComments;
 // module.exports = removeCStyleComments;

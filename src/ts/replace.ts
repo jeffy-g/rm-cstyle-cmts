@@ -18,13 +18,13 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 
-
 interface IReplacementContext {
     /** content offset(read, write */
     offset: number;
     /** replecement result */
     result: string;
 }
+
 interface ICharVisitor {
     /** register by self. */
     injectTo(registry: IStringMap<ICharVisitor>): void;
@@ -58,7 +58,6 @@ interface ICharVisitor {
 //     abstract visit(char: string, source: string, context: IReplacementContext): boolean;
 // }
 
-
 /**
  * correctly evaluate single quote and double quote string,  
  * and concat it to the result string.
@@ -72,41 +71,40 @@ class QuoteVistor implements ICharVisitor {
     // constructor(registry: IStringMap<ICharVisitor>) {
     //     super(`"'`, registry);
     // }
-    injectTo(registry: IStringMap<ICharVisitor>): void {
+    public injectTo(registry: IStringMap<ICharVisitor>): void {
         registry["'"] = this;
         registry['"'] = this;
     }
-    visit(char: string, source: string, context: IReplacementContext): boolean {
+    public visit(char: string, source: string, context: IReplacementContext): boolean {
         const index = context.offset;
          // maybe will not need it. because it will apply visit as soon as quote is found.
         // if (source[index - 1] !== "\\") {
             // move next position.
-            let next = index + 1;
-            // toggle escape flag.
-            let in_escape = false;
-            // store "next" postion character. 
-            let ch: string;
-            // limiter
-            const limiter = source.length;
+        let next = index + 1;
+        // toggle escape flag.
+        let in_escape = false;
+        // store "next" postion character. 
+        let ch: string;
+        // limiter
+        const limiter = source.length;
 
-            while (next < limiter) {
-                if ((ch = source[next]) === "\\") {
-                    in_escape = !in_escape;
-                }
-                else if (!in_escape && ch === char) {
-                    // const str = source.substring(index, ++next);
-                    // console.log(`--[${str}]--`);
-                    // context.result += str;
-                    context.result += source.substring(index, ++next);
-                    context.offset = next;
-                    return true;
-                } else {
-                    in_escape = false;
-                }
-                next++;
+        while (next < limiter) {
+            if ((ch = source[next]) === "\\") {
+                in_escape = !in_escape;
+            } else if (!in_escape && ch === char) {
+                // const str = source.substring(index, ++next);
+                // console.log(`--[${str}]--`);
+                // context.result += str;
+                context.result += source.substring(index, ++next);
+                context.offset = next;
+                return true;
+            } else {
+                in_escape = false;
             }
+            next++;
+        }
         // }
-        throw new TypeError(`invalid string quotes??, offset=${index}, remaining=` + source.substring(index));
+        throw new TypeError(`invalid string quotes??, offset=${index}, remaining=${source.substring(index)}`);
     }
 }
 /**
@@ -121,11 +119,12 @@ class QuoteVistor implements ICharVisitor {
 // by improving the algorithm it is now possible to process correctly.
 class BackQuoteVistor implements ICharVisitor {
 
-    injectTo(registry: IStringMap<ICharVisitor>): void {
+    public injectTo(registry: IStringMap<ICharVisitor>): void {
         registry["`"] = this;
     }
 
-    visit(char: string, source: string, context: IReplacementContext): boolean {
+    // tslint:disable-next-line:
+    public visit(char: string, source: string, context: IReplacementContext): boolean {
 
         const index = context.offset;
         // move next position.
@@ -145,7 +144,7 @@ class BackQuoteVistor implements ICharVisitor {
          * ```
          * (depth + (0 or -1)) === bq_depth
          * ```
-         */ 
+         */
         let bq_depth = 0;
 
         // LOOP: while (next < limiter) {
@@ -185,17 +184,17 @@ class BackQuoteVistor implements ICharVisitor {
             // fetch "next" char, if its back slash then toggle escape state.
             if ((ch = source[next]) === "\\") {
                 in_escape = !in_escape;
-            }
-            // state is not escaped then let's check [`], "${", "}".
-            // however, "}" is ignore escape state?
-            else if (!in_escape) {
+            } else if (!in_escape) {
+                // state is not escaped then let's check [`], "${", "}".
+                // however, "}" is ignore escape state?
                 switch (ch) {
                     case "`":
                         if (depth > 0) {
-                            if (depth - 1 === bq_depth)  // can increment.
+                            if (depth - 1 === bq_depth) {    // can increment.
                                 bq_depth++;
-                            else if (depth === bq_depth) // can decrement.
+                            } else if (depth === bq_depth) { // can decrement.
                                 bq_depth--;
+                            }
                             // if (depth === bq_depth)
                             //     bq_depth--;
                             // else if (depth - 1 === bq_depth)
@@ -218,6 +217,8 @@ class BackQuoteVistor implements ICharVisitor {
                         // NOTE: can be decremented only when it is nested?
                         (depth > 0 && depth - 1 === bq_depth) && depth--;
                         break;
+                    default:
+                        break;
                 }
             } else {
                 in_escape = false;
@@ -227,7 +228,6 @@ class BackQuoteVistor implements ICharVisitor {
         throw new TypeError(`BackQuoteVistor error: offset=${index}, remaining=--[${source.substring(index)}]--`);
     }
 }
-
 
 /**
  * global flag for regexp.lastIndex.
@@ -249,10 +249,10 @@ const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\
  *```
  */
 class SlashVistor implements ICharVisitor {
-    injectTo(registry: IStringMap<ICharVisitor>): void {
+    public injectTo(registry: IStringMap<ICharVisitor>): void {
         registry["/"] = this;
     }
-    visit(char: string, source: string, context: IReplacementContext): boolean {
+    public visit(char: string, source: string, context: IReplacementContext): boolean {
 
         // fetch current offset.
         const index = context.offset;
@@ -325,30 +325,32 @@ class SlashVistor implements ICharVisitor {
  */
 export class ReplaceFrontEnd {
     private visitors: IStringMap<ICharVisitor> = {};
+    private subject: string;
     /**  */
-    constructor(private subject: string) {
+    constructor(subject: string) {
+        this.subject = subject;
         new QuoteVistor().injectTo(this.visitors);
         new BackQuoteVistor().injectTo(this.visitors);
         new SlashVistor().injectTo(this.visitors);
     }
-    setSubject(s: string): this {
+    public setSubject(s: string): this {
         this.subject = s;
         return this;
     }
     /**
      * it returns result string content.
      */
-    apply(): string {
+    public apply(): string {
         const context: IReplacementContext = {
             offset: 0,
             result: ""
         };
-        let source = this.subject;
-        let limit = source.length;
+        const source = this.subject;
+        const limit = source.length;
         const registry = this.visitors;
         while (context.offset < limit) {
-            let ch = source[context.offset];
-            let visitor = registry[ch];
+            const ch = source[context.offset];
+            const visitor = registry[ch];
             if (visitor && visitor.visit(ch, source, context)) {
                 // quote part.
                 // case "'": case '"':
@@ -356,7 +358,7 @@ export class ReplaceFrontEnd {
                 // case "`":
                 // single or multi line start, or regexp literal start?
                 // case "/":
-                ; // do nothing
+                // do nothing
             } else {
                 context.result += ch;
                 context.offset++;
