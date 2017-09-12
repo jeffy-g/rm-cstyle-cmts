@@ -138,6 +138,9 @@ function formatNumber(n: number): string {
  * 
  *   -l: inner loop counter value, typeof integer
  *   -ol: outer loop counter value, typeof integer
+ * 
+ *   -m: multi process test: boolean
+ * 
  *   -p: read performance log from pipe
  * ```
  */
@@ -156,21 +159,21 @@ let source_text;
 /**
  * performance measurement.
  * @param rm_ws remove blank line and whitespaces.
- * @param output_result 
+ * @param multi_use default is "false".
+ * @param output_result default is "true".
  */
-function benchmark(rm_ws: boolean, output_result: boolean = true): void {
+function benchmark(rm_ws: boolean, multi_use: boolean = false, output_result: boolean = true): void {
     const tag = `${src.simple_name}, rm_blank_line_n_ws=${rm_ws}, loop=${INNER}`;
-    const stat = fs.statSync(src.full_path);
 
     console.log(`version: ${rmc.version}, case: { source: ${src.simple_name}@${
-        formatNumber(stat.size)
-    }bytes, remove_blanks=${rm_ws} }, outerloop=${OUTER}, innerloop=${INNER}`);
+        formatNumber(fs.statSync(src.full_path).size)
+    }bytes, remove_blanks=${rm_ws}, multi_use=${multi_use} }, outerloop=${OUTER}, innerloop=${INNER}`);
 
     let ret: string;
     for (let a = OUTER; a--;) {
         console.time(tag);
         for (let b = INNER; b--;) {
-            ret = rmc(source_text, rm_ws, false);
+            ret = rmc(source_text, rm_ws, multi_use);
         }
         console.timeEnd(tag);
     }
@@ -256,15 +259,16 @@ if (settings.p) {
 
     source_text = fs.readFileSync(src.full_path, "utf-8");
 
+    const multi_use = !!settings.m;
     console.dir(settings, { color: true });
     // with remove blank line and whitespaces.
     console.log(" --------------- start benchmark (remove blanks) ---------------");
-    benchmark(!0);
+    benchmark(!0, multi_use);
     console.log(" ------------------------ end benchmark ------------------------");
 
     // without remove blank line and whitespaces.
     console.log(" --------------- start benchmark (!remove blanks) ---------------");
-    benchmark(!!0);
+    benchmark(!!0, multi_use);
     console.log(" ------------------------ end benchmark ------------------------");
     console.log("--done--");
 }
