@@ -17,14 +17,17 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-
-var through = require("through2");
-var PluginError = require("gulp-util").PluginError;
-
+///<reference path="..\bin\index.d.ts"/>
+/**
+ * @type {IRemoveCStyleCommentsModule}
+ */
 // use "rm-cstyle-cmts"
 var rmc = require("rm-cstyle-cmts");
 // gulp plugin name.
 var PLUGIN_NAME = "gulp-rm-cmts";
+
+var through = require("through2");
+var PluginError = require("gulp-util").PluginError;
 
 module.exports = function (options) {
     options = options || {};

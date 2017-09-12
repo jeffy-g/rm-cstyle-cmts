@@ -36,6 +36,14 @@ interface IRemoveCStyleCommentsModule extends IRemoveCStyleCommentsTypeSig {
 module.exports = Object.defineProperties(...) as IRemoveCStyleCommentsModule;
 ```
 
+## install
+
+> npm install rm-cstyle-cmts@latest --save-dev  
+> \# shorthand  
+> npm i rm-cstyle-cmts@latest -D
+
+etc...
+
 ## BUGS
 
 * [ ] `BUG:` #cannot keep blank line at nested es6 template string, (`rm_blank_line_n_ws=true`, at src/ts/index.ts
