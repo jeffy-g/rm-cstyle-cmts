@@ -311,7 +311,7 @@ class SlashVistor implements ICharVisitor {
  */
 function createWhite(source: string): IReplacementContext {
     // specify new line character.
-    const m = /\n|\r\n|\r/.exec(source);
+    const m = /\r\n|\n|\r/.exec(source);
     return {
         offset: 0,
         result: "",

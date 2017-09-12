@@ -47,6 +47,7 @@ etc...
 ## BUGS
 
 * [ ] `BUG:` #cannot keep blank line at nested es6 template string, (`rm_blank_line_n_ws=true`, at src/ts/index.ts
+* [X] ~~*`BUG:` When a newline character is CRLF, regexp instance specifying multiline flag can not correctly supplement CRLF with ^ and $*~~
 * [X] ~~*`BUG:` In some cases, a newline character remains at the beginning or the end of the file. (`rm_blank_line_n_ws=true`, at src/ts/index.ts*~~
 * [X] ~~*`BUG:` #cannot remove last new line char. (at src/ts/index.ts*~~
 * [X] ~~*`FIXED:`? #cannot beyond regex. (at src/ts/index.ts*~~
