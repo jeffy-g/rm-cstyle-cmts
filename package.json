@@ -7,7 +7,7 @@
     "scripts": {
         "lint": "tslint src/**/*.ts -p tsconfig.json --type-check",
         "test": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
-        "build": "tsc",
+        "build": "gulp rm:nullfile",
         "dist": "gulp dist && npm publish ./dist"
     },
     "repository": {

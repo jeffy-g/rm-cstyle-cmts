@@ -179,7 +179,7 @@ gulp.task("readme", function(cb) {
     .pipe(gulp.dest('./')).on("end", () => {
         // notify completion of task.
         cb();
-        console.log("Please run 'gulp dist'");
+        console.log("Please run 'npm run dist'");
     });
 });
 
