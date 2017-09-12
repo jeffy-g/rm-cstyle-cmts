@@ -128,5 +128,5 @@ const templete = `function ${name}() {
 }
 `;     
 
-;
+; 
   

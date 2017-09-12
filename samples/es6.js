@@ -132,5 +132,5 @@ const templete = `function ${name}() {
 }
 `;     
 
-;
+; /*
   

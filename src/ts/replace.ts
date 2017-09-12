@@ -164,10 +164,6 @@ class BackQuoteVistor implements ICharVisitor {
                             } else if (depth === bq_depth) { // can decrement.
                                 bq_depth--;
                             }
-                            // if (depth === bq_depth)
-                            //     bq_depth--;
-                            // else if (depth - 1 === bq_depth)
-                            //     bq_depth++;
                             break;
                         }
                         if (depth === 0) {
@@ -258,16 +254,8 @@ class SlashVistor implements ICharVisitor {
 
         // check multiline comment.
         if (ch === "*") {
-            // index += 2;
-            // while (index < length) {
-            //     if (source[index] === "*" && source[index + 1] === "/") {
-            //         break;
-            //     }
-            //     index++;
-            // }
-            // context.offset = index;
             const close = source.indexOf("*/", index + 2);
-            // update offset.
+            // update offset.(implicit bug at here
             context.offset = (close === -1? index : close) + 2;
             return true;
         }
@@ -291,6 +279,7 @@ class SlashVistor implements ICharVisitor {
             // NOTE:
             //  o LF does not have to worry.
             RE_REGEXP_PATTERN.lastIndex = 0;
+            // const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
             // only execute once, this is important!
             const m = RE_REGEXP_PATTERN.exec(remaining);
             if (m === null) {
@@ -301,6 +290,7 @@ class SlashVistor implements ICharVisitor {
             if (remaining[m.index - 1] === "/") {
                 ch = "/";
                 context.result += source.substring(index, index + m.index - 1);
+                // jump to "L", and apply remaining process. (ch === "/"
                 continue L;
             } else {
                 // update offset.
@@ -361,10 +351,10 @@ export class ReplaceFrontEnd {
      * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
      */
     public apply(): string {
+
         const source = this.subject;
         const limit = source.length;
         const registry = this.visitors;
-
         const context: IReplacementContext = createWhite(source);
         let prev_offset = 0;
 

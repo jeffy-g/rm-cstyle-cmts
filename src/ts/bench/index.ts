@@ -222,11 +222,11 @@ if (settings.p) {
         process.stdin.setEncoding("utf8");
 
         const rotator = ["|", "/", "-", "\\", "|", "/", "-", "\\"];
-        let index = 0;
+        let rotator_index = 0;
         process.stdin.on("data", function (chunk: string) {
             inputs += chunk;
             // console.log(chunk);
-            progress(`performance measurement running [${rotator[index++ % rotator.length]}]`);
+            progress(`performance measurement running [${rotator[rotator_index++ % rotator.length]}]`);
         });
         process.stdin.on("end", function () {
             progress();

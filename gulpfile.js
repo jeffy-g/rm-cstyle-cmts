@@ -37,6 +37,8 @@ const tsc = require('gulp-typescript');  // global install
 const replacer = require('gulp-replace');// global install
 const rename = require('gulp-rename');   // global install
 
+// const grmc = require("./src/gulp-rm-cmts");
+
 // ------------------------------- constant variables ----------------------------------
 /** ts compiled out put. */
 const JS_DEST_DIR = "./bin";
@@ -182,3 +184,19 @@ gulp.task("readme", function(cb) {
         console.log("Please run 'gulp dist'");
     });
 });
+
+
+gulp.task("rmc-test", function(cb) {
+    // create readme.md form template.
+    gulp.src("./tmp/ts/**/*.ts")
+    .pipe(
+        grmc()
+    )
+    .pipe(rename({ suffix: "-after" }))
+    .pipe(gulp.dest('./tmp/ts')).on("end", () => {
+        // notify completion of task.
+        cb();
+        console.log("Please run 'gulp dist'");
+    });
+});
+
