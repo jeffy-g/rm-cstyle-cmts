@@ -255,7 +255,6 @@ class SlashVistor implements ICharVisitor {
 
         // fetch next char.
         let ch = source[index + 1];
-        if (ch === void 0) return false;
 
         // check multiline comment.
         if (ch === "*") {
