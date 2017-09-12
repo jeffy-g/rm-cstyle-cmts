@@ -37,8 +37,6 @@ const tsc = require('gulp-typescript');  // global install
 const replacer = require('gulp-replace');// global install
 const rename = require('gulp-rename');   // global install
 
-// const grmc = require("./src/gulp-rm-cmts");
-
 // ------------------------------- constant variables ----------------------------------
 /** ts compiled out put. */
 const JS_DEST_DIR = "./bin";
@@ -185,18 +183,30 @@ gulp.task("readme", function(cb) {
     });
 });
 
+// --------------------------------------------- [gulp test]
+const grmc = require("./src/gulp-rm-cmts");
+const TEST_SRC_PREFIX = "./tmp/ts/**/*";
+const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts`;
+const TEST_SRC_FILEs_OUT = "./tmp/output";
 
-gulp.task("rmc-test", function(cb) {
-    // create readme.md form template.
-    gulp.src("./tmp/ts/**/*.ts")
+gulp.task("rmc-test", ["rmc-test-del"], function(cb) {
+    gulp.src(TEST_SRC_FILEs)
     .pipe(
-        grmc()
+        /**
+         * remove_ws : remove whitespace and blank lines.
+         * multi_use : multi process use
+         */
+        grmc({ remove_ws: true })
     )
     .pipe(rename({ suffix: "-after" }))
-    .pipe(gulp.dest('./tmp/ts')).on("end", () => {
+    .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
         // notify completion of task.
         cb();
-        console.log("Please run 'gulp dist'");
+        console.log("task rmc-test done.");
     });
 });
 
+gulp.task("rmc-test-del", function(cb) {
+    del.sync(TEST_SRC_FILEs_OUT);
+    cb();
+});

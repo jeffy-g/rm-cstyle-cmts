@@ -1,0 +1,32 @@
+{
+    "name": "gulp-rm-cmts",
+    "version": "0.0.1",
+    "description": "remove cstyle comments for gulp",
+    "dependencies": {
+        "through2": "*",
+        "gulp-util": "*",
+        "gulp-rm-cmts": "*"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo test"
+    },
+    "repository": {},
+    "keywords": [
+        "gulp plugin",
+        "remove",
+        "delete",
+        "comment",
+        "comments",
+        "javascript",
+        "strip",
+        "json",
+        "text"
+    ],
+    "author": "jeffy-g",
+    "license": "Apache-2.0",
+    "bugs": {},
+    "engines": {
+        "node": ">=4.8.4"
+    }
+}
