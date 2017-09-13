@@ -33,7 +33,7 @@ var PluginError = require("gulp-util").PluginError;
 
 /**
  * remove_ws: default is true;
- * @param { { remove_ws: boolean } } options 
+ * @param { { remove_ws: boolean } } options
  */
 module.exports = function (options) {
     options = options || {};
