@@ -43,6 +43,9 @@ interface ICharVisitor {
     // setContext(context: IReplacementContext): void;
 }
 
+/** buildWsQsReRegexp, RE_NEWLINEs */
+import * as reutil from "./reutil";
+
 // /**
 //  * 
 //  */
@@ -311,7 +314,7 @@ class SlashVistor implements ICharVisitor {
  */
 function createWhite(source: string): IReplacementContext {
     // specify new line character.
-    const m = /\r\n|\n|\r/.exec(source);
+    const m = reutil.RE_NEWLINEs.exec(source);
     return {
         offset: 0,
         result: "",

@@ -20,7 +20,10 @@ limitations under the License.
 import * as fs from "fs";
 import * as path from "path";
 
+/** class ReplaceFrontEnd */
 import * as replace from "./replace";
+/** buildWsQsReRegexp, RE_NEWLINEs */
+import * as reutil from "./reutil";
 
 declare global {
     interface IRemoveCStyleCommentsTypeSig {
@@ -57,19 +60,6 @@ const latest_version: string = pkg.version;
  */
 const REPLACER: replace.ReplaceFrontEnd = new replace.ReplaceFrontEnd();
 
-// // regexp document: "remove white spaces with replacer#comments removed"
-// this regex cannot be processed correctly.
-// /^[\s]+[\r\n]+|[\s]+$|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/gm
-
-// BUG: When a newline character is CRLF, regexp instance specifying multiline flag can not correctly supplement CRLF with ^ and $
-/*
- o It was necessary to do this when the newline character of inupt is CRLF.
-    /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/g;
-
- o This looks good, but it does not work.
-    /(?:\r\n|\r|\n)\s+(?=(?:\r\n|\r|\n))|\s+(?=(?:\r\n|\r|\n))/g
-*/
-
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;
 //     require: NodeRequireFunction;
@@ -82,57 +72,6 @@ const REPLACER: replace.ReplaceFrontEnd = new replace.ReplaceFrontEnd();
 // declare var module: NodeModule;
 // Same as module.exports
 // declare var exports: any;
-
-const re_ws_qs_base: RegExp =
-    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/;
-/**
- * create regex by newline character of source.
- * @param source parsing source.
- */
-function buildWsQsReRegexp(source: string): RegExp {
-    // specify new line character.
-    const m = /\r\n|\n|\r/.exec(source);
-    let newline = m? m[0]: "";
-    if (newline === "") return null;
-
-    // escape CR or LF
-    newline = newline === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
-
-    /**
-     * regex: whitespaces, quoted string, regexp literal.
-     *
-     * `regex summary:`
-     *
-     * ```
-     *  newline\s+(?=newline)| # whitespace line or ...
-     *  \s+(?=newline)|        # spaces ahead of new line
-     *  `(?:\\[\s\S]|[^`])*`|  # back quote
-     *  "(?:\\[\s\S]|[^"])*"|  # double quote
-     *  '(?:\\[\s\S]|[^'])*'|  # single quote
-     *  \/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/]) # regex
-     *
-     *```
-    */
-    return new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
-
-    // /^newline|newline$/g;
-    /**
-     * If do not specify a multiline flag,  
-     * noticed that it matches the very first and last in the string ...
-     * 
-     * `regex summary:`
-     * 
-     * ```
-     * ^newline| # first new line
-     * newline$  # last new line
-     * ```
-     */
-    // const re_first_n_last = new RegExp(`^${newline}|${newline}$`, "g"); NG
-    // const re_first_n_last = new RegExp(`^(${newline})+|(${newline})+$`, "g"); OK
-    // return {
-    //     re_ws_qs, re_first_n_last
-    // };
-}
 
 const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_blank_line_n_ws = true): string => {
 
@@ -150,7 +89,7 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
 
     /* remove whitespaces.*/
     if (rm_blank_line_n_ws) {
-        const re_ws_qs_re = buildWsQsReRegexp(source);
+        const re_ws_qs_re = reutil.buildWsQsReRegexp(source);
         if (re_ws_qs_re === null) return source;
         return source.replace(
             // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
