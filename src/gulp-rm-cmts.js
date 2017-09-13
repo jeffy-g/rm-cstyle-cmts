@@ -31,9 +31,14 @@ var PLUGIN_NAME = "gulp-rm-cmts";
 var through = require("through2");
 var PluginError = require("gulp-util").PluginError;
 
+/**
+ * remove_ws: default is true;
+ * @param { { remove_ws: boolean } } options 
+ */
 module.exports = function (options) {
     options = options || {};
-    const rm_ws = !!options.remove_ws;
+    // default is true;
+    const rm_ws = typeof options.remove_ws === "boolean"? options.remove_ws: true;
     /**
      * @this {Transform}
      */

@@ -194,7 +194,6 @@ gulp.task("rmc-test", ["rmc-test-del"], function(cb) {
     .pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
-         * multi_use : multi process use
          */
         grmc({ remove_ws: true })
     )

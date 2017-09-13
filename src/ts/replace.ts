@@ -383,5 +383,4 @@ namespace ReplaceFrontEnd {
  */
 export function getFrondEnd(): IReplaceFrontEnd {
     return ReplaceFrontEnd;
-    // return new ReplaceFrontEnd();
 }
