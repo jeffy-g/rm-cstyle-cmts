@@ -29,7 +29,8 @@ declare global {
          * create regex by newline character of source.
          * @param source parsing source.
          */
-        buildWsQsReRegexp(source: string): RegExp;
+        buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: RegExp };
+        // buildWsQsReRegexp(source: string): RegExp;
     }
 }
 
@@ -53,7 +54,8 @@ declare global {
 const re_ws_qs_base: RegExp =
     /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/;
 
-function buildWsQsReRegexp(source: string): RegExp {
+// function buildWsQsReRegexp(source: string): RegExp {
+function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: RegExp } {
     // specify new line character.
     const m = this.RE_NEWLINEs.exec(source);
     let newline = m? m[0]: "";
@@ -77,7 +79,8 @@ function buildWsQsReRegexp(source: string): RegExp {
      *
      *```
     */
-    return new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
+    const re_ws_qs = new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
+    // return new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
 
     // /^newline|newline$/g;
     /**
@@ -91,11 +94,11 @@ function buildWsQsReRegexp(source: string): RegExp {
      * newline$  # last new line
      * ```
      */
-    // const re_first_n_last = new RegExp(`^${newline}|${newline}$`, "g"); NG
+    const re_first_n_last = new RegExp(`^${newline}|${newline}$`, "g");
     // const re_first_n_last = new RegExp(`^(${newline})+|(${newline})+$`, "g"); OK
-    // return {
-    //     re_ws_qs, re_first_n_last
-    // };
+    return {
+        re_ws_qs, re_first_n_last
+    };
 }
 
 const reutil: ReUtil = Object.defineProperties({} as ReUtil, {

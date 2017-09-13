@@ -89,18 +89,20 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
 
     /* remove whitespaces.*/
     if (rm_blank_line_n_ws) {
-        const re_ws_qs_re = reutil.buildWsQsReRegexp(source);
-        if (re_ws_qs_re === null) return source;
+        const regexes = reutil.buildWsQsReRegexp(source);
+        if (regexes === null) return source;
         return source.replace(
             // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
             // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-            re_ws_qs_re, (all, index: number, inputs: string) => {
+            regexes.re_ws_qs, (all, index: number, inputs: string) => {
                 const first = all[0];
+                // NOTE: need skip qoted string, regexp literal.
                 return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
         })
         // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
         // NOTE: this regex seems to be the correct answer...
-        .replace(/^\s+|\s+$/g, "");
+        .replace(regexes.re_first_n_last, "");
+        // .replace(/^\s+|\s+$/g, ""); // can handle it reliably, but consume a lot more cpu time a little.
     }
     return source;
 };
