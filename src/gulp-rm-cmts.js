@@ -17,7 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-///<reference path="..\bin\index.d.ts"/>
+///<reference path="../bin/index.d.ts"/>
 /**
  * @type {IRemoveCStyleCommentsModule}
  */
@@ -34,7 +34,6 @@ var PluginError = require("gulp-util").PluginError;
 module.exports = function (options) {
     options = options || {};
     const rm_ws = !!options.remove_ws;
-    const multi_use = !!options.multi_use;
     /**
      * @this {Transform}
      */
@@ -47,7 +46,7 @@ module.exports = function (options) {
         }
         // plugin main
         if (file.isBuffer()) {
-            var contents = rmc(file.contents.toString(), rm_ws, multi_use);
+            var contents = rmc(file.contents.toString(), rm_ws);
             file.contents = new Buffer(contents);
             return callback(null, file);
         }

@@ -56,9 +56,9 @@ const pkg: IStringMap<string> = require("../package.json");
 const latest_version: string = pkg.version;
 
 /**
- * singleton instance for synchronous use.
+ * singleton instance.
  */
-const REPLACER: replace.ReplaceFrontEnd = new replace.ReplaceFrontEnd();
+const REPLACER: IReplaceFrontEnd = replace.getFrondEnd();
 
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;

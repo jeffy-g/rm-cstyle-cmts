@@ -17,6 +17,16 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+declare global {
+    interface IReplaceFrontEnd {
+        /**
+         * it returns result string content.
+         * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
+         */
+        apply(source: string): string;
+    }
+}
+
 
 interface IReplacementContext {
     /** content offset(read, write */
@@ -324,40 +334,26 @@ function createWhite(source: string): IReplacementContext {
 
 /**
  * NOTE:  
- * This class is implemented to correctly judge quoted string,  
+ * This namespace is implemented to correctly judge quoted string,  
  * line comment, multiline commnet, regexp literal,  
  * and delete line comment, multiline commnet. (maybe...
  */
-export class ReplaceFrontEnd {
-    private visitors: IStringMap<ICharVisitor> = {};
-    // private subject: string;
-    /**
-     * 
-     * @param {string} subject text content of parse target.
-     */
-    constructor() {
-        // this.subject = subject;
-        new QuoteVistor().injectTo(this.visitors);
-        new BackQuoteVistor().injectTo(this.visitors);
-        new SlashVistor().injectTo(this.visitors);
-    }
-    // /**
-    //  * set text content of parse target.
-    //  * @param {string} s text content of parse target.
-    //  */
-    // public setSubject(s: string): this {
-    //     this.subject = s;
-    //     return this;
-    // }
-    /**
-     * it returns result string content.
-     * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
-     */
-    public apply(source: string): string {
+namespace ReplaceFrontEnd {
 
-        // const source = this.subject;
+    /**
+     * ICharVisitor registory.
+     */
+    const visitors: IStringMap<ICharVisitor> = {};
+
+    // register self.
+    new QuoteVistor().injectTo(visitors);
+    new BackQuoteVistor().injectTo(visitors);
+    new SlashVistor().injectTo(visitors);
+
+    export function apply(source: string): string {
+
         const limit = source.length;
-        const registry = this.visitors;
+        const registry = visitors;
         const context: IReplacementContext = createWhite(source);
         let prev_offset = 0;
 
@@ -380,4 +376,12 @@ export class ReplaceFrontEnd {
 
         return context.result;
     }
+}
+
+/**
+ * get IReplaceFrontEnd instance.
+ */
+export function getFrondEnd(): IReplaceFrontEnd {
+    return ReplaceFrontEnd;
+    // return new ReplaceFrontEnd();
 }

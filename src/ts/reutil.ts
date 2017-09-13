@@ -17,9 +17,24 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+declare global {
+    interface ReUtil {
+        /**
+         * ```js
+         * const RE_NEWLINEs = /\r\n|\n|\r/;
+         * ```
+         */
+        readonly RE_NEWLINEs: RegExp;
+        /**
+         * create regex by newline character of source.
+         * @param source parsing source.
+         */
+        buildWsQsReRegexp(source: string): RegExp;
+    }
+}
 
 /** for detect newline. */
-export const RE_NEWLINEs = /\r\n|\n|\r/;
+// const RE_NEWLINEs = /\r\n|\n|\r/;
 
 // // regexp document: "remove white spaces with replacer#comments removed"
 // this regex cannot be processed correctly.
@@ -38,13 +53,9 @@ export const RE_NEWLINEs = /\r\n|\n|\r/;
 const re_ws_qs_base: RegExp =
     /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/;
 
-/**
- * create regex by newline character of source.
- * @param source parsing source.
- */
-export function buildWsQsReRegexp(source: string): RegExp {
+function buildWsQsReRegexp(source: string): RegExp {
     // specify new line character.
-    const m = RE_NEWLINEs.exec(source);
+    const m = this.RE_NEWLINEs.exec(source);
     let newline = m? m[0]: "";
     if (newline === "") return null;
 
@@ -87,3 +98,18 @@ export function buildWsQsReRegexp(source: string): RegExp {
     // };
 }
 
+const reutil: ReUtil = Object.defineProperties({} as ReUtil, {
+    // create readonly property "version"
+    RE_NEWLINEs: {
+        enumerable: true,
+        configurable: false,
+        value: /\r\n|\n|\r/
+    },
+    buildWsQsReRegexp: {
+        enumerable: true,
+        configurable: false,
+        value: buildWsQsReRegexp
+    }
+});
+
+export = reutil;
