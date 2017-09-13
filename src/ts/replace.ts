@@ -211,35 +211,6 @@ class BackQuoteVistor implements ICharVisitor {
 }
 
 /**
- * global flag for regexp.lastIndex.  
- * rewrite the lastIndex and execute it only once.
- * 
- * `regex summary:`
- * 
- * ```
- * \/                   # regexp literal start@delimiter
- *   (?![?*+\/])        # not meta character "?*+/" @anchor
- *   (?:                # start non-capturing group $1
- *     \\[\s\S]|        # escaped any character, or
- *     \[               # class set start
- *       (?:            # non-capturing group $2
- *         \\[\s\S]|    # escaped any character, or
- *         [^\]\r\n\\]  # without class set end, newline, backslash
- *       )*             # end non-capturing group $2 (q: 0 or more
- *     \]|              # class set end, or
- *     [^\/\r\n\\]      # without slash, newline, backslash
- *   )+                 # end non-capturing group $1 (q: 1 or more
- * \/                   # regexp literal end@delimiter
- * (?:                  # start non-capturing group $3
- *   [gimuy]+\b|        # validate regex flags, but this pattern is imcomplete
- * )                    # end non-capturing group $3
- * (?![?*+\/])          # not meta character "?*+/" @anchor ...
- * ```
- */
-// NOTE: regexp document -> match regexp literal@mini#nocapture
-// const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
-
-/**
  * when this character appears,  
  * its necessary to verify the line comment, multiline comment, regex.  
  * will need to set the priority as (line comment || multiline comment) > regex.
@@ -295,7 +266,7 @@ class SlashVistor implements ICharVisitor {
             // NOTE:
             //  o LF does not have to worry.
             // RE_REGEXP_PATTERN.lastIndex = 0;
-            const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
+            const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/g;
             // only execute once, this is important!
             const m = re_re.exec(remaining);
             if (m === null) {

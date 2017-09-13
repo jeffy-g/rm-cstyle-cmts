@@ -50,9 +50,38 @@ declare global {
     /(?:\r\n|\r|\n)\s+(?=(?:\r\n|\r|\n))|\s+(?=(?:\r\n|\r|\n))/g
 */
 
+/**
+ * global flag for regexp.lastIndex.  
+ * rewrite the lastIndex and execute it only once.
+ * 
+ * `regex summary:`
+ * 
+ * ```
+ * \/                   # regexp literal start@delimiter
+ *   (?![?*+\/])        # not meta character "?*+/" @anchor
+ *   (?:                # start non-capturing group $1
+ *     \\[\s\S]|        # escaped any character, or
+ *     \[               # class set start
+ *       (?:            # non-capturing group $2
+ *         \\[\s\S]|    # escaped any character, or
+ *         [^\]\r\n\\]  # without class set end, newline, backslash
+ *       )*             # end non-capturing group $2 (q: 0 or more
+ *     \]|              # class set end, or
+ *     [^\/\r\n\\]      # without slash, newline, backslash
+ *   )+                 # end non-capturing group $1 (q: 1 or more
+ * \/                   # regexp literal end@delimiter
+ * (?:                  # start non-capturing group $3
+ *   [gimuy]+\b|        # validate regex flags, but this pattern is imcomplete
+ * )                    # end non-capturing group $3
+ * (?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
+ * ```
+ */
+// NOTE: regexp document -> ***match regexp literal@mini#nocapture
+// const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/g;
+
 /** base */
 const re_ws_qs_base: RegExp =
-    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/;
+    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/[\\])/;
 
 // function buildWsQsReRegexp(source: string): RegExp {
 function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: RegExp } {

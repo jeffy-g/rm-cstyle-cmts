@@ -132,7 +132,7 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 (?:                  # start non-capturing group $3
   [gimuy]+\b|        # validate regex flags, but this pattern is imcomplete
 )                    # end non-capturing group $3
-(?![?*+\/])          # not meta character "?*+/" @anchor ...
+(?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
 
 ```
 as comment on samples/es6.js with descriptive explanation,
