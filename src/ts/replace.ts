@@ -177,6 +177,9 @@ class BackQuoteVistor implements ICharVisitor {
                             } else if (depth === bq_depth) { // can decrement.
                                 bq_depth--;
                             }
+                            // (depth - 1 === bq_depth)? bq_depth++:
+                            // // tslint:disable-next-line:no-unused-expression
+                            // (depth === bq_depth)? bq_depth--: 0;
                             break;
                         }
                         if (depth === 0) {
