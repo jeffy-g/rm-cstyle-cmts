@@ -104,7 +104,7 @@ function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last:
      *  `(?:\\[\s\S]|[^`])*`|  # back quote
      *  "(?:\\[\s\S]|[^"])*"|  # double quote
      *  '(?:\\[\s\S]|[^'])*'|  # single quote
-     *  \/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/]) # regex
+     *  \/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/[\\]) # regex
      *
      *```
     */

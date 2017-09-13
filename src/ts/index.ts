@@ -20,7 +20,7 @@ limitations under the License.
 import * as fs from "fs";
 import * as path from "path";
 
-/** class ReplaceFrontEnd */
+/** IReplaceFrontEnd */
 import * as replace from "./replace";
 /** buildWsQsReRegexp, RE_NEWLINEs */
 import * as reutil from "./reutil";
@@ -84,8 +84,8 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
     source = REPLACER.apply(source);
 
     // NOTE: this combination does not do the intended work...
-    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
-    // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
+    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]/gm, ""): source;
+    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
 
     /* remove whitespaces.*/
     if (rm_blank_line_n_ws) {
