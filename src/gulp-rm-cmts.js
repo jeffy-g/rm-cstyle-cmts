@@ -23,6 +23,8 @@ limitations under the License.
  */
 // use "rm-cstyle-cmts"
 var rmc = require("rm-cstyle-cmts");
+// var rmc = require("../bin/");
+
 // gulp plugin name.
 var PLUGIN_NAME = "gulp-rm-cmts";
 

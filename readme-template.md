@@ -21,9 +21,8 @@ interface IRemoveCStyleCommentsTypeSig {
      * 
      * @param {string} source c style commented text source.
      * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
-     * @param {boolean} is_multi_t use multi process?, default is "false".
      */
-    (source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
+    (source: string, rm_blank_line_n_ws?: boolean): string;
 }
 /**
  * remove c style comments interface.

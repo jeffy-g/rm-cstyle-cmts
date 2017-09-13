@@ -221,7 +221,7 @@ class BackQuoteVistor implements ICharVisitor {
  * ```
  */
 // NOTE: regexp document -> match regexp literal@mini#nocapture
-const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
+// const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
 
 /**
  * when this character appears,  
@@ -278,15 +278,15 @@ class SlashVistor implements ICharVisitor {
             const remaining = source.substring(index, x === -1? length: x);
             // NOTE:
             //  o LF does not have to worry.
-            RE_REGEXP_PATTERN.lastIndex = 0;
-            // const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
+            // RE_REGEXP_PATTERN.lastIndex = 0;
+            const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/])/g;
             // only execute once, this is important!
-            const m = RE_REGEXP_PATTERN.exec(remaining);
+            const m = re_re.exec(remaining);
             if (m === null) {
                 return false;
             }
 
-            // means multiline comment.
+            // means line comment.
             if (remaining[m.index - 1] === "/") {
                 ch = "/";
                 context.result += source.substring(index, index + m.index - 1);
@@ -294,7 +294,7 @@ class SlashVistor implements ICharVisitor {
                 continue L;
             } else {
                 // update offset.
-                context.offset = index + RE_REGEXP_PATTERN.lastIndex;
+                context.offset = index + re_re.lastIndex;
                 context.result += source.substring(index, context.offset);
                 return true;
             }
@@ -327,32 +327,32 @@ function createWhite(source: string): IReplacementContext {
  */
 export class ReplaceFrontEnd {
     private visitors: IStringMap<ICharVisitor> = {};
-    private subject: string;
+    // private subject: string;
     /**
      * 
      * @param {string} subject text content of parse target.
      */
-    constructor(subject: string) {
-        this.subject = subject;
+    constructor() {
+        // this.subject = subject;
         new QuoteVistor().injectTo(this.visitors);
         new BackQuoteVistor().injectTo(this.visitors);
         new SlashVistor().injectTo(this.visitors);
     }
-    /**
-     * set text content of parse target.
-     * @param {string} s text content of parse target.
-     */
-    public setSubject(s: string): this {
-        this.subject = s;
-        return this;
-    }
+    // /**
+    //  * set text content of parse target.
+    //  * @param {string} s text content of parse target.
+    //  */
+    // public setSubject(s: string): this {
+    //     this.subject = s;
+    //     return this;
+    // }
     /**
      * it returns result string content.
      * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
      */
-    public apply(): string {
+    public apply(source: string): string {
 
-        const source = this.subject;
+        // const source = this.subject;
         const limit = source.length;
         const registry = this.visitors;
         const context: IReplacementContext = createWhite(source);

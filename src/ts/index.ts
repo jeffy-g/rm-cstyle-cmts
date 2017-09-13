@@ -36,19 +36,16 @@ declare global {
          * 
          * @param {string} source c style commented text source.
          * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
-         * @param {boolean} is_multi_t use multi process?, default is "false".
          */
-        (source: string, rm_blank_line_n_ws?: boolean, is_multi_t?: boolean): string;
+        (source: string, rm_blank_line_n_ws?: boolean): string;
     }
     /**
      * remove c style comments interface.
      */
     interface IRemoveCStyleCommentsModule extends IRemoveCStyleCommentsTypeSig {
         /** package version */
-        readonly version: string;
+        readonly version?: string;
     }
-    // for String.replace
-    // type StringReplacer = (matchBody: string, ...args: (string | number)[]) => string;
 }
 
 const pkg: IStringMap<string> = require("../package.json");
@@ -58,7 +55,7 @@ const latest_version: string = pkg.version;
 /**
  * singleton instance for synchronous use.
  */
-const REPLACER: replace.ReplaceFrontEnd = new replace.ReplaceFrontEnd("");
+const REPLACER: replace.ReplaceFrontEnd = new replace.ReplaceFrontEnd();
 
 // // regexp document: "remove white spaces with replacer#comments removed"
 // this regex cannot be processed correctly.
@@ -92,7 +89,7 @@ const re_ws_qs_base: RegExp =
  * create regex by newline character of source.
  * @param source parsing source.
  */
-function buildRegexes(source: string): { re_ws_qs: RegExp, re_first_n_last: RegExp } {
+function buildWsQsReRegexp(source: string): RegExp {
     // specify new line character.
     const m = /\r\n|\n|\r/.exec(source);
     let newline = m? m[0]: "";
@@ -116,7 +113,7 @@ function buildRegexes(source: string): { re_ws_qs: RegExp, re_first_n_last: RegE
      *
      *```
     */
-    const re_ws_qs = new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|` + re_ws_qs_base.source, "g");
+    return new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
 
     // /^newline|newline$/g;
     /**
@@ -130,13 +127,14 @@ function buildRegexes(source: string): { re_ws_qs: RegExp, re_first_n_last: RegE
      * newline$  # last new line
      * ```
      */
-    const re_first_n_last = new RegExp(`^${newline}|${newline}$`, "g");
-    return {
-        re_ws_qs, re_first_n_last
-    };
+    // const re_first_n_last = new RegExp(`^${newline}|${newline}$`, "g"); NG
+    // const re_first_n_last = new RegExp(`^(${newline})+|(${newline})+$`, "g"); OK
+    // return {
+    //     re_ws_qs, re_first_n_last
+    // };
 }
 
-const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = true, is_multi_t = false): string => {
+const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_blank_line_n_ws = true): string => {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
@@ -144,9 +142,7 @@ const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = 
 
     // Is nearly equal processing speed?
     // const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-    source = (
-        is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source)
-    ).apply();
+    source = REPLACER.apply(source);
 
     // NOTE: this combination does not do the intended work...
     // return rm_blank_line_n_ws? source.replace(/^[\s]+$|[\r\n]+$|^[\r\n]/gm, ""): source;
@@ -154,23 +150,23 @@ const rmc: IRemoveCStyleCommentsTypeSig = (source: string, rm_blank_line_n_ws = 
 
     /* remove whitespaces.*/
     if (rm_blank_line_n_ws) {
-        const regexes = buildRegexes(source);
-        // const { re_ws_qs, re_first_n_last } = buildRegexes(source);
-        if (regexes === null) return source;
+        const re_ws_qs_re = buildWsQsReRegexp(source);
+        if (re_ws_qs_re === null) return source;
         return source.replace(
             // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
             // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-            regexes.re_ws_qs, (all, index: number, inputs: string) => {
+            re_ws_qs_re, (all, index: number, inputs: string) => {
                 const first = all[0];
                 return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
         })
         // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
-        .replace(regexes.re_first_n_last, "");
+        // NOTE: this regex seems to be the correct answer...
+        .replace(/^\s+|\s+$/g, "");
     }
     return source;
 };
 
-const removeCStyleComments: IRemoveCStyleCommentsModule = Object.defineProperties(rmc, {
+/* removeCStyleComments = */ Object.defineProperties(removeCStyleComments, {
         // create readonly property "version"
         version: {
             get: (): string => latest_version,
