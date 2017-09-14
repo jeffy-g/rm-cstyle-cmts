@@ -81,17 +81,18 @@ declare global {
 
 /** base */
 const re_ws_qs_base: RegExp =
-    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/[\\])/;
+    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/;
 
 // function buildWsQsReRegexp(source: string): RegExp {
 function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: RegExp } {
     // specify new line character.
     const m = this.RE_NEWLINEs.exec(source);
-    let newline = m? m[0]: "";
-    if (newline === "") return null;
+    if (m === null)
+        return null;
 
+    let newline: string;
     // escape CR or LF
-    newline = newline === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
+    newline = (newline = m[0]) === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
 
     /**
      * regex: whitespaces, quoted string, regexp literal.
@@ -107,7 +108,7 @@ function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last:
      *  \/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/[\\]) # regex
      *
      *```
-    */
+     */
     const re_ws_qs = new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
     // return new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
 

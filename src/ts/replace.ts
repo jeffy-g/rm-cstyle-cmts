@@ -94,7 +94,7 @@ class QuoteVistor implements ICharVisitor {
         const index = context.offset;
          // maybe will not need it. because it will apply visit as soon as quote is found.
         // if (source[index - 1] !== "\\") {
-            // move next position.
+        // move next position.
         let next = index + 1;
         // toggle escape flag.
         let in_escape = false;
