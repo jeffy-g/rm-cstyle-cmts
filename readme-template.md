@@ -1,4 +1,4 @@
-# remove cstyle comments
+# remove cstyle comments [![Build Status](https://travis-ci.org/jeffy-g/rm-cstyle-cmts.svg?branch=master)](https://travis-ci.org/jeffy-g/rm-cstyle-cmts)
 remove c style comments from text file(javascript source, json file etc...
 
 ## npm package name: rm-cstyle-cmts

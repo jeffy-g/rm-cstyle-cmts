@@ -218,13 +218,18 @@ if (settings.p) {
         process.stdin.resume();
         process.stdin.setEncoding("utf8");
 
-        const rotator = ["|", "/", "-", "\\", "|", "/", "-", "\\"];
-        let rotator_index = 0;
-        process.stdin.on("data", function (chunk: string) {
+        const on_data_handler = process.env.TRAVIS_CI? (chunk: string): any => {
             inputs += chunk;
-            // console.log(chunk);
-            progress(`performance measurement running [${rotator[rotator_index++ % rotator.length]}]`);
-        });
+            process.stderr.write(".");
+        }: (() => {
+            const rotator = ["|", "/", "-", "\\", "|", "/", "-", "\\"];
+            let rotator_index = 0;
+            return (chunk: string): any => {
+                inputs += chunk;
+                progress(`performance measurement running [${rotator[rotator_index++ % rotator.length]}]`);
+            }
+        })();
+        process.stdin.on("data", on_data_handler);
         process.stdin.on("end", function () {
             progress();
             emitResult();
