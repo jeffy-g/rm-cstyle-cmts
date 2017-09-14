@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "bench test",
             "program": "${workspaceRoot}/bin/bench/index.js",
             "args": [
                 "-f", "samples/es6.js"

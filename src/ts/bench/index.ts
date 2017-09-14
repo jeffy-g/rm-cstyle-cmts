@@ -231,7 +231,7 @@ if (settings.p) {
         })();
         process.stdin.on("data", on_data_handler);
         process.stdin.on("end", function () {
-            progress();
+            !process.env.TRAVIS_CI && (progress(), 1) || console.log("");
             emitResult();
         });
         // ✈: \u2708

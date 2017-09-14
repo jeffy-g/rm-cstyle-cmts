@@ -91,7 +91,7 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 ## performance
 
 > es6.js @SIZE bytes,  
-> with remove blank line and whitespaces and without (at node v8.4.0, intel core i5-2500k 3.3ghz
+> with remove blank line and whitespaces and without (at node v8.5.0, intel core i5-2500k 3.3ghz
 
 ```ts
 @NODE_V8
