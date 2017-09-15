@@ -114,7 +114,8 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
     };
 
     /** regex for performance log. */
-    const regex = /(?:loop=(\d+):\s(\d+\.\d+)ms)|(version:\s.+)|(--done--)/g;
+    // FIXED: there is no floting value in the result of "console.time" at node v4
+    const regex = /loop=(\d+):\s(\d+(?:\.\d+)?)ms|(version:\s.+)|(--done--)/g;
 
     /**
      * inputs の log を regexp を使って解析し, 平均値を console に書き出します.  

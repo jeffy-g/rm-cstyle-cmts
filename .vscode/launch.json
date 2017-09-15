@@ -13,7 +13,18 @@
                 "-f", "samples/es6.js"
             ],
             "outFiles": [
-                "${workspaceRoot}/bin/*.js"
+                "${workspaceRoot}/bin/**/*.js"
+            ]
+        }, {
+            "type": "node",
+            "request": "launch",
+            "name": "bench pipe test",
+            "program": "${workspaceRoot}/bin/bench/index.js",
+            "args": [
+                "-p", "plog"
+            ],
+            "outFiles": [
+                "${workspaceRoot}/bin/**/*.js"
             ]
         }
     ]
