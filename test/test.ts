@@ -1,21 +1,24 @@
+///<reference path="../src/ts/index.ts"/>
+///<reference path="../src/ts/globals.d.ts"/>
 
-const rmc = require("./bin/");
+/** @type {IRemoveCStyleCommentsModule} */
+const rmc = require("../bin/");
 
 if (!String.prototype.padEnd) {
-    String.prototype.padEnd = function(n) {
-        var rem = n - this.length;
+    String.prototype.padEnd = function(n: number): string {
+        let rem = n - this.length;
         if (rem < 0)
             rem = 0;
-        var str = "";
+        let str = "";
         while (rem--) {
             str +=  " ";
         }
-
         return this + str;
     };
 }
-function validate(text, expectance) {
-    var result = rmc(text);
+
+function validate(text: string, expectance: string): void {
+    let result = rmc(text);
     console.assert(result === expectance, `failed at case [${text}]`);
     // ✔ :\u2714
     console.log(`\u2714 passed: input [${text}],`.padEnd(82), `result [${result}]`);

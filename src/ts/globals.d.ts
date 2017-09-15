@@ -19,7 +19,16 @@ limitations under the License.
 */
 
 interface String {
+    /**
+     * @param {number} n
+     * @return {string}
+     */
     repeat(n: number): string;
+    /**
+     * @param {number} n
+     * @return {string}
+     */
+    padEnd(n: number): string;
 }
 
 interface IStringMap<T> {

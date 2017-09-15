@@ -24,10 +24,8 @@ if (!String.prototype.repeat) {
     String.prototype.repeat = function(n: number): string {
         let str = "";
         while (n--) {
-            // tslint:disable-next-line:no-invalid-this
             str += this;
         }
-
         return str;
     };
 }
@@ -247,7 +245,7 @@ if (settings.p) {
 
     // file: when -f optiion then
     src = parseFilePath(
-        typeof settings.f === "string"? <string>settings.f: "sample-cfg.json"
+        typeof settings.f === "string"? <string>settings.f: "./samples/sample-cfg.json"
     );
 
     // loop: when -l option then
