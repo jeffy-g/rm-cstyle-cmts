@@ -1,4 +1,6 @@
-# remove cstyle comments [![Build Status](https://travis-ci.org/jeffy-g/rm-cstyle-cmts.svg?branch=master)](https://travis-ci.org/jeffy-g/rm-cstyle-cmts)
+[![Build Status](https://travis-ci.org/jeffy-g/rm-cstyle-cmts.svg?branch=master)](https://travis-ci.org/jeffy-g/rm-cstyle-cmts) [![npm version](https://badge.fury.io/js/rm-cstyle-cmts.svg)](https://badge.fury.io/js/rm-cstyle-cmts) [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+# remove cstyle comments
+
 remove c style comments from text file(javascript source, json file etc...
 
 ## npm package name: rm-cstyle-cmts
@@ -347,41 +349,41 @@ v8.5.0
 ✔ order => version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=true }, outerloop=10, innerloop=2000
 ✔ order => version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 58.824406%
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 58.245896%
 [version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 160.468600 ms, total average for each run: 0.080234 ms
+    average of entries: 163.954900 ms, total average for each run: 0.081977 ms
 }
 [version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 94.394700 ms, total average for each run: 0.047197 ms
+    average of entries: 95.497000 ms, total average for each run: 0.047749 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
  --------------- start benchmark (remove blanks) ---------------
 version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 175.145ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 162.746ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 160.064ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 157.346ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 158.770ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 158.154ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 159.915ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 158.034ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 157.117ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 157.395ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 189.316ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 174.622ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 160.212ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 161.260ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 159.782ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 159.627ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 158.511ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 158.476ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 158.712ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 159.031ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
 version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.827ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.061ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.216ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.238ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.037ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.444ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.794ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.702ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.164ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 94.464ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 95.552ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 94.780ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 95.236ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 95.821ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 94.998ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 95.427ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 95.145ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 94.777ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 96.556ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 96.678ms
  ------------------------ end benchmark ------------------------
 --done--
 es6-rm_ws-true.js written...
@@ -399,41 +401,41 @@ v5.12.0
 ✔ order => version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=true }, outerloop=10, innerloop=2000
 ✔ order => version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 73.201525%
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 73.627869%
 [version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 268.980600 ms, total average for each run: 0.134490 ms
+    average of entries: 269.680900 ms, total average for each run: 0.134840 ms
 }
 [version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 196.897900 ms, total average for each run: 0.098449 ms
+    average of entries: 198.560300 ms, total average for each run: 0.099280 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
  --------------- start benchmark (remove blanks) ---------------
 version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 302.063ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 265.878ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 264.408ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 266.146ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 265.537ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 263.982ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 268.070ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 264.503ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 263.975ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 265.244ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 275.905ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 276.383ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 287.717ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 266.715ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 264.907ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 264.668ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 266.234ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 264.031ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 265.803ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 264.446ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
 version: 1.4.15, case: { source: es6.js@4,435bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 197.122ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 197.581ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 197.576ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 196.233ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 197.322ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 196.900ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 196.502ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 197.087ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 196.368ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 196.288ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 197.376ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 196.373ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.471ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.302ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 199.234ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 199.518ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.117ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.998ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 199.356ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 199.858ms
  ------------------------ end benchmark ------------------------
 --done--
 es6-rm_ws-true.js written...
