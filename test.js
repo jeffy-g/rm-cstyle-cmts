@@ -1,11 +1,24 @@
 
 const rmc = require("./bin/");
 
-function validate(text, excepted) {
-    let result = rmc(text);
-    console.assert(result === excepted, `failed at case [${text}]`);
+if (!String.prototype.padEnd) {
+    String.prototype.padEnd = function(n) {
+        var rem = n - this.length;
+        if (rem < 0)
+            rem = 0;
+        var str = "";
+        while (rem--) {
+            str +=  " ";
+        }
+
+        return this + str;
+    };
+}
+function validate(text, expectance) {
+    var result = rmc(text);
+    console.assert(result === expectance, `failed at case [${text}]`);
     // ✔ :\u2714
-    console.log(`\u2714 passed: input [${text}],`.padEnd(82), ` result [${result}]`);
+    console.log(`\u2714 passed: input [${text}],`.padEnd(82), `result [${result}]`);
 }
 
 // case empty string.
