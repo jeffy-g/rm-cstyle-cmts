@@ -24,4 +24,4 @@ NODE_SWITCHER=nodist
 #
 # ATTENTION: need nodist
 #
-$NODE_SWITCHER 5 && npm test>./logs/v5.log && $NODE_SWITCHER 8 && npm test>./logs/v8.log && gulp readme
+$NODE_SWITCHER 5 && npm run bench>./logs/v5.log && $NODE_SWITCHER 8 && npm run bench>./logs/v8.log && gulp readme

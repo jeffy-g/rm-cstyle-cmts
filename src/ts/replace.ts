@@ -248,7 +248,7 @@ class SlashVistor implements ICharVisitor {
         }
 
         // index + 1 ...
-        const x = source.indexOf(context.newline, index + 1);
+        const x = context.newline && source.indexOf(context.newline, index + 1) || -1;
         L: do {
             // check line comment.
             if (ch === "/") {

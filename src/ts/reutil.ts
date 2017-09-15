@@ -84,15 +84,18 @@ const re_ws_qs_base: RegExp =
     /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/;
 
 // function buildWsQsReRegexp(source: string): RegExp {
-function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: RegExp } {
+function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: string|RegExp } {
     // specify new line character.
     const m = this.RE_NEWLINEs.exec(source);
-    if (m === null)
-        return null;
+    const is_single_line_input = m === null;
 
     let newline: string;
-    // escape CR or LF
-    newline = (newline = m[0]) === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
+    if (is_single_line_input) {
+        ;
+    } else {
+        // escape CR or LF
+        newline = (newline = m[0]) === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
+    }
 
     /**
      * regex: whitespaces, quoted string, regexp literal.
@@ -109,7 +112,7 @@ function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last:
      *
      *```
      */
-    const re_ws_qs = new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
+    const re_ws_qs = is_single_line_input? /^\s+|\s+$/g: new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
     // return new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
 
     // /^newline|newline$/g;
@@ -124,7 +127,7 @@ function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last:
      * newline$  # last new line
      * ```
      */
-    const re_first_n_last = new RegExp(`^${newline}|${newline}$`, "g");
+    const re_first_n_last = is_single_line_input? "": new RegExp(`^${newline}|${newline}$`, "g");
     // const re_first_n_last = new RegExp(`^(${newline})+|(${newline})+$`, "g"); OK
     return {
         re_ws_qs, re_first_n_last

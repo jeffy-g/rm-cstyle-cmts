@@ -26,6 +26,16 @@
             "outFiles": [
                 "${workspaceRoot}/bin/**/*.js"
             ]
+        }, {
+            "type": "node",
+            "request": "launch",
+            "name": "simple test",
+            "program": "${workspaceRoot}/test.js",
+            "args": [
+            ],
+            "outFiles": [
+                "${workspaceRoot}/**/*.js"
+            ]
         }
     ]
 }

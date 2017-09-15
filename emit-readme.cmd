@@ -24,4 +24,4 @@ if not exist "./logs" mkdir "./logs"
 rem
 rem ATTENTION: need nodist
 rem
-nodist 5 && npm test>./logs/v5.log && nodist 8 && npm test>./logs/v8.log && gulp readme
+nodist 5 && npm run bench>./logs/v5.log && nodist 8 && npm run bench>./logs/v8.log && gulp readme
