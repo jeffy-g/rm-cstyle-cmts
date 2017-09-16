@@ -216,7 +216,7 @@ if (settings.p) {
         process.stdin.resume();
         process.stdin.setEncoding("utf8");
 
-        const on_data_handler = process.env.TRAVIS_CI? (chunk: string): any => {
+        const on_data_handler = process.env.TRAVIS? (chunk: string): any => {
             inputs += chunk;
             process.stderr.write(".");
         }: (() => {
@@ -229,7 +229,7 @@ if (settings.p) {
         })();
         process.stdin.on("data", on_data_handler);
         process.stdin.on("end", function () {
-            !process.env.TRAVIS_CI && (progress(), 1) || console.log("");
+            !process.env.TRAVIS && (progress(), 1) || console.log("");
             emitResult();
         });
         // ✈: \u2708

@@ -1,26 +1,47 @@
 language: node_js
+
 node_js:
   - "8"
-  - "7"
-  - "6"
-  - "5"
-  - "4"
+  # - "7"
+  # - "6"
+  # - "5"
+  # - "4"
+
 env:
-  - TRAVIS_CI=1
+# - TRAVIS_CI=1
 
 cache:
   directories:
-    - "node_modules"
+  - node_modules
 
 before_install:
+  # - openssl aes-256-cbc -K $encrypted_3058eddffb79_key -iv $encrypted_3058eddffb79_iv -in travis.ppk.enc -out travis.ppk -d
 
 install:
   - npm install
 
 before_script:
-  - tsc -p .
+  - gulp dist
 
 script:
   - npm test
   - npm run bench
 
+after_success:
+  - 
+
+before_deploy:
+    - cd ./dist && zip -r ../rm-cstyle-cmts-$TRAVIS_TAG.zip * && tar czf ../rm-cstyle-cmts-$TRAVIS_TAG.tar.gz
+    - cd ..
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: ezSsk/HhTbsqtohHqjqfTVMEKkkaxQgTuDHNKkVlhsks1QEiOLyPbv9PLYAACdM75IXcKKl0iPJakYaIIBedQrSR4ZyU77EHKF8O0UtvXJ/4yeiHvww/OhJSjaZ4F/e82rcE/KN8loXxWxPaBxdv/urYWuseq465pi1+gtJ2Sb62SVDM6zgRjecpsFK7NgMN0d3fcT4d4zwLZc9dZPIkHUNnCjpNXdtcswgxVBcHHn2E+x6l3Fo/1duweKjXxVpOlIKKPXiOmgpO1RZ8VDru3BI0PMeBDnOoFEs1ceq3p/4LNdjVEcf01OYNEJZv6qNFkQ/Ipm3MC344x/5AIIdXYi+020uz4VrPHRqE9sbpbGOBMhyHSUTxGPy3rVwoE1r95/KxCnSOJh3v4Ra7nyo6m/kzGg9IBYqohj3K/MMfj0tMlJ7bAWsmPqbUWd5T0i0xVBb6UjH4U/NCKjpjHcI3haOpHw7a4/O/+6Lrml58rptcY+ZrqdvIqJDIC1paWKBlpuEImVw4HhHb/tOaUdElg4WOO2bcDbVk/be7EFPl2eOqMz0KbDLI/LQo9G1eENlvT62s7+Kxmfd1Cyw3X7fR/kfBo4BYvQ6hE4sTP7wfjEQyo4hIau/ZYOPQsFyVYMynZBnoxCZ3dWq6/NeI6ZHp4D9byf1ImZBhOA3b0Z43VWY=
+  file: $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.zip
+  file: $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.tar.gz
+  on:
+    repo: jeffy-g/rm-cstyle-cmts
+    all_branches: true
+    tags: true

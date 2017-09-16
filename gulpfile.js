@@ -87,6 +87,10 @@ gulp.task("tsc", ["clean"], function(cb) {
     // ).on("end", function() {
     //     cb();
     // });
+
+    // copy ...
+    gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
+
     const compiler = tsc.createProject('tsconfig.json');
     // cannot took dependent source.
     // const result = compiler.src().pipe(compiler());
@@ -134,6 +138,7 @@ gulp.task("rm:nullfile", ["tsc"], function(cb) {
 gulp.task("dist", ["rm:nullfile"], function(cb) {
     gulp.src([
         "package.json", "sample-cfg*.json", "sample-cfg-after.json", "readme.md", "samples/*",
+        "test/test.js",
         COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(function(vinyl) {
         return convertRelativeDir(vinyl, DISTRIBUTION_DIR);

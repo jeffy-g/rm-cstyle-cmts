@@ -1,5 +1,5 @@
-///<reference path="../src/ts/index.ts"/>
-///<reference path="../src/ts/globals.d.ts"/>
+///<reference path="../bin/index.d.ts"/>
+///<reference path="../bin/globals.d.ts"/>
 
 /** @type {IRemoveCStyleCommentsModule} */
 const rmc = require("../bin/");
@@ -7,8 +7,7 @@ const rmc = require("../bin/");
 if (!String.prototype.padEnd) {
     String.prototype.padEnd = function(n: number): string {
         let rem = n - this.length;
-        if (rem < 0)
-            rem = 0;
+        if (rem < 0) rem = 0;
         let str = "";
         while (rem--) {
             str +=  " ";

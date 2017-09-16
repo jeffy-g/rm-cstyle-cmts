@@ -1,5 +1,5 @@
-///<reference path="../src/ts/index.ts"/>
-///<reference path="../src/ts/globals.d.ts"/>
+///<reference path="../bin/index.d.ts"/>
+///<reference path="../bin/globals.d.ts"/>
 /** @type {IRemoveCStyleCommentsModule} */
 var rmc = require("../bin/");
 if (!String.prototype.padEnd) {
