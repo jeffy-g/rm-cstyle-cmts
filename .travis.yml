@@ -31,7 +31,9 @@ after_success:
   - 
 
 before_deploy:
-    - cd ./dist && zip -r ../rm-cstyle-cmts-$TRAVIS_TAG.zip * && tar czf ../rm-cstyle-cmts-$TRAVIS_TAG.tar.gz
+    - cd ./dist
+    - zip -r ../rm-cstyle-cmts-$TRAVIS_TAG.zip *
+    - tar czf ../rm-cstyle-cmts-$TRAVIS_TAG.tar.gz *
     - cd ..
 
 deploy:
