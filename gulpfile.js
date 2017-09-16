@@ -195,7 +195,7 @@ gulp.task("readme", function(cb) {
 // const TEST_SRC_FILEs_OUT = "./tmp/output";
 
 // gulp.task("rmc-test", ["rmc-test-del"], function(cb) {
-//     gulp.src(TEST_SRC_FILEs)
+//     gulp.src(TEST_SRC_FILEs) // TS_FILEs_PATTERN
 //     .pipe(
 //         /**
 //          * remove_ws : remove whitespace and blank lines.
