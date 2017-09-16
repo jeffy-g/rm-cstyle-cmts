@@ -41,8 +41,9 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: ezSsk/HhTbsqtohHqjqfTVMEKkkaxQgTuDHNKkVlhsks1QEiOLyPbv9PLYAACdM75IXcKKl0iPJakYaIIBedQrSR4ZyU77EHKF8O0UtvXJ/4yeiHvww/OhJSjaZ4F/e82rcE/KN8loXxWxPaBxdv/urYWuseq465pi1+gtJ2Sb62SVDM6zgRjecpsFK7NgMN0d3fcT4d4zwLZc9dZPIkHUNnCjpNXdtcswgxVBcHHn2E+x6l3Fo/1duweKjXxVpOlIKKPXiOmgpO1RZ8VDru3BI0PMeBDnOoFEs1ceq3p/4LNdjVEcf01OYNEJZv6qNFkQ/Ipm3MC344x/5AIIdXYi+020uz4VrPHRqE9sbpbGOBMhyHSUTxGPy3rVwoE1r95/KxCnSOJh3v4Ra7nyo6m/kzGg9IBYqohj3K/MMfj0tMlJ7bAWsmPqbUWd5T0i0xVBb6UjH4U/NCKjpjHcI3haOpHw7a4/O/+6Lrml58rptcY+ZrqdvIqJDIC1paWKBlpuEImVw4HhHb/tOaUdElg4WOO2bcDbVk/be7EFPl2eOqMz0KbDLI/LQo9G1eENlvT62s7+Kxmfd1Cyw3X7fR/kfBo4BYvQ6hE4sTP7wfjEQyo4hIau/ZYOPQsFyVYMynZBnoxCZ3dWq6/NeI6ZHp4D9byf1ImZBhOA3b0Z43VWY=
-  file: $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.zip
-  file: $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.tar.gz
+  file:
+    - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.zip
+    - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.tar.gz
   on:
     repo: jeffy-g/rm-cstyle-cmts
     all_branches: true
