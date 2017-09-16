@@ -137,7 +137,7 @@ gulp.task("rm:nullfile", ["tsc"], function(cb) {
  */
 gulp.task("dist", ["rm:nullfile"], function(cb) {
     gulp.src([
-        "LICENSE", "package.json", "readme.md", "samples/*",
+        "LICENSE", "package.json", "README.md", "samples/*",
         "test/test.js",
         COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(function(vinyl) {
