@@ -1,12 +1,12 @@
 {
     "name": "rm-cstyle-cmts",
-    "version": "1.4.18",
+    "version": "1.4.19",
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
     "scripts": {
         "lint": "tslint src/**/*.ts -p tsconfig.json --type-check",
-        "test": "istanbul cover test/test.js",
+        "test": "istanbul cover test/test.js && codecov",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
         "build": "gulp rm:nullfile",
         "dist": "gulp dist && npm publish ./dist"

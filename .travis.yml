@@ -16,7 +16,7 @@ cache:
 
 before_install:
   # - openssl aes-256-cbc -K $encrypted_3058eddffb79_key -iv $encrypted_3058eddffb79_iv -in travis.ppk.enc -out travis.ppk -d
-  - npm install -g codecov
+  # - npm install -g codecov
 
 install:
   - npm install
@@ -25,11 +25,12 @@ before_script:
   - gulp dist
 
 script:
-  - npm test
   - npm run bench
+  - npm test
 
 after_success:
-  - codecov
+  - bash <(curl -s https://codecov.io/bash)
+  # - codecov
 
 before_deploy:
     - cd ./dist
