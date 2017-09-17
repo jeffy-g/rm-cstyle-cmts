@@ -29,6 +29,8 @@ script:
   - npm test
 
 after_success:
+  - cat ./coverage/lcov.info
+  - cat ./coverage/coverage.json
   - bash <(curl -s https://codecov.io/bash)
   # - codecov
 
