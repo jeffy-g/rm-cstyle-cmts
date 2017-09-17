@@ -2,7 +2,6 @@
 ///<reference path="../bin/index.d.ts"/>
 ///<reference path="../bin/globals.d.ts"/>
 exports.__esModule = true;
-/** @type {IRemoveCStyleCommentsModule} */
 var rmc = require("../bin/");
 var fs = require("fs");
 if (!String.prototype.padEnd) {
@@ -80,5 +79,6 @@ validate("const templete = `function ${name}($) {\n\
     return true;\n\
  }\n\
  `");
+// for coverage (codecov
 var js_source = fs.readFileSync("./samples/es6.js", "utf-8");
 rmc(js_source, true);

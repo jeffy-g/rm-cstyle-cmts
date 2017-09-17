@@ -1,7 +1,5 @@
-///<reference path="../bin/index.d.ts"/>
 ///<reference path="../bin/globals.d.ts"/>
 
-/** @type {IRemoveCStyleCommentsModule} */
 import * as rmc from "../bin/";
 import * as fs from "fs";
 
@@ -94,5 +92,6 @@ validate("const templete = `function ${name}($) {\n\
  }\n\
  `");
 
+// for coverage (codecov
 const js_source = fs.readFileSync("./samples/es6.js", "utf-8");
 rmc(js_source, true);

@@ -6,3 +6,4 @@ package-lock.json
 /logs
 /tmp
 /ssh
+/coverage

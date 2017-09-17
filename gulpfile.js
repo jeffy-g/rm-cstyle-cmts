@@ -82,9 +82,9 @@ ${paths.join('\n')}
  * task "tsc"
  */
 gulp.task("tsc", ["clean"], function(cb) {
-    // const compiler = tsc.createProject("tsconfig.json");
+    // const project = tsc.createProject("tsconfig.json");
     // gulp.src(TS_FILEs_PATTERN)
-    // .pipe(compiler())
+    // .pipe(project())
     // .pipe(
     //     gulp.dest(JS_DEST_DIR)
     // ).on("end", function() {
@@ -94,16 +94,16 @@ gulp.task("tsc", ["clean"], function(cb) {
     // copy ...
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
-    const compiler = tsc.createProject("tsconfig.json");
+    const project = tsc.createProject("tsconfig.json");
     // cannot took dependent source.
-    // const result = compiler.src().pipe(compiler());
+    // const result = project.src().pipe(project());
     const result = gulp.src(TS_FILEs_PATTERN)
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-        .pipe(compiler());
+        .pipe(project());
     // return result.js.pipe(gulp.dest(JS_DEST_DIR));
     return result
         // .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
-        .pipe(sourcemaps.write(".", {includeContent: false, sourceRoot: JS_DEST_DIR })) // create map file per .js
+        .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: JS_DEST_DIR })) // create map file per .js
         .pipe(gulp.dest(JS_DEST_DIR));
 });
 

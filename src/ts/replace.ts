@@ -92,7 +92,7 @@ class QuoteVistor implements ICharVisitor {
     }
     public visit(char: string, source: string, context: IReplacementContext): boolean {
         const index = context.offset;
-         // maybe will not need it. because it will apply visit as soon as quote is found.
+        // maybe will not need it. because it will apply visit as soon as quote is found.
         // if (source[index - 1] !== "\\") {
         // move next position.
         let next = index + 1;
