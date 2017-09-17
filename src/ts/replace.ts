@@ -198,8 +198,8 @@ class BackQuoteVistor implements ICharVisitor {
                         // NOTE: can be decremented only when it is nested?
                         (depth > 0 && depth - 1 === bq_depth) && depth--;
                         break;
-                    default:
-                        break;
+                    // default:
+                    //     break;
                 }
             } else {
                 in_escape = false;
