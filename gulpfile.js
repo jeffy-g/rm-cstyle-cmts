@@ -37,6 +37,9 @@ const tsc = require('gulp-typescript');  // global install
 const replacer = require('gulp-replace');// global install
 const rename = require('gulp-rename');   // global install
 
+// source map for codecov.
+const sourcemaps = require('gulp-sourcemaps');
+
 // ------------------------------- constant variables ----------------------------------
 /** ts compiled out put. */
 const JS_DEST_DIR = "./bin";
@@ -48,7 +51,7 @@ const DISTRIBUTION_DIR = "./dist";
 const TS_FILEs_PATTERN = './src/ts/**/*.ts';
 
 /**  */
-const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts}`;
+const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
 
 /**
  * 
@@ -79,7 +82,7 @@ ${paths.join('\n')}
  * task "tsc"
  */
 gulp.task("tsc", ["clean"], function(cb) {
-    // const compiler = tsc.createProject('tsconfig.json');
+    // const compiler = tsc.createProject("tsconfig.json");
     // gulp.src(TS_FILEs_PATTERN)
     // .pipe(compiler())
     // .pipe(
@@ -91,12 +94,17 @@ gulp.task("tsc", ["clean"], function(cb) {
     // copy ...
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
-    const compiler = tsc.createProject('tsconfig.json');
+    const compiler = tsc.createProject("tsconfig.json");
     // cannot took dependent source.
     // const result = compiler.src().pipe(compiler());
-    const result = gulp.src(TS_FILEs_PATTERN).pipe(compiler());
+    const result = gulp.src(TS_FILEs_PATTERN)
+        .pipe(sourcemaps.init()) // This means sourcemaps will be generated
+        .pipe(compiler());
     // return result.js.pipe(gulp.dest(JS_DEST_DIR));
-    return result.pipe(gulp.dest(JS_DEST_DIR));
+    return result
+        // .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
+        .pipe(sourcemaps.write(".", {includeContent: false, sourceRoot: JS_DEST_DIR })) // create map file per .js
+        .pipe(gulp.dest(JS_DEST_DIR));
 });
 
 
