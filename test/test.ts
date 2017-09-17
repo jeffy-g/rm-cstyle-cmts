@@ -21,16 +21,30 @@ function validate(text: string, expectance: string, rm_ws: boolean = true): void
     // ✔ :\u2714
     console.log(`\u2714 passed: input [${text}],`.padEnd(82), `result [${result}]`);
 }
-console.log("rm-cstyle-cmts, version: %s", rmc.version);
-
-// check type error.
-try {
-    // deceive for tsc.
-    rmc({} as string);
-} catch (e) {
-    console.assert(e instanceof TypeError, "failed type check...");
-    console.log("\u2714 passed: TypeError check");
+function caseThrow(content: string, msg: string) {
+    let error: Error = null;
+    // check type error.
+    try {
+        // deceive for tsc.
+        rmc(content);
+    } catch (e) {
+        error = e;
+    }
+    console.assert(error instanceof TypeError, "failed type check...");
+    console.log(`\u2714 passed: ${msg}`);
 }
+
+console.log("rm-cstyle-cmts, version: %s", rmc.version);
+console.log();
+
+// check invalid content, deceive for tsc.
+caseThrow({} as string, "check invalid content");
+// QuoteVisitor parse error.
+caseThrow("{} as string \'", "QuoteVisitor throw check");
+// BackQuoteVistor parse error.
+caseThrow("{} as string ` back quote! ` `", "BackQuoteVistor throw check");
+
+console.log();
 
 // case empty string.
 validate("", "");
@@ -59,6 +73,15 @@ var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
 var re = 10000 / 111.77*gg /gg;;;;  
 `, false);
 
+// LF
+validate("  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\n//             ^-------------^ <- this case is match. but, not regexp literal",
+"  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;");
+
+// CR
+validate("  let gg = 10;\rvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\r//             ^-------------^ <- this case is match. but, not regexp literal",
+"  let gg = 10;\rvar re = 10000 / 111.77*gg /gg;;;;");
+
+
 validate("const templete = `function ${name}($) {\n\
     // comment line.\n\
     var some = ${\n\
@@ -75,7 +98,7 @@ validate("const templete = `function ${name}($) {\n\
      */\n\
     return true;\n\
  }\n\
- `", "const templete = `function ${name}($) {\n\
+;`", "const templete = `function ${name}($) {\n\
     // comment line.\n\
     var some = ${\n\
         // comment line...\n\
@@ -90,8 +113,8 @@ validate("const templete = `function ${name}($) {\n\
      */\n\
     return true;\n\
  }\n\
- `");
+;`");
 
-// for coverage (codecov
+ // for coverage (codecov 
 const js_source = fs.readFileSync("./samples/es6.js", "utf-8");
 rmc(js_source, true);

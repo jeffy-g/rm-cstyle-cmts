@@ -1,5 +1,4 @@
 "use strict";
-///<reference path="../bin/index.d.ts"/>
 ///<reference path="../bin/globals.d.ts"/>
 exports.__esModule = true;
 var rmc = require("../bin/");
@@ -23,16 +22,28 @@ function validate(text, expectance, rm_ws) {
     // ✔ :\u2714
     console.log(("\u2714 passed: input [" + text + "],").padEnd(82), "result [" + result + "]");
 }
+function caseThrow(content, msg) {
+    var error = null;
+    // check type error.
+    try {
+        // deceive for tsc.
+        rmc(content);
+    }
+    catch (e) {
+        error = e;
+    }
+    console.assert(error instanceof TypeError, "failed type check...");
+    console.log("\u2714 passed: " + msg);
+}
 console.log("rm-cstyle-cmts, version: %s", rmc.version);
-// check type error.
-try {
-    // deceive for tsc.
-    rmc({});
-}
-catch (e) {
-    console.assert(e instanceof TypeError, "failed type check...");
-    console.log("\u2714 passed: TypeError check");
-}
+console.log();
+// check invalid content, deceive for tsc.
+caseThrow({}, "check invalid content");
+// QuoteVisitor parse error.
+caseThrow("{} as string \'", "QuoteVisitor throw check");
+// BackQuoteVistor parse error.
+caseThrow("{} as string ` back quote! ` `", "BackQuoteVistor throw check");
+console.log();
 // case empty string.
 validate("", "");
 // --- single line input.
@@ -47,6 +58,10 @@ validate(" var text0 = 'is text.', text0 = \"is text.\"", "var text0 = 'is text.
 validate(" var text0 = ''/", "var text0 = ''/");
 // --- multi line input.
 validate("  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\n//             ^-------------^ <- this case is match. but, not regexp literal", "  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  \n", false);
+// LF
+validate("  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\n//             ^-------------^ <- this case is match. but, not regexp literal", "  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;");
+// CR
+validate("  let gg = 10;\rvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\r//             ^-------------^ <- this case is match. but, not regexp literal", "  let gg = 10;\rvar re = 10000 / 111.77*gg /gg;;;;");
 validate("const templete = `function ${name}($) {\n\
     // comment line.\n\
     var some = ${\n\
@@ -63,7 +78,7 @@ validate("const templete = `function ${name}($) {\n\
      */\n\
     return true;\n\
  }\n\
- `", "const templete = `function ${name}($) {\n\
+;`", "const templete = `function ${name}($) {\n\
     // comment line.\n\
     var some = ${\n\
         // comment line...\n\
@@ -78,7 +93,7 @@ validate("const templete = `function ${name}($) {\n\
      */\n\
     return true;\n\
  }\n\
- `");
-// for coverage (codecov
+;`");
+// for coverage (codecov 
 var js_source = fs.readFileSync("./samples/es6.js", "utf-8");
 rmc(js_source, true);
