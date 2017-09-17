@@ -30,7 +30,7 @@
             "type": "node",
             "request": "launch",
             "name": "simple test",
-            "program": "${workspaceRoot}/test.js",
+            "program": "${workspaceRoot}/test/test.js",
             "args": [
             ],
             "outFiles": [

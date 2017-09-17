@@ -187,7 +187,7 @@ class BackQuoteVistor implements ICharVisitor {
                             context.offset = next;
                             return true;
                         }
-                        break;
+                        // break;
                     case "$":
                         if (source[next + 1] === "{") {
                             next += 2, depth++;

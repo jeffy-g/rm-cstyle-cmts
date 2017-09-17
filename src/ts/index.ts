@@ -93,8 +93,7 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
     }
 
     const regexes = reutil.buildWsQsReRegexp(source);
-    if (regexes === null) return source;
-
+    // if (regexes === null) return source;
     return source.replace(
         // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
         // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.

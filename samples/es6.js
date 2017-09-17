@@ -1,7 +1,7 @@
   
 var i = {} / 10; // -> NaN
 
-{ i = "aaa" } /aaa/.test(i);
+{ i = "aaa\"" } /aaa/.test(i);
 var i = 10000 / 111.77; /[/*]/.test(i); // */
 
 /* comments */var i = 10000 / 111.77; /\][/*]/.test(i); // */
@@ -124,17 +124,17 @@ var HTMLIZE_TEXT = {
          
 let name = "apple";           
 // comment line.       
-const templete = `function ${name}() {
+const templete = `function ${name}($) {
    // comment line.
    var some = ${
        // comment line...
        `12.5 / 50 * 100,
 
        // might be a very important comment line.
-       things = "${name}",
-       obj={}`
+       things = "\\${ name + `anything` }\\",
+       obj={ "\\\\": null }`
 
-   };
+   }; \`\`
    /**
     * multi line comment...
     */
