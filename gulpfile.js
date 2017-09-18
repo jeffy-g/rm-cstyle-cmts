@@ -171,8 +171,8 @@ gulp.task("readme", function(cb) {
 
     const SIZE = fs.statSync("./samples/es6.js").size;
     // prepare for readme.
-    NODE_V8 = NODE_V8.replace(/(test).+/, "$1").replace(/^\s+|\s+$/g, "");
-    NODE_V5 = NODE_V5.replace(/(test).+/, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_V8 = NODE_V8.replace(/(bench).+/, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_V5 = NODE_V5.replace(/(bench).+/, "$1").replace(/^\s+|\s+$/g, "");
 
     // create readme.md form template.
     gulp.src('./readme-template.md')
