@@ -34,9 +34,6 @@ declare global {
     }
 }
 
-/** for detect newline. */
-// const RE_NEWLINEs = /\r\n|\n|\r/;
-
 // // regexp document: "remove white spaces with replacer#comments removed"
 // this regex cannot be processed correctly.
 // /^[\s]+[\r\n]+|[\s]+$|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/gm
@@ -128,13 +125,12 @@ function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last:
      * ```
      */
     const re_first_n_last = is_single_line_input? "": new RegExp(`^${newline}|${newline}$`, "g");
-    // const re_first_n_last = new RegExp(`^(${newline})+|(${newline})+$`, "g"); OK
     return {
         re_ws_qs, re_first_n_last
     };
 }
 
-const reutil: ReUtil = Object.defineProperties({} as ReUtil, {
+const reutil: ReUtil = Object.defineProperties({}, {
     // create readonly property "version"
     RE_NEWLINEs: {
         enumerable: true,
@@ -146,6 +142,6 @@ const reutil: ReUtil = Object.defineProperties({} as ReUtil, {
         configurable: false,
         value: buildWsQsReRegexp
     }
-});
+}) as ReUtil;
 
 export = reutil;

@@ -1,7 +1,7 @@
 /node_modules
 /bin
 /dist
-package-lock.json
+#package-lock.json
 /.d-ts
 /logs
 /tmp

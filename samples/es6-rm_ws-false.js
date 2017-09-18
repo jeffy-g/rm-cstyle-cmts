@@ -127,7 +127,7 @@ const templete = `function ${name}($) {
        `12.5 / 50 * 100,
 
        // might be a very important comment line.
-       things = "\\${ name + `anything` }\\",
+       things = "${ name + `anything` }",
        obj={ "\\\\": null }`
 
    }; \`\`

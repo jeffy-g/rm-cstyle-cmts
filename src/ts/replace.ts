@@ -119,7 +119,7 @@ class QuoteVistor implements ICharVisitor {
             next++;
         }
         // }
-        throw new TypeError(`invalid string quotes??, offset=${index}, remaining=${source.substring(index)}`);
+        throw new SyntaxError(`invalid string quotes??, offset=${index}, remaining=${source.substring(index)}`);
     }
 }
 /**
@@ -177,12 +177,9 @@ class BackQuoteVistor implements ICharVisitor {
                             } else if (depth === bq_depth) { // can decrement.
                                 bq_depth--;
                             }
-                            // (depth - 1 === bq_depth)? bq_depth++:
-                            // // tslint:disable-next-line:no-unused-expression
-                            // (depth === bq_depth)? bq_depth--: 0;
                             break;
                         }
-                        if (depth === 0) {
+                        /* if (depth === 0) */ {
                             context.result += source.substring(index, ++next);
                             context.offset = next;
                             return true;
@@ -196,7 +193,9 @@ class BackQuoteVistor implements ICharVisitor {
                         break;
                     case "}":
                         // NOTE: can be decremented only when it is nested?
-                        (depth > 0 && depth - 1 === bq_depth) && depth--;
+                        if (depth > 0 && depth - 1 === bq_depth) {
+                            depth--;
+                        }
                         break;
                     // default:
                     //     break;
@@ -206,7 +205,7 @@ class BackQuoteVistor implements ICharVisitor {
             }
             next++;
         }
-        throw new TypeError(`BackQuoteVistor error: offset=${index}, remaining=--[${source.substring(index)}]--`);
+        throw new SyntaxError(`BackQuoteVistor error: offset=${index}, remaining=--[${source.substring(index)}]--`);
     }
 }
 

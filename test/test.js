@@ -32,7 +32,7 @@ function caseThrow(content, msg) {
     catch (e) {
         error = e;
     }
-    console.assert(error instanceof TypeError, "failed type check...");
+    console.assert(error instanceof Error, "failed type check...");
     console.log("\u2714 passed: " + msg);
 }
 console.log("rm-cstyle-cmts, version: %s", rmc.version);
