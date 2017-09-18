@@ -21,7 +21,9 @@ if [ ! -d "./logs" ]; then
 fi
 
 NODE_SWITCHER=nodist
+old=4
+latest=8
 #
 # ATTENTION: need nodist
 #
-$NODE_SWITCHER 5 && npm run bench>./logs/v5.log && $NODE_SWITCHER 8 && npm run bench>./logs/v8.log && gulp readme
+$NODE_SWITCHER $old && npm run bench>./logs/node-old.log && $NODE_SWITCHER $latest && npm run bench>./logs/node-latest.log && gulp readme
