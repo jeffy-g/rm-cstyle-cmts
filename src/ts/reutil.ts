@@ -130,6 +130,28 @@ function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last:
     };
 }
 
+/*
+    configurable
+        true if and only if the type of this property descriptor may be changed and if the property may be deleted from the corresponding object.
+        Defaults to false.
+    enumerable
+        true if and only if this property shows up during enumeration of the properties on the corresponding object.
+        Defaults to false.
+    writable
+        true if and only if the value associated with the property may be changed with an assignment operator.
+        Defaults to false.
+
+    get
+        A function which serves as a getter for the property, or undefined if there is no getter. The function return will be used as the value of property.
+        Defaults to undefined.
+    set
+        A function which serves as a setter for the property, or undefined if there is no setter. The function will receive as only argument the new value being assigned to the property.
+        Defaults to undefined.
+
+    value
+        The value associated with the property. Can be any valid JavaScript value (number, object, function, etc).
+        Defaults to undefined.
+*/
 const reutil: ReUtil = Object.defineProperties({}, {
     // create readonly property "version"
     RE_NEWLINEs: {

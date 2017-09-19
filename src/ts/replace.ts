@@ -138,7 +138,6 @@ class BackQuoteVistor implements ICharVisitor {
         registry["`"] = this;
     }
 
-    // tslint:disable-next-line:
     public visit(char: string, source: string, context: IReplacementContext): boolean {
 
         const index = context.offset;

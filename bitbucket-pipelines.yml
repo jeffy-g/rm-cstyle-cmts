@@ -17,9 +17,14 @@ pipelines:
           - npm test
 
           - cd ./dist
+          - SUFFIX=; [ "$BITBUCKET_TAG" != "" ] && SUFFIX="-$BITBUCKET_TAG" || echo "BITBUCKET_TAG not setted..."; [ "$BITBUCKET_BRANCH" != "" ] && SUFFIX="$SUFFIX-$BITBUCKET_BRANCH" || echo "BITBUCKET_BRANCH not setted...";
+          - export ARCHIVE_NAME=${BITBUCKET_REPO_SLUG}${SUFFIX}-$BITBUCKET_BUILD_NUMBER.tar.gz
           #- zip -r ../rm-cstyle-cmts-release.zip *
-          - tar czf ../rm-cstyle-cmts-release.tar.gz *
+          - tar czf ../${ARCHIVE_NAME} *
           - cd ..
 
           # $BB_REST_API_DOWNLOADs: see Account level Environment variables
-          - curl -X POST $BB_REST_API_DOWNLOADs --form files=@"rm-cstyle-cmts-release.tar.gz"
+          # It can not be expanded if $BB_AUTH_STRING is included in the variable
+          # ${BB_REST_API_DOWNLOADs} <- this also does not work...
+          - curl -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads"
+            --form files=@"${ARCHIVE_NAME}"

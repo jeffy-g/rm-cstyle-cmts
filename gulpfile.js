@@ -95,9 +95,10 @@ gulp.task("tsc", ["clean"], function(cb) {
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
     const project = tsc.createProject("tsconfig.json");
+    // const result = gulp.src(TS_FILEs_PATTERN).pipe(project());
     // cannot took dependent source.
-    // const result = project.src().pipe(project());
-    const result = gulp.src(TS_FILEs_PATTERN)
+    // however, it seems ok if you explicitly list the file with tsconfig.json ("include" etc.
+    const result = project.src()
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
         .pipe(project());
     // return result.js.pipe(gulp.dest(JS_DEST_DIR));
