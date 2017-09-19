@@ -17,9 +17,7 @@ pipelines:
           - npm test
 
           - cd ./dist
-          - SUFFIX=;
-           [ "$BITBUCKET_TAG" != "" ] && SUFFIX="-$BITBUCKET_TAG" || echo "BITBUCKET_TAG not setted..";
-           [ "$BITBUCKET_BRANCH" != "" ] && SUFFIX="$SUFFIX-$BITBUCKET_BRANCH" || echo "BITBUCKET_BRANCH not setted...";
+          - SUFFIX=; [ "$BITBUCKET_TAG" != "" ] && SUFFIX="-$BITBUCKET_TAG" || echo "BITBUCKET_TAG not setted..."; [ "$BITBUCKET_BRANCH" != "" ] && SUFFIX="$SUFFIX-$BITBUCKET_BRANCH" || echo "BITBUCKET_BRANCH not setted...";
           - export ARCHIVE_NAME=${BITBUCKET_REPO_SLUG}${SUFFIX}-$BITBUCKET_BUILD_NUMBER.tar.gz
           #- zip -r ../rm-cstyle-cmts-release.zip *
           - tar czf ../${ARCHIVE_NAME} *
