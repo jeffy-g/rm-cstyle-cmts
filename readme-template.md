@@ -98,15 +98,15 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 ## performance
 
 > es6.js @SIZE bytes,  
-> with remove blank line and whitespaces and without (at node v8.5.0, intel core i5-2500k 3.3ghz
+> with remove blank line and whitespaces and without (at node @NODE_LATEST_V, intel core i5-2500k 3.3ghz
 
 ```ts
-@NODE_V8
+@NODE_LATEST_LOG
 ```
 
-> at node v5.12.0
+> at node @NODE_OLD_V
 ```ts
-@NODE_V5
+@NODE_OLD_LOG
 ```
 
 ## Regarding Verification of Regular Expression Literals:

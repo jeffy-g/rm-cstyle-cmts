@@ -166,29 +166,33 @@ gulp.task("readme", function(cb) {
     // fetch data files.
     const BEFORE = fs.readFileSync("./samples/es6.js", 'utf-8');
     const AFTER = fs.readFileSync("./samples/es6-rm_ws-true.js", 'utf-8');
-    let NODE_V8 = fs.readFileSync("./logs/v8.log", 'utf-8');
-    let NODE_V5 = fs.readFileSync("./logs/v5.log", 'utf-8');
+    let NODE_LATEST_LOG = fs.readFileSync("./logs/node-latest.log", 'utf-8');
+    let NODE_OLD_LOG = fs.readFileSync("./logs/node-old.log", 'utf-8');
 
     const SIZE = fs.statSync("./samples/es6.js").size;
     // prepare for readme.
-    NODE_V8 = NODE_V8.replace(/(bench).+/, "$1").replace(/^\s+|\s+$/g, "");
-    NODE_V5 = NODE_V5.replace(/(bench).+/, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_LATEST_LOG = NODE_LATEST_LOG.replace(/(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_OLD_LOG = NODE_OLD_LOG.replace(/(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/, "$1").replace(/^\s+|\s+$/g, "");
 
+    const NODE_LATEST_V = /^v\d+\.\d+\.\d+$/m.exec(NODE_LATEST_LOG)[0];
+    const NODE_OLD_V =  /^v\d+\.\d+\.\d+$/m.exec(NODE_OLD_LOG)[0];
     // create readme.md form template.
     gulp.src('./readme-template.md')
     .pipe(
-        replacer(/@(SIZE|BEFORE|AFTER|NODE_V8|NODE_V5)/g, (all, tag) => {
+        replacer(/@(SIZE|BEFORE|AFTER|NODE_LATEST_V|NODE_LATEST_LOG|NODE_OLD_V|NODE_OLD_LOG)/g, (all, tag) => {
             switch(tag) {
                 case "SIZE": return SIZE.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
                 case "BEFORE": return BEFORE;
                 case "AFTER": return AFTER;
-                case "NODE_V8": return NODE_V8;
-                case "NODE_V5": return NODE_V5;
+                case "NODE_LATEST_V": return NODE_LATEST_V;
+                case "NODE_OLD_V": return NODE_OLD_V;
+                case "NODE_LATEST_LOG": return NODE_LATEST_LOG;
+                case "NODE_OLD_LOG": return NODE_OLD_LOG;
             }
             return all;
         })
     )
-    .pipe(rename("readme.md"))
+    .pipe(rename("README.md"))
     .pipe(gulp.dest('./')).on("end", () => {
         // notify completion of task.
         cb();

@@ -21,7 +21,9 @@ rem nodist %1 && npm test>./logs/v%1.log
 
 if not exist "./logs" mkdir "./logs"
 
+set old=4
+set latest=8
 rem
 rem ATTENTION: need nodist
 rem
-nodist 5 && npm run bench>./logs/v5.log && nodist 8 && npm run bench>./logs/v8.log && gulp readme
+nodist %old% && npm run bench>./logs/node-old.log && nodist %latest% && npm run bench>./logs/node-latest.log && gulp readme
