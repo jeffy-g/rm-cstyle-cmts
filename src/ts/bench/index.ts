@@ -202,34 +202,37 @@ function progress(msg?: string): void {
 // node ./bin/bench/ -f sample-cfg.json -l 1500 | node ./bin/bench/ -p
 if (settings.p) {
 
+    // process.env.CI = "true";
     const emitResult = (): void => {
+        const log_content = typeof inputs === "string"? inputs: (<string[]>inputs).filter(v => !!v).join("");
         console.log(
             `${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
-            ContractorPattern.average(inputs, !!0)
+            ContractorPattern.average(log_content, !!0)
         );
         // ContractorPattern.average(inputs, !!0);
     };
 
-    let inputs = "";
+    let inputs: any = new Array(200);
     // from pipe.
     if (typeof settings.p === "boolean") {
         process.stdin.resume();
         process.stdin.setEncoding("utf8");
 
         const on_data_handler = process.env.CI? (chunk: string): any => {
-            inputs += chunk;
-            process.stderr.write(".");
+            inputs.push(chunk);
+            // inputs += chunk;
+            chunk[0] !== " " && process.stderr.write(".");
         }: (() => {
             const rotator = ["|", "/", "-", "\\", "|", "/", "-", "\\"];
             let rotator_index = 0;
             return (chunk: string): any => {
-                inputs += chunk;
-                progress(`performance measurement running [${rotator[rotator_index++ % rotator.length]}]`);
+                inputs.push(chunk);
+                chunk[0] !== " " && progress(`performance measurement running [${rotator[rotator_index++ % rotator.length]}]`);
             }
         })();
         process.stdin.on("data", on_data_handler);
         process.stdin.on("end", function () {
-            !process.env.CI && (progress(), 1) || console.log("");
+            !process.env.CI && (progress(), 1) || console.log();
             emitResult();
         });
         // ✈: \u2708

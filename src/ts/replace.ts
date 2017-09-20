@@ -138,15 +138,17 @@ class BackQuoteVistor implements ICharVisitor {
         registry["`"] = this;
     }
 
+    // did not investigate the optimization of node.js,
+    // rewrite code according to the optimization idiom such as C, performance has improved slightly...
+    // however, it might be my imagination... :-
     public visit(char: string, source: string, context: IReplacementContext): boolean {
 
-        const index = context.offset;
-        // move next position.
-        let next = index + 1;
-        // toggle escape flag.
-        let in_escape = false;
         // store "next" postion character. 
         let ch: string;
+        // move next position.
+        let next = context.offset + 1;
+        // toggle escape flag.
+        let in_escape = false;
         // limiter
         const limiter = source.length;
 
@@ -165,32 +167,35 @@ class BackQuoteVistor implements ICharVisitor {
             // fetch "next" char, if its back slash then toggle escape state.
             if ((ch = source[next]) === "\\") {
                 in_escape = !in_escape;
-            } else if (!in_escape) {
+            } else if (in_escape) {
+                // last state is "in escape" then current ch is ignored.
+                in_escape = false;
+            } else {
                 // state is not escaped then let's check [`], "${", "}".
                 // however, "}" is ignore escape state?
                 switch (ch) {
-                    case "`":
-                        if (depth > 0) {
-                            if (depth - 1 === bq_depth) {    // can increment.
-                                bq_depth++;
-                            } else if (depth === bq_depth) { // can decrement.
-                                bq_depth--;
-                            }
-                            // depth - 1 === bq_depth ? bq_depth++ : depth === bq_depth && bq_depth--;
-                            break;
-                        }
-                        /* if (depth === 0) */ {
-                            context.result += source.substring(index, ++next);
-                            context.offset = next;
-                            return true;
-                        }
-                        // break;
                     case "$":
                         if (source[next + 1] === "{") {
                             next += 2, depth++;
                             continue LOOP;
                         }
                         break;
+                    case "`":
+                        if (depth > 0) {
+                            // if (depth - 1 === bq_depth) {    // can increment.
+                            //     bq_depth++;
+                            // } else if (depth === bq_depth) { // can decrement.
+                            //     bq_depth--;
+                            // }
+                            depth - 1 === bq_depth ? bq_depth++ : depth === bq_depth && bq_depth--;
+                            break;
+                        }
+                        /* if (depth === 0) */ {
+                            context.result += source.substring(context.offset, ++next);
+                            context.offset = next;
+                            return true;
+                        }
+                        // break;
                     case "}":
                         // NOTE: can be decremented only when it is nested?
                         if (depth > 0 && depth - 1 === bq_depth) {
@@ -200,12 +205,10 @@ class BackQuoteVistor implements ICharVisitor {
                     // default:
                     //     break;
                 }
-            } else {
-                in_escape = false;
             }
             next++;
         }
-        throw new SyntaxError(`BackQuoteVistor error: offset=${index}, remaining=--[${source.substring(index)}]--`);
+        throw new SyntaxError(`BackQuoteVistor error: offset=${context.offset}, remaining=--[${source.substring(context.offset)}]--`);
     }
 }
 
