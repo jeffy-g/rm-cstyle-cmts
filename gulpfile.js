@@ -70,20 +70,22 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
 
 /**
  * task "clean"
+ * @param {() => void} done gulp callback function.
  */
-gulp.task("clean", function(cb) {
+gulp.task("clean", function(done) {
     del([`${JS_DEST_DIR}/**/*`, DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR]).then(paths => {
         console.log(
             `Deleted files and folders:
 ${paths.join('\n')}
 `);
         // notify completion of task.
-        cb();
+        done();
     });
 });
 
 /**
  * task "tsc"
+ * @param {() => void} done gulp callback function.
  */
 gulp.task("tsc", ["clean"], function(done) {
     // const project = tsc.createProject("tsconfig.json");
@@ -118,10 +120,17 @@ gulp.task("tsc", ["clean"], function(done) {
 
 // for "tsc", "webpack-js"
 // bind version string, and replace something...(for webpack
+/**
+ * strip_code for webpack uglify
+ * @param {() => void} done gulp callback function.
+ * @param {boolean} strip_code remove unused webpack code.
+ */
 function _replace_some(done, strip_code) {
-    var stream = gulp.src('./bin/index.js')
+    var version_replaced = false;
+    var stream = gulp.src(["./bin/index.js"/* , "./bin/bench/index.js" */])
     .pipe( // always replace.
         replacer(/pkg.version/, (all, tag) => {
+            version_replaced = true;
             return tag? pkg.version: all;
         })
     );
@@ -134,8 +143,10 @@ function _replace_some(done, strip_code) {
             })
         );
     }
-    stream.pipe(gulp.dest('./bin/')).on("end", () => {
-        console.log("bind version string.");
+    stream.pipe(gulp.dest(function(vinyl) {
+        return convertRelativeDir(vinyl, ".");
+    })).on("end", () => {
+        version_replaced && console.log("bind version string.");
         is_strip && console.log("strip webpack code.");
         // notify completion of task.
         done && done();
@@ -143,17 +154,25 @@ function _replace_some(done, strip_code) {
 }
 
 // for "webpack-js"
+/**
+ * it is bundled in index.js, other code becomes unnecessary.(at webpack
+ * @param {() => void} done gulp callback function.
+ */
 function _remove_un_js(done) {
+    // in general, "del" is completed first.
+    _replace_some(done, !0);
     // remove unnecessary files.
-    del([`${JS_DEST_DIR}/{replace,reutil}*`]).then(paths => {
+    del([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]).then(paths => {
         console.log(`Deleted files and folders:\n${paths.join('\n')}`);
-        _replace_some(done, !0);
+        // done && done();
     });
 }
 /** ------------------------------------------------------->
  * 2017-9-20 13:32:19 gulp webpack-js -> index.js replace following.
  * /^module.exports.+(?=\([function(e,t,n)/g
  */
+// this code is for index.
+// variable names, such as variable names, may vary for different environments...
 const strip_statement = `module.exports = function(e) {
  function t(r) {
   if (n[r]) return n[r].exports;
@@ -179,8 +198,8 @@ gulp.task("webpack-js", ["rm:nullfile"], (done) => {
     webpackStream(webpackConfig, webpack)
     .pipe(gulp.dest(JS_DEST_DIR))
     .on("end", function () {
-        console.log("webpack-js done.");
         _remove_un_js(done);
+        console.log("webpack-js done.");
     });
 });
 
@@ -210,6 +229,7 @@ gulp.task("webpack-js", ["rm:nullfile"], (done) => {
 
 /**
  * remove file when size is zero.
+ * @param {() => void} cb gulp callback function.
  */
 gulp.task("rm:nullfile", ["tsc"], function(cb) {
     function _readdir_callback(err, files) {
@@ -243,8 +263,8 @@ gulp.task("rm:nullfile", ["tsc"], function(cb) {
 // shared function
 /**
  * 
- * @param {() => void} done 
- * @param {string} dest 
+ * @param {() => void} done gulp callback function.
+ * @param {string} dest output directory path.
  */
 function _dist(done, dest) {
     gulp.src([

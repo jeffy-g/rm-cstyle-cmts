@@ -38,15 +38,31 @@ const uglifyjs_options = {
 module.exports = {
     target: "node",
     // entry point
-    entry: "./bin/index.js",
+    entry: {
+        index: "./bin/index.js",
+        "bench/index": "./bin/bench/index.js"
+    },
     // output config.
     output: {
         path: `${__dirname}/${WEBPACK_OUTPUT}`,
         // overwrite index.js
-        filename: "index.js",
+        filename: "[name].js",
         // https://webpack.js.org/configuration/output/#output-librarytarget
         libraryTarget: "commonjs2"
     },
+    // https://webpack.github.io/docs/configuration.html#externals
+    externals: [
+        // {
+        //     a: false, // a is not external
+        //     b: true, // b is external (require("b"))
+        //     "./c": "c", // "./c" is external (require("c"))
+        //     "./d": "var d" // "./d" is external (d)
+        // },
+        // this is external.
+        // see: src/bench/index.ts, import * as rmc from "../";
+        //   -> require("../");
+        "../" /* reference to ./bin/index.js */
+    ],
     resolve: {
         extensions: [".js"]
     },

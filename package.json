@@ -8,6 +8,7 @@
         "lint": "tslint src/**/*.ts -p tsconfig.json --type-check",
         "test": "istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
+        "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 2000 -ol 10 && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "build": "gulp rm:nullfile",
         "dist": "gulp dist && npm publish ./dist"
     },
