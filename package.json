@@ -33,6 +33,7 @@
     "license": "Apache-2.0",
     "devDependencies": {
         "@types/node": "^8.0.26",
+        "awesome-typescript-loader": "^3.2.3",
         "codecov": "^2.3.0",
         "del": "^3.0.0",
         "gulp": "^3.9.1",

@@ -42,6 +42,7 @@ const sourcemaps = require('gulp-sourcemaps');
 
 // for version string replace.
 const pkg = require("./package.json");
+
 // ------------------------------- constant variables ----------------------------------
 /** ts compiled out put. */
 const JS_DEST_DIR = "./bin";
@@ -51,14 +52,14 @@ const DISTRIBUTION_DIR = "./dist";
 /** webpack version. */
 const DISTRIBUTION_PACK_DIR = "./dist-pack";
 
-/**  */
+/** ts source files. */
 const TS_FILEs_PATTERN = './src/ts/**/*.ts';
 
-/**  */
+/** copy transpiled code for dist package. */
 const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
 
 /**
- * 
+ * use for gulp.dest(...)
  * @param {File?} vinyl 
  * @param {string} dest 
  */
@@ -82,6 +83,40 @@ function _del_hook(globs, done) {
 }
 
 /**
+ * remove file when size is zero. (d.ts
+ * @param {() => void} cb gulp callback function.
+ */
+function _remove_nullfile(cb) {
+    function _readdir_callback(err, files) {
+        if (err) console.log(err);
+        let fileList = [];
+        // const _this = this;
+        // NOTE: arrow function context bind "this".
+        files.forEach(file => {
+            if (this.re.test(file)) {
+                let relative_path = `${this.base}/${file}`;
+                // console.log(relative_path);
+                const stats = fs.statSync(relative_path);
+                if (stats.isFile() && stats.size === 0) {
+                    del.sync(relative_path), fileList.push(relative_path);
+                }
+            }
+        });
+        fileList.length && console.log("file removed. because size was zero...", fileList);
+        // notify completion of task.
+        this.done && this.done();
+    }
+
+    const re_dts = /.*\.d.ts$/;
+    fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: re_dts, base: JS_DEST_DIR }));
+    fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({
+        re: re_dts, base: JS_DEST_DIR + "/bench",
+        done: cb
+    }));
+}
+
+
+/**
  * task "clean"
  * @param {() => void} done gulp callback function.
  */
@@ -94,14 +129,6 @@ gulp.task("clean", function(done) {
  * @param {() => void} done gulp callback function.
  */
 gulp.task("tsc", ["clean"], function(done) {
-    // const project = tsc.createProject("tsconfig.json");
-    // gulp.src(TS_FILEs_PATTERN)
-    // .pipe(project())
-    // .pipe(
-    //     gulp.dest(JS_DEST_DIR)
-    // ).on("end", function() {
-    //     done();
-    // });
 
     // copy ...
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
@@ -206,61 +233,40 @@ gulp.task("webpack-js", ["rm:nullfile"], (done) => {
     });
 });
 
-// transpile tsc with webpack (incomplete...
-// gulp.task("webpack", ["clean"], (done) => {
+// transpile tsc with webpack.
+gulp.task("webpack", ["clean"], (done) => {
 
-//     const webpackStream = require("webpack-stream");
-//     const webpack = require("webpack");
-//     const webpackConfig = require("./webpack.config");
+    const webpackStream = require("webpack-stream");
+    const webpack = require("webpack");
+    const webpackConfig = require("./webpack.config");
 
-//     // NOTE: awesome-typescript-loader use default "tsconfig.json"
-//     // webpack instance pass to param 2
-//     return webpackStream(webpackConfig, webpack)
-//     .pipe(gulp.dest(JS_DEST_DIR))
-//     .on("end", function() {
-//         // copy ...
-//         gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
-//         console.log("webpack done.");
+    // copy ...
+    gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
-//         gulp.src(TS_FILEs_PATTERN)
-//         .pipe(tsc()).pipe(gulp.dest(JS_DEST_DIR)).on("end", function() {
-//             ;
-//         });
-//     });
-// });
+    // NOTE: awesome-typescript-loader use default "tsconfig.json"
+    // webpack instance pass to param 2
+    webpackStream(webpackConfig, webpack)
+    .pipe(
+        gulp.dest(JS_DEST_DIR)
+        // gulp.dest(function(vinyl) { // only contained ts/index, ts/bench/index...
+        //     console.log(vinyl);
+        //     return convertRelativeDir(vinyl, ".");
+        // })
+    )
+    .on("end", function() {
+        _remove_nullfile();
+        _remove_un_js(done); // <- this is a bit slow...
+        console.log("webpack done.");
+    });
+});
     
 
 /**
  * remove file when size is zero.
- * @param {() => void} cb gulp callback function.
+ * @param {() => void} done gulp callback function.
  */
-gulp.task("rm:nullfile", ["tsc"], function(cb) {
-    function _readdir_callback(err, files) {
-        if (err) console.log(err);
-        let fileList = [];
-        // const _this = this;
-        // NOTE: arrow function context bind "this".
-        files.forEach(file => {
-            if (this.re.test(file)) {
-                let relative_path = `${this.base}/${file}`;
-                // console.log(relative_path);
-                const stats = fs.statSync(relative_path);
-                if (stats.isFile() && stats.size === 0) {
-                    del.sync(relative_path), fileList.push(relative_path);
-                }
-            }
-        });
-        fileList.length && console.log("file removed. because size was zero...", fileList);
-        // notify completion of task.
-        this.done && this.done();
-    }
-
-    const re_dts = /.*\.d.ts$/;
-    fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: re_dts, base: JS_DEST_DIR }));
-    fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({
-        re: re_dts, base: JS_DEST_DIR + "/bench",
-        done: cb
-    }));
+gulp.task("rm:nullfile", ["tsc"], function (done) {
+    _remove_nullfile(done);
 });
 
 // shared function
@@ -291,7 +297,24 @@ gulp.task("dist", ["rm:nullfile"], function(done) {
  * experimental task.  
  * caution: overwrite a ./bin directory.
  */
-gulp.task("dist:pack", ["webpack-js"], function(done) {
+gulp.task("dist:pack", ["webpack"], function(done) {
+    try {
+        _dist(done, DISTRIBUTION_PACK_DIR);
+    } catch (e) {
+        console.log(e.message);
+    }
+});
+/**
+ * experimental task.  
+ * caution: overwrite a ./bin directory.
+ */
+gulp.task("dist:packjs", ["webpack-js"], function(done) {
+    _dist(done, DISTRIBUTION_PACK_DIR);
+});
+/**
+ * experimental task.  
+ */
+gulp.task("とりあえずパック", [], function(done) {
     _dist(done, DISTRIBUTION_PACK_DIR);
 });
 
@@ -365,3 +388,8 @@ gulp.task("readme", function(cb) {
 //     del.sync(TEST_SRC_FILEs_OUT);
 //     cb();
 // });
+
+gulp.task("default", ["dist:pack"], function (done) {
+    // console.log("statictics: ...");
+    done();
+});

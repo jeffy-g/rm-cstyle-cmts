@@ -21,7 +21,7 @@ limitations under the License.
 // need "awesome-typescript-loader"
 
 const webpack = require("webpack");
-const WEBPACK_OUTPUT = "./bin/";
+const WEBPACK_OUTPUT = "./bin";
 
 // UglifyJSPlugin option
 const uglifyjs_options = {
@@ -31,7 +31,7 @@ const uglifyjs_options = {
         beautify: true, //settings["uglifyes-beautify"],
         indent_level: 1,
         // ecma: 7,
-        max_line_len: 1200
+        max_line_len: 800
     }
 };
 
@@ -39,11 +39,15 @@ const uglifyjs_options = {
 module.exports = {
     target: "node",
     // entry point
-    entry: "./src/ts/index.ts",
+    entry: {
+        index: "./src/ts/index.ts",
+        "bench/index": "./src/ts/bench/index.ts"
+    },
     // output config.
     output: {
         path: `${__dirname}/${WEBPACK_OUTPUT}`,
-        filename: "index2.js",
+        // overwrite index.js
+        filename: "[name].js",
         // https://webpack.js.org/configuration/output/#output-librarytarget
         libraryTarget: "commonjs2"
     },
@@ -57,10 +61,23 @@ module.exports = {
             }
         ]
     },
+    // https://webpack.github.io/docs/configuration.html#externals
+    externals: [
+        // {
+        //     a: false, // a is not external
+        //     b: true, // b is external (require("b"))
+        //     "./c": "c", // "./c" is external (require("c"))
+        //     "./d": "var d" // "./d" is external (d)
+        // },
+        // this is external.
+        // see: src/bench/index.ts, import * as rmc from "../";
+        //   -> require("../");
+        "../" /* reference to ./bin/index.js */
+    ],
     resolve: {
-        extensions: [".js", '.ts']
+        extensions: [".ts"]
     },
-    // devtool: "source-map",
+    devtool: "source-map", // need this for ts transpile...
     plugins: [
         // UglifyJsPlugin is included in webpack.
       new webpack.optimize.UglifyJsPlugin(uglifyjs_options),
