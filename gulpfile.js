@@ -48,6 +48,8 @@ const JS_DEST_DIR = "./bin";
 
 /** npm publishing. */
 const DISTRIBUTION_DIR = "./dist";
+/** webpack version. */
+const DISTRIBUTION_PACK_DIR = "./dist-pack";
 
 /**  */
 const TS_FILEs_PATTERN = './src/ts/**/*.ts';
@@ -70,7 +72,7 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
  * task "clean"
  */
 gulp.task("clean", function(cb) {
-    del([`${JS_DEST_DIR}/**/*`, DISTRIBUTION_DIR]).then(paths => {
+    del([`${JS_DEST_DIR}/**/*`, DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR]).then(paths => {
         console.log(
             `Deleted files and folders:
 ${paths.join('\n')}
@@ -239,13 +241,18 @@ gulp.task("rm:nullfile", ["tsc"], function(cb) {
 });
 
 // shared function
-function _dist(done) {
+/**
+ * 
+ * @param {() => void} done 
+ * @param {string} dest 
+ */
+function _dist(done, dest) {
     gulp.src([
         "LICENSE", "package.json", "README.md", "samples/*",
         "test/test.js",
         COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(function(vinyl) {
-        return convertRelativeDir(vinyl, DISTRIBUTION_DIR);
+        return convertRelativeDir(vinyl, dest);
     })).on("end", () => {
         // notify completion of task.
         done();
@@ -255,13 +262,14 @@ function _dist(done) {
  * task "dist"
  */
 gulp.task("dist", ["rm:nullfile"], function(done) {
-    _dist(done);
+    _dist(done, DISTRIBUTION_DIR);
 });
 /**
- * experimental task.
+ * experimental task.  
+ * caution: overwrite a ./bin directory.
  */
 gulp.task("dist:pack", ["webpack-js"], function(done) {
-    _dist(done);
+    _dist(done, DISTRIBUTION_PACK_DIR);
 });
 
 /**

@@ -1,6 +1,7 @@
 /node_modules
 /bin
 /dist
+/dist-pack
 #package-lock.json
 /.d-ts
 /logs

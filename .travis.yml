@@ -38,6 +38,12 @@ before_deploy:
     - tar czf ../rm-cstyle-cmts-$TRAVIS_TAG.tar.gz *
     - cd ..
 
+    - gulp dist:pack
+    - cd ./dist-pack
+    - zip -r ../rm-cstyle-cmts-$TRAVIS_TAG-webpack.zip *
+    - tar czf ../rm-cstyle-cmts-$TRAVIS_TAG-webpack.tar.gz *
+    - cd ..
+
 deploy:
   provider: releases
   skip_cleanup: true
@@ -46,6 +52,8 @@ deploy:
   file:
     - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.zip
     - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.tar.gz
+    - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG-webpack.zip
+    - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG-webpack.tar.gz
   on:
     repo: jeffy-g/rm-cstyle-cmts
     all_branches: true
