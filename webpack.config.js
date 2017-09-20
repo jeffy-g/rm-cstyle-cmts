@@ -24,10 +24,10 @@ const webpack = require("webpack");
 const WEBPACK_OUTPUT = "./bin";
 
 // UglifyJSPlugin option
+// NOTE: if do not explicitly specify both uglifyjs_options.sourceMap and devtool option, the sourcemap was not created...
 const uglifyjs_options = {
     sourceMap: true,
     output: {
-        // NOTE: uglifyes allow LF?
         beautify: true, //settings["uglifyes-beautify"],
         indent_level: 1,
         // ecma: 7,
@@ -63,15 +63,6 @@ module.exports = {
     },
     // https://webpack.github.io/docs/configuration.html#externals
     externals: [
-        // {
-        //     a: false, // a is not external
-        //     b: true, // b is external (require("b"))
-        //     "./c": "c", // "./c" is external (require("c"))
-        //     "./d": "var d" // "./d" is external (d)
-        // },
-        // this is external.
-        // see: src/bench/index.ts, import * as rmc from "../";
-        //   -> require("../");
         "../" /* reference to ./bin/index.js */
     ],
     resolve: {
@@ -80,6 +71,6 @@ module.exports = {
     devtool: "source-map", // need this for ts transpile...
     plugins: [
         // UglifyJsPlugin is included in webpack.
-      new webpack.optimize.UglifyJsPlugin(uglifyjs_options),
+        new webpack.optimize.UglifyJsPlugin(uglifyjs_options),
     ],
 };
