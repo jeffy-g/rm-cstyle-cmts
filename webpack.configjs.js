@@ -23,8 +23,11 @@ const webpack = require("webpack");
 const WEBPACK_OUTPUT = "./bin/";
 
 // UglifyJSPlugin option
+// NOTE: unlike the configuration file for ts file,
+//   here, sourcemap is created without specifying both uglifyjs_options.sourceMap and devtool option,
+//   it seems that it becomes an incomplete sourcemap.
 const uglifyjs_options = {
-    sourceMap: true, //<- cannot work :-(
+    sourceMap: true,
     output: {
         // NOTE: uglifyes allow LF?
         beautify: true, //settings["uglifyes-beautify"],
@@ -38,21 +41,37 @@ const uglifyjs_options = {
 module.exports = {
     target: "node",
     // entry point
-    entry: "./bin/index.js",
+    entry: {
+        index: "./bin/index.js",
+        "bench/index": "./bin/bench/index.js"
+    },
     // output config.
     output: {
         path: `${__dirname}/${WEBPACK_OUTPUT}`,
         // overwrite index.js
-        filename: "index.js",
+        filename: "[name].js",
         // https://webpack.js.org/configuration/output/#output-librarytarget
         libraryTarget: "commonjs2"
     },
+    // https://webpack.github.io/docs/configuration.html#externals
+    externals: [
+        // {
+        //     a: false, // a is not external
+        //     b: true, // b is external (require("b"))
+        //     "./c": "c", // "./c" is external (require("c"))
+        //     "./d": "var d" // "./d" is external (d)
+        // },
+        // this is external.
+        // see: src/bench/index.ts, import * as rmc from "../";
+        //   -> require("../");
+        "../" /* reference to ./bin/index.js */
+    ],
     resolve: {
         extensions: [".js"]
     },
-    devtool: "source-map",
+    devtool: "source-map", // need this for complete sourcemap.
     plugins: [
         // UglifyJsPlugin is included in webpack.
-      new webpack.optimize.UglifyJsPlugin(uglifyjs_options),
+        new webpack.optimize.UglifyJsPlugin(uglifyjs_options),
     ],
 };

@@ -1,6 +1,6 @@
 {
     "name": "rm-cstyle-cmts",
-    "version": "1.4.22",
+    "version": "1.4.23",
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
@@ -8,6 +8,7 @@
         "lint": "tslint src/**/*.ts -p tsconfig.json --type-check",
         "test": "istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
+        "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 2000 -ol 10 && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "build": "gulp rm:nullfile",
         "dist": "gulp dist && npm publish ./dist"
     },
@@ -32,6 +33,7 @@
     "license": "Apache-2.0",
     "devDependencies": {
         "@types/node": "^8.0.26",
+        "awesome-typescript-loader": "^3.2.3",
         "codecov": "^2.3.0",
         "del": "^3.0.0",
         "gulp": "^3.9.1",
@@ -41,6 +43,7 @@
         "gulp-typescript": "^3.2.2",
         "istanbul": "^0.4.5",
         "remap-istanbul": "^0.9.5",
-        "typescript": "^2.5.2"
+        "typescript": "^2.5.2",
+        "webpack-stream": "^4.0.0"
     }
 }

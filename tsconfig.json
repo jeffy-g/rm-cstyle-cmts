@@ -5,7 +5,7 @@
         "removeComments": true,
 
         "declaration": true,
-        // "declarationDir": ".d-ts/",
+        // "declarationDir": "./bin",
 
         // statistics
         "diagnostics": true,
@@ -16,7 +16,7 @@
 
         "alwaysStrict": true,
 
-        "rootDir": "./src",
+        "rootDir": "./src/ts",
         "outDir": "./bin",
 
         "listFiles": false,

@@ -18,7 +18,7 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 // test development javascript.
-// <reference types="rm-cstyle-cmts"/>
+// <reference types="../types/rm-cstyle-cmts"/>
 
 if (!String.prototype.repeat) {
     String.prototype.repeat = function(n: number): string {

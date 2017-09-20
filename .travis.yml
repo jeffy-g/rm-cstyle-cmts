@@ -33,9 +33,15 @@ after_success:
   - codecov -f coverage/coverage-remap.json
 
 before_deploy:
-    - cd ./dist
+    - cd ./dist      # 
     - zip -r ../rm-cstyle-cmts-$TRAVIS_TAG.zip *
     - tar czf ../rm-cstyle-cmts-$TRAVIS_TAG.tar.gz *
+    - cd ..
+
+    - gulp dist:pack # use webpack + awesome-typescript-loader
+    - cd ./dist-pack
+    - zip -r ../rm-cstyle-cmts-$TRAVIS_TAG-webpack.zip *
+    - tar czf ../rm-cstyle-cmts-$TRAVIS_TAG-webpack.tar.gz *
     - cd ..
 
 deploy:
@@ -46,6 +52,8 @@ deploy:
   file:
     - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.zip
     - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG.tar.gz
+    - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG-webpack.zip
+    - $TRAVIS_BUILD_DIR/rm-cstyle-cmts-$TRAVIS_TAG-webpack.tar.gz
   on:
     repo: jeffy-g/rm-cstyle-cmts
     all_branches: true
