@@ -32,13 +32,13 @@ const util = require("util");
 
 const del = require("del");   // global install
 const gulp = require("gulp"); // global install
-const tsc = require('gulp-typescript');  // global install
+const tsc = require("gulp-typescript");  // global install
 
-const replacer = require('gulp-replace');// global install
-const rename = require('gulp-rename');   // global install
+const replacer = require("gulp-replace");// global install
+const rename = require("gulp-rename");   // global install
 
 // source map for codecov.
-const sourcemaps = require('gulp-sourcemaps');
+const sourcemaps = require("gulp-sourcemaps");
 
 // for version string replace.
 const pkg = require("./package.json");
@@ -53,7 +53,7 @@ const DISTRIBUTION_DIR = "./dist";
 const DISTRIBUTION_PACK_DIR = "./dist-pack";
 
 /** ts source files. */
-const TS_FILEs_PATTERN = './src/ts/**/*.ts';
+const TS_FILEs_PATTERN = "./src/ts/**/*.ts";
 
 /** copy transpiled code for dist package. */
 const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
@@ -76,7 +76,7 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
  */
 function _del_hook(globs, done) {
     del(globs).then(paths => {
-        console.log(`Deleted files and folders:\n${paths.join('\n')}`);
+        console.log(`Deleted files and folders:\n${paths.join("\n")}`);
         // notify completion of task.
         done && done();
     });
@@ -136,7 +136,7 @@ gulp.task("tsc", ["clean"], function(done) {
     const project = tsc.createProject("tsconfig.json");
     // cannot took dependent source.
     // however, it seems ok if you explicitly list the file with tsconfig.json ("include" etc.
-    // const result = project.src() // Compiler option 'compileOnSave' requires a value of type boolean. <- "compileOnSave" option...?
+    // const result = project.src() // Compiler option "compileOnSave" requires a value of type boolean. <- "compileOnSave" option...?
     const result = gulp.src(TS_FILEs_PATTERN)
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
         .pipe(project());
@@ -326,10 +326,10 @@ gulp.task("とりあえずパック", [], function(done) {
  */
 gulp.task("readme", function(cb) {
     // fetch data files.
-    const BEFORE = fs.readFileSync("./samples/es6.js", 'utf-8');
-    const AFTER = fs.readFileSync("./samples/es6-rm_ws-true.js", 'utf-8');
-    let NODE_LATEST_LOG = fs.readFileSync("./logs/node-latest.log", 'utf-8');
-    let NODE_OLD_LOG = fs.readFileSync("./logs/node-old.log", 'utf-8');
+    const BEFORE = fs.readFileSync("./samples/es6.js", "utf-8");
+    const AFTER = fs.readFileSync("./samples/es6-rm_ws-true.js", "utf-8");
+    let NODE_LATEST_LOG = fs.readFileSync("./logs/node-latest.log", "utf-8");
+    let NODE_OLD_LOG = fs.readFileSync("./logs/node-old.log", "utf-8");
 
     const SIZE = fs.statSync("./samples/es6.js").size;
     // prepare for readme.
@@ -339,7 +339,7 @@ gulp.task("readme", function(cb) {
     const NODE_LATEST_V = /^v\d+\.\d+\.\d+$/m.exec(NODE_LATEST_LOG)[0];
     const NODE_OLD_V =  /^v\d+\.\d+\.\d+$/m.exec(NODE_OLD_LOG)[0];
     // create readme.md form template.
-    gulp.src('./readme-template.md')
+    gulp.src("./readme-template.md")
     .pipe(
         replacer(/@(SIZE|BEFORE|AFTER|NODE_LATEST_V|NODE_LATEST_LOG|NODE_OLD_V|NODE_OLD_LOG)/g, (all, tag) => {
             switch(tag) {
@@ -355,7 +355,7 @@ gulp.task("readme", function(cb) {
         })
     )
     .pipe(rename("README.md"))
-    .pipe(gulp.dest('./')).on("end", () => {
+    .pipe(gulp.dest("./")).on("end", () => {
         // notify completion of task.
         cb();
         console.log("Please run 'npm run dist'");
