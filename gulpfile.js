@@ -67,20 +67,26 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
     let relative_dir = vinyl.base.substring(x);
     return `${dest}/${relative_dir}`;
 }
+/**
+ * delete files by "globs" pattern.  
+ * done callback(gulp) specified if need.
+ * @param {string|string[]} globs file pattern.
+ * @param {() => void} done gulp callback function.
+ */
+function _del_hook(globs, done) {
+    del(globs).then(paths => {
+        console.log(`Deleted files and folders:\n${paths.join('\n')}`);
+        // notify completion of task.
+        done && done();
+    });
+}
 
 /**
  * task "clean"
  * @param {() => void} done gulp callback function.
  */
 gulp.task("clean", function(done) {
-    del([`${JS_DEST_DIR}/**/*`, DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR]).then(paths => {
-        console.log(
-            `Deleted files and folders:
-${paths.join('\n')}
-`);
-        // notify completion of task.
-        done();
-    });
+    _del_hook([`${JS_DEST_DIR}/**/*`, DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR], done);
 });
 
 /**
@@ -162,10 +168,7 @@ function _remove_un_js(done) {
     // in general, "del" is completed first.
     _replace_some(done, !0);
     // remove unnecessary files.
-    del([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]).then(paths => {
-        console.log(`Deleted files and folders:\n${paths.join('\n')}`);
-        // done && done();
-    });
+    _del_hook([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]);
 }
 /** ------------------------------------------------------->
  * 2017-9-20 13:32:19 gulp webpack-js -> index.js replace following.
