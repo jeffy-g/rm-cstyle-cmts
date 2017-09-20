@@ -106,14 +106,14 @@ class QuoteVistor implements ICharVisitor {
         while (next < limiter) {
             if ((ch = source[next]) === "\\") {
                 in_escape = !in_escape;
-            } else if (!in_escape && ch === char) {
+            } else if (!in_escape && ch === char) { /* need in_escape = false state. */
                 // const str = source.substring(index, ++next);
                 // console.log(`--[${str}]--`);
                 // context.result += str;
                 context.result += source.substring(index, ++next);
                 context.offset = next;
                 return true;
-            } else {
+            } else { // last state is "in escape" then current ch is ignored.
                 in_escape = false;
             }
             next++;
@@ -138,7 +138,6 @@ class BackQuoteVistor implements ICharVisitor {
         registry["`"] = this;
     }
 
-    // tslint:disable-next-line:
     public visit(char: string, source: string, context: IReplacementContext): boolean {
 
         const index = context.offset;
@@ -262,9 +261,8 @@ class SlashVistor implements ICharVisitor {
             // NOTE: It was necessary to extract the character strings of the remaining lines...
             // const x = m? m.index: length;
             const remaining = source.substring(index, x === -1? length: x);
-            // NOTE:
-            //  o LF does not have to worry.
-            // RE_REGEXP_PATTERN.lastIndex = 0;
+            // NOTE: LF does not have to worry.
+            // NOTE: need lastIndex property, must add "g" flag.
             const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/g;
             // only execute once, this is important!
             const m = re_re.exec(remaining);
@@ -280,7 +278,7 @@ class SlashVistor implements ICharVisitor {
                 continue L;
             } else {
                 // update offset.
-                context.offset = index + re_re.lastIndex;
+                context.offset = index + re_re.lastIndex; // "g" flag.
                 context.result += source.substring(index, context.offset);
                 return true;
             }

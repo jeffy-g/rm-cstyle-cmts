@@ -186,7 +186,7 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
  * @param msg 
  */
 function progress(msg?: string): void {
-    // tslint:disable-next-line:no-any
+
     const output: any = process.stderr;
     // clear the current line
     output.clearLine();

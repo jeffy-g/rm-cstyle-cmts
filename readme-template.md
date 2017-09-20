@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/rm-cstyle-cmts.svg)](https://badge.fury.io/js/rm-cstyle-cmts)
 [![LICENSE](https://img.shields.io/badge/Lisence-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield)
-
+<!-- https://img.shields.io/npm/v/rm-cstyle-cmts.svg -->
 # remove cstyle comments
 
 remove c style comments from text file(javascript source, json file etc...
@@ -98,15 +98,15 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 ## performance
 
 > es6.js @SIZE bytes,  
-> with remove blank line and whitespaces and without (at node v8.5.0, intel core i5-2500k 3.3ghz
+> with remove blank line and whitespaces and without (at node @NODE_LATEST_V, intel core i5-2500k 3.3ghz
 
 ```ts
-@NODE_LATEST
+@NODE_LATEST_LOG
 ```
 
-> at node v4.8.4
+> at node @NODE_OLD_V
 ```ts
-@NODE_OLD
+@NODE_OLD_LOG
 ```
 
 ## Regarding Verification of Regular Expression Literals:

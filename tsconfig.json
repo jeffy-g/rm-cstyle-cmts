@@ -16,7 +16,7 @@
 
         "alwaysStrict": true,
 
-        "rootDir": "./src/ts",
+        "rootDir": "./src",
         "outDir": "./bin",
 
         "listFiles": false,
@@ -39,6 +39,6 @@
         "emitDecoratorMetadata": true
     },
     "include": [
-        "./src/ts/"
+        "./src/**/*.ts"
     ]
 }

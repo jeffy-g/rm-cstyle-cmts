@@ -51,9 +51,9 @@ declare global {
     }
 }
 
-const pkg: IStringMap<string> = require("../package.json");
+// const pkg: IStringMap<string> = require("../package.json");
 /** TODO: edit jsdoc */
-const latest_version: string = pkg.version;
+const latest_version: string = "pkg.version";
 
 /**
  * singleton instance.
@@ -98,7 +98,7 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
         // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
         regexes.re_ws_qs, ((all, index: number, inputs: string) => {
             const first = all[0];
-            // NOTE: need skip qoted string, regexp literal.
+            // NOTE: need skip quoted string, regexp literal.
             return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
     // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
     // NOTE: this regex seems to be the correct answer...

@@ -1,5 +1,4 @@
 {
-    // "extends": "tslint-microsoft-contrib",
     "rules": {
         "no-single-line-block-comment": false,
         "no-require-imports": false,
