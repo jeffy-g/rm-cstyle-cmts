@@ -176,6 +176,7 @@ class BackQuoteVistor implements ICharVisitor {
                             } else if (depth === bq_depth) { // can decrement.
                                 bq_depth--;
                             }
+                            // depth - 1 === bq_depth ? bq_depth++ : depth === bq_depth && bq_depth--;
                             break;
                         }
                         /* if (depth === 0) */ {

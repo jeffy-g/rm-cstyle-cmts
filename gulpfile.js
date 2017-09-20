@@ -168,8 +168,8 @@ const strip_statement = `module.exports = function(e) {
  return t.m = e, t.c = n, t.p = "", t(t.s = 1);
 }`;
 
-// tsc -> webpack
-gulp.task("webpack-js", ["tsc"], (done) => {
+// tsc -> rm:nullfile -> webpack
+gulp.task("webpack-js", ["rm:nullfile"], (done) => {
 
     const webpackStream = require("webpack-stream");
     const webpack = require("webpack");

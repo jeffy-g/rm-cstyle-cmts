@@ -25,7 +25,7 @@ const WEBPACK_OUTPUT = "./bin/";
 
 // UglifyJSPlugin option
 const uglifyjs_options = {
-    sourceMap: true, //<- cannot work :-(
+    sourceMap: true,
     output: {
         // NOTE: uglifyes allow LF?
         beautify: true, //settings["uglifyes-beautify"],
