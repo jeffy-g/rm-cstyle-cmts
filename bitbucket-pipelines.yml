@@ -31,4 +31,4 @@ pipelines:
           # It can not be expanded if $BB_AUTH_STRING is included in the variable
           # ${BB_REST_API_DOWNLOADs} <- this also does not work...
           - curl -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads"
-            --form files=@"${ARCHIVE_NAME}.tar.gz, ${ARCHIVE_NAME}-webpack.tar.gz"
+            --form files=@"${ARCHIVE_NAME}.tar.gz,${ARCHIVE_NAME}-webpack.tar.gz"
