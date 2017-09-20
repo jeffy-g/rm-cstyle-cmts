@@ -23,9 +23,12 @@ const webpack = require("webpack");
 const WEBPACK_OUTPUT = "./bin/";
 
 // UglifyJSPlugin option
-// NOTE: unlike the configuration file for ts file,
+// NOTE: for js
+//   unlike the configuration file for ts file,
 //   here, sourcemap is created without specifying both uglifyjs_options.sourceMap and devtool option,
 //   it seems that it becomes an incomplete sourcemap.
+// NOTE: for ts
+//   if do not explicitly specify both uglifyjs_options.sourceMap and devtool option, the sourcemap was not created...
 const uglifyjs_options = {
     sourceMap: true,
     output: {
@@ -67,7 +70,7 @@ module.exports = {
         "../" /* reference to ./bin/index.js */
     ],
     resolve: {
-        extensions: [".js"]
+        extensions: [".js", ".ts"]
     },
     devtool: "source-map", // need this for complete sourcemap.
     plugins: [
