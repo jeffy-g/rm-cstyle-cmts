@@ -40,6 +40,8 @@ const rename = require('gulp-rename');   // global install
 // source map for codecov.
 const sourcemaps = require('gulp-sourcemaps');
 
+// for version string replace.
+const pkg = require("./package.json");
 // ------------------------------- constant variables ----------------------------------
 /** ts compiled out put. */
 const JS_DEST_DIR = "./bin";
@@ -81,14 +83,14 @@ ${paths.join('\n')}
 /**
  * task "tsc"
  */
-gulp.task("tsc", ["clean"], function(cb) {
+gulp.task("tsc", ["clean"], function(done) {
     // const project = tsc.createProject("tsconfig.json");
     // gulp.src(TS_FILEs_PATTERN)
     // .pipe(project())
     // .pipe(
     //     gulp.dest(JS_DEST_DIR)
     // ).on("end", function() {
-    //     cb();
+    //     done();
     // });
 
     // copy ...
@@ -101,13 +103,108 @@ gulp.task("tsc", ["clean"], function(cb) {
     const result = gulp.src(TS_FILEs_PATTERN)
         .pipe(sourcemaps.init()) // This means sourcemaps will be generated
         .pipe(project());
+
     // return result.js.pipe(gulp.dest(JS_DEST_DIR));
-    return result
-        // .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
-        .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: JS_DEST_DIR })) // create map file per .js
-        .pipe(gulp.dest(JS_DEST_DIR));
+    result // .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
+    .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: JS_DEST_DIR })) // create map file per .js
+    .pipe(gulp.dest(JS_DEST_DIR))
+    .on("end", function () {
+        console.log("tsc done.");
+        _replace_some(done);
+    });
 });
 
+// for "tsc", "webpack-js"
+// bind version string, and replace something...(for webpack
+function _replace_some(done, strip_code) {
+    var stream = gulp.src('./bin/index.js')
+    .pipe( // always replace.
+        replacer(/pkg.version/, (all, tag) => {
+            return tag? pkg.version: all;
+        })
+    );
+    var is_strip = false;
+    if (strip_code) {
+        stream = stream.pipe( // strip webpack code
+            replacer(/^module.exports[\S\s]+(?=\(\[\s?function\(e,\s?t,\s?n)/, (all) => {
+                is_strip = true;
+                return strip_statement;
+            })
+        );
+    }
+    stream.pipe(gulp.dest('./bin/')).on("end", () => {
+        console.log("bind version string.");
+        is_strip && console.log("strip webpack code.");
+        // notify completion of task.
+        done && done();
+    });
+}
+
+// for "webpack-js"
+function _remove_un_js(done) {
+    // remove unnecessary files.
+    del([`${JS_DEST_DIR}/{replace,reutil}*`]).then(paths => {
+        console.log(`Deleted files and folders:\n${paths.join('\n')}`);
+        _replace_some(done, !0);
+    });
+}
+/** ------------------------------------------------------->
+ * 2017-9-20 13:32:19 gulp webpack-js -> index.js replace following.
+ * /^module.exports.+(?=\([function(e,t,n)/g
+ */
+const strip_statement = `module.exports = function(e) {
+ function t(r) {
+  if (n[r]) return n[r].exports;
+  var s = n[r] = {
+   i: r,
+   l: !1,
+   exports: {}
+  };
+  return e[r].call(s.exports, s, s.exports, t), s.l = !0, s.exports;
+ }
+ var n = {};
+ return t.m = e, t.c = n, t.p = "", t(t.s = 1);
+}`;
+
+// tsc -> webpack
+gulp.task("webpack-js", ["tsc"], (done) => {
+
+    const webpackStream = require("webpack-stream");
+    const webpack = require("webpack");
+    const webpackConfig = require("./webpack.configjs");
+
+    // webpack instance pass to param 2
+    webpackStream(webpackConfig, webpack)
+    .pipe(gulp.dest(JS_DEST_DIR))
+    .on("end", function () {
+        console.log("webpack-js done.");
+        _remove_un_js(done);
+    });
+});
+
+// transpile tsc with webpack (incomplete...
+// gulp.task("webpack", ["clean"], (done) => {
+
+//     const webpackStream = require("webpack-stream");
+//     const webpack = require("webpack");
+//     const webpackConfig = require("./webpack.config");
+
+//     // NOTE: awesome-typescript-loader use default "tsconfig.json"
+//     // webpack instance pass to param 2
+//     return webpackStream(webpackConfig, webpack)
+//     .pipe(gulp.dest(JS_DEST_DIR))
+//     .on("end", function() {
+//         // copy ...
+//         gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
+//         console.log("webpack done.");
+
+//         gulp.src(TS_FILEs_PATTERN)
+//         .pipe(tsc()).pipe(gulp.dest(JS_DEST_DIR)).on("end", function() {
+//             ;
+//         });
+//     });
+// });
+    
 
 /**
  * remove file when size is zero.
@@ -141,10 +238,8 @@ gulp.task("rm:nullfile", ["tsc"], function(cb) {
     }));
 });
 
-/**
- * task "dist"
- */
-gulp.task("dist", ["rm:nullfile"], function(cb) {
+// shared function
+function _dist(done) {
     gulp.src([
         "LICENSE", "package.json", "README.md", "samples/*",
         "test/test.js",
@@ -153,8 +248,20 @@ gulp.task("dist", ["rm:nullfile"], function(cb) {
         return convertRelativeDir(vinyl, DISTRIBUTION_DIR);
     })).on("end", () => {
         // notify completion of task.
-        cb();
+        done();
     });
+}
+/**
+ * task "dist"
+ */
+gulp.task("dist", ["rm:nullfile"], function(done) {
+    _dist(done);
+});
+/**
+ * experimental task.
+ */
+gulp.task("dist:pack", ["webpack-js"], function(done) {
+    _dist(done);
 });
 
 /**

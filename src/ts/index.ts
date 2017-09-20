@@ -51,9 +51,9 @@ declare global {
     }
 }
 
-const pkg: IStringMap<string> = require("../package.json");
+// const pkg: IStringMap<string> = require("../package.json");
 /** TODO: edit jsdoc */
-const latest_version: string = pkg.version;
+const latest_version: string = "pkg.version";
 
 /**
  * singleton instance.
