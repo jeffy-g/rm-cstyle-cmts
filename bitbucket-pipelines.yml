@@ -10,11 +10,10 @@ pipelines:
     - step:
         caches:
           - node
-          - node_modules
         script: # Modify the commands below to build your repository.
           - npm install
           - gulp dist
           - npm run bench
           - npm test
 
-          - bash ci-script.sh mk_n_upload_bitbucket
+          - bash ci-script.sh
