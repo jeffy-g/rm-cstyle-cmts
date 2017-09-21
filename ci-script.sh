@@ -1,4 +1,4 @@
-# !/bin/bash -x
+#!/bin/bash -x
 # -----------------------------------------------------------------------
 # 
 # Copyright 2017 motrohi hirotom1107@gmail.com
