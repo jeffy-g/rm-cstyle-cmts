@@ -16,7 +16,7 @@
 # limitations under the License.
 # 
 # ------------------------------------------------------------------------
-function mk_n_upload_bitbucket {
+function process_bitbucket {
     local SUFFIX=;
 
     [ "$BITBUCKET_TAG" != "" ] && SUFFIX="-$BITBUCKET_TAG" || echo "BITBUCKET_TAG not setted...";
@@ -41,19 +41,25 @@ function mk_n_upload_bitbucket {
     curl -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"${ARCHIVE_NAME}-webpack.tar.gz"
 }
 
-function mk_archive_on_travis {
-    cd ./dist      # 
-    zip -r ../rm-cstyle-cmts-$TRAVIS_TAG.zip *
-    tar czf ../rm-cstyle-cmts-$TRAVIS_TAG.tar.gz *
+function process_travis {
+
+    export ARCHIVE_NAME=rm-cstyle-cmts-$TRAVIS_TAG
+
+    cd ./dist
+    zip -r ../$ARCHIVE_NAME.zip *
+    tar czf ../$ARCHIVE_NAME.tar.gz *
     cd ..
 
     gulp dist:pack # use webpack + awesome-typescript-loader
     cd ./dist-pack
-    zip -r ../rm-cstyle-cmts-$TRAVIS_TAG-webpack.zip *
-    tar czf ../rm-cstyle-cmts-$TRAVIS_TAG-webpack.tar.gz *
+    zip -r ../$ARCHIVE_NAME-webpack.zip *
+    tar czf ../$ARCHIVE_NAME-webpack.tar.gz *
     cd ..
 }
 
-if [ "${1}" != "" ]; then
-	"${1}";
-fi
+CALLABLE=;
+
+[ "$TRAVIS_BUILD_NUMBER" != "" ] && CALLABLE=process_travis;
+[ "$BITBUCKET_BUILD_NUMBER" != "" ] && CALLABLE=process_bitbucket;
+
+[ "$CALLABLE" != "" ] && $CALLABLE;

@@ -16,4 +16,4 @@ pipelines:
           - npm run bench
           - npm test
 
-          - bash ci-script.sh mk_n_upload_bitbucket
+          - bash ci-script.sh
