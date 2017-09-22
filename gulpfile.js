@@ -38,7 +38,7 @@ const replacer = require("gulp-replace");// global install
 const rename = require("gulp-rename");   // global install
 
 // source map for codecov.
-const sourcemaps = require("gulp-sourcemaps");
+const sourcemaps = require("gulp-sourcemaps"); // global install
 
 // for version string replace.
 const pkg = require("./package.json");
@@ -220,8 +220,8 @@ const strip_statement = `module.exports = function(e) {
 // tsc -> rm:nullfile -> webpack
 gulp.task("webpack-js", ["rm:nullfile"], (done) => {
 
-    const webpackStream = require("webpack-stream");
-    const webpack = require("webpack");
+    const webpackStream = require("webpack-stream"); // global install
+    const webpack = require("webpack");              // global install
     const webpackConfig = require("./webpack.configjs");
 
     // webpack instance pass to param 2

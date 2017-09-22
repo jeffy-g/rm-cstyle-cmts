@@ -1,0 +1,39 @@
+{
+    "name": "rm-cstyle-cmts",
+    "version": "1.4.23",
+    "description": "remove c style comments from text file(javascript source, json file etc...",
+    "main": "./bin/index.js",
+    "types": "./bin/index.d.ts",
+    "scripts": {
+        "lint": "tslint src/**/*.ts -p tsconfig.json --type-check",
+        "test": "istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
+        "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
+        "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 2000 -ol 10 && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
+        "build": "gulp rm:nullfile",
+        "dist": "gulp dist && npm publish ./dist"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jeffy-g/rm-cstyle-cmts.git"
+    },
+    "keywords": [
+        "remove",
+        "delete",
+        "comment",
+        "comments",
+        "javascript",
+        "strip",
+        "json",
+        "text"
+    ],
+    "engines": {
+        "node": ">=4.8.4"
+    },
+    "author": "jeffy-g",
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@types/node": "^8.0.26",
+        "awesome-typescript-loader": "^3.2.3",
+        "gulp": "^3.9.1"
+    }
+}
