@@ -140,7 +140,7 @@ class BackQuoteVistor implements ICharVisitor {
 
     // did not investigate the optimization of node.js,
     // rewrite code according to the optimization idiom such as C, performance has improved slightly...
-    // however, it might be my imagination... :-
+    // however, it might be my imagination... :- (at no webpack
     public visit(char: string, source: string, context: IReplacementContext): boolean {
 
         // store "next" postion character. 
@@ -198,9 +198,11 @@ class BackQuoteVistor implements ICharVisitor {
                         // break;
                     case "}":
                         // NOTE: can be decremented only when it is nested?
-                        if (depth > 0 && depth - 1 === bq_depth) {
-                            depth--;
-                        }
+                        // if (depth > 0 && depth - 1 === bq_depth) {
+                        //     depth--;
+                        // }
+                        // again, this one seems better (at no webpack
+                        (depth > 0 && depth - 1 === bq_depth) && depth--;
                         break;
                     // default:
                     //     break;

@@ -133,7 +133,7 @@ gulp.task("tsc", ["clean"], function(done) {
     // copy ...
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
-    const project = tsc.createProject("tsconfig.json");
+    const project = tsc.createProject("./tsconfig.json");
     // cannot took dependent source.
     // however, it seems ok if you explicitly list the file with tsconfig.json ("include" etc.
     // const result = project.src() // Compiler option "compileOnSave" requires a value of type boolean. <- "compileOnSave" option...?
