@@ -60,6 +60,27 @@ const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
 
 
 // ------------------------------- shared function ------------------------------- //
+function getExtraArgs() {
+    var extra_index = 3;
+    var params = {};
+    if (process.argv.length > extra_index) {
+        var args = process.argv;
+        for (var index = extra_index; index < args.length;) {
+            var opt = args[index++];
+            if (opt && opt[0] === "-") {
+                var value = args[index];
+                if (value === void 0 || value[0] === "-") {
+                    value = true;
+                }
+                else {
+                    index++;
+                }
+                params[opt.substring(1)] = value;
+            }
+        }
+    }
+    return params;
+}
 /**
  * use for gulp.dest(...)
  * @param {File?} vinyl 
@@ -117,24 +138,15 @@ function _remove_nullfile(cb) {
 }
 
 /**
- * 2017-9-20 13:32:19 gulp webpack-js -> index.js replace following.  
- * /^module.exports[\S\s]+(?=\(\[\s?function\(e,\s?t,\s?n)/
+ *  gulp webpack(-js) strip useless webpack code.
  */
-// this code is for index.
-// variable names, such as variable names, may vary for different environments...
-const strip_statement = `module.exports = function(e) {
- function t(r) {
-  if (n[r]) return n[r].exports;
-  var s = n[r] = {
-   i: r,
-   l: !1,
-   exports: {}
-  };
-  return e[r].call(s.exports, s, s.exports, t), s.l = !0, s.exports;
- }
- var n = {};
- return t.m = e, t.c = n, t.p = "", t(t.s = 1);
-}`;
+// no minify code.
+const re_useless_webpack_pattern = /\/[*]+\/\s+__webpack_require__\.d[^]+call\(object, property\).+/;
+// minify code.
+const re_useless_webpack_minified_pattern = /,\s?\w\.d\s?=\s?function\(\w,\s?\w,\s?\w\)\s?\{[\s\S]+hasOwnProperty\.call\(\w,\s?\w\);\s+\}(?=,)/;
+
+const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_useless_webpack_minified_pattern.source}`);
+
 // for "tsc", "webpack-js"
 // bind version string, and replace something...(for webpack
 /**
@@ -144,19 +156,19 @@ const strip_statement = `module.exports = function(e) {
  */
 function _replace_some(done, strip_code) {
     var version_replaced = false;
-    var stream = gulp.src(["./bin/index.js"/* , "./bin/bench/index.js" */])
+    var stream = gulp.src(["./bin/index.js", "./bin/bench/index.js"])
     .pipe( // always replace.
         replacer(/pkg.version/, (all, tag) => {
             version_replaced = true;
             return tag? pkg.version: all;
         })
     );
-    var is_strip = false;
+    var did_strip = 0;
     if (strip_code) {
         stream = stream.pipe( // strip webpack code
-            replacer(/^module.exports[\S\s]+(?=\(\[\s?function\(e,\s?t,\s?n)/, (all) => {
-                is_strip = true;
-                return strip_statement;
+            replacer(re_wp_striper, ($0) => {
+                did_strip++;
+                return "";
             })
         );
     }
@@ -164,7 +176,7 @@ function _replace_some(done, strip_code) {
         return convertRelativeDir(vinyl, ".");
     })).on("end", () => {
         version_replaced && console.log("bind version string.");
-        is_strip && console.log("strip webpack code.");
+        did_strip && console.log("strip webpack code. did_strip=%d", did_strip);
         // notify completion of task.
         done && done();
     });
@@ -198,6 +210,8 @@ function _dist(done, dest) {
     });
 }
 
+// if need optional parametar.
+const settings = getExtraArgs();
 
 // ---------------------------------- tasks ---------------------------------- //
 /**
@@ -243,6 +257,8 @@ gulp.task("webpack-js", ["rm:nullfile"], (done) => {
     const webpack = require("webpack");              // global install
     const webpackConfig = require("./webpack.configjs");
 
+    // gulp webpack-js -no-minify
+    settings["no-minify"] && (webpackConfig.plugins = []);
     // webpack instance pass to param 2
     webpackStream(webpackConfig, webpack)
     .pipe(gulp.dest(JS_DEST_DIR))
@@ -258,6 +274,8 @@ gulp.task("webpack", ["clean"], (done) => {
     const webpack = require("webpack");
     const webpackConfig = require("./webpack.config");
 
+    // gulp webpack -no-minify
+    settings["no-minify"] && (webpackConfig.plugins = []);
     // copy ...
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
@@ -294,7 +312,7 @@ gulp.task("dist", ["rm:nullfile"], function(done) {
 });
 /**
  * experimental task.  
- * caution: overwrite a ./bin directory.
+ * optional flag: -no-minify
  */
 gulp.task("dist:pack", ["webpack"], function(done) {
     try {
@@ -305,7 +323,7 @@ gulp.task("dist:pack", ["webpack"], function(done) {
 });
 /**
  * experimental task.  
- * caution: overwrite a ./bin directory.
+ * optional flag: -no-minify
  */
 gulp.task("dist:packjs", ["webpack-js"], function(done) {
     _dist(done, DISTRIBUTION_PACK_DIR);
