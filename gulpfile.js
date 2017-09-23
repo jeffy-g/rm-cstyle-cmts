@@ -26,7 +26,7 @@ for /f "usebackq delims=" %a in (`%CMD%`) do set NODE_PATH=%a
 echo %NODE_PATH%
 */
 
-// ------------------------------- need imports ----------------------------------
+// ------------------------------- need imports ------------------------------- //
 const fs = require("fs");
 const util = require("util");
 
@@ -38,12 +38,12 @@ const replacer = require("gulp-replace");// global install
 const rename = require("gulp-rename");   // global install
 
 // source map for codecov.
-const sourcemaps = require("gulp-sourcemaps");
+const sourcemaps = require("gulp-sourcemaps"); // global install
 
 // for version string replace.
 const pkg = require("./package.json");
 
-// ------------------------------- constant variables ----------------------------------
+// ------------------------------- constant variables ------------------------------- //
 /** ts compiled out put. */
 const JS_DEST_DIR = "./bin";
 
@@ -58,6 +58,29 @@ const TS_FILEs_PATTERN = "./src/ts/**/*.ts";
 /** copy transpiled code for dist package. */
 const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
 
+
+// ------------------------------- shared function ------------------------------- //
+function getExtraArgs() {
+    var extra_index = 3;
+    var params = {};
+    if (process.argv.length > extra_index) {
+        var args = process.argv;
+        for (var index = extra_index; index < args.length;) {
+            var opt = args[index++];
+            if (opt && opt[0] === "-") {
+                var value = args[index];
+                if (value === void 0 || value[0] === "-") {
+                    value = true;
+                }
+                else {
+                    index++;
+                }
+                params[opt.substring(1)] = value;
+            }
+        }
+    }
+    return params;
+}
 /**
  * use for gulp.dest(...)
  * @param {File?} vinyl 
@@ -81,7 +104,6 @@ function _del_hook(globs, done) {
         done && done();
     });
 }
-
 /**
  * remove file when size is zero. (d.ts
  * @param {() => void} cb gulp callback function.
@@ -115,7 +137,83 @@ function _remove_nullfile(cb) {
     }));
 }
 
+/**
+ *  gulp webpack(-js) strip useless webpack code.
+ */
+// no minify code.
+const re_useless_webpack_pattern = /\/[*]+\/\s+__webpack_require__\.d[^]+call\(object, property\).+/;
+// minify code.
+const re_useless_webpack_minified_pattern = /,\s?\w\.d\s?=\s?function\(\w,\s?\w,\s?\w\)\s?\{[\s\S]+hasOwnProperty\.call\(\w,\s?\w\);\s+\}(?=,)/;
 
+const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_useless_webpack_minified_pattern.source}`);
+
+// for "tsc", "webpack-js"
+// bind version string, and replace something...(for webpack
+/**
+ * strip_code for webpack uglify
+ * @param {() => void} done gulp callback function.
+ * @param {boolean} strip_code remove unused webpack code.
+ */
+function _replace_some(done, strip_code) {
+    var version_replaced = false;
+    var stream = gulp.src(["./bin/index.js", "./bin/bench/index.js"])
+    .pipe( // always replace.
+        replacer(/pkg.version/, (all, tag) => {
+            version_replaced = true;
+            return tag? pkg.version: all;
+        })
+    );
+    var did_strip = 0;
+    if (strip_code) {
+        stream = stream.pipe( // strip webpack code
+            replacer(re_wp_striper, ($0) => {
+                did_strip++;
+                return "";
+            })
+        );
+    }
+    stream.pipe(gulp.dest(function(vinyl) {
+        return convertRelativeDir(vinyl, ".");
+    })).on("end", () => {
+        version_replaced && console.log("bind version string.");
+        did_strip && console.log("strip webpack code. did_strip=%d", did_strip);
+        // notify completion of task.
+        done && done();
+    });
+}
+// for "webpack-js"
+/**
+ * it is bundled in index.js, other code becomes unnecessary.(at webpack
+ * @param {() => void} done gulp callback function.
+ */
+function _remove_un_js(done) {
+    // in general, "del" is completed first.
+    _replace_some(done, !0);
+    // remove unnecessary files.
+    _del_hook([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]);
+}
+/**
+ * 
+ * @param {() => void} done gulp callback function.
+ * @param {string} dest output directory path.
+ */
+function _dist(done, dest) {
+    gulp.src([
+        "LICENSE", "package.json", "README.md", "samples/*",
+        "test/test.js",
+        COPY_SCRIPT_FILEs
+    ]).pipe(gulp.dest(function(vinyl) {
+        return convertRelativeDir(vinyl, dest);
+    })).on("end", () => {
+        // notify completion of task.
+        done();
+    });
+}
+
+// if need optional parametar.
+const settings = getExtraArgs();
+
+// ---------------------------------- tasks ---------------------------------- //
 /**
  * task "clean"
  * @param {() => void} done gulp callback function.
@@ -133,7 +231,7 @@ gulp.task("tsc", ["clean"], function(done) {
     // copy ...
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
-    const project = tsc.createProject("tsconfig.json");
+    const project = tsc.createProject("./tsconfig.json");
     // cannot took dependent source.
     // however, it seems ok if you explicitly list the file with tsconfig.json ("include" etc.
     // const result = project.src() // Compiler option "compileOnSave" requires a value of type boolean. <- "compileOnSave" option...?
@@ -151,79 +249,16 @@ gulp.task("tsc", ["clean"], function(done) {
     });
 });
 
-// for "tsc", "webpack-js"
-// bind version string, and replace something...(for webpack
-/**
- * strip_code for webpack uglify
- * @param {() => void} done gulp callback function.
- * @param {boolean} strip_code remove unused webpack code.
- */
-function _replace_some(done, strip_code) {
-    var version_replaced = false;
-    var stream = gulp.src(["./bin/index.js"/* , "./bin/bench/index.js" */])
-    .pipe( // always replace.
-        replacer(/pkg.version/, (all, tag) => {
-            version_replaced = true;
-            return tag? pkg.version: all;
-        })
-    );
-    var is_strip = false;
-    if (strip_code) {
-        stream = stream.pipe( // strip webpack code
-            replacer(/^module.exports[\S\s]+(?=\(\[\s?function\(e,\s?t,\s?n)/, (all) => {
-                is_strip = true;
-                return strip_statement;
-            })
-        );
-    }
-    stream.pipe(gulp.dest(function(vinyl) {
-        return convertRelativeDir(vinyl, ".");
-    })).on("end", () => {
-        version_replaced && console.log("bind version string.");
-        is_strip && console.log("strip webpack code.");
-        // notify completion of task.
-        done && done();
-    });
-}
-
-// for "webpack-js"
-/**
- * it is bundled in index.js, other code becomes unnecessary.(at webpack
- * @param {() => void} done gulp callback function.
- */
-function _remove_un_js(done) {
-    // in general, "del" is completed first.
-    _replace_some(done, !0);
-    // remove unnecessary files.
-    _del_hook([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]);
-}
-/** ------------------------------------------------------->
- * 2017-9-20 13:32:19 gulp webpack-js -> index.js replace following.
- * /^module.exports.+(?=\([function(e,t,n)/g
- */
-// this code is for index.
-// variable names, such as variable names, may vary for different environments...
-const strip_statement = `module.exports = function(e) {
- function t(r) {
-  if (n[r]) return n[r].exports;
-  var s = n[r] = {
-   i: r,
-   l: !1,
-   exports: {}
-  };
-  return e[r].call(s.exports, s, s.exports, t), s.l = !0, s.exports;
- }
- var n = {};
- return t.m = e, t.c = n, t.p = "", t(t.s = 1);
-}`;
 
 // tsc -> rm:nullfile -> webpack
 gulp.task("webpack-js", ["rm:nullfile"], (done) => {
 
-    const webpackStream = require("webpack-stream");
-    const webpack = require("webpack");
+    const webpackStream = require("webpack-stream"); // global install
+    const webpack = require("webpack");              // global install
     const webpackConfig = require("./webpack.configjs");
 
+    // gulp webpack-js -no-minify
+    settings["no-minify"] && (webpackConfig.plugins = []);
     // webpack instance pass to param 2
     webpackStream(webpackConfig, webpack)
     .pipe(gulp.dest(JS_DEST_DIR))
@@ -232,7 +267,6 @@ gulp.task("webpack-js", ["rm:nullfile"], (done) => {
         console.log("webpack-js done.");
     });
 });
-
 // transpile tsc with webpack.
 gulp.task("webpack", ["clean"], (done) => {
 
@@ -240,6 +274,8 @@ gulp.task("webpack", ["clean"], (done) => {
     const webpack = require("webpack");
     const webpackConfig = require("./webpack.config");
 
+    // gulp webpack -no-minify
+    settings["no-minify"] && (webpackConfig.plugins = []);
     // copy ...
     gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
 
@@ -259,7 +295,6 @@ gulp.task("webpack", ["clean"], (done) => {
         console.log("webpack done.");
     });
 });
-    
 
 /**
  * remove file when size is zero.
@@ -269,24 +304,6 @@ gulp.task("rm:nullfile", ["tsc"], function (done) {
     _remove_nullfile(done);
 });
 
-// shared function
-/**
- * 
- * @param {() => void} done gulp callback function.
- * @param {string} dest output directory path.
- */
-function _dist(done, dest) {
-    gulp.src([
-        "LICENSE", "package.json", "README.md", "samples/*",
-        "test/test.js",
-        COPY_SCRIPT_FILEs
-    ]).pipe(gulp.dest(function(vinyl) {
-        return convertRelativeDir(vinyl, dest);
-    })).on("end", () => {
-        // notify completion of task.
-        done();
-    });
-}
 /**
  * task "dist"
  */
@@ -295,7 +312,7 @@ gulp.task("dist", ["rm:nullfile"], function(done) {
 });
 /**
  * experimental task.  
- * caution: overwrite a ./bin directory.
+ * optional flag: -no-minify
  */
 gulp.task("dist:pack", ["webpack"], function(done) {
     try {
@@ -306,7 +323,7 @@ gulp.task("dist:pack", ["webpack"], function(done) {
 });
 /**
  * experimental task.  
- * caution: overwrite a ./bin directory.
+ * optional flag: -no-minify
  */
 gulp.task("dist:packjs", ["webpack-js"], function(done) {
     _dist(done, DISTRIBUTION_PACK_DIR);
@@ -332,12 +349,14 @@ gulp.task("readme", function(cb) {
     let NODE_OLD_LOG = fs.readFileSync("./logs/node-old.log", "utf-8");
 
     const SIZE = fs.statSync("./samples/es6.js").size;
+    const re_package_desc = /(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/;
+    const re_version = /^v\d+\.\d+\.\d+$/m;
     // prepare for readme.
-    NODE_LATEST_LOG = NODE_LATEST_LOG.replace(/(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/, "$1").replace(/^\s+|\s+$/g, "");
-    NODE_OLD_LOG = NODE_OLD_LOG.replace(/(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_LATEST_LOG = NODE_LATEST_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_OLD_LOG = NODE_OLD_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$/g, "");
 
-    const NODE_LATEST_V = /^v\d+\.\d+\.\d+$/m.exec(NODE_LATEST_LOG)[0];
-    const NODE_OLD_V =  /^v\d+\.\d+\.\d+$/m.exec(NODE_OLD_LOG)[0];
+    const NODE_LATEST_V = re_version.exec(NODE_LATEST_LOG)[0];
+    const NODE_OLD_V =  re_version.exec(NODE_OLD_LOG)[0];
     // create readme.md form template.
     gulp.src("./readme-template.md")
     .pipe(

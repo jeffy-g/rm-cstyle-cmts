@@ -53,7 +53,11 @@ module.exports = {
         path: `${__dirname}/${WEBPACK_OUTPUT}`,
         // overwrite index.js
         filename: "[name].js",
+        // library: "rm-cstyle-cmts",
+
         // https://webpack.js.org/configuration/output/#output-librarytarget
+        // https://github.com/webpack/docs/wiki/configuration#outputlibrarytarget
+        // https://webpack.github.io/docs/configuration.html#output-librarytarget
         libraryTarget: "commonjs2"
     },
     // https://webpack.github.io/docs/configuration.html#externals

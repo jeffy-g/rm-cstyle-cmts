@@ -91,26 +91,25 @@ class QuoteVistor implements ICharVisitor {
         registry['"'] = this;
     }
     public visit(char: string, source: string, context: IReplacementContext): boolean {
-        const index = context.offset;
         // maybe will not need it. because it will apply visit as soon as quote is found.
         // if (source[index - 1] !== "\\") {
         // move next position.
-        let next = index + 1;
-        // toggle escape flag.
-        let in_escape = false;
+        let next = context.offset + 1;
         // store "next" postion character. 
         let ch: string;
         // limiter
         const limiter = source.length;
+        // toggle escape flag.
+        let in_escape = false;
 
         while (next < limiter) {
             if ((ch = source[next]) === "\\") {
                 in_escape = !in_escape;
             } else if (!in_escape && ch === char) { /* need in_escape = false state. */
-                // const str = source.substring(index, ++next);
+                // const str = source.substring(context.offset, ++next);
                 // console.log(`--[${str}]--`);
                 // context.result += str;
-                context.result += source.substring(index, ++next);
+                context.result += source.substring(context.offset, ++next);
                 context.offset = next;
                 return true;
             } else { // last state is "in escape" then current ch is ignored.
@@ -119,7 +118,7 @@ class QuoteVistor implements ICharVisitor {
             next++;
         }
         // }
-        throw new SyntaxError(`invalid string quotes??, offset=${index}, remaining=${source.substring(index)}`);
+        throw new SyntaxError(`invalid string quotes??, offset=${context.offset}, remaining=${source.substring(context.offset)}`);
     }
 }
 /**
@@ -140,7 +139,7 @@ class BackQuoteVistor implements ICharVisitor {
 
     // did not investigate the optimization of node.js,
     // rewrite code according to the optimization idiom such as C, performance has improved slightly...
-    // however, it might be my imagination... :-
+    // however, it might be my imagination... :- (at no webpack
     public visit(char: string, source: string, context: IReplacementContext): boolean {
 
         // store "next" postion character. 
@@ -198,9 +197,11 @@ class BackQuoteVistor implements ICharVisitor {
                         // break;
                     case "}":
                         // NOTE: can be decremented only when it is nested?
-                        if (depth > 0 && depth - 1 === bq_depth) {
-                            depth--;
-                        }
+                        // if (depth > 0 && depth - 1 === bq_depth) {
+                        //     depth--;
+                        // }
+                        // again, this one seems better (at no webpack
+                        (depth > 0 && depth - 1 === bq_depth) && depth--;
                         break;
                     // default:
                     //     break;
