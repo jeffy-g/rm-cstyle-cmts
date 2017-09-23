@@ -331,12 +331,14 @@ gulp.task("readme", function(cb) {
     let NODE_OLD_LOG = fs.readFileSync("./logs/node-old.log", "utf-8");
 
     const SIZE = fs.statSync("./samples/es6.js").size;
+    const re_package_desc = /(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/;
+    const re_version = /^v\d+\.\d+\.\d+$/m;
     // prepare for readme.
-    NODE_LATEST_LOG = NODE_LATEST_LOG.replace(/(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/, "$1").replace(/^\s+|\s+$/g, "");
-    NODE_OLD_LOG = NODE_OLD_LOG.replace(/(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_LATEST_LOG = NODE_LATEST_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_OLD_LOG = NODE_OLD_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$/g, "");
 
-    const NODE_LATEST_V = /^v\d+\.\d+\.\d+$/m.exec(NODE_LATEST_LOG)[0];
-    const NODE_OLD_V =  /^v\d+\.\d+\.\d+$/m.exec(NODE_OLD_LOG)[0];
+    const NODE_LATEST_V = re_version.exec(NODE_LATEST_LOG)[0];
+    const NODE_OLD_V =  re_version.exec(NODE_OLD_LOG)[0];
     // create readme.md form template.
     gulp.src("./readme-template.md")
     .pipe(
