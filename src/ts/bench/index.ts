@@ -180,6 +180,19 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
         });
     }
 }
+function benchmark0(b?: boolean): void {
+    b = !!b;
+    const tag = `empty loop test, loop=${INNER}`;
+    console.log(`version: N/A, case: { empty loop tag=${b} }, outerloop=${OUTER}, innerloop=${INNER}`);
+    let ret: string;
+    for (let a = OUTER; a--;) {
+        console.time(tag);
+        for (let b = INNER; b--;) {
+            ret = "";
+        }
+        console.timeEnd(tag);
+    }
+}
 
 /**
  * 
@@ -246,10 +259,18 @@ if (settings.p) {
 
 } else {
 
-    // file: when -f optiion then
-    src = parseFilePath(
-        typeof settings.f === "string"? <string>settings.f: "./samples/sample-cfg.json"
-    );
+    let method: Function;
+    // node ./bin/bench/ -empty -l 200000 -ol 10 | node ./bin/bench/ -p
+    if (settings.empty) {
+        method = benchmark0
+    } else {
+        method = benchmark
+        // file: when -f optiion then
+        src = parseFilePath(
+            typeof settings.f === "string"? <string>settings.f: "./samples/sample-cfg.json"
+        );
+        source_text = fs.readFileSync(src.full_path, "utf-8");
+    }
 
     // loop: when -l option then
     if (settings.l) {
@@ -260,18 +281,16 @@ if (settings.p) {
         OUTER = parseInt(<string>settings.ol);
     }
 
-    source_text = fs.readFileSync(src.full_path, "utf-8");
-
     // const multi_use = !!settings.m;
     console.dir(settings, { color: true });
     // with remove blank line and whitespaces.
     console.log(" --------------- start benchmark (remove blanks) ---------------");
-    benchmark(!0);
+    method(!0);
     console.log(" ------------------------ end benchmark ------------------------");
 
     // without remove blank line and whitespaces.
     console.log(" --------------- start benchmark (!remove blanks) ---------------");
-    benchmark(!!0);
+    method(!!0);
     console.log(" ------------------------ end benchmark ------------------------");
     console.log("--done--");
 }
