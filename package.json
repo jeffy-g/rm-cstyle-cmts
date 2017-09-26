@@ -4,6 +4,7 @@
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
+    "typings": "./bin/index.d.ts",
     "scripts": {
         "lint": "tslint src/**/*.ts -p tsconfig.json --type-check",
         "test": "istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
