@@ -28,7 +28,7 @@ webpackConfig.entry = {
     "bench/index": "./src/ts/bench/index.ts"
 };
 webpackConfig.module = {
-    loaders: [
+    rules: [
         {
             test: /\.tsx?$/,
             // see: https://github.com/s-panferov/awesome-typescript-loader#the-best-typescript-loader-for-webpack

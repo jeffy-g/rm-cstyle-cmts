@@ -22,7 +22,7 @@ fi
 
 NODE_SWITCHER=nodist
 old=4
-latest=8
+latest=10
 #
 # ATTENTION: need nodist
 #

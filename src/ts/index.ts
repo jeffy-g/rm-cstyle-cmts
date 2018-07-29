@@ -17,8 +17,8 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-import * as fs from "fs";
-import * as path from "path";
+// import * as fs from "fs";
+// import * as path from "path";
 
 /** IReplaceFrontEnd */
 import * as replace from "./replace";
