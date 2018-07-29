@@ -19,7 +19,7 @@ limitations under the License.
 */
 // webpack config for js file.
 
-const webpack = require("webpack");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const WEBPACK_OUTPUT = "./bin/";
 
 // UglifyJSPlugin option
@@ -32,6 +32,7 @@ const WEBPACK_OUTPUT = "./bin/";
 const uglifyjs_options = {
     sourceMap: true,
     output: {
+        comments: false,
         // NOTE: uglifyes allow LF?
         beautify: true, //settings["uglifyes-beautify"],
         indent_level: 1,
@@ -42,6 +43,9 @@ const uglifyjs_options = {
 
 // sample: https://github.com/s-panferov/awesome-typescript-loader/issues/146#issuecomment-220815050
 module.exports = {
+    // "production", "development", "none"
+    mode: "production",
+
     target: "node",
     // entry point
     entry: {
@@ -77,8 +81,15 @@ module.exports = {
         extensions: [".js", ".ts"]
     },
     devtool: "source-map", // need this for complete sourcemap.
+
     plugins: [
-        // UglifyJsPlugin is included in webpack.
-        new webpack.optimize.UglifyJsPlugin(uglifyjs_options),
+        // UglifyJsPlugin is included in webpack. (v3.x
+        // new webpack.optimize.UglifyJsPlugin(uglifyjs_options), 
     ],
+    optimization: {
+        // minimize: true
+        minimizer: [
+            new UglifyJsPlugin({ uglifyOptions: uglifyjs_options })
+        ]
+    }
 };

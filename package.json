@@ -33,18 +33,19 @@
     "author": "jeffy-g",
     "license": "Apache-2.0",
     "devDependencies": {
-        "@types/node": "^8.0.26",
-        "awesome-typescript-loader": "^3.2.3",
-        "codecov": "^2.3.0",
+        "@types/node": "^10.5.4",
+        "awesome-typescript-loader": "^5.2.0",
+        "codecov": "^3.0.4",
         "del": "^3.0.0",
         "gulp": "^3.9.1",
-        "gulp-rename": "^1.2.2",
-        "gulp-replace": "^0.6.1",
-        "gulp-sourcemaps": "^2.6.1",
-        "gulp-typescript": "^3.2.2",
+        "gulp-rename": "^1.4.0",
+        "gulp-replace": "^1.0.0",
+        "gulp-sourcemaps": "^2.6.4",
+        "gulp-typescript": "^5.0.0-alpha.3",
         "istanbul": "^0.4.5",
-        "remap-istanbul": "^0.9.5",
-        "typescript": "^2.5.2",
-        "webpack-stream": "^4.0.0"
+        "remap-istanbul": "^0.11.1",
+        "typescript": "^2.9.2",
+        "uglifyjs-webpack-plugin": "^1.2.7",
+        "webpack-stream": "^5.0.0"
     }
 }
