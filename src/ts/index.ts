@@ -17,39 +17,12 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-// import * as fs from "fs";
-// import * as path from "path";
+///<reference path="./index.d.ts"/>
 
 /** IReplaceFrontEnd */
 import * as replace from "./replace";
 /** buildWsQsReRegexp, RE_NEWLINEs */
 import * as reutil from "./reutil";
-
-declare global {
-    interface IRemoveCStyleCommentsTypeSig {
-        /**
-         * #### remove c style comments form "source" content.  
-         * 
-         * step 1:  
-         *  - remove line comments, multi line comments.  
-         *  - and search the regexp literal. if found then concat it to results.  
-         * 
-         * step 2:  
-         *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
-         * 
-         * @param {string} source c style commented text source.
-         * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
-         */
-        (source: string, rm_blank_line_n_ws?: boolean): string;
-    }
-    /**
-     * remove c style comments interface.
-     */
-    interface IRemoveCStyleCommentsModule extends IRemoveCStyleCommentsTypeSig {
-        /** package version */
-        readonly version?: string;
-    }
-}
 
 // const pkg: IStringMap<string> = require("../package.json");
 /** TODO: edit jsdoc */
@@ -118,10 +91,3 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
 );
 
 export = removeCStyleComments;
-// module.exports = removeCStyleComments;
-// module.exports.version = latest_version;
-
-// NOTE: export default
-// removeCStyleComments.version = latest_version;
-// removeCStyleComments.keepMoreBlankLine = keepMoreBlankLine;
-// export default removeCStyleComments;

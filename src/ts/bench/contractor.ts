@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 // for String.replace
-declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: string, deadline: string, index: number) => string;
+declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag: string, deadline: string, index: number) => string;
 
 // regexp document: calculate performance average#2
 /**
@@ -37,7 +37,7 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
     const explain: string = "average for each run";
 
     // contractor. (
-    const Contractor: IStringMap<any> = {
+    const Contractor = {
         entries: {} as { [x: string]: IBenchmarkResult[] },
         current_tag: null as string,
 
@@ -45,8 +45,8 @@ declare type AverageReplacer = (matchBody: string, loop: any, ms: any, tag: stri
             !this.entries[tag] && (this.entries[tag] = []);
             this.current_tag = tag;
         },
-        record: function(loop: any, ms: any): number {
-            loop = parseInt(loop), ms = parseFloat(ms);
+        record: function(sloop: string, sms: string): number {
+            const loop = parseInt(sloop), ms = parseFloat(sms);
             /** average for each run */
             const average = (ms / loop);
             // record loop count, time spent, average.

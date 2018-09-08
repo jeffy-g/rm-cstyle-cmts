@@ -29,7 +29,7 @@ const WEBPACK_OUTPUT = "./bin/";
 //   it seems that it becomes an incomplete sourcemap.
 // NOTE: for ts
 //   if do not explicitly specify both uglifyjs_options.sourceMap and devtool option, the sourcemap was not created...
-const uglifyjs_options = {
+const uglifyOptions = {
     sourceMap: true,
     output: {
         comments: false,
@@ -84,12 +84,12 @@ module.exports = {
 
     plugins: [
         // UglifyJsPlugin is included in webpack. (v3.x
-        // new webpack.optimize.UglifyJsPlugin(uglifyjs_options), 
+        // new webpack.optimize.UglifyJsPlugin(uglifyOptions), 
     ],
     optimization: {
         // minimize: true
         minimizer: [
-            new UglifyJsPlugin({ uglifyOptions: uglifyjs_options })
+            new UglifyJsPlugin({ uglifyOptions })
         ]
     }
 };

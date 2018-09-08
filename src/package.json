@@ -23,6 +23,7 @@
         "json",
         "text"
     ],
+    "main": "./gulp-rm-cmts.js",
     "author": "jeffy-g",
     "license": "Apache-2.0",
     "bugs": {},

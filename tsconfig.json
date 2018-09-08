@@ -4,7 +4,7 @@
         "sourceMap": true,
         "removeComments": true,
 
-        "declaration": true,
+        // "declaration": true,
         // "declarationDir": "./bin",
 
         // statistics
