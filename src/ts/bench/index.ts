@@ -18,8 +18,6 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 // test development javascript.
-// <reference types="../types/rm-cstyle-cmts"/>
-
 if (!String.prototype.repeat) {
     String.prototype.repeat = function(n: number): string {
         let str = "";
@@ -32,6 +30,8 @@ if (!String.prototype.repeat) {
 
 import * as fs from "fs";
 import * as path from "path";
+import * as readline from "readline";
+// import readline = require('readline'); also works
 
 // NOTE: not necessary in this implementation.
 //  -> found a way for this import statement to work on intellisense.
@@ -44,9 +44,14 @@ import * as rmc from "../";
 // -> return value of require is any
 // const rmc: IRemoveCStyleCommentsTypeSig = require("../");
 
-// import { ContractorPattern } from "./contractor";
 import * as ContractorPattern from "./contractor";
 
+/** getExtraArgs default config.  */
+const ArgsConfig = {
+    startIndex: 2,
+    prefix: "-",
+    varIndex: 1
+}
 /**
  * get arguments helper.  
  * extra params must be start with "-".  
@@ -55,21 +60,22 @@ import * as ContractorPattern from "./contractor";
  * ```
  * if param value not specified -tag after then set value is "true".
  */
-function getExtraArgs(): IStringMap<string|boolean> {
-    const extra_index = 2;
+function getExtraArgs(args_config?: typeof ArgsConfig): IStringMap<string|boolean> {
+    args_config === void 0 && (args_config = ArgsConfig);
+    const extra_index = args_config.startIndex;
     const params: IStringMap<string|boolean> = {};
     if (process.argv.length > extra_index) {
         const args = process.argv;
         for (let index = extra_index; index < args.length;) {
             const opt = args[index++];
-            if (opt && opt[0] === "-") {
+            if (opt && opt[0] === args_config.prefix) {
                 let value: string|boolean = args[index];
-                if (value === void 0 || value[0] === "-") {
+                if (value === void 0 || value[0] === args_config.prefix) {
                     value = true;
                 } else {
                     index++;
                 }
-                params[opt.substring(1)] = value;
+                params[opt.substring(args_config.varIndex)] = value;
             }
         }
     }
@@ -199,17 +205,28 @@ function benchmark0(b?: boolean): void {
  * @param msg 
  */
 function progress(msg?: string): void {
-
-    const output: any = process.stderr;
+    const output = process.stderr;
     // clear the current line
-    output.clearLine();
-    // move the cursor to the start of the line
-    output.cursorTo(0);
+    readline.clearLine(output, 0);
+    readline.cursorTo(output, 0, null);
     // const x = /[\r\n]+/.exec(chunk);
     // chunk = chunk.substring(0, x.index);
     // write the message.
     msg && output.write(msg);
 }
+// old version (wrong reference?
+// function progress(msg?: string): void {
+//     const output: any = process.stderr;
+//     // clear the current line
+//     output.clearLine();
+//     // move the cursor to the start of the line
+//     output.cursorTo(0);
+//     // const x = /[\r\n]+/.exec(chunk);
+//     // chunk = chunk.substring(0, x.index);
+//     // write the message.
+//     msg && output.write(msg);
+// }
+
 // from pipe or log file: when -p option then
 // USE:
 // node ./bin/bench/ -f sample-cfg.json -l 1500 | node ./bin/bench/ -p

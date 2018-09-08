@@ -210,6 +210,14 @@ function _dist(done, dest) {
     });
 }
 
+function _copyDefinitions() {
+    // copy ...
+    gulp.src("./src/ts/{index,globals}.d.ts").pipe(gulp.dest(JS_DEST_DIR)).on("end", () => {
+        // notify completion of task.
+        console.log("did copy of definitions(.d.ts)");
+    });
+}
+
 // if need optional parametar.
 const settings = getExtraArgs();
 
@@ -229,7 +237,7 @@ gulp.task("clean", function(done) {
 gulp.task("tsc", ["clean"], function(done) {
 
     // copy ...
-    gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
+    _copyDefinitions();
 
     const project = tsc.createProject("./tsconfig.json");
     // cannot took dependent source.
@@ -258,7 +266,8 @@ gulp.task("webpack-js", ["rm:nullfile"], (done) => {
     const webpackConfig = require("./webpack.configjs");
 
     // gulp webpack-js -no-minify
-    settings["no-minify"] && (webpackConfig.plugins = []);
+    // settings["no-minify"] && (webpackConfig.plugins = []);
+    settings["no-minify"] && (webpackConfig.optimization = {});
     // webpack instance pass to param 2
     webpackStream(webpackConfig, webpack)
     .pipe(gulp.dest(JS_DEST_DIR))
@@ -275,9 +284,9 @@ gulp.task("webpack", ["clean"], (done) => {
     const webpackConfig = require("./webpack.config");
 
     // gulp webpack -no-minify
-    settings["no-minify"] && (webpackConfig.plugins = []);
+    settings["no-minify"] && (webpackConfig.optimization = {});
     // copy ...
-    gulp.src("./src/ts/globals.d.ts").pipe(gulp.dest(JS_DEST_DIR));
+    _copyDefinitions();
 
     // NOTE: awesome-typescript-loader use default "tsconfig.json"
     // webpack instance pass to param 2
@@ -382,31 +391,31 @@ gulp.task("readme", function(cb) {
 });
 
 // --------------------------------------------- [gulp test]
-// const grmc = require("./src/gulp-rm-cmts");
-// const TEST_SRC_PREFIX = "./tmp/ts/**/*";
-// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts`;
-// const TEST_SRC_FILEs_OUT = "./tmp/output";
+const grmc = require("./src/gulp-rm-cmts");
+const TEST_SRC_PREFIX = "./tmp/ts/**/*";
+const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts*`;
+const TEST_SRC_FILEs_OUT = "./tmp/output";
 
-// gulp.task("rmc-test", ["rmc-test-del"], function(cb) {
-//     gulp.src(TEST_SRC_FILEs) // TS_FILEs_PATTERN
-//     .pipe(
-//         /**
-//          * remove_ws : remove whitespace and blank lines.
-//          */
-//         grmc({ remove_ws: true })
-//     )
-//     .pipe(rename({ suffix: "-after" }))
-//     .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
-//         // notify completion of task.
-//         cb();
-//         console.log("task rmc-test done.");
-//     });
-// });
+gulp.task("rmc-test", ["rmc-test-del"], function(cb) {
+    gulp.src(TEST_SRC_FILEs) // TS_FILEs_PATTERN
+    .pipe(
+        /**
+         * remove_ws : remove whitespace and blank lines.
+         */
+        grmc({ remove_ws: true })
+    )
+    .pipe(rename({ suffix: "-after" }))
+    .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
+        // notify completion of task.
+        cb();
+        console.log("task rmc-test done.");
+    });
+});
 
-// gulp.task("rmc-test-del", function(cb) {
-//     del.sync(TEST_SRC_FILEs_OUT);
-//     cb();
-// });
+gulp.task("rmc-test-del", function(cb) {
+    del.sync(TEST_SRC_FILEs_OUT);
+    cb();
+});
 
 gulp.task("default", ["dist:pack"], function (done) {
     // console.log("statictics: ...");

@@ -17,13 +17,11 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-///<reference path="../bin/index.d.ts"/>
 /**
- * @type {IRemoveCStyleCommentsModule}
  */
 // use "rm-cstyle-cmts"
-var rmc = require("rm-cstyle-cmts");
-// var rmc = require("../bin/");
+var rmc = require("../bin/");
+// var rmc = require("rm-cstyle-cmts");
 
 // gulp plugin name.
 var PLUGIN_NAME = "gulp-rm-cmts";
@@ -52,7 +50,14 @@ module.exports = function (options) {
         // plugin main
         if (file.isBuffer()) {
             var contents = rmc(file.contents.toString(), rm_ws);
-            file.contents = new Buffer(contents);
+            // Deprecated
+            // file.contents = new Buffer(contents);
+            // node ^v5.10.0
+            file.contents = Buffer.from(contents);
+            // // node ^v5.10.0
+            // const buf = Buffer.alloc(contents.length);
+            // /* const len = */ buf.write(contents, 0);
+            // file.contents = buf;
             return callback(null, file);
         }
         this.push(file);
