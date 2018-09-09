@@ -202,15 +202,16 @@ const createProgress = (timeSpanMS, frames) => {
  * see https://webpack.js.org/plugins/progress-plugin/
  * 
  * @param {string} logFilePath 
+ * @param {boolean} enableRenderLine 
  */
-function createWebpackProgressPluginHandler(logFilePath) {
+function createWebpackProgressPluginHandler(logFilePath, disableRenderLine = false) {
     checkParentDirectory(logFilePath);
     const log = fs.createWriteStream(logFilePath);
     /** @type {(percentage: number, message: string, ...args: string[]) => void} */
     const wpp_handler = (percentage, message, ...args) => {
         const progressMessage = `processing ${(percentage * 100).toFixed(4)}%`;
         log.write(`${progressMessage}, ${message}: ${args}\n`, () => {
-            renderLine(progressMessage);
+            !disableRenderLine && renderLine(progressMessage);
         });
         percentage === 1 && log.end();
     };

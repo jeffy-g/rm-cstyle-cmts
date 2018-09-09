@@ -36,10 +36,10 @@ const WEBPACK_OUTPUT = "./bin/";
 //   if do not explicitly specify both uglifyOptions.sourceMap and devtool option, the sourcemap was not created...
 const uglifyOptions = {
     sourceMap: true,
-    mangle: false,
+    mangle: true,
     output: {
         comments: false,
-        beautify: true, //settings["uglifyes-beautify"],
+        beautify: true,
         indent_level: 1,
         // ecma: 7,
         max_line_len: 800
@@ -91,7 +91,7 @@ module.exports = {
         // UglifyJsPlugin is included in webpack. (v3.x
         // new webpack.optimize.UglifyJsPlugin(uglifyOptions), 
         new webpack.ProgressPlugin(
-            utils.createWebpackProgressPluginHandler(`./logs/${utils.dateStringForFile()}-webpack.log`)
+            utils.createWebpackProgressPluginHandler(`./logs/${utils.dateStringForFile()}-webpack.log`, true)
         ),
     ],
     profile: true,
