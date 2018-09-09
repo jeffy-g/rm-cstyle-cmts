@@ -18,23 +18,28 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 // webpack config for js file.
-
+const webpack = require("webpack");
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+const utils = require("./scripts/utils");
+
+
 const WEBPACK_OUTPUT = "./bin/";
 
-// UglifyJSPlugin option
+// UglifyJSPlugin option webpack 3.x
+//   -> The following results do not seem to apply in webpack 4.x ...(9/9/2018
 // NOTE: for js
 //   unlike the configuration file for ts file,
-//   here, sourcemap is created without specifying both uglifyjs_options.sourceMap and devtool option,
+//   here, sourcemap is created without specifying both uglifyOptions.sourceMap and devtool option,
 //   it seems that it becomes an incomplete sourcemap.
 // NOTE: for ts
-//   if do not explicitly specify both uglifyjs_options.sourceMap and devtool option, the sourcemap was not created...
+//   if do not explicitly specify both uglifyOptions.sourceMap and devtool option, the sourcemap was not created...
 const uglifyOptions = {
     sourceMap: true,
+    mangle: true,
     output: {
         comments: false,
-        // NOTE: uglifyes allow LF?
-        beautify: true, //settings["uglifyes-beautify"],
+        beautify: true,
         indent_level: 1,
         // ecma: 7,
         max_line_len: 800
@@ -85,7 +90,11 @@ module.exports = {
     plugins: [
         // UglifyJsPlugin is included in webpack. (v3.x
         // new webpack.optimize.UglifyJsPlugin(uglifyOptions), 
+        new webpack.ProgressPlugin(
+            utils.createWebpackProgressPluginHandler(`./logs/${utils.dateStringForFile()}-webpack.log`, true)
+        ),
     ],
+    profile: true,
     optimization: {
         // minimize: true
         minimizer: [

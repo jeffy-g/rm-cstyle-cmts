@@ -24,14 +24,13 @@ import * as replace from "./replace";
 /** buildWsQsReRegexp, RE_NEWLINEs */
 import * as reutil from "./reutil";
 
-// const pkg: IStringMap<string> = require("../package.json");
 /** TODO: edit jsdoc */
 const latest_version: string = "pkg.version";
 
 /**
  * singleton instance.
  */
-const REPLACER: IReplaceFrontEnd = replace.getFrondEnd();
+const Replacer: IReplaceFrontEnd = replace.getFrondEnd();
 
 // interface NodeModule {
 //     exports: IRemoveCStyleCommentsTypeSig;
@@ -54,25 +53,24 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
 
     // Is nearly equal processing speed?
     // const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-    source = REPLACER.apply(source);
-
-    // NOTE: this combination does not do the intended work...
-    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]/gm, ""): source;
-    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
+    source = Replacer.apply(source);
 
     if (!rm_blank_line_n_ws) {
         return source;
     }
 
     const regexes = reutil.buildWsQsReRegexp(source);
+    // NOTE: this combination does not do the intended work...
+    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]/gm, ""): source;
+    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
     /* remove whitespaces.*/
     return source.replace(
         // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
         // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-        regexes.re_ws_qs, ((all, index: number, inputs: string) => {
-            const first = all[0];
+        regexes.re_ws_qs, ((matched, index: number, inputs: string) => {
+            const head = matched[0];
             // NOTE: need skip quoted string, regexp literal.
-            return (first === "`" || first === "/" || first === "'" || first === '"')? all: "";
+            return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
     // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
     // NOTE: this regex seems to be the correct answer...
     })).replace(regexes.re_first_n_last, "");
