@@ -42,7 +42,7 @@
         "no-conditional-assignment": false,
         "no-increment-decrement": false,
 
-        "max-func-body-length": 450,
+        // "max-func-body-length": 450,
         "curly": [true, "ignore-same-line"],
         // allow-fast-null-checks:
         // allows to use logical operators to perform fast null checks

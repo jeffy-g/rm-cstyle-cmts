@@ -364,25 +364,24 @@ gulp.task("readme", function(cb) {
 });
 
 // --------------------------------------------- [gulp test]
+const TEST_SRC_PREFIX = "./tmp/ts/**/*";
+const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
+const TEST_SRC_FILEs_OUT = "./tmp/output";
+
 gulp.task("rmc-test-del", function(cb) {
     del.sync(TEST_SRC_FILEs_OUT);
     cb();
 });
-
 gulp.task("rmc-test", gulp.series("rmc-test-del", function(cb) {
     const grmc = require("./src/gulp-rm-cmts");
-    const TEST_SRC_PREFIX = "./tmp/ts/**/*";
-    const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts*`;
-    const TEST_SRC_FILEs_OUT = "./tmp/output";
 
-    gulp.src(TEST_SRC_FILEs) // TS_FILEs_PATTERN
-    .pipe(
+    gulp.src(TEST_SRC_FILEs).pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
          */
         grmc({ remove_ws: true })
     )
-    .pipe(rename({ suffix: "-after" }))
+    // .pipe(rename({ suffix: "-after" }))
     .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
         // notify completion of task.
         cb();
