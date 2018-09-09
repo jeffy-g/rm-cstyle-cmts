@@ -20,26 +20,23 @@ limitations under the License.
 // NOTE: #register the global installation of npm -g to the require destination path of node.js#
 // bash: export NODE_PATH=(`npm root -g`)
 /* windows:
-set CMD=npm root -g
 set NODE_PATH=
-for /f "usebackq delims=" %a in (`%CMD%`) do set NODE_PATH=%a
+for /f "usebackq delims=" %a in (`npm root -g`) do set NODE_PATH=%a
 echo %NODE_PATH%
 */
 
 // ------------------------------- need imports ------------------------------- //
 const fs = require("fs");
-// const util = require("util");
+const del = require("del");
 
-const del = require("del");   // global install
-const gulp = require("gulp"); // global install
-const tsc = require("gulp-typescript");  // global install
-
-const replacer = require("gulp-replace");// global install
-const rename = require("gulp-rename");   // global install
-
+const gulp = require("gulp");
+const tsc = require("gulp-typescript");
+const rename = require("gulp-rename");
+const replacer = require("gulp-replace");
 // source map for codecov.
-const sourcemaps = require("gulp-sourcemaps"); // global install
+const sourcemaps = require("gulp-sourcemaps");
 
+const utils = require("./scripts/utils");
 // for version string replace.
 const pkg = require("./package.json");
 
@@ -60,27 +57,6 @@ const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
 
 
 // ------------------------------- shared function ------------------------------- //
-function getExtraArgs() {
-    var extra_index = 3;
-    var params = {};
-    if (process.argv.length > extra_index) {
-        var args = process.argv;
-        for (var index = extra_index; index < args.length;) {
-            var opt = args[index++];
-            if (opt && opt[0] === "-") {
-                var value = args[index];
-                if (value === void 0 || value[0] === "-") {
-                    value = true;
-                }
-                else {
-                    index++;
-                }
-                params[opt.substring(1)] = value;
-            }
-        }
-    }
-    return params;
-}
 /**
  * use for gulp.dest(...)
  * @param {File?} vinyl 
@@ -106,9 +82,9 @@ function _del_hook(globs, done) {
 }
 /**
  * remove file when size is zero. (d.ts
- * @param {() => void} cb gulp callback function.
+ * @param {() => void} done gulp callback function.
  */
-function _remove_nullfile(cb) {
+function _remove_nullfile(done) {
     function _readdir_callback(err, files) {
         if (err) console.log(err);
         let fileList = [];
@@ -133,7 +109,7 @@ function _remove_nullfile(cb) {
     fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: re_dts, base: JS_DEST_DIR }));
     fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({
         re: re_dts, base: JS_DEST_DIR + "/bench",
-        done: cb
+        done
     }));
 }
 
@@ -218,8 +194,44 @@ function _copyDefinitions() {
     });
 }
 
+/**
+ * 
+ * @param {string} webpackConfigPath the webpack config file script id
+ * @param {() => void} done callback for gulp task chain
+ */
+function doWebpack(webpackConfigPath, done) {
+    const webpackStream = require("webpack-stream");
+    const webpack = require("webpack");
+    const webpackConfig = require(webpackConfigPath);
+
+    // gulp webpack -no-minify
+    settings["no-minify"] && (webpackConfig.optimization = {});
+    // copy ...
+    _copyDefinitions();
+
+    // NOTE: awesome-typescript-loader use default "tsconfig.json"
+    // webpack instance pass to param 2
+    webpackStream(
+        webpackConfig, webpack,
+        // (err, stats) => {
+        //     console.log("Error:", err);
+        //     console.log(stats.toJson("normal"));
+        // }
+    ).pipe(
+        gulp.dest(JS_DEST_DIR)
+        // gulp.dest(function(vinyl) { // only contained ts/index, ts/bench/index...
+        //     console.log(vinyl);
+        //     return convertRelativeDir(vinyl, ".");
+        // })
+    )
+    .on("end", function() {
+        _remove_nullfile();
+        _remove_un_js(done); // <- this is a bit slow...
+        console.log("webpack done.");
+    });
+}
 // if need optional parametar.
-const settings = getExtraArgs();
+const settings = utils.getExtraArgs();
 
 // ---------------------------------- tasks ---------------------------------- //
 /**
@@ -234,8 +246,7 @@ gulp.task("clean", function(done) {
  * task "tsc"
  * @param {() => void} done gulp callback function.
  */
-gulp.task("tsc", ["clean"], function(done) {
-
+gulp.task("tsc", gulp.series("clean", function(done) {
     // copy ...
     _copyDefinitions();
 
@@ -255,92 +266,54 @@ gulp.task("tsc", ["clean"], function(done) {
         console.log("tsc done.");
         _replace_some(done);
     });
-});
-
-
-// tsc -> rm:nullfile -> webpack
-gulp.task("webpack-js", ["rm:nullfile"], (done) => {
-
-    const webpackStream = require("webpack-stream"); // global install
-    const webpack = require("webpack");              // global install
-    const webpackConfig = require("./webpack.configjs");
-
-    // gulp webpack-js -no-minify
-    // settings["no-minify"] && (webpackConfig.plugins = []);
-    settings["no-minify"] && (webpackConfig.optimization = {});
-    // webpack instance pass to param 2
-    webpackStream(webpackConfig, webpack)
-    .pipe(gulp.dest(JS_DEST_DIR))
-    .on("end", function () {
-        _remove_un_js(done);
-        console.log("webpack-js done.");
-    });
-});
-// transpile tsc with webpack.
-gulp.task("webpack", ["clean"], (done) => {
-
-    const webpackStream = require("webpack-stream");
-    const webpack = require("webpack");
-    const webpackConfig = require("./webpack.config");
-
-    // gulp webpack -no-minify
-    settings["no-minify"] && (webpackConfig.optimization = {});
-    // copy ...
-    _copyDefinitions();
-
-    // NOTE: awesome-typescript-loader use default "tsconfig.json"
-    // webpack instance pass to param 2
-    webpackStream(webpackConfig, webpack)
-    .pipe(
-        gulp.dest(JS_DEST_DIR)
-        // gulp.dest(function(vinyl) { // only contained ts/index, ts/bench/index...
-        //     console.log(vinyl);
-        //     return convertRelativeDir(vinyl, ".");
-        // })
-    )
-    .on("end", function() {
-        _remove_nullfile();
-        _remove_un_js(done); // <- this is a bit slow...
-        console.log("webpack done.");
-    });
-});
+}));
 
 /**
  * remove file when size is zero.
  * @param {() => void} done gulp callback function.
  */
-gulp.task("rm:nullfile", ["tsc"], function (done) {
+gulp.task("rm:nullfile", gulp.series("tsc", function (done) {
     _remove_nullfile(done);
-});
+}));
+
+
+// tsc -> rm:nullfile -> webpack
+gulp.task("webpack-js", gulp.series("rm:nullfile", (done) => {
+    doWebpack("./webpack.configjs", done);
+}));
+// transpile tsc with webpack.
+gulp.task("webpack", gulp.series("clean", (done) => {
+    doWebpack("./webpack.config", done);
+}));
 
 /**
  * task "dist"
  */
-gulp.task("dist", ["rm:nullfile"], function(done) {
+gulp.task("dist", gulp.series("rm:nullfile", function(done) {
     _dist(done, DISTRIBUTION_DIR);
-});
+}));
 /**
  * experimental task.  
  * optional flag: -no-minify
  */
-gulp.task("dist:pack", ["webpack"], function(done) {
+gulp.task("dist:pack", gulp.series("webpack", function(done) {
     try {
         _dist(done, DISTRIBUTION_PACK_DIR);
     } catch (e) {
         console.log(e.message);
     }
-});
+}));
 /**
  * experimental task.  
  * optional flag: -no-minify
  */
-gulp.task("dist:packjs", ["webpack-js"], function(done) {
+gulp.task("dist:packjs", gulp.series("webpack-js", function(done) {
     _dist(done, DISTRIBUTION_PACK_DIR);
-});
+}));
 /**
  * experimental task.  
  */
-gulp.task("とりあえずパック", [], function(done) {
+gulp.task("とりあえずパック", function(done) {
     _dist(done, DISTRIBUTION_PACK_DIR);
 });
 
@@ -391,33 +364,34 @@ gulp.task("readme", function(cb) {
 });
 
 // --------------------------------------------- [gulp test]
-// const grmc = require("./src/gulp-rm-cmts");
-// const TEST_SRC_PREFIX = "./tmp/ts/**/*";
-// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts*`;
-// const TEST_SRC_FILEs_OUT = "./tmp/output";
+gulp.task("rmc-test-del", function(cb) {
+    del.sync(TEST_SRC_FILEs_OUT);
+    cb();
+});
 
-// gulp.task("rmc-test", ["rmc-test-del"], function(cb) {
-//     gulp.src(TEST_SRC_FILEs) // TS_FILEs_PATTERN
-//     .pipe(
-//         /**
-//          * remove_ws : remove whitespace and blank lines.
-//          */
-//         grmc({ remove_ws: true })
-//     )
-//     .pipe(rename({ suffix: "-after" }))
-//     .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
-//         // notify completion of task.
-//         cb();
-//         console.log("task rmc-test done.");
-//     });
-// });
+gulp.task("rmc-test", gulp.series("rmc-test-del", function(cb) {
+    const grmc = require("./src/gulp-rm-cmts");
+    const TEST_SRC_PREFIX = "./tmp/ts/**/*";
+    const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts*`;
+    const TEST_SRC_FILEs_OUT = "./tmp/output";
 
-// gulp.task("rmc-test-del", function(cb) {
-//     del.sync(TEST_SRC_FILEs_OUT);
-//     cb();
-// });
+    gulp.src(TEST_SRC_FILEs) // TS_FILEs_PATTERN
+    .pipe(
+        /**
+         * remove_ws : remove whitespace and blank lines.
+         */
+        grmc({ remove_ws: true })
+    )
+    .pipe(rename({ suffix: "-after" }))
+    .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
+        // notify completion of task.
+        cb();
+        console.log("task rmc-test done.");
+    });
+}));
 
-gulp.task("default", ["dist:pack"], function (done) {
+
+gulp.task("default", gulp.series("dist:pack", function (done) {
     // console.log("statictics: ...");
     done();
-});
+}));
