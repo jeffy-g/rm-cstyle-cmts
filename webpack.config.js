@@ -32,7 +32,7 @@ webpackConfig.module = {
         {
             test: /\.tsx?$/,
             // see: https://github.com/s-panferov/awesome-typescript-loader#the-best-typescript-loader-for-webpack
-            loader: "awesome-typescript-loader?target=es5",
+            loader: "awesome-typescript-loader",
             exclude: /node_modules/
         }
     ]

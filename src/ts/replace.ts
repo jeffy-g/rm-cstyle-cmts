@@ -282,6 +282,13 @@ class SlashVistor implements ICharVisitor {
                 // jump to "L", and apply remaining process. (ch === "/"
                 continue L;
             } else {
+                // DEVNOTE: the eval function can almost certainly detect regexp literal.
+                try {
+                    eval(m[0]);
+                } catch (e) {
+                    // console.log("Regex SyntaxError: [%s]", m[0]);
+                    return false;
+                }
                 // update offset.
                 context.offset = index + re_re.lastIndex; // "g" flag.
                 context.result += source.substring(index, context.offset);

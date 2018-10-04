@@ -19,7 +19,7 @@ limitations under the License.
 */
 // webpack config for js file.
 const webpack = require("webpack");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 const utils = require("./scripts/utils");
 
