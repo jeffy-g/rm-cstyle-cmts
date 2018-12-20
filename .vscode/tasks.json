@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [{
         // ----------------------------- build main. -----------------------------
-        "taskName": "build for npm package (es5 commonjs",
+        "label": "build for npm package (es5 commonjs",
         "command": "tsc",
         "type": "shell",
         "group": {

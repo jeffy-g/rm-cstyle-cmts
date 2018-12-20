@@ -365,7 +365,7 @@ gulp.task("readme", function(cb) {
 
 // --------------------------------------------- [gulp test]
 const TEST_SRC_PREFIX = "./tmp/ts/**/*";
-const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
+const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts`;
 const TEST_SRC_FILEs_OUT = "./tmp/output";
 
 gulp.task("rmc-test-del", function(cb) {

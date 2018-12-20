@@ -8,12 +8,13 @@
             "type": "node",
             "request": "launch",
             "name": "bench test",
-            "program": "${workspaceRoot}/bin/bench/index.js",
+            "runtimeExecutable": "F:/ext_prg/Nodist/bin/node.exe",
+            "program": "${workspaceFolder}/bin/bench/index.js",
             "args": [
-                "-f", "samples/es6.js"
+                "-f", "samples/rmc-impossible.tsx"
             ],
             "outFiles": [
-                "${workspaceRoot}/bin/**/*.js"
+                "${workspaceFolder}/bin/**/*.js"
             ]
         }, {
             "type": "node",

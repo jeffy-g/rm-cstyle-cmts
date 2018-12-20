@@ -284,6 +284,10 @@ class SlashVistor implements ICharVisitor {
             } else {
                 // DEVNOTE: the eval function can almost certainly detect regexp literal.
                 try {
+                    // DEVNOTE: performance will be worse than "evel", and regex can not be detected accurately
+                    // tslint:disable-next-line
+                    // const lx = m[0].lastIndexOf("/");
+                    // new RegExp(m[0].substring(1, lx));
                     eval(m[0]);
                 } catch (e) {
                     // console.log("Regex SyntaxError: [%s]", m[0]);
