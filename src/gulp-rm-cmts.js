@@ -20,14 +20,14 @@ limitations under the License.
 /**
  */
 // use "rm-cstyle-cmts"
-var rmc = require("../bin/");
-// var rmc = require("rm-cstyle-cmts");
+const rmc = require("../bin/");
+// const rmc = require("rm-cstyle-cmts");
 
 // gulp plugin name.
-var PLUGIN_NAME = "gulp-rm-cmts";
+const PLUGIN_NAME = "gulp-rm-cmts";
 
-var through = require("through2");
-var PluginError = require("gulp-util").PluginError;
+const through = require("through2");
+const PluginError = require("plugin-error");
 
 /**
  * remove_ws: default is true;
@@ -40,7 +40,7 @@ module.exports = function (options) {
     /**
      * @this {Transform}
      */
-    var transform = function (file, encoding, callback) {
+    const transform = function (file, encoding, callback) {
         if (file.isNull()) {
             return callback(null, file);
         }
@@ -49,7 +49,7 @@ module.exports = function (options) {
         }
         // plugin main
         if (file.isBuffer()) {
-            var contents = rmc(file.contents.toString(), rm_ws);
+            const contents = rmc(file.contents.toString(), rm_ws);
             // Deprecated
             // file.contents = new Buffer(contents);
             // node ^v5.10.0
