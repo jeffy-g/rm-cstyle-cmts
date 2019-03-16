@@ -67,7 +67,7 @@ const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_bl
     return source.replace(
         // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
         // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-        regexes.re_ws_qs, ((matched, index: number, inputs: string) => {
+        regexes.re_ws_qs, ((matched/*, index: number, inputs: string*/) => {
             const head = matched[0];
             // NOTE: need skip quoted string, regexp literal.
             return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
