@@ -14,7 +14,7 @@ remove c style comments from text file(javascript source, json file etc...
 > ### module definition
 ```ts
 /**
- * remove c style comments interface.
+ * "remove c style comments" function signature.
  */
 interface IRemoveCStyleCommentsTypeSig {
     /**
@@ -28,12 +28,17 @@ interface IRemoveCStyleCommentsTypeSig {
      *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
      * 
      * @param {string} source c style commented text source.
-     * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
+     * @param {boolean} [rm_blank_line_n_ws] remove black line and whitespaces, default is `true`.
+     * @param {boolean} [report_regex_evaluate_error] want report regex literal evaluation error? default is `undefined`
      */
-    (source: string, rm_blank_line_n_ws?: boolean): string;
+    (
+        source: string,
+        rm_blank_line_n_ws?: boolean,
+        report_regex_evaluate_error?: boolean
+    ): string;
 }
 /**
- * remove c style comments interface.
+ * "remove c style comments" module.
  */
 interface IRemoveCStyleCommentsModule extends IRemoveCStyleCommentsTypeSig {
     /** package version */

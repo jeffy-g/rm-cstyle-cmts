@@ -18,7 +18,10 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 // webpack config for ts file.
-// need "awesome-typescript-loader"
+
+// DEVNOTE: 2019-4-30
+// "awesome-typescript-loader" is no longer maintenance.
+// so now, use "ts-loader"
 
 // extend "webpack.configjs".
 const webpackConfig = require("./webpack.configjs");
@@ -30,9 +33,8 @@ webpackConfig.entry = {
 webpackConfig.module = {
     rules: [
         {
-            test: /\.tsx?$/,
-            // see: https://github.com/s-panferov/awesome-typescript-loader#the-best-typescript-loader-for-webpack
-            loader: "awesome-typescript-loader",
+            test: /\.ts$/,
+            loader: "ts-loader",
             exclude: /node_modules/
         }
     ]

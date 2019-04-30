@@ -15,19 +15,19 @@ if (!String.prototype.padEnd) {
         return this + str;
     };
 }
-function validate(text, expectance, rm_ws) {
-    if (rm_ws === void 0) { rm_ws = true; }
-    var result = rmc(text, rm_ws);
+function validate(text, expectance, rm_ws, report_regex_evaluate_error) {
+    if (rm_ws === void 0) { rm_ws = void 0; }
+    var result = rmc(text, rm_ws, report_regex_evaluate_error);
     console.assert(result === expectance, "failed at case [" + text + "]");
     // ✔ :\u2714
     console.log(("\u2714 passed: input [" + text + "],").padEnd(82), "result [" + result + "]");
 }
-function caseThrow(content, msg) {
+function caseThrow(content, msg, report_regex_evaluate_error) {
     var error = null;
     // check type error.
     try {
         // deceive for tsc.
-        rmc(content);
+        rmc(content, true, report_regex_evaluate_error);
     }
     catch (e) {
         error = e;
@@ -94,6 +94,10 @@ validate("const templete = `function ${name}($) {\n\
     return true;\n\
  }\n\
 ;`");
+// with report_regex_evaluate_error: true
+validate("  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);", "return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);", void 0, true);
+// with report_regex_evaluate_error: true
+validate("  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", void 0, false);
 // for coverage (codecov 
 var js_source = fs.readFileSync("./samples/es6.js", "utf-8");
-rmc(js_source, true);
+rmc(js_source);

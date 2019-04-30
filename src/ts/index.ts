@@ -45,12 +45,19 @@ const Replacer: IReplaceFrontEnd = replace.getFrondEnd();
 // Same as module.exports
 // declare var exports: any;
 
-const removeCStyleComments: IRemoveCStyleCommentsModule = (source: string, rm_blank_line_n_ws = true): string => {
+const removeCStyleComments: IRemoveCStyleComments = (
+    source: string,
+    rm_blank_line_n_ws: boolean = true,
+    report_regex_evaluate_error: boolean
+): string => {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
     }
 
+    if (typeof report_regex_evaluate_error === "boolean") {
+        Replacer.regexErrorReportEnable(report_regex_evaluate_error);
+    }
     // Is nearly equal processing speed?
     // const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
     source = Replacer.apply(source);

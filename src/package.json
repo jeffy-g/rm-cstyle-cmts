@@ -4,7 +4,7 @@
     "description": "remove cstyle comments for gulp",
     "dependencies": {
         "through2": "*",
-        "gulp-util": "*",
+        "plugin-error": "*",
         "rm-cstyle-cmts": "*"
     },
     "devDependencies": {},

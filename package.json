@@ -1,17 +1,17 @@
 {
     "name": "rm-cstyle-cmts",
-    "version": "1.4.26",
+    "version": "1.5.0",
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
     "typings": "./bin/index.d.ts",
     "scripts": {
         "lint": "tslint src/**/*.ts -p tsconfig.json --project",
-        "test": "istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
+        "test": "tsc ./test/test.ts && istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
         "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 2000 -ol 10 && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "build": "gulp rm:nullfile",
-        "dist": "gulp dist"
+        "dist": "gulp dist:pack"
     },
     "repository": {
         "type": "git",
@@ -33,21 +33,21 @@
     "author": "jeffy-g",
     "license": "Apache-2.0",
     "devDependencies": {
-        "@types/node": "^11.11.3",
-        "awesome-typescript-loader": "^5.2.1",
-        "codecov": "^3.1.0",
-        "del": "^4.0.0",
-        "gulp": "^4.0.0",
-        "gulp-cli": "^2.0.1",
+        "@types/node": "^11.13.8",
+        "codecov": "^3.3.0",
+        "del": "^4.1.0",
+        "gulp": "^4.0.1",
+        "gulp-cli": "^2.2.0",
         "gulp-rename": "^1.4.0",
         "gulp-replace": "^1.0.0",
         "gulp-sourcemaps": "^2.6.5",
         "gulp-typescript": "^5.0.1",
         "istanbul": "^0.4.5",
         "remap-istanbul": "^0.13.0",
-        "tslint": "^5.14.0",
-        "typescript": "3.3.3333",
-        "uglifyjs-webpack-plugin": "^2.1.2",
+        "terser-webpack-plugin": "^1.2.3",
+        "ts-loader": "^5.4.4",
+        "tslint": "^5.16.0",
+        "typescript": "^3.4.5",
         "webpack-stream": "^5.1.1"
     }
 }

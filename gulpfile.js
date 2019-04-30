@@ -209,7 +209,6 @@ function doWebpack(webpackConfigPath, done) {
     // copy ...
     _copyDefinitions();
 
-    // NOTE: awesome-typescript-loader use default "tsconfig.json"
     // webpack instance pass to param 2
     webpackStream(
         webpackConfig, webpack,
@@ -368,18 +367,18 @@ const TEST_SRC_PREFIX = "./tmp/ts/**/*";
 const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts`;
 const TEST_SRC_FILEs_OUT = "./tmp/output";
 
-gulp.task("rmc-test-del", function(cb) {
+gulp.task("grmc-test-del", function(cb) {
     del.sync(TEST_SRC_FILEs_OUT);
     cb();
 });
-gulp.task("rmc-test", gulp.series("rmc-test-del", function(cb) {
+gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
     const grmc = require("./src/gulp-rm-cmts");
-
-    gulp.src(TEST_SRC_FILEs).pipe(
+    // TEST_SRC_FILEs ./tmp/webpack.js
+    gulp.src("./tmp/webpack.js").pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
          */
-        grmc({ remove_ws: true })
+        grmc({ remove_ws: true, report_re_error: true })
     )
     // .pipe(rename({ suffix: "-after" }))
     .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {

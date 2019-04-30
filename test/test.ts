@@ -15,18 +15,18 @@ if (!String.prototype.padEnd) {
     };
 }
 
-function validate(text: string, expectance: string, rm_ws: boolean = true): void {
-    let result = rmc(text, rm_ws);
+function validate(text: string, expectance: string, rm_ws: boolean = void 0, report_regex_evaluate_error?: boolean): void {
+    let result = rmc(text, rm_ws, report_regex_evaluate_error);
     console.assert(result === expectance, `failed at case [${text}]`);
     // ✔ :\u2714
     console.log(`\u2714 passed: input [${text}],`.padEnd(82), `result [${result}]`);
 }
-function caseThrow(content: string, msg: string) {
+function caseThrow(content: string, msg: string, report_regex_evaluate_error?: boolean) {
     let error: Error = null;
     // check type error.
     try {
         // deceive for tsc.
-        rmc(content);
+        rmc(content, true, report_regex_evaluate_error);
     } catch (e) {
         error = e;
     }
@@ -43,6 +43,7 @@ caseThrow({} as string, "check invalid content");
 caseThrow("{} as string \'", "QuoteVisitor throw check");
 // BackQuoteVistor parse error.
 caseThrow("{} as string ` back quote! ` `", "BackQuoteVistor throw check");
+
 
 console.log();
 
@@ -115,6 +116,21 @@ validate("const templete = `function ${name}($) {\n\
  }\n\
 ;`");
 
+
+// with report_regex_evaluate_error: true
+validate(
+    "  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
+    "return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
+    void 0, true
+);
+// with report_regex_evaluate_error: true
+validate(
+    "  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
+    "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
+    void 0, false
+);
+
+
  // for coverage (codecov 
 const js_source = fs.readFileSync("./samples/es6.js", "utf-8");
-rmc(js_source, true);
+rmc(js_source);

@@ -19,7 +19,9 @@ limitations under the License.
 */
 // webpack config for js file.
 const webpack = require("webpack");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+
+// DEVNOTE: 2019-4-30 using "terser-webpack-plugin"
+const TerserPlugin = require("terser-webpack-plugin");
 
 const utils = require("./scripts/utils");
 
@@ -98,7 +100,16 @@ module.exports = {
     optimization: {
         // minimize: true
         minimizer: [
-            new UglifyJsPlugin({ uglifyOptions })
+            new TerserPlugin({
+                // Enable parallelization. Default number of concurrent runs: os.cpus().length - 1.
+                parallel: true,
+                cache: true,
+                // NOTE: The sourceMap setting of uglify in webpack v4,
+                // It must be set with option of UglifyJsPlugin instance.
+                sourceMap: true,
+                terserOptions: uglifyOptions
+            }),
+            // new UglifyJsPlugin({ uglifyOptions })
         ]
     }
 };

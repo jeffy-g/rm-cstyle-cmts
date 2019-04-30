@@ -17,6 +17,9 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+/** buildWsQsReRegexp, RE_NEWLINEs */
+import * as reutil from "./reutil";
+
 declare global {
     interface IReplaceFrontEnd {
         /**
@@ -24,6 +27,7 @@ declare global {
          * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
          */
         apply(source: string): string;
+        regexErrorReportEnable(enable: boolean): void;
     }
 }
 
@@ -38,9 +42,6 @@ interface IReplacementContext {
 }
 
 interface ICharVisitor {
-    /** register by self. */
-    injectTo(registry: IStringMap<ICharVisitor>): void;
-
     /**
      * #### main function.  
      * if returns true then context has been changed.
@@ -53,43 +54,64 @@ interface ICharVisitor {
     // setContext(context: IReplacementContext): void;
 }
 
-/** buildWsQsReRegexp, RE_NEWLINEs */
-import * as reutil from "./reutil";
 
-// /**
-//  * 
-//  */
-// abstract class CharVisitorBase implements ICharVisitor {
+/**
+ * 
+ */
+let isRegexErrorReportEnable: boolean = false;
 
-//     constructor(private characters: string, registry: IStringMap<ICharVisitor>) {
-//         this.injectTo(registry);
-//     }
-//     injectTo(registry: IStringMap<ICharVisitor>): void {
-//         const self = this;
-//         this.characters.split("").forEach(ch => {
-//             registry[ch] = self;
-//         });
-//     }
-//     abstract visit(char: string, source: string, context: IReplacementContext): boolean;
-// }
+/**
+ * TODO: jsdoc
+ */
+abstract class CharVisitorBase implements ICharVisitor {
+    /**
+     * TODO: jsdoc
+     * @param registry 
+     */
+    constructor(characters: string, registry: ICharVisitor[] | IStringMap<ICharVisitor>) {
+        const array = characters.split("");
+        const callback = Array.isArray(registry)? (ch: string) => {
+            registry[ch.charCodeAt(0)] = this;
+        }: (ch: string) => {
+            registry[ch] = this;
+        };
+        array.forEach(callback);
+    }
+
+    /**
+     * 
+     * @param char 
+     * @param source 
+     * @param context 
+     */
+    abstract visit(char: string, source: string, context: IReplacementContext): boolean;
+
+    /**
+     * TODO: jsdoc
+     * 
+     * @param registry 
+     */
+    static injectKnownVisitorsTo(registry: ICharVisitor[] | IStringMap<ICharVisitor>) {
+        Reflect.construct(QuoteVistor, [registry]);
+        Reflect.construct(BackQuoteVistor, [registry]);
+        Reflect.construct(SlashVistor, [registry]);
+    }
+}
 
 /**
  * correctly evaluate single quote and double quote string,  
  * and concat it to the result string.
- *```
- *   case [']: single quote
- *   case ["]: double quote
- *```
+ * ```
+case "'": // single quote
+case '"': // double quote
+ ```
  */
-class QuoteVistor implements ICharVisitor {
+class QuoteVistor extends CharVisitorBase {
 
-    // constructor(registry: IStringMap<ICharVisitor>) {
-    //     super(`"'`, registry);
-    // }
-    public injectTo(registry: IStringMap<ICharVisitor>): void {
-        registry["'"] = this;
-        registry['"'] = this;
+    constructor(registry: ICharVisitor[] | IStringMap<ICharVisitor>) {
+        super(`"'`, registry);
     }
+
     public visit(char: string, source: string, context: IReplacementContext): boolean {
         // maybe will not need it. because it will apply visit as soon as quote is found.
         // if (source[index - 1] !== "\\") {
@@ -103,47 +125,48 @@ class QuoteVistor implements ICharVisitor {
         let in_escape = false;
 
         while (next < limiter) {
-            if ((ch = source[next]) === "\\") {
+            if ((ch = source[next++]) === "\\") {
                 in_escape = !in_escape;
             } else if (!in_escape && ch === char) { /* need in_escape = false state. */
-                // const str = source.substring(context.offset, ++next);
+                // const str = source.substring(context.offset, next);
                 // console.log(`--[${str}]--`);
                 // context.result += str;
-                context.result += source.substring(context.offset, ++next);
+                context.result += source.substring(context.offset, next);
                 context.offset = next;
                 return true;
             } else { // last state is "in escape" then current ch is ignored.
                 in_escape = false;
             }
-            next++;
         }
         // }
-        throw new SyntaxError(`invalid string quotes??, offset=${context.offset}, remaining=${source.substring(context.offset)}`);
+        throw new SyntaxError(`invalid string quotes?, offset=${context.offset}, remaining=--[${source.substring(context.offset)}]--`);
     }
 }
+
 /**
  * In back quote string,  
  * can define template string further by enclosing it with "${" and "}",  
  * so special processing is required (at es6
- *```
- *   case [`]: back quote
- *```
+ * ```
+ case "`": // back quote
+
+ ```
  */
 // NOTE: 2017/9/7 23:44:25 
 // by improving the algorithm it is now possible to process correctly.
-class BackQuoteVistor implements ICharVisitor {
+class BackQuoteVistor extends CharVisitorBase {
 
-    public injectTo(registry: IStringMap<ICharVisitor>): void {
-        registry["`"] = this;
+    constructor(registry: ICharVisitor[] | IStringMap<ICharVisitor>) {
+        super("`", registry);
     }
 
     // did not investigate the optimization of node.js,
     // rewrite code according to the optimization idiom such as C, performance has improved slightly...
     // however, it might be my imagination... :- (at no webpack
-    public visit(char: string, source: string, context: IReplacementContext): boolean {
+    public visit(ch: string, source: string, context: IReplacementContext): boolean {
 
         // store "next" postion character. 
-        let ch: string;
+        // let ch: string;
         // move next position.
         let next = context.offset + 1;
         // toggle escape flag.
@@ -170,45 +193,45 @@ class BackQuoteVistor implements ICharVisitor {
                 // last state is "in escape" then current ch is ignored.
                 in_escape = false;
             } else {
+
+                // DEVNOTE: 2019-4-30
+                //  abolished switch statement and adopted ifelse statement.
+                //  this slightly improves performance.
+                // 
                 // state is not escaped then let's check [`], "${", "}".
                 // however, "}" is ignore escape state?
-                switch (ch) {
-                    case "$":
-                        if (source[next + 1] === "{") {
-                            next += 2, depth++;
-                            continue LOOP;
-                        }
-                        break;
-                    case "`":
-                        if (depth > 0) {
-                            // if (depth - 1 === bq_depth) {    // can increment.
-                            //     bq_depth++;
-                            // } else if (depth === bq_depth) { // can decrement.
-                            //     bq_depth--;
-                            // }
-                            depth - 1 === bq_depth ? bq_depth++ : depth === bq_depth && bq_depth--;
-                            break;
-                        }
-                        /* if (depth === 0) */ {
-                            context.result += source.substring(context.offset, ++next);
-                            context.offset = next;
-                            return true;
-                        }
-                        // break;
-                    case "}":
-                        // NOTE: can be decremented only when it is nested?
-                        // if (depth > 0 && depth - 1 === bq_depth) {
-                        //     depth--;
+                if (ch === "$") {
+                    if (source[next + 1] === "{") {
+                        next += 2, depth++;
+                        continue LOOP;
+                    }
+                } else if (ch === "`") {
+                    if (depth > 0) {
+                        // if (depth - 1 === bq_depth) {    // can increment.
+                        //     bq_depth++;
+                        // } else if (depth === bq_depth) { // can decrement.
+                        //     bq_depth--;
                         // }
-                        // again, this one seems better (at no webpack
-                        (depth > 0 && depth - 1 === bq_depth) && depth--;
-                        break;
-                    // default:
-                    //     break;
+                        depth - 1 === bq_depth ? bq_depth++ : depth === bq_depth && bq_depth--;
+                    } else /* if (depth === 0) */ {
+                        context.result += source.substring(context.offset, ++next);
+                        context.offset = next;
+                        return true;
+                    }
+                } else if (ch === "}") {
+                    // NOTE: can be decremented only when it is nested?
+                    // if (depth > 0 && depth - 1 === bq_depth) {
+                    //     depth--;
+                    // }
+                    // again, this one seems better (at no webpack
+                    (depth > 0 && depth - 1 === bq_depth) && depth--;
                 }
+
             }
+
             next++;
         }
+
         throw new SyntaxError(`BackQuoteVistor error: offset=${context.offset}, remaining=--[${source.substring(context.offset)}]--`);
     }
 }
@@ -218,16 +241,17 @@ class BackQuoteVistor implements ICharVisitor {
  * its necessary to verify the line comment, multiline comment, regex.  
  * will need to set the priority as (line comment || multiline comment) > regex.
  * ```
- *   case [/]: slash
- *```
- */
-class SlashVistor implements ICharVisitor {
+ case "/": // slash
 
-    public injectTo(registry: IStringMap<ICharVisitor>): void {
-        registry["/"] = this;
+ ```
+ */
+class SlashVistor extends CharVisitorBase {
+
+    constructor(registry: ICharVisitor[] | IStringMap<ICharVisitor>) {
+        super("/", registry);
     }
 
-    public visit(char: string, source: string, context: IReplacementContext): boolean {
+    public visit(ch: string, source: string, context: IReplacementContext): boolean {
 
         // fetch current offset.
         const index = context.offset;
@@ -240,7 +264,7 @@ class SlashVistor implements ICharVisitor {
         }
 
         // fetch next char.
-        let ch = source[index + 1];
+        ch = source[index + 1];
 
         // check multiline comment.
         if (ch === "*") {
@@ -290,7 +314,7 @@ class SlashVistor implements ICharVisitor {
                     // new RegExp(m[0].substring(1, lx));
                     eval(m[0]);
                 } catch (e) {
-                    // console.log("Regex SyntaxError: [%s]", m[0]);
+                    isRegexErrorReportEnable && console.log("Regex SyntaxError: [%s]", m[0]);
                     return false;
                 }
                 // update offset.
@@ -309,7 +333,7 @@ class SlashVistor implements ICharVisitor {
  * create IReplacementContext.
  * @param source parsing source.
  */
-function createWhite(source: string): IReplacementContext {
+const createWhite = (source: string): IReplacementContext => {
     // specify new line character.
     const m = reutil.RE_NEWLINEs.exec(source);
     return {
@@ -317,7 +341,140 @@ function createWhite(source: string): IReplacementContext {
         result: "",
         newline: m? m[0]: ""
     };
+};
+
+const emitCode = (part: string = "") => {
+    // DEVNOTE: must js code
+    return `(source) => {
+
+        const limit = source.length;
+        const registry = visitors;
+        const context = createWhite(source);
+        let prev_offset = 0;
+
+        while (context.offset < limit) {
+            const ch = source[context.offset];
+            const visitor = registry[ch${part}];
+            if (visitor) {
+                context.result += source.substring(prev_offset, context.offset);
+                prev_offset = !visitor.visit(ch, source, context)? context.offset++: context.offset;
+            } else {
+                context.offset++;
+            }
+        }
+        if (limit - prev_offset > 0) {
+            context.result += source.substring(prev_offset, context.offset);
+        }
+        return context.result;
+    }`;
+};
+
+type Replacementable = (source: string) => string;
+/**
+ * for node.js version 9 earlier
+ */
+namespace LegendReplacer {
+
+    /**
+     * ICharVisitor registory.
+     */
+    const visitors: IStringMap<ICharVisitor> = {};
+    CharVisitorBase.injectKnownVisitorsTo(visitors);
+
+    export const apply = eval(emitCode()) as Replacementable;
+    // export const apply = (source: string): string => {
+
+    //     const limit = source.length;
+    //     const registry = visitors;
+    //     const context: IReplacementContext = createWhite(source);
+    //     let prev_offset = 0;
+
+    //     while (context.offset < limit) {
+    //         const ch = source[context.offset];
+    //         const visitor = registry[ch];
+    //         if (visitor) {
+    //             context.result += source.substring(prev_offset, context.offset);
+    //             // if visit(...) returns true, context.offset has been updated.
+    //             prev_offset = !visitor.visit(ch, source, context)? context.offset++: context.offset;
+    //         } else {
+    //             // increment scan position.
+    //             context.offset++;
+    //         }
+    //     }
+    //     // when has remaining
+    //     if (limit - prev_offset > 0) {
+    //         context.result += source.substring(prev_offset, context.offset);
+    //     }
+
+    //     return context.result;
+    // };
 }
+
+/**
+ * for node.js version 10 later
+ */
+namespace NeoReplacer {
+
+    /**
+     * ICharVisitor registory.
+     */
+    const visitors: ICharVisitor[] = [];
+    CharVisitorBase.injectKnownVisitorsTo(visitors);
+
+    export const apply = eval(emitCode(".charCodeAt(0)")) as Replacementable;
+    // export const apply = (source: string): string => {
+
+    //     const limit = source.length;
+    //     const registry = visitors;
+    //     const context: IReplacementContext = createWhite(source);
+    //     let prev_offset = 0;
+
+    //     while (context.offset < limit) {
+    //         const ch = source[context.offset];
+    //         // DEVNOTE: 2019-4-30
+    //         // It seems that the call cost of string.charCodeAt method is
+    //         //  lower than lookup of object registed as key and value by key.
+    //         const visitor = registry[ch.charCodeAt(0)];
+    //         if (visitor) {
+    //             context.result += source.substring(prev_offset, context.offset);
+    //             prev_offset = !visitor.visit(ch, source, context)? context.offset++: context.offset;
+    //         } else {
+    //             context.offset++;
+    //         }
+    //     }
+
+    //     if (limit - prev_offset > 0) {
+    //         context.result += source.substring(prev_offset, context.offset);
+    //     }
+
+    //     return context.result;
+    // };
+}
+
+/**
+ * get node version at runtime.
+ * 
+ * format must be `v\d+.\d+.\d+`
+ * 
+ * ex:
+ * ```
+const utils = require("./utils");
+const nv = utils.extractVersion();
+console.log(nv); // => {major: 10, minor: 9, patch: 0}
+```
+ *
+ * @param {string} versionString default is process.version
+ */
+const extractVersion = (versionString: string = process.version) => {
+    const RE_VERSION = /v(\d+).(\d+).(\d+)/;
+    // NOTE: pv is Array.isArray(pv), extend Array
+    let pv = RE_VERSION.exec(versionString);
+    const [_, major = 0, minor = 0, patch = 0] = pv.map((value, i) => {
+        return (i > 0 && parseInt(value)) || void 0;
+    });
+    return { major, minor, patch }
+};
+
 
 /**
  * NOTE:  
@@ -326,43 +483,16 @@ function createWhite(source: string): IReplacementContext {
  * and delete line comment, multiline commnet. (maybe...
  */
 namespace ReplaceFrontEnd {
-
-    /**
-     * ICharVisitor registory.
-     */
-    const visitors: IStringMap<ICharVisitor> = {};
-
-    // register self.
-    new QuoteVistor().injectTo(visitors);
-    new BackQuoteVistor().injectTo(visitors);
-    new SlashVistor().injectTo(visitors);
-
-    export function apply(source: string): string {
-
-        const limit = source.length;
-        const registry = visitors;
-        const context: IReplacementContext = createWhite(source);
-        let prev_offset = 0;
-
-        while (context.offset < limit) {
-            const ch = source[context.offset];
-            const visitor = registry[ch];
-            if (visitor) {
-                context.result += source.substring(prev_offset, context.offset);
-                // if visit(...) returns true, context.offset has been updated.
-                prev_offset = !visitor.visit(ch, source, context)? context.offset++: context.offset;
-            } else {
-                // increment scan position.
-                context.offset++;
-            }
-        }
-        // when has remaining
-        if (limit - prev_offset > 0) {
-            context.result += source.substring(prev_offset, context.offset);
-        }
-
-        return context.result;
+    let replacer: typeof LegendReplacer;
+    DECIDE_REPLACER: {
+        const version = extractVersion();
+        // replacer = version.major <= 9? LegendReplacer: LegendReplacer;
+        replacer = version.major <= 9? LegendReplacer: NeoReplacer;
     }
+    export const apply = replacer.apply;
+    export const regexErrorReportEnable = (enable: boolean): void => {
+        isRegexErrorReportEnable = enable;
+    };
 }
 
 /**

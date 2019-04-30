@@ -30,14 +30,25 @@ declare global {
          *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
          * 
          * @param {string} source c style commented text source.
-         * @param {boolean} rm_blank_line_n_ws remove black line and whitespaces, default is "true".
+         * @param {boolean} [rm_blank_line_n_ws] remove black line and whitespaces, default is `true`.
+         * @param {boolean} [report_regex_evaluate_error] want report regex literal evaluation error? default is `undefined`
          */
-        (source: string, rm_blank_line_n_ws?: boolean): string;
+        (
+            source: string,
+            rm_blank_line_n_ws?: boolean,
+            /**
+             * NOTE:
+             *  + Once you change this setting, it will be taken over from the next time.
+             *    So, if you want to make a temporary change, be aware that you need to switch each time.
+             * ---
+             */
+            report_regex_evaluate_error?: boolean
+        ): string;
     }
-    interface IRemoveCStyleCommentsModule extends IRemoveCStyleCommentsTypeSig {
+    interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig {
         /** package version */
         readonly version?: string;
     }
 }
-declare const removeCStyleComments: IRemoveCStyleCommentsModule;
+declare const removeCStyleComments: IRemoveCStyleComments;
 export = removeCStyleComments;

@@ -31,7 +31,7 @@ const PluginError = require("plugin-error");
 
 /**
  * remove_ws: default is true;
- * @param { { remove_ws: boolean } } options
+ * @param { { remove_ws?: boolean, report_re_error?: boolean } } options
  */
 module.exports = function (options) {
     options = options || {};
@@ -49,7 +49,7 @@ module.exports = function (options) {
         }
         // plugin main
         if (file.isBuffer()) {
-            const contents = rmc(file.contents.toString(), rm_ws);
+            const contents = rmc(file.contents.toString(), rm_ws, options.report_re_error);
             // Deprecated
             // file.contents = new Buffer(contents);
             // node ^v5.10.0
