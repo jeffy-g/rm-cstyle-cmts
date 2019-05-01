@@ -29,6 +29,7 @@ function caseThrow(content: string, msg: string, report_regex_evaluate_error?: b
         rmc(content, true, report_regex_evaluate_error);
     } catch (e) {
         error = e;
+        console.info("[error]:", e.message);
     }
     console.assert(error instanceof Error, "failed type check...");
     console.log(`\u2714 passed: ${msg}`);
@@ -39,10 +40,15 @@ console.log();
 
 // check invalid content, deceive for tsc.
 caseThrow({} as string, "check invalid content");
-// QuoteVisitor parse error.
-caseThrow("{} as string \'", "QuoteVisitor throw check");
-// BackQuoteVistor parse error.
-caseThrow("{} as string ` back quote! ` `", "BackQuoteVistor throw check");
+// QuoteScanner parse error.
+caseThrow("{} as string \'", "QuoteScanner throw check");
+// BackQuoteScanner parse error.
+caseThrow("{} as string ` back quote! ` `", "BackQuoteScanner throw check");
+
+// SlashScanner parse error.
+caseThrow("const n: number = 1; /", "SlashScanner throw check");
+// SlashScanner parse error.
+caseThrow("const n: number = 1; /* comment /", "SlashScanner throw check");
 
 
 console.log();
@@ -64,7 +70,7 @@ validate("let ok2 = 12.2 / 33 * .9 // \"comments\"...*/", "let ok2 = 12.2 / 33 *
 validate(" var re = 10000 / 111.77*gg /gg;;;;  ////// comments...", "var re = 10000 / 111.77*gg /gg;;;;");
 validate(" var text0 = 'is text.', text0 = \"is text.\"", "var text0 = 'is text.', text0 = \"is text.\"");
 
-validate(" var text0 = ''/", "var text0 = ''/");
+validate(" var text0 = '';", "var text0 = '';");
 
 // --- multi line input.
 validate(`  let gg = 10;
@@ -133,4 +139,4 @@ validate(
 
  // for coverage (codecov 
 const js_source = fs.readFileSync("./samples/es6.js", "utf-8");
-rmc(js_source);
+rmc(js_source, true, true);

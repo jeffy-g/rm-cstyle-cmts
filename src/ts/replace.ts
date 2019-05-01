@@ -271,8 +271,8 @@ class SlashScanner extends CharScannerBase {
         const length = source.length;
         // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
         if (index + 1 >= length) {
-            // throw new SyntaxError("invalid input source :-D");
-            return false;
+            throw new SyntaxError("invalid input source");
+            // return false;
         }
 
         // fetch next char.
@@ -281,9 +281,14 @@ class SlashScanner extends CharScannerBase {
         // check multiline comment.
         if (ch === "*") {
             const close = source.indexOf("*/", index + 2);
-            // update offset.(implicit bug at here
-            context.offset = (close === -1? index : close) + 2;
-            return true;
+            // // update offset.(implicit bug at here
+            // context.offset = (close === -1? index : close) + 2;
+            if (close !== -1) {
+                // update offset.
+                context.offset = close + 2;
+                return true;
+            }
+            throw new SyntaxError("multi line comment close mark not found");
         }
 
         // index + 1 ...
@@ -316,7 +321,7 @@ class SlashScanner extends CharScannerBase {
                 ch = "/";
                 context.result += source.substring(index, index + m.index - 1);
                 // jump to "L", and apply remaining process. (ch === "/"
-                continue L;
+                // continue L;
             } else {
                 // DEVNOTE: the eval function can almost certainly detect regexp literal.
                 try {
@@ -359,13 +364,13 @@ const emitCode = (part: string) => {
     // DEVNOTE: must js code
     return `(source) => {
 
-    const limit = source.length;
+    const size = source.length;
     const registry = scanners;
     const context = createWhite(source);
     let offset = 0;
     let prev_offset = 0;
 
-    while (offset < limit) {
+    while (offset < size) {
         const ch = source[offset];
         const inspectable = registry[ch${part}];
         if (!inspectable) {
@@ -373,11 +378,11 @@ const emitCode = (part: string) => {
         } else {
             context.result += source.substring(prev_offset, offset);
             context.offset = offset;
-            prev_offset = !inspectable(ch, source, context)? context.offset++: context.offset;
+            prev_offset = inspectable(ch, source, context)? context.offset: context.offset++;
             offset = context.offset;
         }
     }
-    if (limit - prev_offset > 0) {
+    if (size - prev_offset > 0) {
         context.result += source.substring(prev_offset, offset);
     }
     return context.result;

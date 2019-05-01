@@ -31,6 +31,7 @@ function caseThrow(content, msg, report_regex_evaluate_error) {
     }
     catch (e) {
         error = e;
+        console.info("[error]:", e.message);
     }
     console.assert(error instanceof Error, "failed type check...");
     console.log("\u2714 passed: " + msg);
@@ -39,10 +40,14 @@ console.log("rm-cstyle-cmts, version: %s", rmc.version);
 console.log();
 // check invalid content, deceive for tsc.
 caseThrow({}, "check invalid content");
-// QuoteVisitor parse error.
-caseThrow("{} as string \'", "QuoteVisitor throw check");
-// BackQuoteVistor parse error.
-caseThrow("{} as string ` back quote! ` `", "BackQuoteVistor throw check");
+// QuoteScanner parse error.
+caseThrow("{} as string \'", "QuoteScanner throw check");
+// BackQuoteScanner parse error.
+caseThrow("{} as string ` back quote! ` `", "BackQuoteScanner throw check");
+// SlashScanner parse error.
+caseThrow("const n: number = 1; /", "SlashScanner throw check");
+// SlashScanner parse error.
+caseThrow("const n: number = 1; /* comment /", "SlashScanner throw check");
 console.log();
 // case empty string.
 validate("", "");
@@ -55,7 +60,7 @@ validate("      [/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];", "[/\\s*\\(\\
 validate("let ok2 = 12.2 / 33 * .9 // \"comments\"...*/", "let ok2 = 12.2 / 33 * .9");
 validate(" var re = 10000 / 111.77*gg /gg;;;;  ////// comments...", "var re = 10000 / 111.77*gg /gg;;;;");
 validate(" var text0 = 'is text.', text0 = \"is text.\"", "var text0 = 'is text.', text0 = \"is text.\"");
-validate(" var text0 = ''/", "var text0 = ''/");
+validate(" var text0 = '';", "var text0 = '';");
 // --- multi line input.
 validate("  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\n//             ^-------------^ <- this case is match. but, not regexp literal", "  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  \n", false);
 // LF
@@ -100,4 +105,4 @@ validate("  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055
 validate("  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", void 0, false);
 // for coverage (codecov 
 var js_source = fs.readFileSync("./samples/es6.js", "utf-8");
-rmc(js_source);
+rmc(js_source, true, true);

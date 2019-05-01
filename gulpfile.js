@@ -371,7 +371,7 @@ gulp.task("grmc-test-del", function(cb) {
     del.sync(TEST_SRC_FILEs_OUT);
     cb();
 });
-// gulp grmc-test -grmc "./tmp/webpack.js"
+// gulp grmc-test -grmc ./tmp/webpack.js
 gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
     console.log(settings);
     const grmc = require("./src/gulp-rm-cmts");
