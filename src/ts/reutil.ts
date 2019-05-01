@@ -81,14 +81,14 @@ const re_ws_qs_base: RegExp =
     /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/;
 
 // function buildWsQsReRegexp(source: string): RegExp {
-function buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: string|RegExp } {
+function buildWsQsReRegexp(this: ReUtil, source: string): { re_ws_qs: RegExp, re_first_n_last: string|RegExp } {
     // specify new line character.
     const m = this.RE_NEWLINEs.exec(source);
     const is_single_line_input = m === null;
 
     let newline: string;
-    if (is_single_line_input) {
-        ;
+    if (m === null) {
+        newline = "";
     } else {
         // escape CR or LF
         newline = (newline = m[0]) === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";

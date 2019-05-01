@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 // for String.replace
-declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag: string, deadline: string, index: number) => string;
+declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag: string, deadline: string, index?: number) => string;
 
 // regexp document: calculate performance average#2
 /**
@@ -39,7 +39,7 @@ declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag
     // contractor. (
     const Contractor = {
         entries: {} as { [x: string]: IBenchmarkResult[] },
-        current_tag: null as string,
+        current_tag: "",
 
         order: function(tag: string): void {
             !this.entries[tag] && (this.entries[tag] = []);
@@ -96,7 +96,7 @@ declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag
     const emitReplacer = (showlog_per_entry: boolean = false): AverageReplacer => {
         const contractor = Contractor;
         // return replacement body.
-        return (all, loop, ms, tag, deadline, index) => {
+        return (all, loop, ms, tag, deadline/* , index */) => {
             if (tag) { // ✔ :\u2714
                 contractor.order(tag), console.log(`\u2714 order => ${tag}`);
             } else if (loop) {

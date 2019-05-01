@@ -29,7 +29,7 @@
         "noEmitHelpers": false,
 
         "noImplicitAny": false,
-        "strictNullChecks": false,
+        "strict": true,
 
         // "allowJs": true,
         // "checkJs": true,

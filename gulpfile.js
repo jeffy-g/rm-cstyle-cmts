@@ -371,10 +371,13 @@ gulp.task("grmc-test-del", function(cb) {
     del.sync(TEST_SRC_FILEs_OUT);
     cb();
 });
+// gulp grmc-test -grmc "./tmp/webpack.js"
 gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
+    console.log(settings);
     const grmc = require("./src/gulp-rm-cmts");
-    // TEST_SRC_FILEs ./tmp/webpack.js
-    gulp.src("./tmp/webpack.js").pipe(
+    // TEST_SRC_FILEs "./tmp/webpack.js"
+    const target = typeof settings.grmc === "string"? settings.grmc: TEST_SRC_FILEs;
+    gulp.src(target).pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
          */
@@ -384,7 +387,7 @@ gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
     .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
         // notify completion of task.
         cb();
-        console.log("task rmc-test done.");
+        console.log("task grmc-test done.");
     });
 }));
 

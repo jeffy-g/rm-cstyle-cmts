@@ -21,6 +21,8 @@ limitations under the License.
 
 /** IReplaceFrontEnd */
 import * as replace from "./replace";
+// import { IReplaceFrontEnd } from "./replace";
+
 /** buildWsQsReRegexp, RE_NEWLINEs */
 import * as reutil from "./reutil";
 
@@ -30,25 +32,12 @@ const latest_version: string = "pkg.version";
 /**
  * singleton instance.
  */
-const Replacer: IReplaceFrontEnd = replace.getFrondEnd();
-
-// interface NodeModule {
-//     exports: IRemoveCStyleCommentsTypeSig;
-//     require: NodeRequireFunction;
-//     id: string;
-//     filename: string;
-//     loaded: boolean;
-//     parent: NodeModule | null;
-//     children: NodeModule[];
-// }
-// declare var module: NodeModule;
-// Same as module.exports
-// declare var exports: any;
+const Replacer = replace.getFrondEnd();
 
 const removeCStyleComments: IRemoveCStyleComments = (
     source: string,
     rm_blank_line_n_ws: boolean = true,
-    report_regex_evaluate_error: boolean
+    report_regex_evaluate_error?: boolean
 ): string => {
 
     if (typeof source !== "string") {

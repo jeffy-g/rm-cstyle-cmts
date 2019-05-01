@@ -24,6 +24,7 @@ const fs = require("fs");
 const path = require("path");
 // for clearLine...
 const readline = require("readline");
+// DEVNOTE: Performance Timing API since v8.5.0
 const { performance } = require("perf_hooks");
 
 /**
@@ -44,9 +45,9 @@ function extractVersion(versionString = process.version) {
     const RE_VERSION = /v(\d+).(\d+).(\d+)/;
     // NOTE: pv is Array.isArray(pv), extend Array
     let pv = RE_VERSION.exec(versionString);
-    const [_, major = 0, minor = 0, patch = 0] = pv.map((value, i) => {
+    const [_, major = 0, minor = 0, patch = 0] = pv? pv.map((value, i) => {
         return (i > 0 && parseInt(value)) || void 0;
-    });
+    }): [""];
     console.log("result:", _, major, minor, patch);
     return { major, minor, patch }
 }

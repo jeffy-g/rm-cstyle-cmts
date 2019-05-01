@@ -34,3 +34,7 @@ interface String {
 interface IStringMap<T> {
     [key: string]: T;
 }
+
+type StringMap<T> = {
+    [key: string]: T;
+};

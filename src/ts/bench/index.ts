@@ -51,7 +51,7 @@ const ArgsConfig = {
     startIndex: 2,
     prefix: "-",
     varIndex: 1
-}
+};
 /**
  * get arguments helper.  
  * extra params must be start with "-".  
@@ -60,10 +60,10 @@ const ArgsConfig = {
  * ```
  * if param value not specified -tag after then set value is "true".
  */
-function getExtraArgs(args_config?: typeof ArgsConfig): IStringMap<string|boolean> {
+function getExtraArgs(args_config?: typeof ArgsConfig): StringMap<string|boolean> {
     args_config === void 0 && (args_config = ArgsConfig);
     const extra_index = args_config.startIndex;
-    const params: IStringMap<string|boolean> = {};
+    const params: StringMap<string|boolean> = {};
     if (process.argv.length > extra_index) {
         const args = process.argv;
         for (let index = extra_index; index < args.length;) {
@@ -132,7 +132,8 @@ function parseFilePath(file_path: string): ISourcePath {
 }
 
 function formatNumber(n: number): string {
-    return n.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+    return n.toLocaleString();
+    // return n.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
 /**
@@ -155,7 +156,7 @@ let INNER = 1000;
 let src: ISourcePath;
 
 /** share source content */
-let source_text;
+let source_text: string;
 
 // let emit_result = 0;
 /**
@@ -168,9 +169,9 @@ function benchmark(rm_ws: boolean, output_result: boolean = true): void {
 
     console.log(`version: ${rmc.version}, case: { source: ${src.simple_name}@${
         formatNumber(fs.statSync(src.full_path).size)
-    }bytes, remove_blanks=${rm_ws} }, outerloop=${OUTER}, innerloop=${INNER}`);
+    } bytes, remove_blanks=${rm_ws} }, outerloop=${OUTER}, innerloop=${INNER}`);
 
-    let ret: string;
+    let ret: string = "";
     for (let a = OUTER; a--;) {
         console.time(tag);
         for (let b = INNER; b--;) {
@@ -208,7 +209,7 @@ function progress(msg?: string): void {
     const output = process.stderr;
     // clear the current line
     readline.clearLine(output, 0);
-    readline.cursorTo(output, 0, null);
+    readline.cursorTo(output, 0/* , void 0 */);
     // const x = /[\r\n]+/.exec(chunk);
     // chunk = chunk.substring(0, x.index);
     // write the message.
@@ -244,7 +245,7 @@ if (settings.p) {
 
     let inputs: any = new Array(200);
     // from pipe.
-    if (typeof settings.p === "boolean") {
+    if (settings.p === true) {
         process.stdin.resume();
         process.stdin.setEncoding("utf8");
 
@@ -266,7 +267,7 @@ if (settings.p) {
             emitResult();
         });
         // ✈: \u2708
-        console.log("");
+        console.log();
         console.log(`${"\u2708  ".repeat(8)}performance log started...`);
     // from log file.
     } else if (typeof settings.p === "string" && fs.existsSync(<string>settings.p)) {
