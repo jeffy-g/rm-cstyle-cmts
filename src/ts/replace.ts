@@ -64,27 +64,28 @@ let regexErrorReport: boolean = false;
 abstract class CharScannerBase implements ICharacterScanner {
 
     /**
-     * ⚠️ MUST define as propget method at subclasses.
-     *
-     * @type {string}
-     */
-    // @ts-ignore
-    characters: string;
-    /**
      * TODO: jsdoc
      * @param registry 
      */
     constructor(registry: CharScannerFunctionRegistry) {
-        // @ts-ignore
+        // DEVNOTE: ✅ there is no problem at runtime in node.js v8.4 later
+        // @ts-ignore TS2715: Abstract property 'characters' in class 'CharScannerBase' cannot be accessed in the constructor.
         const array = this.characters.split("");
         const callback = Array.isArray(registry)? (ch: string) => {
             registry[ch.charCodeAt(0)] = this.scan;
         }: (ch: string) => {
             registry[ch] = this.scan;
         };
+
         array.forEach(callback);
     }
 
+    /**
+     * ⚠️ MUST define as propget method at subclasses.
+     *
+     * @type {string}
+     */
+    abstract get characters(): string;
     /**
      * 
      * @param char 
