@@ -72,8 +72,7 @@ var rmc = require("rm-cstyle-cmts");
 var fs = require("fs");
 
 var name = "samples/es6";
-var extension = "js";
-var source = fs.readFileSync(`./${name}.${extension}`, 'utf-8');
+var source = fs.readFileSync(`./${name}.js`, 'utf-8');
 
 console.info(" ----------- before contents ----------");
 console.log(source);
@@ -83,7 +82,7 @@ var after = rmc(source/*, true*/);
 console.info(" ----------- after contents -----------");
 console.log(after);
 
-fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
+fs.writeFile(`./${name}-after.js`, after, 'utf-8', function() {
     console.log("data written...");
 });
 
@@ -127,7 +126,7 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
 >but in this program, this is not important :-
 >
 
-```php
+```perl
 
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
@@ -143,7 +142,7 @@ fs.writeFile(`./${name}-after.${extension}`, after, 'utf-8', function() {
   )+                 # end non-capturing group $1 (q: 1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $3
-  [gimuy]+\b|        # validate regex flags, but this pattern is imcomplete
+  [gimsuy]+\b|       # validate regex flags, but this pattern is imcomplete
 )                    # end non-capturing group $3
 (?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
 

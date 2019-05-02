@@ -16,4 +16,4 @@ pipelines:
           - npm run bench
           - npm test
 
-          - bash ci-script.sh
+          - bash ./scripts/ci-script.sh

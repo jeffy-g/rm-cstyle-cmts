@@ -268,16 +268,13 @@ class SlashScanner extends CharScannerBase {
 
         // fetch current offset.
         const index = context.offset;
-        // limiter.
-        const length = source.length;
+        // fetch next char.
+        ch = source[index + 1];
         // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
-        if (index + 1 >= length) {
+        if (ch === void 0) {
             throw new SyntaxError("invalid input source");
             // return false;
         }
-
-        // fetch next char.
-        ch = source[index + 1];
 
         // check multiline comment.
         if (ch === "*") {
@@ -294,6 +291,9 @@ class SlashScanner extends CharScannerBase {
 
         // index + 1 ...
         const x = context.newline && source.indexOf(context.newline, index + 1) || -1;
+        // limitation.
+        const length = source.length;
+
         L: do {
             // check line comment.
             if (ch === "/") {

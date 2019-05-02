@@ -17,31 +17,15 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-declare global {
-    interface ReUtil {
-        /**
-         * ```js
-         * const RE_NEWLINEs = /\r\n|\n|\r/;
-         * ```
-         */
-        readonly RE_NEWLINEs: RegExp;
-        /**
-         * create regex by newline character of source.
-         * @param source parsing source.
-         */
-        buildWsQsReRegexp(source: string): { re_ws_qs: RegExp, re_first_n_last: RegExp };
-        // buildWsQsReRegexp(source: string): RegExp;
-    }
-}
 
 // // regexp document: "remove white spaces with replacer#comments removed"
 // this regex cannot be processed correctly.
-// /^[\s]+[\r\n]+|[\s]+$|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/gm
+// /^[\s]+[\r\n]+|[\s]+$|^[\s]+$|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+/])/gm
 
 // BUG: When a newline character is CRLF, regexp instance specifying multiline flag can not correctly supplement CRLF with ^ and $
 /*
  o It was necessary to do this when the newline character of inupt is CRLF.
-    /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/])/g;
+    /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+/])/g;
 
  o This looks good, but it does not work.
     /(?:\r\n|\r|\n)\s+(?=(?:\r\n|\r|\n))|\s+(?=(?:\r\n|\r|\n))/g
@@ -53,117 +37,139 @@ declare global {
  * 
  * `regex summary:`
  * 
- * ```
- * \/                   # regexp literal start@delimiter
- *   (?![?*+\/])        # not meta character "?*+/" @anchor
- *   (?:                # start non-capturing group $1
- *     \\[\s\S]|        # escaped any character, or
- *     \[               # class set start
- *       (?:            # non-capturing group $2
- *         \\[\s\S]|    # escaped any character, or
- *         [^\]\r\n\\]  # without class set end, newline, backslash
- *       )*             # end non-capturing group $2 (q: 0 or more
- *     \]|              # class set end, or
- *     [^\/\r\n\\]      # without slash, newline, backslash
- *   )+                 # end non-capturing group $1 (q: 1 or more
- * \/                   # regexp literal end@delimiter
- * (?:                  # start non-capturing group $3
- *   [gimuy]+\b|        # validate regex flags, but this pattern is imcomplete
- * )                    # end non-capturing group $3
- * (?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
- * ```
+ * ```perl
+\/                   # regexp literal start@delimiter
+  (?![?*+\/])        # not meta character "?*+/" @anchor
+  (?:                # start non-capturing group $1
+    \\[\s\S]|        # escaped any character, or
+    \[               # class set start
+      (?:            # non-capturing group $2
+        \\[\s\S]|    # escaped any character, or
+        [^\]\r\n\\]  # without class set end, newline, backslash
+      )*             # end non-capturing group $2 (q: 0 or more
+    \]|              # class set end, or
+    [^\/\r\n\\]      # without slash, newline, backslash
+  )+                 # end non-capturing group $1 (q: 1 or more
+\/                   # regexp literal end@delimiter
+(?:                  # start non-capturing group $3
+  [gimsuy]+\b|       # validate regex flags, but this pattern is imcomplete
+)                    # end non-capturing group $3
+(?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
+```
  */
 // NOTE: regexp document -> ***match regexp literal@mini#nocapture
-// const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/g;
+// const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
 
-/** base */
+/**
+ * ---
+ * base
+ * ---
+ * see: https://regexper.com/#%60%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E%60%5D%29*%60%7C%22%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E%22%5D%29*%22%7C'%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E'%5D%29*'%7C%5C%2F%28%3F!%5B%3F*%2B%5C%2F%5D%29%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5C%5B%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E%5C%5D%5Cr%5Cn%5C%5C%5D%29*%5C%5D%7C%5B%5E%5C%2F%5Cr%5Cn%5C%5C%5D%29%2B%5C%2F%28%3F%3A%5Bgimuy%5D%2B%5Cb%7C%29%28%3F!%5B%3F*%2B%5C%2F%5C%5B%5C%5C%5D%29
+ */
 const re_ws_qs_base: RegExp =
-    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/;
+    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/;
 
-// function buildWsQsReRegexp(source: string): RegExp {
-function buildWsQsReRegexp(this: ReUtil, source: string): { re_ws_qs: RegExp, re_first_n_last: string|RegExp } {
-    // specify new line character.
-    const m = this.RE_NEWLINEs.exec(source);
-    const is_single_line_input = m === null;
 
-    let newline: string;
-    if (m === null) {
-        newline = "";
-    } else {
-        // escape CR or LF
-        newline = (newline = m[0]) === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
+namespace ReUtil {
+    export const RE_NEWLINEs = /\r\n|\n|\r/;
+    const buildWsQsReRegexp = (source: string, holder: { m: RegExpExecArray | null }) => {
+        // specify new line character.
+        const m = RE_NEWLINEs.exec(source);
+        const is_single_line_input = m === null;
+        // 
+        holder.m = m;
+
+        /**
+         * will not use "newline" when is_single_line_input is true
+         */
+        let newline: string | undefined;
+        if (!is_single_line_input) {
+            // escape CR or LF
+            // @ts-ignore in this case m is not null
+            newline = (newline = m[0]) === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
+        }
+
+        /**
+         * regex: whitespaces, quoted string, regexp literal.
+         *
+         * `regex summary:`
+         *
+         * ```perl
+newline\s+(?=newline)| # whitespace line or ...
+\s+(?=newline)|        # spaces ahead of new line
+`(?:\\[\s\S]|[^`])*`|  # backquoted string
+"(?:\\[\s\S]|[^"])*"|  # double quoted string
+'(?:\\[\s\S]|[^'])*'|  # single quoted string
+\/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+/[\\]) # regex
+```
+         */
+        // DEVNOTE: If there is no newline character, only the leading and trailing space characters are detected
+        const re_ws_qs = is_single_line_input? /^\s+|\s+$/g: new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
+
+        /**
+         * If do not specify a multiline flag,  
+         * noticed that it matches the very first and last in the string ...
+         * 
+         * `regex summary:`
+         * 
+         * ```perl
+^newline| # first new line
+newline$  # last new line
+```
+         */
+        const re_first_n_last = is_single_line_input? "": new RegExp(`^${newline}|${newline}$`, "g");
+        return {
+            /**
+             * jsdoc
+             */
+            re_ws_qs,
+            /**
+             * jsdoc
+             */
+            re_first_n_last
+        };
     }
 
     /**
-     * regex: whitespaces, quoted string, regexp literal.
-     *
-     * `regex summary:`
-     *
-     * ```
-     *  newline\s+(?=newline)| # whitespace line or ...
-     *  \s+(?=newline)|        # spaces ahead of new line
-     *  `(?:\\[\s\S]|[^`])*`|  # back quote
-     *  "(?:\\[\s\S]|[^"])*"|  # double quote
-     *  '(?:\\[\s\S]|[^'])*'|  # single quote
-     *  \/(?![?*+/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+/[\\]) # regex
-     *
-     *```
+     * null(0), \r(13), \n(10), \r\n(23)
+     * 
+     * @param m 
      */
-    const re_ws_qs = is_single_line_input? /^\s+|\s+$/g: new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
-    // return new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
+    const convertToIndex = (m: RegExpExecArray | null) => {
+        if (m !== null) {
+            let newline: string;
+            const index = (newline = m[0]).charCodeAt(0);
+            // \r(13), \n(10), \r\n(23)
+            return newline.length === 1? index: index + newline.charCodeAt(1);
+        } else {
+            return 0;
+        }
+    };
 
-    // /^newline|newline$/g;
+    type RegexSet = ReturnType<typeof buildWsQsReRegexp>;
+    const regexSets: RegexSet[] = []; {
+        const newlines = ["", "\r", "\n", "\r\n"];
+        const holder: Parameters<typeof buildWsQsReRegexp>[1] = { m: null };
+        for (const newline of newlines) {
+            const rset = buildWsQsReRegexp(newline, holder);
+            regexSets[
+                convertToIndex(holder.m)
+            ] = rset;
+        }
+    }
+
     /**
-     * If do not specify a multiline flag,  
-     * noticed that it matches the very first and last in the string ...
      * 
-     * `regex summary:`
-     * 
-     * ```
-     * ^newline| # first new line
-     * newline$  # last new line
-     * ```
+     * @param source 
      */
-    const re_first_n_last = is_single_line_input? "": new RegExp(`^${newline}|${newline}$`, "g");
-    return {
-        re_ws_qs, re_first_n_last
+    export const lookupRegexes = (source: string) => {
+        // const m = RE_NEWLINEs.exec("\r\n");
+        // console.log(m[0].charCodeAt(0), m[0].charCodeAt(1));
+        const m = RE_NEWLINEs.exec(source);
+        return regexSets[
+            convertToIndex(m)
+        ];
     };
 }
 
-/*
-    configurable
-        true if and only if the type of this property descriptor may be changed and if the property may be deleted from the corresponding object.
-        Defaults to false.
-    enumerable
-        true if and only if this property shows up during enumeration of the properties on the corresponding object.
-        Defaults to false.
-    writable
-        true if and only if the value associated with the property may be changed with an assignment operator.
-        Defaults to false.
-
-    get
-        A function which serves as a getter for the property, or undefined if there is no getter. The function return will be used as the value of property.
-        Defaults to undefined.
-    set
-        A function which serves as a setter for the property, or undefined if there is no setter. The function will receive as only argument the new value being assigned to the property.
-        Defaults to undefined.
-
-    value
-        The value associated with the property. Can be any valid JavaScript value (number, object, function, etc).
-        Defaults to undefined.
-*/
-const reutil: ReUtil = Object.defineProperties({}, {
-    // create readonly property "version"
-    RE_NEWLINEs: {
-        enumerable: true,
-        configurable: false,
-        value: /\r\n|\n|\r/
-    },
-    buildWsQsReRegexp: {
-        enumerable: true,
-        configurable: false,
-        value: buildWsQsReRegexp
-    }
-}) as ReUtil;
-
-export = reutil;
+export = ReUtil;

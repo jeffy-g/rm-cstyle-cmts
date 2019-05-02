@@ -31,6 +31,7 @@
             "type": "node",
             "request": "launch",
             "name": "simple test",
+            "runtimeExecutable": "F:/ext_prg/Nodist/bin/node.exe",
             "program": "${workspaceRoot}/test/test.js",
             "args": [
             ],
