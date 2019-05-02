@@ -3,6 +3,7 @@
 exports.__esModule = true;
 var rmc = require("../bin/");
 var fs = require("fs");
+require("colors");
 if (!String.prototype.padEnd) {
     String.prototype.padEnd = function (n) {
         var rem = n - this.length;
@@ -20,7 +21,7 @@ function validate(text, expectance, rm_ws, report_regex_evaluate_error) {
     var result = rmc(text, rm_ws, report_regex_evaluate_error);
     console.assert(result === expectance, "failed at case [" + text + "]");
     // ✔ :\u2714
-    console.log(("\u2714 passed: input [" + text + "],").padEnd(82), "result [" + result + "]");
+    console.log("\u2714"["green"], ("passed: input [" + text["cyan"] + "],").padEnd(82), "result [" + result["green"] + "]");
 }
 function caseThrow(content, msg, report_regex_evaluate_error) {
     var error = null;
@@ -31,10 +32,10 @@ function caseThrow(content, msg, report_regex_evaluate_error) {
     }
     catch (e) {
         error = e;
-        console.info("[error]:", e.message);
+        console.info("[message]"["yellow"], e.message);
     }
     console.assert(error instanceof Error, "failed type check...");
-    console.log("\u2714 passed: " + msg);
+    console.log("\u2714"["green"], "passed: " + msg);
 }
 console.log("rm-cstyle-cmts, version: %s", rmc.version);
 console.log();
@@ -63,10 +64,6 @@ validate(" var text0 = 'is text.', text0 = \"is text.\"", "var text0 = 'is text.
 validate(" var text0 = '';", "var text0 = '';");
 // --- multi line input.
 validate("  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\n//             ^-------------^ <- this case is match. but, not regexp literal", "  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  \n", false);
-// LF
-validate("  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\n//             ^-------------^ <- this case is match. but, not regexp literal", "  let gg = 10;\nvar re = 10000 / 111.77*gg /gg;;;;");
-// CR
-validate("  let gg = 10;\rvar re = 10000 / 111.77*gg /gg;;;;  ////// comments...\r//             ^-------------^ <- this case is match. but, not regexp literal", "  let gg = 10;\rvar re = 10000 / 111.77*gg /gg;;;;");
 validate("const templete = `function ${name}($) {\n\
     // comment line.\n\
     var some = ${\n\
@@ -105,4 +102,6 @@ validate("  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055
 validate("  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", void 0, false);
 // for coverage (codecov 
 var js_source = fs.readFileSync("./samples/es6.js", "utf-8");
+console.log();
+console.log("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow);
 rmc(js_source, true, true);

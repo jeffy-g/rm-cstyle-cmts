@@ -33,6 +33,17 @@ const latest_version: string = "pkg.version";
  * singleton instance.
  */
 const Replacer = replace.getFrondEnd();
+/**
+ * 
+ * @param matched 
+ */
+const ws_qs_replacer = (matched: string/*, index: number, inputs: string*/) => {
+    const head = matched[0];
+    // NOTE: need skip quoted string, regexp literal.
+    return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
+// FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
+// NOTE: this regex seems to be the correct answer...
+};
 
 const removeCStyleComments: IRemoveCStyleComments = (
     source: string,
@@ -55,7 +66,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
         return source;
     }
 
-    const regexes = reutil.buildWsQsReRegexp(source);
+    const regexes = reutil.lookupRegexes(source);
     // NOTE: this combination does not do the intended work...
     // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]/gm, ""): source;
     // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
@@ -63,13 +74,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
     return source.replace(
         // BUG: 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
         // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
-        regexes.re_ws_qs, ((matched/*, index: number, inputs: string*/) => {
-            const head = matched[0];
-            // NOTE: need skip quoted string, regexp literal.
-            return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
-    // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
-    // NOTE: this regex seems to be the correct answer...
-    })).replace(regexes.re_first_n_last, "");
+        regexes.re_ws_qs, ws_qs_replacer).replace(regexes.re_first_n_last, "");
     // .replace(/^\s+|\s+$/g, ""); // can handle it reliably, but consume a lot more cpu time a little.
 };
 
