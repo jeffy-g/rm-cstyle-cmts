@@ -57,7 +57,6 @@ function extractVersion(versionString = process.version) {
 const ArgsConfig = {
     startIndex: 3,
     prefix: "-",
-    varIndex: 1
 }
 /**
  * get arguments helper.  
@@ -68,28 +67,37 @@ ex:
 ```
  * if param value not specified -tag after then set value is "true".
  * 
- * @param {typeof ArgsConfig} args_config
+ * @param {Partial<typeof ArgsConfig>} args_config
  */
 function getExtraArgs(args_config, debug = false) {
     // debug log, if need.
     debug && console.log("process.argv: ", process.argv);
 
-    args_config === void 0 && (args_config = ArgsConfig);
+    args_config = args_config || {};
+    args_config = Object.assign(ArgsConfig, args_config);
+
+    const varIndex = args_config.prefix.length;
     const extra_index = args_config.startIndex;
+    /** @type {{ [key: string]: string | boolean | any[] }} */
     const params = {};
 
     if (process.argv.length > extra_index) {
         const args = process.argv;
         for (let index = extra_index; index < args.length;) {
             const opt = args[index++];
-            if (opt && opt[0] === args_config.prefix) {
+            if (opt && opt.startsWith(args_config.prefix)) {
+                /** @type {string | string[]} */
                 let value = args[index];
-                if (value === void 0 || value[0] === args_config.prefix) {
+                if (value === void 0 || value.startsWith(args_config.prefix)) {
                     value = true;
                 } else {
+                    // DEVNOTE: now possible to process array parameters. -> gulp pug --electron --dests "['../cerebral-web-test', './src']"
+                    if (/\[.+\]/.test(value)) {
+                        value = eval(value);
+                    }
                     index++;
                 }
-                params[opt.substring(args_config.varIndex)] = value;
+                params[opt.substring(varIndex)] = value;
             }
         }
     }
@@ -203,7 +211,7 @@ const createProgress = (timeSpanMS, frames) => {
  * see https://webpack.js.org/plugins/progress-plugin/
  * 
  * @param {string} logFilePath 
- * @param {boolean} enableRenderLine 
+ * @param {boolean} disableRenderLine 
  */
 function createWebpackProgressPluginHandler(logFilePath, disableRenderLine = false) {
     checkParentDirectory(logFilePath);

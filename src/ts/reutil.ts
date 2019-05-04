@@ -38,6 +38,7 @@ limitations under the License.
  * `regex summary:`
  * 
  * ```perl
+(?<!<)               # avoidance: jsx or tsx start tag (available on node v8.10)
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1
@@ -52,7 +53,7 @@ limitations under the License.
   )+                 # end non-capturing group $1 (q: 1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $3
-  [gimsuy]+\b|       # validate regex flags, but this pattern is imcomplete
+  [gimsuy]{1,6}\b|   # validate regex flags, but this pattern is imcomplete
 )                    # end non-capturing group $3
 (?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
 ```
@@ -60,14 +61,33 @@ limitations under the License.
 // NOTE: regexp document -> ***match regexp literal@mini#nocapture
 // const RE_REGEXP_PATTERN = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
 
+// (`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')|(\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/)([gimsuy]{1,6}\b|)(?![?*+\/\[\\])
+// `(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])
+
+// const re_ws_qs_base: RegExp =
+    // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
 /**
  * ---
  * base
  * ---
  * see: https://regexper.com/#%60%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E%60%5D%29*%60%7C%22%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E%22%5D%29*%22%7C'%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E'%5D%29*'%7C%5C%2F%28%3F!%5B%3F*%2B%5C%2F%5D%29%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5C%5B%28%3F%3A%5C%5C%5B%5Cs%5CS%5D%7C%5B%5E%5C%5D%5Cr%5Cn%5C%5C%5D%29*%5C%5D%7C%5B%5E%5C%2F%5Cr%5Cn%5C%5C%5D%29%2B%5C%2F%28%3F%3A%5Bgimuy%5D%2B%5Cb%7C%29%28%3F!%5B%3F*%2B%5C%2F%5C%5B%5C%5C%5D%29
  */
-const re_ws_qs_base: RegExp =
-    /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/;
+let re_ws_qs_base: RegExp; {
+    try {
+        // is available "RegExp Lookbehind Assertions"?
+        // DEVNOTE: 2019-5-4
+        // >node -p process.versions.v8
+        // see: http://kangax.github.io/compat-table/es2016plus/
+        //   -> node.js seems to be able to use "RegExp Lookbehind Assertions" from v 8.10
+        // 
+        // *with this new regex feature, you can almost certainly delete blank lines with jsx and tsx sources.
+        re_ws_qs_base = 
+            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/
+    } catch (e) {
+        re_ws_qs_base = 
+            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/
+    }
+}
 
 
 namespace ReUtil {

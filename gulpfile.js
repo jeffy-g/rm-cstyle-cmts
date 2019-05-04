@@ -364,24 +364,35 @@ gulp.task("readme", function(cb) {
 
 // --------------------------------------------- [gulp test]
 const TEST_SRC_PREFIX = "./tmp/ts/**/*";
-const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.ts`;
+const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
 const TEST_SRC_FILEs_OUT = "./tmp/output";
 
 gulp.task("grmc-test-del", function(cb) {
     del.sync(TEST_SRC_FILEs_OUT);
     cb();
 });
-// gulp grmc-test -grmc ./tmp/webpack.js
+// gulp grmc-test -grmc "['./tmp/webpack.js', './tmp/webpack-cr.js', './tmp/webpack-crlf.js']"
+// gulp grmc-test -grmc tmp/rmc-impossible.tsx
+// gulp grmc-test -grmc tmp/rmc-impossible#2.tsx
+/**
+ * ✅ check at own environment
+ * 
+ * 1. gulp grmc-test
+ * 2. search on vscode:
+ *    search   - ^\s*$
+ *    includes - ./tmp/output/*
+ * 
+ * 3. Is the blank line found only inside the backquoted string?
+ */
 gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
     console.log(settings);
     const grmc = require("./src/gulp-rm-cmts");
-    // TEST_SRC_FILEs "./tmp/webpack.js"
-    const target = typeof settings.grmc === "string"? settings.grmc: TEST_SRC_FILEs;
+    const target = settings.grmc? settings.grmc: TEST_SRC_FILEs;
     gulp.src(target).pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
          */
-        grmc({ remove_ws: true, report_re_error: true })
+        grmc({ remove_ws: true, report_re_error: false })
     )
     // .pipe(rename({ suffix: "-after" }))
     .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
@@ -393,6 +404,5 @@ gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
 
 
 gulp.task("default", gulp.series("dist:pack", function (done) {
-    // console.log("statictics: ...");
     done();
 }));

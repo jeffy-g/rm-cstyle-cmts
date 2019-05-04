@@ -101,7 +101,9 @@ validate("  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055
 // with report_regex_evaluate_error: true
 validate("  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),", void 0, false);
 // for coverage (codecov 
+// const js_source = fs.readFileSync("tmp/rmc-impossible#2.tsx", "utf-8");
 var js_source = fs.readFileSync("./samples/es6.js", "utf-8");
 console.log();
 console.log("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow);
-rmc(js_source, true, true);
+var result = rmc(js_source, true, true);
+//# sourceMappingURL=test.js.map

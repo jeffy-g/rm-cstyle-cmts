@@ -130,8 +130,9 @@ validate(
 
 
  // for coverage (codecov 
+// const js_source = fs.readFileSync("tmp/rmc-impossible#2.tsx", "utf-8");
 const js_source = fs.readFileSync("./samples/es6.js", "utf-8");
 
 console.log();
 console.log("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow)
-rmc(js_source, true, true);
+const result = rmc(js_source, true, true);

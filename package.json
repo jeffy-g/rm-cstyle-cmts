@@ -1,13 +1,13 @@
 {
     "name": "rm-cstyle-cmts",
-    "version": "1.5.3",
+    "version": "1.5.4",
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
     "typings": "./bin/index.d.ts",
     "scripts": {
         "lint": "tslint src/**/*.ts -p tsconfig.json --project",
-        "test": "tsc ./test/test.ts && istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
+        "test": "tsc ./test/test.ts --sourcemap true && istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
         "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 2000 -ol 10 && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "build": "gulp rm:nullfile",

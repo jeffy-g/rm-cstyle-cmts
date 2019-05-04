@@ -123,7 +123,7 @@ class QuoteScanner extends CharScannerBase {
 
     // DEVNOTE: this will allow you to get the value successfully with the super constructor.
     get characters() {
-        return `"'`;
+        return `"'`; // 34, 39
     }
 
     public scan(char: string, source: string, context: IReplacementContext): boolean {
@@ -171,7 +171,7 @@ class QuoteScanner extends CharScannerBase {
 class BackQuoteScanner extends CharScannerBase {
 
     get characters() {
-        return "`";
+        return "`"; // 96
     }
     // did not investigate the optimization of node.js,
     // rewrite code according to the optimization idiom such as C, performance has improved slightly...
@@ -261,7 +261,7 @@ class BackQuoteScanner extends CharScannerBase {
 class SlashScanner extends CharScannerBase {
 
     get characters() {
-        return "/";
+        return "/"; // 47
     }
 
     public scan(ch: string, source: string, context: IReplacementContext): boolean {
@@ -287,6 +287,10 @@ class SlashScanner extends CharScannerBase {
                 return true;
             }
             throw new SyntaxError("multi line comment close mark not found");
+        }
+        // avoid jsx, tsx tag
+        if (source[index - 1] === "<") {
+            return false;
         }
 
         // index + 1 ...
@@ -321,6 +325,7 @@ class SlashScanner extends CharScannerBase {
             if (remaining[m.index - 1] === "/") {
                 ch = "/";
                 context.result += source.substring(index, index + m.index - 1);
+                // console.log(`${SlashScanner.constructor.name}::scan.remaining[m.index - 1] === "/"`);
                 // jump to "L", and apply remaining process. (ch === "/"
                 // continue L;
             } else {

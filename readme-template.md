@@ -128,6 +128,7 @@ fs.writeFile(`./${name}-after.js`, after, 'utf-8', function() {
 
 ```perl
 
+(?<!<)               # avoidance: jsx or tsx start tag (available on node v8.10)
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1
@@ -142,7 +143,7 @@ fs.writeFile(`./${name}-after.js`, after, 'utf-8', function() {
   )+                 # end non-capturing group $1 (q: 1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $3
-  [gimsuy]+\b|       # validate regex flags, but this pattern is imcomplete
+  [gimsuy]{1,6}\b|   # validate regex flags, but this pattern is imcomplete
 )                    # end non-capturing group $3
 (?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
 

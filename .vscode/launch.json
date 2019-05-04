@@ -13,9 +13,9 @@
             "args": [
                 "-f", "samples/rmc-impossible.tsx"
             ],
-            "outFiles": [
-                "${workspaceFolder}/bin/**/*.js"
-            ]
+            // "outFiles": [
+            //     "${workspaceFolder}/bin/**/*.js"
+            // ]
         }, {
             "type": "node",
             "request": "launch",
@@ -24,20 +24,20 @@
             "args": [
                 "-p", "plog"
             ],
-            "outFiles": [
-                "${workspaceRoot}/bin/**/*.js"
-            ]
+            // "outFiles": [
+            //     "${workspaceRoot}/bin/**/*.js"
+            // ]
         }, {
             "type": "node",
             "request": "launch",
-            "name": "simple test",
+            "name": "debug test code",
             "runtimeExecutable": "F:/ext_prg/Nodist/bin/node.exe",
             "program": "${workspaceRoot}/test/test.js",
-            "args": [
-            ],
-            "outFiles": [
-                "${workspaceRoot}/**/*.js"
-            ]
+            // "args": [
+            // ],
+            // "outFiles": [
+            //     "${workspaceRoot}/**/*.js"
+            // ]
         }
     ]
 }
