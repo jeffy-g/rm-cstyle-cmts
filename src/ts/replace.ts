@@ -298,7 +298,7 @@ class SlashScanner extends CharScannerBase {
         // limitation.
         const length = source.length;
 
-        L: do {
+        /*L:*/ do {
             // check line comment.
             if (ch === "/") {
                 // update offset. when new line character not found(eof) then...
