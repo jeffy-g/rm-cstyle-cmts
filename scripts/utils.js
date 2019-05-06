@@ -170,6 +170,19 @@ function writeTextUTF8(content, dest) {
 }
 
 /**
+ * 
+ * @param {string} from file path.
+ * @param {(err: any, data: string) => void} callback 
+ */
+function readTextUTF8(from, callback) {
+    if (typeof callback === "function") {
+        fs.readFile(from, "utf8", callback);
+    } else {
+        return fs.readFileSync(from, "utf8");
+    }
+}
+
+/**
  * use process.stderr stream
  * 
  * @param {string} msg if empty string or undefined then only clear line and move cursor to head.
@@ -256,6 +269,7 @@ module.exports = {
     dateStringForFile,
     getExtraArgs,
     writeTextUTF8,
+    readTextUTF8,
     renderLine,
     createProgress,
     createWebpackProgressPluginHandler,

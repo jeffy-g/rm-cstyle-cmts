@@ -127,14 +127,14 @@ let name = "apple";
 const templete = `function ${name}($) {
    // comment line.
    var some = ${
-       // comment line...
-       `12.5 / 50 * 100,
+   // comment line #2...
+   `12.5 / 50 * 100,
 
-       // might be a very important comment line.
-       things = "${ name + `anything` }",
-       obj={ "\\\\": null }`
+   // might be a very important comment line.
+   things = "${ name + `anything` }",
+   obj={ "\\\\": null }`
 
-   }; \`\`
+   }, unused = \`length is ${name.length}\` || undefined;
    /**
     * multi line comment...
     */

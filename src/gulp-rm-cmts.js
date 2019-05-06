@@ -17,51 +17,108 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-/**
- */
-// use "rm-cstyle-cmts"
-const rmc = require("../bin/");
-// const rmc = require("rm-cstyle-cmts");
 
-// gulp plugin name.
-const PLUGIN_NAME = "gulp-rm-cmts";
+const rmc = require("../bin/");
+// use "rm-cstyle-cmts"
+// const rmc = require("rm-cstyle-cmts");
 
 const through = require("through2");
 const PluginError = require("plugin-error");
 
+const readline = require("readline");
+
+// gulp plugin name.
+const PLUGIN_NAME = "gulp-rm-cmts";
+
+
 /**
- * remove_ws: default is true;
- * @param { { remove_ws?: boolean, report_re_error?: boolean } } options
+ * 
+ * @param msg 
  */
-module.exports = function (options) {
+const progress = (msg) => {
+    const output = process.stderr;
+    // clear the current line
+    readline.clearLine(output, 0);
+    readline.cursorTo(output, 0/* , void 0 */);
+    // const x = /[\r\n]+/.exec(chunk);
+    // chunk = chunk.substring(0, x.index);
+    // write the message.
+    msg && output.write(msg);
+};
+const shortPath = chunk => {
+    const l = chunk.base.length;
+    return chunk.history[0].substr(l + 1);
+}
+
+/**
+ * @typedef  {Object} GulpRmcOptions
+ * @property {boolean} [remove_ws] remove blank line and whitespaces, default is `true`
+ * @property {boolean} [report_re_error] want regex detect error report? default is `undefined`
+ * @property {boolean} [render_progress] print current processing file path. default is `undefined`
+ */
+const getTransformer = /** @type {(options: GulpRmcOptions) => ReturnType<typeof through>} */(options) => {
+
     options = options || {};
     // default is true;
     const rm_ws = typeof options.remove_ws === "boolean"? options.remove_ws: true;
+    const render_progress = !!options.render_progress;
+
+    render_progress && console.log("rm-cstyle-cmts::", {
+        version: rmc.version,
+        avoidMinified: rmc.avoidMinified
+    });
     /**
-     * @this {Transform}
+     * @type {(this: stream.Transform, chunk: any, enc: string, callback: TransformCallback) => void}
      */
-    const transform = function (file, encoding, callback) {
-        if (file.isNull()) {
-            return callback(null, file);
+    const transform = function (chunk, encoding, callback) {
+        if (chunk.isNull()) {
+            return callback(null, chunk);
         }
-        if (file.isStream()) {
+        if (chunk.isStream()) {
             this.emit("error", new PluginError(PLUGIN_NAME, 'Streams not supported!'));
         }
         // plugin main
-        if (file.isBuffer()) {
-            const contents = rmc(file.contents.toString(), rm_ws, options.report_re_error);
+        if (chunk.isBuffer()) {
+
+            render_progress && progress(shortPath(chunk));
+            // render_progress && progress(chunk.history[0]);
+            const contents = rmc(chunk.contents.toString(), rm_ws, options.report_re_error);
             // Deprecated
             // file.contents = new Buffer(contents);
             // node ^v5.10.0
-            file.contents = Buffer.from(contents);
+            chunk.contents = Buffer.from(contents);
             // // node ^v5.10.0
             // const buf = Buffer.alloc(contents.length);
             // /* const len = */ buf.write(contents, 0);
             // file.contents = buf;
-            return callback(null, file);
+            return callback(null, chunk);
         }
-        this.push(file);
+
+        this.push(chunk);
         callback();
     };
+
     return through.obj(transform);
+};
+
+module.exports = {
+    getTransformer,
+    /**
+     * get processed count
+     */
+    get processed() {
+        return rmc.processed;
+    },
+    /**
+     * get processed count
+     */
+    get noops() {
+        return rmc.noops;
+    },
+    /**
+     * @param {boolean} value
+     */
+    set avoidMinified(value) {
+        rmc.avoidMinified = value;
+    }
 };

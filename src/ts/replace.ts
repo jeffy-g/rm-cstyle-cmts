@@ -314,7 +314,10 @@ class SlashScanner extends CharScannerBase {
             const remaining = source.substring(index, x === -1? length: x);
             // NOTE: LF does not have to worry.
             // NOTE: need lastIndex property, must add "g" flag.
-            const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimuy]+\b|)(?![?*+\/\[\\])/g;
+            const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
+            // const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
+            // const re_re = /\/(?![?*+\/])(?:[^\/\r\n\\]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
+            // const re_re = /\/(?![?*+\/])(?:[^\/\r\n\\]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
             // only execute once, this is important!
             const m = re_re.exec(remaining);
             if (m === null) {
@@ -395,7 +398,7 @@ const emitCode = (part: string) => {
 }`;
 };
 
-type Replacementable = IReplaceFrontEnd["apply"];
+// type Replacementable = IReplaceFrontEnd["apply"];
 // /**
 //  * for node.js version 10 later
 //  */
@@ -454,7 +457,7 @@ console.log(nv); // => {major: 10, minor: 9, patch: 0}
 const extractVersion = (versionString: string = process.version) => {
     const RE_VERSION = /v(\d+).(\d+).(\d+)/;
     // NOTE: pv is Array.isArray(pv), extend Array
-    let pv = RE_VERSION.exec(versionString);
+    const pv = RE_VERSION.exec(versionString);
     const [_, major = 0, minor = 0, patch = 0] = pv? pv.map((value, i) => {
         return (i > 0 && parseInt(value)) || void 0;
     }): [""];
@@ -488,7 +491,7 @@ namespace ReplaceFrontEnd {
         }
 
         CharScannerBase.injectKnownScannersTo(scanners);
-        return eval(emitCode(part)) as Replacementable;
+        return eval(emitCode(part)) as IReplaceFrontEnd["apply"];
 
     })();
 

@@ -7,16 +7,6 @@
 /**
  * block comment.
  */ // test
-const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; // these are invalid line(for sample
-
-const classes = `header ${ isLargeScreen() && item.isCollapsed ?
-    'icon-expander' : 'icon-collapser' }`;
-
-const classes = `header ${(
-    isLargeScreen() && `icon-${
-        item.isCollapsed ? 'expander' : 'collapser'
-    }`)
-}`;
 
 /* -- block comment.
  */ // see: http://json.schemastore.org/tsconfig
@@ -28,15 +18,13 @@ const classes = `header ${(
 
         "declaration": true,
         // 2017/5/18 20:53:47
-        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
-        invalid quote string?
-        ",
+        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/ginvalid quote string?",
         // statistics
-        "diagnostics": '',
+        "diagnostics": null,
         //"inlineSourceMap": true,
         //"inlineSources": true,
         // Stylize errors and messages using color and context (experimental).
-        "pretty": ``,
+        "pretty": "`s`",
         //
         //"checkJs": true,   /* */
         "rootDir": "/[\r\n]+/",
@@ -45,13 +33,8 @@ const classes = `header ${(
         /* after line comment!!!!! */
 
         // this is bad syntax.
-        "listFiles": `
-            somethins*
-    \\
- ---
-
-        `,
-        "newLine": /LF/m,
+        "listFiles": "",
+        "newLine": "/LF/m",
         // "experimentalDecorators": true,
         // "emitDecoratorMetadata": false,
         "target": "es6",
@@ -90,4 +73,4 @@ const classes = `header ${(
         "!./ts/external/*.ts"
     ]
 /* syntax error */
-}/*/*//
+}/*/*/

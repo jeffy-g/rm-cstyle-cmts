@@ -3,16 +3,6 @@
 
 
  
-const $3 = { keyCode: "$1", "key": "\\\/\\\//\\\\\\\\\\" }; 
-
-const classes = `header ${ isLargeScreen() && item.isCollapsed ?
-    'icon-expander' : 'icon-collapser' }`;
-
-const classes = `header ${(
-    isLargeScreen() && `icon-${
-        item.isCollapsed ? 'expander' : 'collapser'
-    }`)
-}`;
 
  
 {
@@ -23,15 +13,13 @@ const classes = `header ${(
 
         "declaration": true,
         
-        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/g\
-        invalid quote string?
-        ",
+        "declarationDir": "/\/.*[^\\\r\n](?=\/)\/[gimuysx]*/ginvalid quote string?",
         
-        "diagnostics": '',
+        "diagnostics": null,
         
         
         
-        "pretty": ``,
+        "pretty": "`s`",
         
         
         "rootDir": "/[\r\n]+/",
@@ -40,13 +28,8 @@ const classes = `header ${(
         
 
         
-        "listFiles": `
-            somethins*
-    \\
- ---
-
-        `,
-        "newLine": /LF/m,
+        "listFiles": "",
+        "newLine": "/LF/m",
         
         
         "target": "es6",
@@ -85,4 +68,4 @@ const classes = `header ${(
         "!./ts/external/*.ts"
     ]
 
-}/
+}

@@ -48,6 +48,31 @@ declare global {
     interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig {
         /** package version */
         readonly version?: string;
+
+        /**
+         * **set whether to avoid minified source**.
+         * 
+         * NOTE: If a minified source is detected, the source is returned without any processing.
+         * 
+         * ⚠️ This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
+         * 
+         * If you know in advance that you do not to handle minified sources,
+         * setting this value to "0" will be disable this feature.
+         * 
+         * default is `8000`
+         */
+        avoidMinified?: number;
+
+        /**
+         * **If a minified source is detected, the default configuration does nothing**.
+         * 
+         * will be counted at that time.
+         */
+        readonly noops?: number;
+        /**
+         * its processed count
+         */
+        readonly processed?: number;
     }
 }
 declare const removeCStyleComments: IRemoveCStyleComments;

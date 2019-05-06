@@ -299,8 +299,11 @@ if (settings.p) {
         OUTER = parseInt(<string>settings.ol);
     }
 
+    // @ts-ignore 
+    // rmc.avoidMinified = settings.am;
     // const multi_use = !!settings.m;
     console.dir(settings, { color: true });
+    console.log("avoidMinified:", rmc.avoidMinified);
     // with remove blank line and whitespaces.
     console.log(" --------------- start benchmark (remove blanks) ---------------");
     method(!0);

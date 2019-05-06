@@ -26,4 +26,4 @@ latest=12
 #
 # ATTENTION: need nodist
 #
-$NODE_SWITCHER $old && npm run bench>./logs/node-old.log && $NODE_SWITCHER $latest && npm run bench>./logs/node-latest.log && gulp readme
+$NODE_SWITCHER $old && npm run bench>./logs/node-old.log && $NODE_SWITCHER $latest && npm run bench>./logs/node-latest.log && npx gulp readme

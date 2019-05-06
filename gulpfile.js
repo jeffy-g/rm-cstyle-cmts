@@ -175,7 +175,7 @@ function _remove_un_js(done) {
  */
 function _dist(done, dest) {
     gulp.src([
-        "LICENSE", "package.json", "README.md", "samples/*",
+        "LICENSE", "package.json", "README.md", "samples/!(core*)",
         "test/test.js",
         COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(function(vinyl) {
@@ -309,12 +309,6 @@ gulp.task("dist:pack", gulp.series("webpack", function(done) {
 gulp.task("dist:packjs", gulp.series("webpack-js", function(done) {
     _dist(done, DISTRIBUTION_PACK_DIR);
 }));
-/**
- * experimental task.  
- */
-gulp.task("とりあえずパック", function(done) {
-    _dist(done, DISTRIBUTION_PACK_DIR);
-});
 
 /**
  * task "readme"  
@@ -328,6 +322,7 @@ gulp.task("readme", function(cb) {
     const AFTER = fs.readFileSync("./samples/es6-rm_ws-true.js", "utf-8");
     let NODE_LATEST_LOG = fs.readFileSync("./logs/node-latest.log", "utf-8");
     let NODE_OLD_LOG = fs.readFileSync("./logs/node-old.log", "utf-8");
+    // console.log(NODE_OLD_LOG);
 
     const SIZE = fs.statSync("./samples/es6.js").size;
     const re_package_desc = /(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/;
@@ -363,8 +358,11 @@ gulp.task("readme", function(cb) {
 });
 
 // --------------------------------------------- [gulp test]
-const TEST_SRC_PREFIX = "./tmp/ts/**/*";
-const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
+// const TEST_SRC_PREFIX = "./tmp/ts/**/*";
+// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
+const TEST_SRC_PREFIX = "./node_modules/**/*";
+const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{js,ts,tsx}`;
+// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{js,ts,tsx}`;
 const TEST_SRC_FILEs_OUT = "./tmp/output";
 
 gulp.task("grmc-test-del", function(cb) {
@@ -388,17 +386,25 @@ gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
     console.log(settings);
     const grmc = require("./src/gulp-rm-cmts");
     const target = settings.grmc? settings.grmc: TEST_SRC_FILEs;
+
+    // default is 8000
+    // grmc.avoidMinified = 0;
     gulp.src(target).pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
          */
-        grmc({ remove_ws: true, report_re_error: false })
+        grmc.getTransformer({
+            remove_ws: true,
+            render_progress: true,
+            // report_re_error: false,
+        })
     )
     // .pipe(rename({ suffix: "-after" }))
     .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
         // notify completion of task.
         cb();
-        console.log("task grmc-test done.");
+        console.log();
+        console.log("task grmc-test done, processed: %s, noops:", grmc.processed, grmc.noops);
     });
 }));
 

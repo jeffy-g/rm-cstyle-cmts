@@ -26,4 +26,4 @@ set latest=12
 rem
 rem ATTENTION: need nodist
 rem
-nodist %old% && npm run bench>./logs/node-old.log && nodist %latest% && npm run bench>./logs/node-latest.log && gulp readme
+nodist %old% && npm run bench>./logs/node-old.log && nodist %latest% && npm run bench>./logs/node-latest.log && npx gulp readme
