@@ -17,7 +17,6 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-
 const rmc = require("../bin/");
 // use "rm-cstyle-cmts"
 // const rmc = require("rm-cstyle-cmts");
@@ -45,13 +44,26 @@ const progress = (msg) => {
     // write the message.
     msg && output.write(msg);
 };
-const shortPath = chunk => {
-    const l = chunk.base.length;
-    return chunk.history[0].substr(l + 1);
-}
+
 
 /**
- * @typedef  {Object} GulpRmcOptions
+ * define need types
+ * 
+ * @typedef {typeof import("stream")} stream
+ * @typedef {typeof import("vinyl")} Vinyl
+ * 
+ * @typedef {Parameters<typeof through.obj>[0]} TransformFunction
+ * @typedef {Parameters<TransformFunction>[2]} TransformCallback
+ */
+"";
+
+/**
+ * @type {string[]}
+ */
+const noopPaths = [];
+
+/**
+ * @typedef  {object} GulpRmcOptions
  * @property {boolean} [remove_ws] remove blank line and whitespaces, default is `true`
  * @property {boolean} [report_re_error] want regex detect error report? default is `undefined`
  * @property {boolean} [render_progress] print current processing file path. default is `undefined`
@@ -67,34 +79,44 @@ const getTransformer = /** @type {(options: GulpRmcOptions) => ReturnType<typeof
         version: rmc.version,
         avoidMinified: rmc.avoidMinified
     });
+
+    let prev_noops = rmc.noops;
     /**
-     * @type {(this: stream.Transform, chunk: any, enc: string, callback: TransformCallback) => void}
+     * @type {(this: stream["Transform"]["prototype"], file: Vinyl["prototype"], enc: string, callback: TransformCallback) => void}
      */
-    const transform = function (chunk, encoding, callback) {
-        if (chunk.isNull()) {
-            return callback(null, chunk);
+    const transform = function (vinyl, encoding, callback) {
+        if (vinyl.isNull()) {
+            return callback(null, vinyl);
         }
-        if (chunk.isStream()) {
+        if (vinyl.isStream()) {
             this.emit("error", new PluginError(PLUGIN_NAME, 'Streams not supported!'));
         }
         // plugin main
-        if (chunk.isBuffer()) {
+        if (vinyl.isBuffer()) {
 
-            render_progress && progress(shortPath(chunk));
+            const shotPath = vinyl.relative;
+            render_progress && progress(shotPath);
             // render_progress && progress(chunk.history[0]);
-            const contents = rmc(chunk.contents.toString(), rm_ws, options.report_re_error);
+            const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
+
+            let noops = rmc.noops;
+            if (prev_noops !== noops) {
+                noopPaths.push(shotPath);
+                prev_noops = noops;
+            }
+
             // Deprecated
             // file.contents = new Buffer(contents);
             // node ^v5.10.0
-            chunk.contents = Buffer.from(contents);
+            vinyl.contents = Buffer.from(contents);
             // // node ^v5.10.0
             // const buf = Buffer.alloc(contents.length);
             // /* const len = */ buf.write(contents, 0);
             // file.contents = buf;
-            return callback(null, chunk);
+            return callback(null, vinyl);
         }
 
-        this.push(chunk);
+        this.push(vinyl);
         callback();
     };
 
@@ -104,21 +126,30 @@ const getTransformer = /** @type {(options: GulpRmcOptions) => ReturnType<typeof
 module.exports = {
     getTransformer,
     /**
-     * get processed count
+     * number of times successfully processed
      */
     get processed() {
         return rmc.processed;
     },
     /**
-     * get processed count
+     * number of times the process was bypassed because the line was too long
      */
     get noops() {
         return rmc.noops;
     },
     /**
-     * @param {boolean} value
+     * get a list of paths whose processing has been bypassed
      */
-    set avoidMinified(value) {
-        rmc.avoidMinified = value;
+    get noopPaths() {
+        return noopPaths;
+    },
+    /**
+     * @param {number} max_line_len
+     */
+    set avoidMinified(max_line_len) {
+        rmc.avoidMinified = max_line_len;
+    },
+    reset() {
+        rmc.reset();
     }
 };

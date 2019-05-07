@@ -27,6 +27,20 @@ limitations under the License.
     /(?:\r\n|\r|\n)\s+(?=(?:\r\n|\r|\n))|\s+(?=(?:\r\n|\r|\n))/g
 */
 
+/*
+- - -
+DEVNOTE: 2019/05/07
+- - -
+
+  Since regex group set can be nested logically without restriction, it is difficult to express as regex.
+
+  Generally, the level of nest is thought to be deep and 3 or 4 but
+  If you try to detect it incorrectly, you will not find the nested regex literal.
+
+  So we dare to avoid defining the regex group set here.
+  *Because of that, false positives increase, but it decides on the idea of cpu cost and the trade off of the complicated code.
+
+*/
 /**
  * `regex summary:`
  * 
@@ -37,20 +51,26 @@ limitations under the License.
 (?<!<)               # avoidance: jsx or tsx start tag, available on node v8.10
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
-  (?:                # start non-capturing group $1
-    \\[\s\S]|        # escaped any character, or
+  (?:                # start non-capturing group $1)
+    \\[\s\S]|        # escaped any character or)
+#    \(              # group set start
+#      (?:           # non-capturing group $2
+#        \\[\s\S]|   # escaped any character or
+#        [^)\r\n\\]  # without group set end, newline, backslash
+#      )*            # end non-capturing group $2, q:0 or more
+#    \)|             # group set end, or
     \[               # class set start
-      (?:            # non-capturing group $2
-        \\[\s\S]|    # without slash, newline, backslash
+      (?:            # non-capturing group $3
+        \\[\s\S]|    # escaped any character or
         [^\]\r\n\\]  # without class set end, newline, backslash
-      )*             # end non-capturing group $2, q:0 or more
+      )*             # end non-capturing group $3, q:0 or more
     \]|              # class set end, or
-    [^\/\r\n\\]      # characters without slash, newline, backslash
+    [^)\]\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
   )+                 # end non-capturing group $1, q:1 or more
 \/                   # regexp literal end@delimiter
-(?:                  # start non-capturing group $3
+(?:                  # start non-capturing group $4
   [gimsuy]{1,6}\b|   # validate regex flags, but this pattern is imcomplete
-)                    # end non-capturing group $3
+)                    # end non-capturing group $4
 (?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
 ```
  * ---
@@ -63,19 +83,25 @@ limitations under the License.
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1
+#    \(              # group set start
+#      (?:           # non-capturing group $2
+#        \\[\s\S]|   # escaped any character or
+#        [^)\r\n\\]  # without group set end, newline, backslash
+#      )*            # end non-capturing group $2, q:0 or more
+#    \)|             # group set end, or
     \[               # class set start
-      (?:            # non-capturing group $2
-        \\[\s\S]|    # without slash, newline, backslash
+      (?:            # non-capturing group $3
+        \\[\s\S]|    # escaped any character or
         [^\]\r\n\\]  # without class set end, newline, backslash
-      )*             # end non-capturing group $2, q:0 or more
+      )*             # end non-capturing group $3, q:0 or more
     \]|              # class set end, or
-    \\[\s\S]|        # escaped any character, or
-    [^\/\r\n\\]      # characters without slash, newline, backslash
+    \\[\s\S]|        # escaped any character or
+    [^)\]\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
   )+                 # end non-capturing group $1, q:1 or more
 \/                   # regexp literal end@delimiter
-(?:                  # start non-capturing group $3
+(?:                  # start non-capturing group $4
   [gimsuy]{1,6}\b|   # validate regex flags, but this pattern is imcomplete
-)                    # end non-capturing group $3
+)                    # end non-capturing group $4
 (?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
 ```
  * ---
@@ -102,12 +128,12 @@ let re_ws_qs_base: RegExp; {
         // *with this new regex feature, you can almost certainly delete blank lines with jsx and tsx sources.
         // NOTE: regexp document -> 190504-rm-cstyle-cmts#debug
         re_ws_qs_base =
-            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/
-            // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/
+            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
+            // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
     } catch (e) {
         re_ws_qs_base =
-            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/
-            // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/
+            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
+            // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
     }
 }
 
@@ -218,9 +244,15 @@ newline$  # last new line
         // const m = RE_NEWLINEs.exec("\r\n");
         // console.log(m[0].charCodeAt(0), m[0].charCodeAt(1));
         const m = RE_NEWLINEs.exec(source);
-        return regexSets[
+        const rset = regexSets[
             convertToIndex(m)
         ];
+        // DEVNOTE: fix: need reset lastIndex
+        rset.re_ws_qs.lastIndex = 0;
+        if (typeof rset.re_first_n_last !== "string") {
+            rset.re_first_n_last.lastIndex = 0
+        }
+        return rset;
     };
 }
 

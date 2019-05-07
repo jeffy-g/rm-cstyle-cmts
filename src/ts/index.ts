@@ -55,8 +55,18 @@ const ws_qs_replacer = (matched: string/*, index: number, inputs: string*/) => {
 // NOTE: this regex seems to be the correct answer...
 };
 
+/**
+ * number of times successfully processed
+ */
 let processed = 0;
+/**
+ * number of times the process was bypassed because the line was too long
+ */
 let unable_to_process = 0;
+
+/**
+ * threshold to avoid processing such as minified source (*line length
+ */
 let avoid_minified = 8000;
 
 // const MAX_LINE = 8000;
@@ -95,14 +105,15 @@ const removeCStyleComments: IRemoveCStyleComments = (
             re_newline.lastIndex = 0;
             let prev = 0;
             while ( re_newline.test(source) ) {
-                if ((re_newline.lastIndex - prev) > avoid_minified) {
+				const lastIndex = re_newline.lastIndex;
+                if ( (lastIndex - prev) > avoid_minified ) {
                     // console.log("detect minified source, cannot proceed process...");
                     // ⛔ ⚠️ 🚸
                     // process.stderr.write(".");
                     unable_to_process++;
                     return source;
                 }
-                prev = re_newline.lastIndex;
+                prev = lastIndex;
                 // console.log(`prev: ${prev}`);
             }
         }
@@ -157,6 +168,14 @@ const removeCStyleComments: IRemoveCStyleComments = (
             get: () => { return processed; },
             enumerable: true,
             configurable: false,
+        },
+        reset: {
+            value: () => {
+                unable_to_process = 0;
+                processed = 0;
+            },
+            configurable: false,
+            writable: false
         }
     }
 );

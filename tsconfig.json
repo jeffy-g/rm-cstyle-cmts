@@ -14,8 +14,6 @@
         // Stylize errors and messages using color and context (experimental).
         "pretty": true,
 
-        "alwaysStrict": true,
-
         "rootDir": "./src/ts",
         "outDir": "./bin",
 
@@ -29,6 +27,8 @@
         "noEmitHelpers": false,
 
         "noImplicitAny": false,
+
+        // "alwaysStrict": true,
         "strict": true,
 
         // "allowJs": true,

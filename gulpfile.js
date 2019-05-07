@@ -287,12 +287,13 @@ gulp.task("webpack", gulp.series("clean", (done) => {
 
 /**
  * task "dist"
+ * without webpack
  */
 gulp.task("dist", gulp.series("rm:nullfile", function(done) {
     _dist(done, DISTRIBUTION_DIR);
 }));
 /**
- * experimental task.  
+ * distribution build task.  
  * optional flag: -no-minify
  */
 gulp.task("dist:pack", gulp.series("webpack", function(done) {
@@ -303,7 +304,7 @@ gulp.task("dist:pack", gulp.series("webpack", function(done) {
     }
 }));
 /**
- * experimental task.  
+ * distribution build task.  
  * optional flag: -no-minify
  */
 gulp.task("dist:packjs", gulp.series("webpack-js", function(done) {
@@ -388,7 +389,7 @@ gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
     const target = settings.grmc? settings.grmc: TEST_SRC_FILEs;
 
     // default is 8000
-    // grmc.avoidMinified = 0;
+    grmc.avoidMinified = 15000;
     gulp.src(target).pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
@@ -405,6 +406,7 @@ gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
         cb();
         console.log();
         console.log("task grmc-test done, processed: %s, noops:", grmc.processed, grmc.noops);
+        console.log("noop paths:", grmc.noopPaths);
     });
 }));
 
