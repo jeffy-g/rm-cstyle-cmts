@@ -249,6 +249,41 @@ class BackQuoteScanner extends CharScannerBase {
     }
 }
 
+// /**
+//  * Simple regex verifier
+//  * 
+//  * perform final verification of misdetected regex literal.  
+//  * surely should be able to beat regex literal without relying on "eval"!
+//  * 
+//  * @param inputs regex literal string.
+//  */
+// const simpleValidateRegex = (inputs: string) => {
+
+//     let groupIndex = 0;
+//     let in_escape = false;
+//     const end = inputs.lastIndexOf("/");
+
+//     for (let i = 1; i < end;) {
+//         const ch = inputs[i++];
+//         if (ch === "\\") {
+//             in_escape = !in_escape;
+//         } else if (!in_escape) {
+//             if (ch === "(") {
+//                 groupIndex++;
+//             } else if (ch === ")") {
+//                 groupIndex--;
+//             }
+
+//             if (groupIndex < 0) {
+//                 return false;
+//             }
+//         } else {
+//             in_escape = false;
+//         }
+//     }
+
+//     return groupIndex === 0;
+// };
 /**
  * when this character appears,  
  * its necessary to verify the line comment, multiline comment, regex.  
@@ -339,6 +374,9 @@ class SlashScanner extends CharScannerBase {
                     // const lx = m[0].lastIndexOf("/");
                     // new RegExp(m[0].substring(1, lx));
                     eval(m[0]);
+					// if (!simpleValidateRegex(m[0])) {
+					// 	throw "🚸";
+					// }
                 } catch (e) {
                     regexErrorReport && console.log("Regex SyntaxError: [%s]", m[0]);
                     return false;

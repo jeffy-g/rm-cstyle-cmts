@@ -45,10 +45,7 @@ declare global {
             report_regex_evaluate_error?: boolean
         ): string;
     }
-    interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig {
-        /** package version */
-        readonly version?: string;
-
+    interface IAvoidance {
         /**
          * **set whether to avoid minified source**.
          * 
@@ -64,22 +61,26 @@ declare global {
          * 
          * default is `8000`
          */
-        avoidMinified?: number;
+        avoidMinified: number;
+    }
+    interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IAvoidance {
+        /** package version */
+        readonly version: string;
 
         /**
          * **If a minified source is detected, the default configuration does nothing**.
          * 
          * number of times the process was bypassed because the line was too long
          */
-        readonly noops?: number;
+        readonly noops: number;
         /**
          * number of times successfully processed
          */
-        readonly processed?: number;
+        readonly processed: number;
         /**
          * reset "noops" and "processed".
          */
-        reset?(): void;
+        reset(): void;
     }
 }
 declare const removeCStyleComments: IRemoveCStyleComments;

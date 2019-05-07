@@ -78,7 +78,7 @@ const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
  * @param rm_blank_line_n_ws 
  * @param report_regex_evaluate_error 
  */
-const removeCStyleComments: IRemoveCStyleComments = (
+const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (
     source: string,
     rm_blank_line_n_ws: boolean = true,
     report_regex_evaluate_error?: boolean
@@ -180,4 +180,4 @@ const removeCStyleComments: IRemoveCStyleComments = (
     }
 );
 
-export = removeCStyleComments;
+export = <IRemoveCStyleComments>removeCStyleComments;

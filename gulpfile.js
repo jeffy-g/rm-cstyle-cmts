@@ -389,7 +389,7 @@ gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
     const target = settings.grmc? settings.grmc: TEST_SRC_FILEs;
 
     // default is 8000
-    grmc.avoidMinified = 15000;
+    // grmc.avoidMinified = 15000;
     gulp.src(target).pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
@@ -397,7 +397,7 @@ gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
         grmc.getTransformer({
             remove_ws: true,
             render_progress: true,
-            // report_re_error: false,
+            // report_re_error: true,
         })
     )
     // .pipe(rename({ suffix: "-after" }))

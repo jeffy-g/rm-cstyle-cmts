@@ -53,19 +53,13 @@ DEVNOTE: 2019/05/07
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1)
     \\[\s\S]|        # escaped any character or)
-#    \(              # group set start
-#      (?:           # non-capturing group $2
-#        \\[\s\S]|   # escaped any character or
-#        [^)\r\n\\]  # without group set end, newline, backslash
-#      )*            # end non-capturing group $2, q:0 or more
-#    \)|             # group set end, or
     \[               # class set start
       (?:            # non-capturing group $3
         \\[\s\S]|    # escaped any character or
         [^\]\r\n\\]  # without class set end, newline, backslash
       )*             # end non-capturing group $3, q:0 or more
     \]|              # class set end, or
-    [^)\]\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
+    [^\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
   )+                 # end non-capturing group $1, q:1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $4
@@ -83,12 +77,6 @@ DEVNOTE: 2019/05/07
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1
-#    \(              # group set start
-#      (?:           # non-capturing group $2
-#        \\[\s\S]|   # escaped any character or
-#        [^)\r\n\\]  # without group set end, newline, backslash
-#      )*            # end non-capturing group $2, q:0 or more
-#    \)|             # group set end, or
     \[               # class set start
       (?:            # non-capturing group $3
         \\[\s\S]|    # escaped any character or
@@ -96,7 +84,7 @@ DEVNOTE: 2019/05/07
       )*             # end non-capturing group $3, q:0 or more
     \]|              # class set end, or
     \\[\s\S]|        # escaped any character or
-    [^)\]\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
+    [^\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
   )+                 # end non-capturing group $1, q:1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $4
@@ -118,6 +106,38 @@ DEVNOTE: 2019/05/07
 ```
  */
 let re_ws_qs_base: RegExp; {
+
+    // DEVNOTE: The suffix "*" indicates the priority.
+    const re_backquoted   = /`(?:\\[\s\S]|[^`])*`/; // ***
+    const re_dbquoted     = /"(?:\\[\s\S]|[^"])*"/; // **
+    const re_singlequoted = /'(?:\\[\s\S]|[^'])*'/; // **
+
+    // NOTE: using regexp document: "js regex literal 2019/05 exactly!!?"
+    const RE_SOURCE = `
+(?<!<)                    # avoidance: jsx or tsx start tag, available on node v8.10
+\\/                       # regexp literal start@delimiter
+  (?![?*+\\/])            # not meta character "?*+/" @anchor
+  (?:                     # start non-capturing group $1
+    \\[                   # class set start
+      (?:                 # non-capturing group $2
+        \\\\[\\s\\S]|     # escaped any character or
+        [^\\]\\r\\n\\\\]  # without class set end, newline, backslash
+      )*                  # end non-capturing group $2, q:0 or more
+    \\]|                  # class set end, or
+    \\\\[\\s\\S]|         # escaped any character or
+    [^\\/\\r\\n\\\\]      # characters without slash, newline, backslash
+  )+                      # end non-capturing group $1, q:1 or more
+\\/                       # regexp literal end@delimiter
+(?:                       # start non-capturing group $3
+  [gimsuy]{1,6}\\b|       # validate regex flags, but this pattern is imcomplete
+)                         # end non-capturing group $3
+(?![?*+\\/\\[\\\\])       # not meta character [?*+/[\\] @anchor ...
+`;
+
+    // regexp document: "use util.getRegexpSource stable version"
+    const re_riteralSource = RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, "");
+
+    let re_RegexLiteral: RegExp; // *
     try {
         // is available "RegExp Lookbehind Assertions"?
         // DEVNOTE: 2019-5-4
@@ -126,15 +146,15 @@ let re_ws_qs_base: RegExp; {
         //   -> node.js seems to be able to use "RegExp Lookbehind Assertions" from v 8.10
         //
         // *with this new regex feature, you can almost certainly delete blank lines with jsx and tsx sources.
-        // NOTE: regexp document -> 190504-rm-cstyle-cmts#debug
-        re_ws_qs_base =
-            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
-            // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
+        // 
+        re_RegexLiteral = new RegExp(re_riteralSource);
     } catch (e) {
-        re_ws_qs_base =
-            /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
-            // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
+        re_RegexLiteral = new RegExp(re_riteralSource.substr(6));
     }
+
+    re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|${re_RegexLiteral.source}`);
+    // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
+    // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
 }
 
 

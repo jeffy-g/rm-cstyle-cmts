@@ -32,17 +32,15 @@ const PLUGIN_NAME = "gulp-rm-cmts";
 
 /**
  * 
- * @param msg 
+ * @param path 
  */
-const progress = (msg) => {
+const progress = (path) => {
     const output = process.stderr;
     // clear the current line
     readline.clearLine(output, 0);
     readline.cursorTo(output, 0/* , void 0 */);
-    // const x = /[\r\n]+/.exec(chunk);
-    // chunk = chunk.substring(0, x.index);
     // write the message.
-    msg && output.write(msg);
+    output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
 };
 
 
@@ -94,14 +92,14 @@ const getTransformer = /** @type {(options: GulpRmcOptions) => ReturnType<typeof
         // plugin main
         if (vinyl.isBuffer()) {
 
-            const shotPath = vinyl.relative;
-            render_progress && progress(shotPath);
+            const shortPath = vinyl.relative;
+            render_progress && progress(shortPath);
             // render_progress && progress(chunk.history[0]);
             const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
 
             let noops = rmc.noops;
             if (prev_noops !== noops) {
-                noopPaths.push(shotPath);
+                noopPaths.push(shortPath);
                 prev_noops = noops;
             }
 

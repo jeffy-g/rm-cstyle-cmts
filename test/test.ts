@@ -1,4 +1,3 @@
-///<reference path="../bin/globals.d.ts"/>
 
 import * as rmc from "../bin/";
 import * as fs from "fs";
@@ -16,11 +15,13 @@ if (!String.prototype.padEnd) {
     };
 }
 
+const customLog = console.log.bind(console.log, "[TEST::]");
+
 function validate(text: string, expectance: string, rm_ws: boolean = void 0, report_regex_evaluate_error?: boolean): void {
     let result = rmc(text, rm_ws, report_regex_evaluate_error);
     console.assert(result === expectance, `failed at case [${text}]`);
     // ✔ :\u2714
-    console.log("\u2714"["green"], `passed: input [${text["cyan"]}],`.padEnd(82), `result [${result["green"]}]`);
+    customLog("\u2714"["green"], `passed: input [${text["cyan"]}],`.padEnd(82), `result [${result["green"]}]`);
 }
 function caseThrow(content: string, msg: string, report_regex_evaluate_error?: boolean) {
     let error: Error = null;
@@ -33,11 +34,11 @@ function caseThrow(content: string, msg: string, report_regex_evaluate_error?: b
         console.info("[message]"["yellow"], e.message);
     }
     console.assert(error instanceof Error, "failed type check...");
-    console.log("\u2714"["green"], `passed: ${msg}`);
+    customLog("\u2714"["green"], `passed: ${msg}`);
 }
 
-console.log("rm-cstyle-cmts, version: %s", rmc.version);
-console.log();
+customLog("rm-cstyle-cmts, version: %s", rmc.version);
+customLog();
 
 // check invalid content, deceive for tsc.
 caseThrow({} as string, "check invalid content");
@@ -52,7 +53,7 @@ caseThrow("const n: number = 1; /", "SlashScanner throw check");
 caseThrow("const n: number = 1; /* comment /", "SlashScanner throw check");
 
 
-console.log();
+customLog();
 
 // case empty string.
 validate("", "");
@@ -114,6 +115,85 @@ validate("const templete = `function ${name}($) {\n\
  }\n\
 ;`");
 
+//
+// case tsx source fragment
+//
+validate(`return <>
+{/* <div id="ccn"/> */}
+<AlertDialog
+    open={open}
+    disAgreeButton={false}
+    mainTitle={\`SPA web - \${Properties.version}\`}
+    messageText={
+    <div /*style={{ backgroundColor: "rgba(238, 238, 238, 0.25)" }}*/>
+        <div className="about-content-header" data-text="Dependencies"/>
+        <div className="notice-sentence" style={{ marginBottom: 14 }}>
+            {depsElementsRef.current}
+        </div>
+
+        <div className="about-content-header" data-text="Shortcut keys"/>
+        <div className="notice-sentence" style={{ marginBottom: 14 }}>
+            {shortCutElementsRef.current}
+        </div>
+
+        <div className="about-content-header" data-text="Apache License"/>
+        <div className="notice-sentence">{\`Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+\`}
+</div>
+        </div>
+        }
+        onCloseHandler={() => setOpenState(false)}
+    />
+    {/* <div className="sde-version" onClick={() => setOpenState(true)}>{Properties.get("sde-version")}</div> */}
+    {VersionElement}
+</>;`, `return <>
+{}
+<AlertDialog
+    open={open}
+    disAgreeButton={false}
+    mainTitle={\`SPA web - \${Properties.version}\`}
+    messageText={
+    <div >
+        <div className="about-content-header" data-text="Dependencies"/>
+        <div className="notice-sentence" style={{ marginBottom: 14 }}>
+            {depsElementsRef.current}
+        </div>
+        <div className="about-content-header" data-text="Shortcut keys"/>
+        <div className="notice-sentence" style={{ marginBottom: 14 }}>
+            {shortCutElementsRef.current}
+        </div>
+        <div className="about-content-header" data-text="Apache License"/>
+        <div className="notice-sentence">{\`Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+\`}
+</div>
+        </div>
+        }
+        onCloseHandler={() => setOpenState(false)}
+    />
+    {}
+    {VersionElement}
+</>;`);
+
 
 // with report_regex_evaluate_error: true
 validate(
@@ -131,8 +211,19 @@ validate(
 
  // for coverage (codecov 
 // const js_source = fs.readFileSync("tmp/rmc-impossible#2.tsx", "utf-8");
-const js_source = fs.readFileSync("./samples/es6.js", "utf-8");
+let js_source = fs.readFileSync("./samples/es6.js", "utf-8");
+customLog();
+customLog("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow);
+let result = rmc(js_source, true, true);
 
-console.log();
-console.log("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow)
-const result = rmc(js_source, true, true);
+js_source = fs.readFileSync("./samples/typeid-map.js", "utf-8");
+customLog();
+customLog("[removing comments of ./samples/typeid-map.js with 'report_regex_evaluate_error' flag]".yellow);
+
+// @ts-ignore 
+rmc.avoidMinified = rmc.avoidMinified - 1;
+console.dir(rmc, { getters: true });
+result = rmc(js_source, true, true);
+customLog("all test done, processed: %s, noops:", rmc.processed, rmc.noops);
+
+rmc.reset();
