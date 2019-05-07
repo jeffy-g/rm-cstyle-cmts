@@ -44,11 +44,14 @@ interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig {
     /**
      * **set whether to avoid minified source**.
      * 
+     *  + threshold to avoid processing such as minified source (line length.  
+     *    this also applies to embedded sourcemaps and so on.
+     * 
      * NOTE: If a minified source is detected, the source is returned without any processing.
      * 
-     * ⚠️ This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
+     * ⚠️This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
      * 
-     * If you know in advance that you do not to handle minified sources,
+     * If you know in advance that you do not to handle minified sources,  
      * setting this value to "0" will be disable this feature.
      * 
      * default is `8000`
@@ -58,13 +61,17 @@ interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig {
     /**
      * **If a minified source is detected, the default configuration does nothing**.
      * 
-     * will be counted at that time.
+     * number of times the process was bypassed because the line was too long
      */
     readonly noops?: number;
     /**
-     * its processed count
+     * number of times successfully processed
      */
     readonly processed?: number;
+    /**
+     * reset "noops" and "processed".
+     */
+    reset?(): void;
 }
 
 module.exports = Object.defineProperties(...) as IRemoveCStyleCommentsModule;
