@@ -35,7 +35,6 @@ import * as readline from "readline";
 
 // NOTE: not necessary in this implementation.
 //  -> found a way for this import statement to work on intellisense.
-// @ts-ignore 
 import * as rmc from "../";
 
 // NOTE: reference to module.exports["default"]

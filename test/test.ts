@@ -15,7 +15,7 @@ if (!String.prototype.padEnd) {
     };
 }
 
-const customLog = console.log.bind(console.log, "[TEST::]");
+const customLog = console.log.bind(console.log, "[:TEST:]");
 
 function validate(text: string, expectance: string, rm_ws: boolean = void 0, report_regex_evaluate_error?: boolean): void {
     let result = rmc(text, rm_ws, report_regex_evaluate_error);
@@ -224,6 +224,6 @@ customLog("[removing comments of ./samples/typeid-map.js with 'report_regex_eval
 rmc.avoidMinified = rmc.avoidMinified - 1;
 console.dir(rmc, { getters: true });
 result = rmc(js_source, true, true);
-console.log("all test done, processed: %s, noops: %s", rmc.processed, rmc.noops);
+customLog(`all test done, processed: ${rmc.processed}, noops: ${rmc.noops}`);
 
 rmc.reset();

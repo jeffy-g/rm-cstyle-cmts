@@ -97,334 +97,111 @@ etc...
 
 ## usage
 
-```js
-var rmc = require("rm-cstyle-cmts");
-var fs = require("fs");
+> #### Case: single line input
 
-var name = "samples/es6";
-var source = fs.readFileSync(`./${name}.js`, 'utf-8');
+  + without regex misdetection
+```js
+const rmc = require("rm-cstyle-cmts");
+const input = "    /** block comment */ const a = \"this is apple! \\n\", b = 'quoted \"strings\"', \
+c = `list:\\n1. \${a}\\n2. \${b}\\n\${ /* comments */ ` - len: \${a.length + b.length}`}\\n ---`;  \
+/* . */  let i = 2, n = 12 / 4 * 7/i; // last coment.  !";
+//                               ^^^
+
+rmc(input, true, true);
+// > const a = "this is apple! \n", b = 'quoted "strings"', c = `list:\n1. ${a}\n2. ${b}\n${ /* comments */ ` - len: ${a.length + b.length}`}\n ---`;    let i = 2, n = 12 / 4 * 7/i;
+```
+
+  + with regex misdetection
+```js
+const rmc = require("rm-cstyle-cmts");
+const input = "    /** block comment */ const a = \"this is apple! \\n\", b = 'quoted \"strings\"', \
+c = `list:\\n1. \${a}\\n2. \${b}\\n\${ /* comments */ ` - len: \${a.length + b.length}`}\\n ---`;  \
+/* . */  let i = 2, n = 12 / 4 * (7/i); // last coment.  !";
+//               misdetection -> ^^^^^
+
+rmc(input, true, true);
+// > Regex SyntaxError: [/ 4 * (7/i]
+// > const a = "this is apple! \n", b = 'quoted "strings"', c = `list:\n1. ${a}\n2. ${b}\n${ /* comments */ ` - len: ${a.length + b.length}`}\n ---`;    let i = 2, n = 12 / 4 * (7/i);
+```
+
+> #### Case: remove comments from file contents
+
+```js
+const rmc = require("rm-cstyle-cmts");
+const fs = require("fs");
+
+const name = "samples/es6";
+const source = fs.readFileSync(`./${name}.js`, 'utf-8');
 
 console.info(" ----------- before contents ----------");
 console.log(source);
 
 // remove blank line and whitespaces.
-var after = rmc(source/*, true*/);
+const after = rmc(source/*, true*/);
 console.info(" ----------- after contents -----------");
 console.log(after);
 
 fs.writeFile(`./${name}-after.js`, after, 'utf-8', function() {
     console.log("data written...");
 });
-
 ```
 
-## then
-
-#### before
-> samples/es6.js
-```javascript
-  
-var i = {} / 10; // -> NaN
-
-{ i = "aaa\"" } /aaa/.test(i);
-var i = 10000 / 111.77; /[/*]/.test(i); // */
-
-/* comments */var i = 10000 / 111.77; /\][/*]/.test(i); // */
-
-[/\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/];
-
-
-let gg = 10;
-var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
-//             ^-------------^ <- this case is match. but, not regexp literal
-//                 skip to -->^
-//            line comment start -->^ <- parse by class SlashVisitor
-
-// in this case, correctly detects.
-const re4 = /\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/ /* comments...*/
-
-let ok2 = 12.2 / 33 * .9 // "comments"...*/
-//             ^ <- parse by class SlashVisitor
-//                        ^---------------^ <- will recognize as regexp literal ...
-//                       ^ however, since its actually a line comment, deleted from this position to the end of the line.
-
-let ok3 = 12.2 / 33 * .9/* comments...*/
-//             ^ <- parse by class SlashVisitor, in this case it can be correctly judged that it is not regexp literal.
-//                      ^ <- parse by class SlashVisitor, Its recognized and deleted as multiline comment.
-
-// ↓ parse by class SlashVisitor
-/**
- * triple nested es6 template string.
- */
-const test_text = `:Key Binding:${ 234 }}
-//                ^  <- parse by class BackQuoteVistor
-}
-about                   [alt+A]
-    ${
-    "nest-1:" + `:Key Binding:${ 234 }}
-    }
-
-        ${
-
-            // comment line...
-            "nest-2:" + `:Key Binding:${ `let abc = ${
-                Boolean("")
-            }` }}
-            }
-
-                // comment line in backquote
-                ${
-
-                    /**
-                    * triple nested es6 template string.
-                    */
-
-                    "nest-3:" + `:Key Binding:${ 234 }}
-                    }
-
-                    // comment line in backquote
-                    :On comment:\`\  \"\`\"\\
-
-                    ------------------------------[ X ]`
-                }
-            :On comment:\`\  \"\`\"\\
-
-            ------------------------------[ X ]`
-        }
-    :On comment:\`\  \"\`\"\\
-
-    ------------------------------[ X ]`
-
-    // comment line...
-    }
-:On comment:\`\  \"\`\"\\
-
-------------------------------[ X ]`;
-  
-     
-     ;
-/**
-* block comment.
-*/// test
-const $3 = { keyCode: $1, key: "$5\"this is\
-                               ^  <- parse by class QuoteVistor\
-test" };
-
-const gm = 234;
-  ; ;; ;
-
-var i = 100 / 10 * 123.555/gm; // comment line
-//          ^  <- parse by class SlashVisitor
-
-var HTMLIZE_TEXT = {
-  title: `/anything/g`,
-  //     ^  <- parse by class BackQuoteVistor
-  description: '--- nothing ---',
-  //           ^  <- parse by class QuoteVistor
-  qre: "/(<button)\\s+([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*(>.*<\\/button>)/g.toString()",
-//     ^  <- parse by class QuoteVistor
-  re: /(<button)\s+([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:=`[^`]+`)?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*(>.*<\/button>)/g.toString(),
-//    ^  <- parse by class SlashVisitor. this regexp literal although contains quote character, since it is correctly recognized as regexp literal, can avoid parse by quotevisitor. 
-
-  ere: `(^:[\\w ]+:\$)|           (?#heading text)
-(^[\\w ]+)(\\[[\\w\\+]+\\])| (?#text item)
-(?:([\\-]+)(\\[ X \\]))    (?#emulate close button)`,
-  
-  flags: "",
-  test_text: `:Key Binding:{}
-}
-
-:On comment:\`\  \"\`\"\\
-------------------------------[ X ]`,
-  test_textQ: ":Key Binding:\
-\
-:On comment:\`\  \"\`\"\
-------------------------------[ X ]",
-  test_textS: ':Key Binding:\
-\
-:On comment:\`\ \' \"\`\"\
-------------------------------[ X ]',
-  timestamp: 1499535241972
-};
-         
-let name = "apple";           
-// comment line.       
-const templete = `function ${name}($) {
-   // comment line.
-   var some = ${
-   // comment line #2...
-   `12.5 / 50 * 100,
-
-   // might be a very important comment line.
-   things = "${ name + `anything` }",
-   obj={ "\\\\": null }`
-
-   }, unused = \`length is ${name.length}\` || undefined;
-   /**
-    * multi line comment...
-    */
-   return true;
-}
-`;     
-
-; /* ... */
-  
-
-```
-#### after
-> samples/es6-after.js
-```javascript
-var i = {} / 10;
-{ i = "aaa\"" } /aaa/.test(i);
-var i = 10000 / 111.77; /[/*]/.test(i);
-var i = 10000 / 111.77; /\][/*]/.test(i);
-[/\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/];
-let gg = 10;
-var re = 10000 / 111.77*gg /gg;;;;
-const re4 = /\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/
-let ok2 = 12.2 / 33 * .9
-let ok3 = 12.2 / 33 * .9
-const test_text = `:Key Binding:${ 234 }}
-//                ^  <- parse by class BackQuoteVistor
-}
-about                   [alt+A]
-    ${
-    "nest-1:" + `:Key Binding:${ 234 }}
-    }
-        ${
-            // comment line...
-            "nest-2:" + `:Key Binding:${ `let abc = ${
-                Boolean("")
-            }` }}
-            }
-
-                // comment line in backquote
-                ${
-
-                    /**
-                    * triple nested es6 template string.
-                    */
-
-                    "nest-3:" + `:Key Binding:${ 234 }}
-                    }
-                    // comment line in backquote
-                    :On comment:\`\  \"\`\"\\
-
-                    ------------------------------[ X ]`
-                }
-            :On comment:\`\  \"\`\"\\
-
-            ------------------------------[ X ]`
-        }
-    :On comment:\`\  \"\`\"\\
-
-    ------------------------------[ X ]`
-    // comment line...
-    }
-:On comment:\`\  \"\`\"\\
-
-------------------------------[ X ]`;
-     ;
-const $3 = { keyCode: $1, key: "$5\"this is\
-                               ^  <- parse by class QuoteVistor\
-test" };
-const gm = 234;
-  ; ;; ;
-var i = 100 / 10 * 123.555/gm;
-var HTMLIZE_TEXT = {
-  title: `/anything/g`,
-  description: '--- nothing ---',
-  qre: "/(<button)\\s+([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*(>.*<\\/button>)/g.toString()",
-  re: /(<button)\s+([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:=`[^`]+`)?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*(>.*<\/button>)/g.toString(),
-  ere: `(^:[\\w ]+:\$)|           (?#heading text)
-(^[\\w ]+)(\\[[\\w\\+]+\\])| (?#text item)
-(?:([\\-]+)(\\[ X \\]))    (?#emulate close button)`,
-  flags: "",
-  test_text: `:Key Binding:{}
-}
-
-:On comment:\`\  \"\`\"\\
-------------------------------[ X ]`,
-  test_textQ: ":Key Binding:\
-\
-:On comment:\`\  \"\`\"\
-------------------------------[ X ]",
-  test_textS: ':Key Binding:\
-\
-:On comment:\`\ \' \"\`\"\
-------------------------------[ X ]',
-  timestamp: 1499535241972
-};
-let name = "apple";
-const templete = `function ${name}($) {
-   // comment line.
-   var some = ${
-   // comment line #2...
-   `12.5 / 50 * 100,
-   // might be a very important comment line.
-   things = "${ name + `anything` }",
-   obj={ "\\\\": null }`
-
-   }, unused = \`length is ${name.length}\` || undefined;
-   /**
-    * multi line comment...
-    */
-   return true;
-}
-`;
-;
-```
 ## performance
 
++ performance bench of "samples/es6.js"
+```bash
+npm run bench
+```
+
 > es6.js 4,509 bytes,  
-> with remove blank line and whitespaces and without (at node v12.1.0, intel core i5-2500k 3.3ghz
+> with remove blank line and whitespaces and without (at node v12.2.0, intel core i5-2500k 3.3ghz
 
 ```ts
-> rm-cstyle-cmts@1.6.2 bench
+> rm-cstyle-cmts@1.6.3 bench
 > node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p
 
-v12.1.0
+v12.2.0
 
 ✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
-✔ order => version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-✔ order => version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+✔ order => version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+✔ order => version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 64.814015%
-[version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 205.401100 ms, total average for each run: 0.102701 ms
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 53.073341%
+[version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
+    average of entries: 142.834800 ms, total average for each run: 0.071417 ms
 }
-[version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 133.128700 ms, total average for each run: 0.066564 ms
+[version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
+    average of entries: 75.807200 ms, total average for each run: 0.037904 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
-version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 217.384ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 202.470ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 203.130ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 207.939ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 204.259ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 204.742ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 203.466ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 203.212ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 204.039ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 203.370ms
+version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=true, loop=2000: 158.195ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 141.063ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 139.932ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 142.496ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 140.510ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 139.869ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 139.568ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 140.185ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 145.671ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 140.859ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
-version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 134.044ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 132.542ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 132.658ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 132.975ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 136.530ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 133.363ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 132.629ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 132.151ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 132.190ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 132.205ms
+version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=false, loop=2000: 76.184ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 75.679ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 76.685ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 75.366ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 75.282ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 75.228ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 76.572ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 74.977ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 75.410ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 76.689ms
  ------------------------ end benchmark ------------------------
 --done--
 es6-rm_ws-true.js written...
@@ -433,55 +210,55 @@ es6-rm_ws-false.js written...
 
 > at node v8.4.0
 ```ts
-> rm-cstyle-cmts@1.6.2 bench
+> rm-cstyle-cmts@1.6.3 bench
 > node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p
 
 v8.4.0
 
 ✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
-✔ order => version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-✔ order => version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+✔ order => version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+✔ order => version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 70.043910%
-[version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 234.546300 ms, total average for each run: 0.117273 ms
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 65.375017%
+[version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
+    average of entries: 202.428400 ms, total average for each run: 0.101214 ms
 }
-[version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 164.285400 ms, total average for each run: 0.082143 ms
+[version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
+    average of entries: 132.337600 ms, total average for each run: 0.066169 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
-version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 242.339ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 232.450ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 232.841ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 230.930ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 230.283ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 229.783ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 237.869ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 247.489ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 230.728ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 230.751ms
+version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=true, loop=2000: 213.710ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 197.377ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 200.507ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 207.434ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 211.632ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 197.987ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 196.946ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 202.616ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 197.107ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 198.968ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
-version: 1.6.2, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 164.135ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 163.573ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 163.755ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 163.519ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 163.465ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 163.445ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 166.117ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 165.381ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 165.436ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 164.028ms
+version: 1.6.3, case: { source: es6.js@4,509 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=false, loop=2000: 135.927ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 132.548ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 134.264ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 130.258ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 133.931ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 131.831ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 133.620ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 130.504ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 131.266ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 129.227ms
  ------------------------ end benchmark ------------------------
 --done--
-es6-rm_ws-true.js written...
 es6-rm_ws-false.js written...
+es6-rm_ws-true.js written...
 ```
 
 ## Regarding Verification of Regular Expression Literals:

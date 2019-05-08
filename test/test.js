@@ -15,7 +15,7 @@ if (!String.prototype.padEnd) {
         return this + str;
     };
 }
-var customLog = console.log.bind(console.log, "[TEST::]");
+var customLog = console.log.bind(console.log, "[:TEST:]");
 function validate(text, expectance, rm_ws, report_regex_evaluate_error) {
     if (rm_ws === void 0) { rm_ws = void 0; }
     var result = rmc(text, rm_ws, report_regex_evaluate_error);
@@ -117,6 +117,6 @@ customLog("[removing comments of ./samples/typeid-map.js with 'report_regex_eval
 rmc.avoidMinified = rmc.avoidMinified - 1;
 console.dir(rmc, { getters: true });
 result = rmc(js_source, true, true);
-customLog("all test done, processed: %s, noops:", rmc.processed, rmc.noops);
+customLog("all test done, processed: " + rmc.processed + ", noops: " + rmc.noops);
 rmc.reset();
 //# sourceMappingURL=test.js.map

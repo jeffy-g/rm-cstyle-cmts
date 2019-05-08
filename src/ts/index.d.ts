@@ -81,6 +81,18 @@ declare global {
          * reset "noops" and "processed".
          */
         reset(): void;
+		/**
+		 * 
+		 */
+		getDetectedReContext(): DetectedReContext;
+    }
+
+	/**
+	 *
+	 */
+    interface DetectedReContext {
+        detectedReLiterals: string[];
+        evaluatedLiterals: number;
     }
 }
 declare const removeCStyleComments: IRemoveCStyleComments;

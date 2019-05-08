@@ -97,40 +97,119 @@ etc...
 
 ## usage
 
-```js
-var rmc = require("rm-cstyle-cmts");
-var fs = require("fs");
+> #### Case: single line input (js)
 
-var name = "samples/es6";
-var source = fs.readFileSync(`./${name}.js`, 'utf-8');
+  + without regex misdetection
+```js
+const rmc = require("rm-cstyle-cmts");
+const input = "    /** block comment */ const a = \"this is apple! \\n\", b = 'quoted \"strings\"', \
+c = `list:\\n1. \${a}\\n2. \${b}\\n\${ /* comments */ ` - len: \${a.length + b.length}`}\\n ---`;  \
+/* . */  let i = 2, n = 12 / 4 * 7/i; // last coment.  !";
+//                               ^^^
+
+const result = rmc(input, true, true);
+console.log(result);
+//> const a = "this is apple! \n", b = 'quoted "strings"', c = `list:\n1. ${a}\n2. ${b}\n${ /* comments */ ` - len: ${a.length + b.length}`}\n ---`;    let i = 2, n = 12 / 4 * 7/i;
+```
+
+  + with regex misdetection
+```js
+const rmc = require("rm-cstyle-cmts");
+const input = "    /** block comment */ const a = \"this is apple! \\n\", b = 'quoted \"strings\"', \
+c = `list:\\n1. \${a}\\n2. \${b}\\n\${ /* comments */ ` - len: \${a.length + b.length}`}\\n ---`;  \
+/* . */  let i = 2, n = 12 / 4 * (7/i); // last coment.  !";
+//               misdetection -> ^^^^^
+
+const result = rmc(input, true, true);
+console.log(result);
+//> Regex SyntaxError: [/ 4 * (7/i]
+//> const a = "this is apple! \n", b = 'quoted "strings"', c = `list:\n1. ${a}\n2. ${b}\n${ /* comments */ ` - len: ${a.length + b.length}`}\n ---`;    let i = 2, n = 12 / 4 * (7/i);
+```
+
+> #### Case: json source
+```js
+const rmc = require("rm-cstyle-cmts");
+const input = `// see: http://json.schemastore.org/tsconfig
+{
+  "compilerOptions": {
+    /* Basic Options */
+    "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
+    "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
+    // "allowJs": true,                       /* Allow javascript files to be compiled. */
+    // "checkJs": true,                       /* Report errors in .js files. */
+    // "declaration": true,                   /* Generates corresponding '.d.ts' file. */
+    // "sourceMap": true,                     /* Generates corresponding '.map' file. */
+    // "outFile": "./",                       /* Concatenate and emit output to single file. */
+    // "outDir": "./",                        /* Redirect output structure to the directory. */
+
+    /* Strict Type-Checking Options */
+    "strict": true,                           /* Enable all strict type-checking options. */
+    // "strictNullChecks": true,              /* Enable strict null checks. */
+    // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
+
+    /* Additional Checks */
+    // "noUnusedLocals": true,                /* Report errors on unused locals. */
+    // "noUnusedParameters": true,            /* Report errors on unused parameters. */
+
+    /* Module Resolution Options */
+    // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
+    // "typeRoots": [],                       /* List of folders to include type definitions from. */
+    "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+
+    /* Experimental Options */
+    // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
+    // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
+  },
+  "files": [
+    "y"
+  ]
+}`;
+
+const result = rmc(input, true, true);
+console.log(result);
+//> {
+//>   "compilerOptions": {
+//>     "target": "es5",
+//>     "module": "commonjs",
+//>     "strict": true,
+//>     "esModuleInterop": true
+//>   },
+//>   "files": [
+//>     "y"
+//>   ]
+//> }
+
+```
+
+
+> #### Case: remove comments from file contents (js, jsx, ts, tsx)
+
+```js
+const rmc = require("rm-cstyle-cmts");
+const fs = require("fs");
+
+const name = "samples/es6";
+const source = fs.readFileSync(`./${name}.js`, 'utf-8');
 
 console.info(" ----------- before contents ----------");
 console.log(source);
 
-// remove blank line and whitespaces.
-var after = rmc(source/*, true*/);
+// remove blank line and whitespaces. (default: true)
+const after = rmc(source/*, true*/);
 console.info(" ----------- after contents -----------");
 console.log(after);
 
 fs.writeFile(`./${name}-after.js`, after, 'utf-8', function() {
     console.log("data written...");
 });
-
 ```
 
-## then
-
-#### before
-> samples/es6.js
-```javascript
-@BEFORE
-```
-#### after
-> samples/es6-after.js
-```javascript
-@AFTER
-```
 ## performance
+
++ performance bench of "samples/es6.js"
+```bash
+npm run bench
+```
 
 > es6.js @SIZE bytes,  
 > with remove blank line and whitespaces and without (at node @NODE_LATEST_V, intel core i5-2500k 3.3ghz

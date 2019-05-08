@@ -1,0 +1,143 @@
+/*!
+-----------------------------------------------------------------------
+
+Copyright 2019 jeffy-g hirotom1107@gmail.com
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+------------------------------------------------------------------------
+*/
+"use strict";
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//                                imports.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const del = require("del");
+const gulp = require("gulp");
+const utils = require("./utils");
+
+const grmc = require("../src/gulp-rm-cmts");
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//                            constants, types
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// const TEST_SRC_PREFIX = "./tmp/ts/**/*";
+// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
+const TEST_SRC_PREFIX = "./node_modules/**/";
+const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}{*,\.*,\.*/*}`;
+
+// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}*.{js,jsx,ts,tsx}`;
+
+// const TEST_SRC_FILEs_OUT = "x-node_modules";
+const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//                         module vars, functions.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// if need optional parametar.
+const settings = utils.getExtraArgs({ startIndex: 2 });
+
+const cleanUpResults = (cb) => {
+    del.sync(TEST_SRC_FILEs_OUT, { force: true });
+    cb();
+};
+
+// tree node_modules > nm-tree.txt && tree ..\grmc-tmp\output > output-tree.txt
+// --------------------------------------------- [gulp-rm-cmts test]
+// sample webpack: avoidMinified = 76944;
+// npm run batch-rmc-test -- -paths "['./tmp/webpack.js', './tmp/webpack-cr.js', './tmp/webpack-crlf.js']"
+
+// npm run batch-rmc-test -- -paths tmp/rmc-impossible.tsx
+// npm run batch-rmc-test -- -paths tmp/rmc-impossible#2.tsx
+/**
+ * ✅ check at own environment
+ * 
+ * 1. npm run batch-rmc-test
+ * 2.
+ *   + search on vscode:
+ *      search   - ^\s*$
+ *      includes - ./tmp/output/*
+ *
+ *   + grep ^\s*$ tmp/output -rl (or -rC 1
+ * 
+ * 3. Is the blank line found only inside the backquoted string? grep ^\s*$ tmp/output -rC 1
+ */
+const grmcBatchTest = (cb) => {
+
+    console.log(settings);
+    const target = settings.paths? settings.paths: TEST_SRC_FILEs;
+	const rmc = grmc.getRmcInterface();
+
+    // default is 8000, own environment: time spent about 25sec
+	// - - - example result: (default) - - - 
+	//
+	// [batch-rmc-test]: 24873.684ms
+	//
+	// task grmc-test done, processed: 4386, noops: 49
+    // detected regex literals: [
+	// ...
+	// ]
+	// detected regex count: 2874
+	// evaluated literals: 0
+	//
+
+	// - - - example result: (rmc.avoidMinified = 15000) - - - 
+	//
+	// [batch-rmc-test]: 25413.670ms
+	//
+	// task grmc-test done, processed: 4402, noops: 33
+    // detected regex literals: [
+	// ...
+	// ]
+	// detected regex count: 3057
+	// evaluated literals: 0
+	//
+    //rmc.avoidMinified = 15000;
+
+    gulp.src(target).pipe(
+        /**
+         * remove_ws : remove whitespace and blank lines.
+         */
+        grmc.getTransformer({
+            remove_ws: true,
+            render_progress: true,
+            // report_re_error: true,
+        })
+    )
+    // .pipe(rename({ suffix: "-after" }))
+    .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
+
+        console.log("\n");
+        // notify completion of task.
+        cb();
+
+        console.log();
+        console.log("task grmc-test done, processed: %s, noops:", rmc.processed, rmc.noops);
+        console.log("noop paths:", grmc.noopPaths);
+		const context = rmc.getDetectedReContext();
+        // console.log("detected regex literals:", context.detectedReLiterals);
+        console.log("detected regex count:", context.detectedReLiterals.length);
+        console.log("evaluated regex literals:", context.evaluatedLiterals);
+    });
+};
+
+console.log(process.argv);
+
+// step 1. cleanup prev output
+console.time("[remove-output]");
+cleanUpResults(() => console.timeEnd("[remove-output]"));
+
+// step 2. fire gulp-rm-cmts test process
+console.time("[batch-rmc-test]");
+grmcBatchTest(() => console.timeEnd("[batch-rmc-test]"));
+

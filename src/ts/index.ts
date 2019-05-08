@@ -69,6 +69,11 @@ let unable_to_process = 0;
  */
 let avoid_minified = 8000;
 
+const withNoop = <T>(contents: T) => {
+    unable_to_process++;
+    return contents;
+}
+
 // const MAX_LINE = 8000;
 const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
 
@@ -78,7 +83,8 @@ const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
  * @param rm_blank_line_n_ws 
  * @param report_regex_evaluate_error 
  */
-const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (
+// @ts-ignore 
+const removeCStyleComments: IRemoveCStyleComments = (
     source: string,
     rm_blank_line_n_ws: boolean = true,
     report_regex_evaluate_error?: boolean
@@ -86,6 +92,10 @@ const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
+    }
+    if (source.length === 0) {
+        // DEVNOTE: whether return same reference or return new empty string
+        return source; // "";
     }
 
     AVOID_MINFIED: {
@@ -103,28 +113,68 @@ const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (
 
             // const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
             re_newline.lastIndex = 0;
+			// DEVNOTE: check the single line input
+			if (!re_newline.test(source) && avoid_minified < source.length) {
+				console.log();
+				// 🚸
+                console.log("\u{1F6B8} AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
+                return source;
+			}
+
             let prev = 0;
-            while ( re_newline.test(source) ) {
+            do {
 				const lastIndex = re_newline.lastIndex;
                 if ( (lastIndex - prev) > avoid_minified ) {
                     // console.log("detect minified source, cannot proceed process...");
                     // ⛔ ⚠️ 🚸
                     // process.stderr.write(".");
-                    unable_to_process++;
-                    return source;
+                    return withNoop(source);
                 }
                 prev = lastIndex;
                 // console.log(`prev: ${prev}`);
+            } while ( re_newline.test(source) );
+            
+            if ( (source.length - prev) > avoid_minified ) {
+                return withNoop(source);
             }
+
+            // // const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
+            // re_newline.lastIndex = 0;
+            // let prev = 0;
+            // while ( re_newline.test(source) ) {
+			// 	const lastIndex = re_newline.lastIndex;
+            //     if ( (lastIndex - prev) > avoid_minified ) {
+            //         // console.log("detect minified source, cannot proceed process...");
+            //         // ⛔ ⚠️ 🚸
+            //         // process.stderr.write(".");
+            //         unable_to_process++;
+            //         return source;
+            //     }
+            //     prev = lastIndex;
+            //     // console.log(`prev: ${prev}`);
+            // }
+			// // DEVNOTE: check the single line input
+			// if (!re_newline.test(source)) {
+			// 	console.log();
+            //     console.log("🚸 AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
+			// }
         }
     }
 
     if (typeof report_regex_evaluate_error === "boolean") {
         Replacer.regexErrorReportEnable(report_regex_evaluate_error);
     }
+
     // Is nearly equal processing speed?
     // const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-    source = Replacer.apply(source);
+
+    // source = Replacer.apply(source);
+    try {
+        source = Replacer.apply(source);
+    } catch (e) {
+        console.warn("\n::[Exception occured] The input source will be returned without any processing.");
+        return withNoop(source);
+    }
 
     processed++;
     if (!rm_blank_line_n_ws) {
@@ -176,8 +226,15 @@ const removeCStyleComments: IRemoveCStyleCommentsTypeSig = (
             },
             configurable: false,
             writable: false
-        }
+        },
+		getDetectedReContext: {
+            value: () => {
+                return Replacer.getDetectedReContext();
+            },
+            configurable: false,
+            writable: false
+        },
     }
 );
 
-export = <IRemoveCStyleComments>removeCStyleComments;
+export = removeCStyleComments;

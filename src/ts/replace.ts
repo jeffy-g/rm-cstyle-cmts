@@ -17,7 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-/** buildWsQsReRegexp, RE_NEWLINEs */
+/** RE_NEWLINEs */
 import * as reutil from "./reutil";
 
 
@@ -27,7 +27,19 @@ export interface IReplaceFrontEnd {
      * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
      */
     apply(source: string): string;
+    /**
+     * 
+     * @param enable 
+     */
     regexErrorReportEnable(enable: boolean): void;
+    /**
+     * 
+     */
+    getDetectedReContext(): DetectedReContext;
+    /**
+     * 
+     */
+    reset(): void;
 }
 
 interface IReplacementContext {
@@ -249,41 +261,63 @@ class BackQuoteScanner extends CharScannerBase {
     }
 }
 
-// /**
-//  * Simple regex verifier
-//  * 
-//  * perform final verification of misdetected regex literal.  
-//  * surely should be able to beat regex literal without relying on "eval"!
-//  * 
-//  * @param inputs regex literal string.
-//  */
-// const simpleValidateRegex = (inputs: string) => {
+/**
+ * Simple regex verifier
+ * 
+ * + perform verification of regex literal.
+ * 
+ * NOTE:
+ *  + here is only validate the placement of "(" and ")" briefly.  
+ *  **this will be avoid the costly "eval" quite a number of times**.
+ * 
+ * @param inputs regex literal string.
+ */
+const simpleRegexVerify = (inputs: string) => {
 
-//     let groupIndex = 0;
-//     let in_escape = false;
-//     const end = inputs.lastIndexOf("/");
+    let groupIndex = 0;
+    let in_escape = false;
+	let in_class = 0;
+    const end = inputs.lastIndexOf("/");
 
-//     for (let i = 1; i < end;) {
-//         const ch = inputs[i++];
-//         if (ch === "\\") {
-//             in_escape = !in_escape;
-//         } else if (!in_escape) {
-//             if (ch === "(") {
-//                 groupIndex++;
-//             } else if (ch === ")") {
-//                 groupIndex--;
-//             }
+    for (let i = 1; i < end;) {
+        const ch = inputs[i++];
+        if (ch === "\\") {
+            in_escape = !in_escape;
+        } else if (!in_escape) {
+            if (ch === "(") {
+                !in_class && groupIndex++;
+            } else if (ch === ")") {
+                !in_class && groupIndex--;
+            } else if (ch === "[") {
+                in_class = 1;
+            } else if (ch === "]") {
+                in_class = 0;
+            }
 
-//             if (groupIndex < 0) {
-//                 return false;
-//             }
-//         } else {
-//             in_escape = false;
-//         }
-//     }
+            if (groupIndex < 0) {
+                return false;
+            }
+        } else {
+            in_escape = false;
+        }
+    }
 
-//     return groupIndex === 0;
-// };
+    return groupIndex === 0;
+};
+
+
+const detectedReLiterals: string[] = [];
+let evaluatedLiterals = 0;
+
+/**
+ * regex caceh
+ */
+const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
+/**
+ * regex caceh
+ */
+const re_tsref = /\/\/\/ <reference/g;
+
 /**
  * when this character appears,  
  * its necessary to verify the line comment, multiline comment, regex.  
@@ -311,7 +345,9 @@ class SlashScanner extends CharScannerBase {
             // return false;
         }
 
-        // check multiline comment.
+		//
+        // - - - check multiline comment. - - -
+		//
         if (ch === "*") {
             const close = source.indexOf("*/", index + 2);
             // // update offset.(implicit bug at here
@@ -333,23 +369,38 @@ class SlashScanner extends CharScannerBase {
         // limitation.
         const length = source.length;
 
-        /*L:*/ do {
+        /*L: do*/ {
+
+            // NOTE: It was necessary to extract the character strings of the remaining lines...
+            const remaining = source.substring(index, x === -1? length: x);
+
+			//
+            // - - - check ts reference tag or line comment - - -
+			//
             // check line comment.
             if (ch === "/") {
-                // update offset. when new line character not found(eof) then...
-                context.offset = x === -1? length: x + context.newline.length;
-                // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
-                x === -1 || (context.result += context.newline);
-                return true;
+				// update offset. when new line character not found(eof) then...
+				context.offset = x === -1? length: x + context.newline.length;
+				// reset lastIndex
+				re_tsref.lastIndex = 0;
+				if (!re_tsref.test(remaining)) { // avoid line comment
+					// NOTE: avoid extra loops in ReplaceFrontEnd.apply()
+					x === -1 || (context.result += context.newline);
+				} else { // avoid ts reference tag
+					context.result += source.substring(index, context.offset);
+				}
+				return true;
             }
 
-            // ------------------- check regexp literal -------------------
-            // NOTE: It was necessary to extract the character strings of the remaining lines...
-            // const x = m? m.index: length;
-            const remaining = source.substring(index, x === -1? length: x);
+			//
+            // - - - check regexp literal - - -
+			//
             // NOTE: LF does not have to worry.
             // NOTE: need lastIndex property, must add "g" flag.
-            const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
+            //const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
+			// reset lastIndex
+			re_re.lastIndex = 0;
+
             // const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
             // const re_re = /\/(?![?*+\/])(?:[^\/\r\n\\]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
             // const re_re = /\/(?![?*+\/])(?:[^\/\r\n\\]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
@@ -361,33 +412,45 @@ class SlashScanner extends CharScannerBase {
 
             // means line comment.
             if (remaining[m.index - 1] === "/") {
-                ch = "/";
+                //ch = "/";
                 context.result += source.substring(index, index + m.index - 1);
+
+                // update offset. when new line character not found(eof) then...
+                context.offset = x === -1? length: x + context.newline.length;
+                // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
+                x === -1 || (context.result += context.newline);
+                return true;
+
                 // console.log(`${SlashScanner.constructor.name}::scan.remaining[m.index - 1] === "/"`);
                 // jump to "L", and apply remaining process. (ch === "/"
                 // continue L;
             } else {
                 // DEVNOTE: the eval function can almost certainly detect regexp literal.
+                const re_literal = m[0];
                 try {
                     // DEVNOTE: performance will be worse than "evel", and regex can not be detected accurately
                     // tslint:disable-next-line
                     // const lx = m[0].lastIndexOf("/");
                     // new RegExp(m[0].substring(1, lx));
-                    eval(m[0]);
-					// if (!simpleValidateRegex(m[0])) {
-					// 	throw "🚸";
-					// }
+                    // eval(m[0]);
+					if (!simpleRegexVerify(re_literal)) {
+						// throw "🚸";
+                        eval(re_literal);
+                        evaluatedLiterals++;
+					}
                 } catch (e) {
-                    regexErrorReport && console.log("Regex SyntaxError: [%s]", m[0]);
+                    regexErrorReport && console.log("Regex SyntaxError: [%s]", re_literal);
                     return false;
                 }
+
+				detectedReLiterals.push(re_literal);
                 // update offset.
                 context.offset = index + re_re.lastIndex; // "g" flag.
                 context.result += source.substring(index, context.offset);
                 return true;
             }
 
-        } while (true);
+        } //while (true);
         // unreachable...
         // return false;
     }
@@ -537,6 +600,16 @@ namespace ReplaceFrontEnd {
         regexErrorReport = enable;
     };
 
+	export const getDetectedReContext = () => {
+		return {
+            detectedReLiterals,
+            evaluatedLiterals
+        };
+    };
+    export const reset = () => {
+        detectedReLiterals.length = 0;
+        evaluatedLiterals = 0;
+    }
 }
 
 /**

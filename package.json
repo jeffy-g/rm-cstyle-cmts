@@ -1,18 +1,22 @@
 {
     "name": "rm-cstyle-cmts",
-    "version": "1.6.2",
+    "version": "1.6.3",
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
     "typings": "./bin/index.d.ts",
     "scripts": {
+        "start": "npm run build && npm run bench",
         "lint": "tslint src/**/*.ts -p tsconfig.json --project",
         "test": "bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\" && istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
         "bench2": "node -v && bash ./scripts/extra-bench.sh",
+        "batch-rmc-test": "node scripts/batch-rmc-test",
         "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 2000 -ol 10 && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
-        "build": "gulp rm:nullfile",
-        "dist": "gulp dist:pack"
+        "build": "npx gulp rm:nullfile",
+        "dist:nopack": "npx gulp dist",
+        "dist": "npx gulp dist:pack",
+        "grmc:comp": "tsc -t es2015 -m commonjs --removecomments true src/gulp-rm-cmts.ts"
     },
     "repository": {
         "type": "git",
@@ -35,7 +39,9 @@
     "license": "Apache-2.0",
     "devDependencies": {
         "@types/node": "^12.0.0",
-        "codecov": "^3.3.0",
+        "@types/through2": "^2.0.34",
+        "@types/vinyl": "^2.0.3",
+        "codecov": "^3.4.0",
         "colors": "^1.3.3",
         "del": "^4.1.0",
         "gulp": "^4.0.2",

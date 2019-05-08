@@ -74,7 +74,7 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
  * @param {() => void} done gulp callback function.
  */
 function _del_hook(globs, done) {
-    del(globs).then(paths => {
+    del(globs, { force: true }).then(paths => {
         console.log(`Deleted files and folders:\n${paths.join("\n")}`);
         // notify completion of task.
         done && done();
@@ -176,7 +176,7 @@ function _remove_un_js(done) {
 function _dist(done, dest) {
     gulp.src([
         "LICENSE", "package.json", "README.md", "samples/!(core*)",
-        "test/test.js",
+        "test/test.js*",
         COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(function(vinyl) {
         return convertRelativeDir(vinyl, dest);
@@ -218,10 +218,6 @@ function doWebpack(webpackConfigPath, done) {
         // }
     ).pipe(
         gulp.dest(JS_DEST_DIR)
-        // gulp.dest(function(vinyl) { // only contained ts/index, ts/bench/index...
-        //     console.log(vinyl);
-        //     return convertRelativeDir(vinyl, ".");
-        // })
     )
     .on("end", function() {
         _remove_nullfile();
@@ -238,7 +234,7 @@ const settings = utils.getExtraArgs();
  * @param {() => void} done gulp callback function.
  */
 gulp.task("clean", function(done) {
-    _del_hook([`${JS_DEST_DIR}/**/*`, DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR], done);
+    _del_hook([JS_DEST_DIR, DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR], done);
 });
 
 /**
@@ -318,12 +314,9 @@ gulp.task("dist:packjs", gulp.series("webpack-js", function(done) {
  * all processing can be completed by "emit-readme" command.
  */
 gulp.task("readme", function(cb) {
-    // fetch data files.
-    const BEFORE = fs.readFileSync("./samples/es6.js", "utf-8");
-    const AFTER = fs.readFileSync("./samples/es6-rm_ws-true.js", "utf-8");
+
     let NODE_LATEST_LOG = fs.readFileSync("./logs/node-latest.log", "utf-8");
     let NODE_OLD_LOG = fs.readFileSync("./logs/node-old.log", "utf-8");
-    // console.log(NODE_OLD_LOG);
 
     const SIZE = fs.statSync("./samples/es6.js").size;
     const re_package_desc = /(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/;
@@ -337,17 +330,15 @@ gulp.task("readme", function(cb) {
     // create readme.md form template.
     gulp.src("./readme-template.md")
     .pipe(
-        replacer(/@(SIZE|BEFORE|AFTER|NODE_LATEST_V|NODE_LATEST_LOG|NODE_OLD_V|NODE_OLD_LOG)/g, (all, tag) => {
+        replacer(/@(SIZE|NODE_LATEST_V|NODE_LATEST_LOG|NODE_OLD_V|NODE_OLD_LOG)/g, (matched, tag) => {
             switch(tag) {
-                case "SIZE": return SIZE.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-                case "BEFORE": return BEFORE;
-                case "AFTER": return AFTER;
+                case "SIZE": return SIZE.toLocaleString();
                 case "NODE_LATEST_V": return NODE_LATEST_V;
                 case "NODE_OLD_V": return NODE_OLD_V;
                 case "NODE_LATEST_LOG": return NODE_LATEST_LOG;
                 case "NODE_OLD_LOG": return NODE_OLD_LOG;
             }
-            return all;
+            return matched;
         })
     )
     .pipe(rename("README.md"))
@@ -357,58 +348,6 @@ gulp.task("readme", function(cb) {
         console.log("Please run 'npm run dist'");
     });
 });
-
-// --------------------------------------------- [gulp test]
-// const TEST_SRC_PREFIX = "./tmp/ts/**/*";
-// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
-const TEST_SRC_PREFIX = "./node_modules/**/*";
-const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{js,ts,tsx}`;
-// const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{js,ts,tsx}`;
-const TEST_SRC_FILEs_OUT = "./tmp/output";
-
-gulp.task("grmc-test-del", function(cb) {
-    del.sync(TEST_SRC_FILEs_OUT);
-    cb();
-});
-// gulp grmc-test -grmc "['./tmp/webpack.js', './tmp/webpack-cr.js', './tmp/webpack-crlf.js']"
-// gulp grmc-test -grmc tmp/rmc-impossible.tsx
-// gulp grmc-test -grmc tmp/rmc-impossible#2.tsx
-/**
- * ✅ check at own environment
- * 
- * 1. gulp grmc-test
- * 2. search on vscode:
- *    search   - ^\s*$
- *    includes - ./tmp/output/*
- * 
- * 3. Is the blank line found only inside the backquoted string?
- */
-gulp.task("grmc-test", gulp.series("grmc-test-del", function(cb) {
-    console.log(settings);
-    const grmc = require("./src/gulp-rm-cmts");
-    const target = settings.grmc? settings.grmc: TEST_SRC_FILEs;
-
-    // default is 8000
-    // grmc.avoidMinified = 15000;
-    gulp.src(target).pipe(
-        /**
-         * remove_ws : remove whitespace and blank lines.
-         */
-        grmc.getTransformer({
-            remove_ws: true,
-            render_progress: true,
-            // report_re_error: true,
-        })
-    )
-    // .pipe(rename({ suffix: "-after" }))
-    .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
-        // notify completion of task.
-        cb();
-        console.log();
-        console.log("task grmc-test done, processed: %s, noops:", grmc.processed, grmc.noops);
-        console.log("noop paths:", grmc.noopPaths);
-    });
-}));
 
 
 gulp.task("default", gulp.series("dist:pack", function (done) {

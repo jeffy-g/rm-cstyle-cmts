@@ -48,7 +48,7 @@ DEVNOTE: 2019/05/07
 #
 # javascript regex literal
 #
-(?<!<)               # avoidance: jsx or tsx start tag, available on node v8.10
+(?<![<\w\]])         # avoidance: jsx or tsx start tag, available on node v8.10
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1)
@@ -59,7 +59,7 @@ DEVNOTE: 2019/05/07
         [^\]\r\n\\]  # without class set end, newline, backslash
       )*             # end non-capturing group $3, q:0 or more
     \]|              # class set end, or
-    [^\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
+    [^\/\r\n\\]      # characters without group set end, class set end, slash, newline, backslash
   )+                 # end non-capturing group $1, q:1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $4
@@ -73,7 +73,7 @@ DEVNOTE: 2019/05/07
  * ---
  * 
  * ```perl
-(?<!<)               # avoidance: jsx or tsx start tag, available on node v8.10
+(?<![<\w\]])         # avoidance: jsx or tsx start tag, available on node v8.10
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1
@@ -84,7 +84,7 @@ DEVNOTE: 2019/05/07
       )*             # end non-capturing group $3, q:0 or more
     \]|              # class set end, or
     \\[\s\S]|        # escaped any character or
-    [^\/\r\n\\]   # characters without group set end, class set end, slash, newline, backslash
+    [^\/\r\n\\]      # characters without group set end, class set end, slash, newline, backslash
   )+                 # end non-capturing group $1, q:1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $4
@@ -114,26 +114,68 @@ let re_ws_qs_base: RegExp; {
 
     // NOTE: using regexp document: "js regex literal 2019/05 exactly!!?"
     const RE_SOURCE = `
-(?<!<)                    # avoidance: jsx or tsx start tag, available on node v8.10
-\\/                       # regexp literal start@delimiter
-  (?![?*+\\/])            # not meta character "?*+/" @anchor
-  (?:                     # start non-capturing group $1
-    \\[                   # class set start
-      (?:                 # non-capturing group $2
-        \\\\[\\s\\S]|     # escaped any character or
-        [^\\]\\r\\n\\\\]  # without class set end, newline, backslash
-      )*                  # end non-capturing group $2, q:0 or more
-    \\]|                  # class set end, or
-    \\\\[\\s\\S]|         # escaped any character or
-    [^\\/\\r\\n\\\\]      # characters without slash, newline, backslash
-  )+                      # end non-capturing group $1, q:1 or more
-\\/                       # regexp literal end@delimiter
-(?:                       # start non-capturing group $3
-  [gimsuy]{1,6}\\b|       # validate regex flags, but this pattern is imcomplete
-)                         # end non-capturing group $3
-(?![?*+\\/\\[\\\\])       # not meta character [?*+/[\\] @anchor ...
+(?<![<\\w\\]])            (?# avoidance: jsx or tsx start tag, available on node v8.10)
+\\/                       (?# regexp literal start@delimiter)
+  (?![?*+\\/])            (?# not meta character "?*+/" @anchor)
+  (?:                     (?# start non-capturing group $1)
+    \\[                   (?# class set start)
+      (?:                 (?# non-capturing group $2)
+        \\\\[\\s\\S]|     (?# escaped any character or)
+        [^\\]\\r\\n\\\\]  (?# without class set end, newline, backslash)
+      )*                  (?# end non-capturing group $2, q:0 or more)
+    \\]|                  (?# class set end, or)
+    \\\\[\\s\\S]|         (?# escaped any character or)
+    [^\\/\\r\\n\\\\]      (?# characters without slash, newline, backslash)
+  )+                      (?# end non-capturing group $1, q:1 or more)
+\\/                       (?# regexp literal end@delimiter)
+(?:                       (?# start non-capturing group $3)
+  [gimsuy]{1,6}\\b|       (?# validate regex flags, but this pattern is imcomplete)
+)                         (?# end non-capturing group $3)
+(?![?*+\\/\\[\\\\])       (?# not meta character [?*+/[\\] @anchor ...)
 `;
-
+// const RE_SOURCE = `\
+// (?<![<\\w\\]])                                   (?# avoidance: jsx or tsx start tag, available on node v8.10)
+// \\/                                              (?# regexp literal start@delimiter)
+//   (?![?*+\\/])                                   (?# not meta character "?*+/" @anchor)
+//   (?:                                            (?# start non-capturing group @1)
+//    \\(                                           (?# ➡️start group set)
+//     (?:                                          (?# start non-capturing group @2)
+//      \\\\[\\s\\S]|                               (?# escaped any character or)
+//      \\[(?:\\\\[\\s\\S]|[^\\]\\r\\n\\\\])*\\]|   (?# class set)
+//      \\(                                         (?# ➡️start group set)
+//       (?:                                        (?# start non-capturing group @3)
+//        \\\\[\\s\\S]|                             (?# escaped any character or)
+//        \\[(?:\\\\[\\s\\S]|[^\\]\\r\\n\\\\])*\\]| (?# class set)
+//        \\(                                       (?# ➡️ group set nests...)
+//         (?:                                      (?# start non-capturing group @4)
+//          \\((?:                                  (?# start non-capturing group @5)
+//           \\((?:[^\\r\\n]*)\\)|                  (?# ➡️ group set infinite)
+//           [^\\r\\n]*)
+//          \\)|                                    (?# ⬅️ end group set infinite)
+//          [^\\r\\n]*
+//         )
+//        \\)|                                      (?# ⬅️end gs nests...)
+//        [^)\\r\\n\\\\]|                           (?# without group set end, newline, backslash)
+//       )*                                         (?# end non-capturing group @2, q:0 or more)
+//      \\)|                                        (?# ⬅️group set end, or)
+//      [^)\\r\\n\\\\]                              (?# without gs end, nl, backslash)
+//     )*                                           (?# end non-capturing group @2, q:0 or more)
+//    \\)|                                          (?# ⬅️group set end, or)
+//    \\[                                           (?# ▶ class set start)
+//     (?:                                          (?# non-capturing group @3)
+//      \\\\[\\s\\S]|                               (?# escaped any character or)
+//      [^\\]\\r\\n\\\\]                            (?# without class set end, newline, backslash)
+//     )*                                           (?# end non-capturing group @3, q:0 or more)
+//    \\]|                                          (?# class set end, or)
+//    \\\\[\\s\\S]|                                 (?# escaped any character or)
+//    [^\\/)\\]\\r\\n\\\\]                          (?# characters without group set end, class set end, slash, newline, backslash)
+//   )+                                             (?# end non-capturing group @1, q:1 or more)
+// \\/                                              (?# regexp literal end@delimiter)
+// (?:                                              (?# start non-capturing group @4)
+//   [gimsuy]{1,6}\\b|                              (?# validate regex flags, but this pattern is imcomplete)
+// )                                                (?# end non-capturing group @4)
+// (?![?*+\\/\\[\\\\])                              (?# not meta character [?*+/[\\] @anchor ...)
+// `;
     // regexp document: "use util.getRegexpSource stable version"
     const re_riteralSource = RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, "");
 
