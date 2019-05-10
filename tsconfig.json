@@ -40,5 +40,8 @@
     },
     "include": [
         "./src/**/*.ts"
+    ],
+    "exclude": [
+        "./src/gulp-rm-cmts.ts"
     ]
 }

@@ -112,7 +112,7 @@ let re_ws_qs_base: RegExp; {
     const re_dbquoted     = /"(?:\\[\s\S]|[^"])*"/; // **
     const re_singlequoted = /'(?:\\[\s\S]|[^'])*'/; // **
 
-    // NOTE: using regexp document: "js regex literal 2019/05 exactly!!?"
+    // NOTE: using regexp document: "without class set detect - [loose]?"
     const RE_SOURCE = `
 (?<![<\\w\\]])            (?# avoidance: jsx or tsx start tag, available on node v8.10)
 \\/                       (?# regexp literal start@delimiter)
@@ -195,13 +195,21 @@ let re_ws_qs_base: RegExp; {
     }
 
     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|${re_RegexLiteral.source}`);
-    // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
-    // /`(?:\\[\s\S]|[^`])*`|"(?:\\[\s\S]|[^"])*"|'(?:\\[\s\S]|[^'])*'|(?<!<)\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/;
 }
 
 
 namespace ReUtil {
+
+    /**
+     * 
+     */
     export const RE_NEWLINEs = /\r\n|\n|\r/;
+
+    /**
+     * 
+     * @param source 
+     * @param holder 
+     */
     const buildWsQsReRegexp = (source: string, holder: { m: RegExpExecArray | null }) => {
         // specify new line character.
         const m = RE_NEWLINEs.exec(source);

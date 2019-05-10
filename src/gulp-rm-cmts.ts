@@ -39,7 +39,7 @@ type stream = typeof import("stream");
 type Vinyl = typeof import("vinyl");
 
 /**
- * @type {(this: stream["Transform"]["prototype"], file: Vinyl["prototype"], enc: string, callback: TransformCallback) => void}
+ * 
  */
 type FixTransformFunction = (this: stream["Transform"]["prototype"], chunk: Vinyl["prototype"], enc: string, callback: through.TransformCallback) => void;
 
@@ -67,24 +67,24 @@ type TransfomerFactory = (options: GulpRmcOptions) => ReturnType<typeof through>
  * 
  * @param path 
  */
-// const progress = (path: string) => {
-//     const output = process.stderr;
-//     // clear the current line
-//     readline.clearLine(output, 0);
-//     readline.cursorTo(output, 0/* , void 0 */);
-//     // write the message.
-//     output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
-// };
 const progress = (path: string) => {
-    // setTimeout((path: string) => {
-        const output = process.stderr;
-        // clear the current line
-        readline.clearLine(output, 0);
-        readline.cursorTo(output, 0/* , void 0 */);
-        // write the message.
-        output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
-    // }, 10, path);
+    const output = process.stderr;
+    // clear the current line
+    readline.clearLine(output, 0);
+    readline.cursorTo(output, 0/* , void 0 */);
+    // write the message.
+    output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
 };
+// const progress = (path: string) => {
+//     setTimeout((path: string) => {
+//         const output = process.stderr;
+//         // clear the current line
+//         readline.clearLine(output, 0);
+//         readline.cursorTo(output, 0/* , void 0 */);
+//         // write the message.
+//         output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
+//     }, 10, path);
+// };
 /**
  * 
  */
@@ -168,7 +168,6 @@ const getTransformer: TransfomerFactory = (options) => {
     return through.obj(transform);
 };
 
-// tsc -t es2015 -m commonjs --removecomments true src/gulp-rm-cmts.ts
 export = {
 
     getTransformer,

@@ -76,32 +76,32 @@ const grmcBatchTest = (cb) => {
 
     console.log(settings);
     const target = settings.paths? settings.paths: TEST_SRC_FILEs;
-	const rmc = grmc.getRmcInterface();
+    const rmc = grmc.getRmcInterface();
 
     // default is 8000, own environment: time spent about 25sec
-	// - - - example result: (default) - - - 
-	//
-	// [batch-rmc-test]: 24873.684ms
-	//
-	// task grmc-test done, processed: 4386, noops: 49
+    // - - - example result: (default) - - - 
+    //
+    // [batch-rmc-test]: 24873.684ms
+    //
+    // task grmc-test done, processed: 4386, noops: 49
     // detected regex literals: [
-	// ...
-	// ]
-	// detected regex count: 2874
-	// evaluated literals: 0
-	//
+    // ...
+    // ]
+    // detected regex count: 2874
+    // evaluated literals: 0
+    //
 
-	// - - - example result: (rmc.avoidMinified = 15000) - - - 
-	//
-	// [batch-rmc-test]: 25413.670ms
-	//
-	// task grmc-test done, processed: 4402, noops: 33
+    // - - - example result: (rmc.avoidMinified = 15000) - - - 
+    //
+    // [batch-rmc-test]: 25413.670ms
+    //
+    // task grmc-test done, processed: 4402, noops: 33
     // detected regex literals: [
-	// ...
-	// ]
-	// detected regex count: 3057
-	// evaluated literals: 0
-	//
+    // ...
+    // ]
+    // detected regex count: 3057
+    // evaluated literals: 0
+    //
     //rmc.avoidMinified = 15000;
 
     gulp.src(target).pipe(
@@ -124,7 +124,7 @@ const grmcBatchTest = (cb) => {
         console.log();
         console.log("task grmc-test done, processed: %s, noops:", rmc.processed, rmc.noops);
         console.log("noop paths:", grmc.noopPaths);
-		const context = rmc.getDetectedReContext();
+        const context = rmc.getDetectedReContext();
         // console.log("detected regex literals:", context.detectedReLiterals);
         console.log("detected regex count:", context.detectedReLiterals.length);
         console.log("evaluated regex literals:", context.evaluatedLiterals);

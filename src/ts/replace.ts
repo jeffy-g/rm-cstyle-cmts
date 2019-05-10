@@ -199,14 +199,16 @@ class BackQuoteScanner extends CharScannerBase {
         // limiter
         const limiter = source.length;
 
-        // nested template depth
+        /**
+         * nested template depth
+         */
         let depth = 0;
         /**
          * #### nested back quote depth.
          * this is always the same as depth or one less.
          * ```
-         * (depth + (0 or -1)) === bq_depth
-         * ```
+ (depth - (0 or 1)) === bq_depth
+ ```
          */
         let bq_depth = 0;
 
@@ -276,7 +278,7 @@ const simpleRegexVerify = (inputs: string) => {
 
     let groupIndex = 0;
     let in_escape = false;
-	let in_class = 0;
+    let in_class = 0;
     const end = inputs.lastIndexOf("/");
 
     for (let i = 1; i < end;) {
@@ -310,11 +312,11 @@ const detectedReLiterals: string[] = [];
 let evaluatedLiterals = 0;
 
 /**
- * regex caceh
+ * regex cache
  */
 const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
 /**
- * regex caceh
+ * regex cache
  */
 const re_tsref = /\/\/\/ <reference/g;
 
@@ -345,9 +347,9 @@ class SlashScanner extends CharScannerBase {
             // return false;
         }
 
-		//
+        //
         // - - - check multiline comment. - - -
-		//
+        //
         if (ch === "*") {
             const close = source.indexOf("*/", index + 2);
             // // update offset.(implicit bug at here
@@ -374,36 +376,32 @@ class SlashScanner extends CharScannerBase {
             // NOTE: It was necessary to extract the character strings of the remaining lines...
             const remaining = source.substring(index, x === -1? length: x);
 
-			//
+            //
             // - - - check ts reference tag or line comment - - -
-			//
+            //
             // check line comment.
             if (ch === "/") {
-				// update offset. when new line character not found(eof) then...
-				context.offset = x === -1? length: x + context.newline.length;
-				// reset lastIndex
-				re_tsref.lastIndex = 0;
-				if (!re_tsref.test(remaining)) { // avoid line comment
-					// NOTE: avoid extra loops in ReplaceFrontEnd.apply()
-					x === -1 || (context.result += context.newline);
-				} else { // avoid ts reference tag
-					context.result += source.substring(index, context.offset);
-				}
-				return true;
+                // update offset. when new line character not found(eof) then...
+                context.offset = x === -1? length: x + context.newline.length;
+                // reset lastIndex
+                re_tsref.lastIndex = 0;
+                if (!re_tsref.test(remaining)) { // avoid line comment
+                    // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
+                    x === -1 || (context.result += context.newline);
+                } else { // avoid ts reference tag
+                    context.result += source.substring(index, context.offset);
+                }
+                return true;
             }
 
-			//
+            //
             // - - - check regexp literal - - -
-			//
-            // NOTE: LF does not have to worry.
+            //
             // NOTE: need lastIndex property, must add "g" flag.
             //const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
-			// reset lastIndex
-			re_re.lastIndex = 0;
+            // reset lastIndex
+            re_re.lastIndex = 0;
 
-            // const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
-            // const re_re = /\/(?![?*+\/])(?:[^\/\r\n\\]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
-            // const re_re = /\/(?![?*+\/])(?:[^\/\r\n\\]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
             // only execute once, this is important!
             const m = re_re.exec(remaining);
             if (m === null) {
@@ -412,18 +410,14 @@ class SlashScanner extends CharScannerBase {
 
             // means line comment.
             if (remaining[m.index - 1] === "/") {
-                //ch = "/";
-                context.result += source.substring(index, index + m.index - 1);
 
+                context.result += source.substring(index, index + m.index - 1);
                 // update offset. when new line character not found(eof) then...
                 context.offset = x === -1? length: x + context.newline.length;
                 // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
                 x === -1 || (context.result += context.newline);
                 return true;
 
-                // console.log(`${SlashScanner.constructor.name}::scan.remaining[m.index - 1] === "/"`);
-                // jump to "L", and apply remaining process. (ch === "/"
-                // continue L;
             } else {
                 // DEVNOTE: the eval function can almost certainly detect regexp literal.
                 const re_literal = m[0];
@@ -433,17 +427,17 @@ class SlashScanner extends CharScannerBase {
                     // const lx = m[0].lastIndexOf("/");
                     // new RegExp(m[0].substring(1, lx));
                     // eval(m[0]);
-					if (!simpleRegexVerify(re_literal)) {
-						// throw "🚸";
+                    if (!simpleRegexVerify(re_literal)) {
+                        // throw "🚸";
                         eval(re_literal);
                         evaluatedLiterals++;
-					}
+                    }
                 } catch (e) {
                     regexErrorReport && console.log("Regex SyntaxError: [%s]", re_literal);
                     return false;
                 }
 
-				detectedReLiterals.push(re_literal);
+                detectedReLiterals.push(re_literal);
                 // update offset.
                 context.offset = index + re_re.lastIndex; // "g" flag.
                 context.result += source.substring(index, context.offset);
@@ -600,8 +594,8 @@ namespace ReplaceFrontEnd {
         regexErrorReport = enable;
     };
 
-	export const getDetectedReContext = () => {
-		return {
+    export const getDetectedReContext = () => {
+        return {
             detectedReLiterals,
             evaluatedLiterals
         };

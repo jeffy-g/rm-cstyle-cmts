@@ -106,58 +106,34 @@ const removeCStyleComments: IRemoveCStyleComments = (
             // let m: RegExpExecArray | null;
             // while ( m = re_line.exec(source) ) {
             //     if (m[0].length > avoid_minified) {
-            //         unable_to_process++;
-            //         return source;
+            //         return withNoop(source);
             //     }
             // }
 
             // const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
             re_newline.lastIndex = 0;
-			// DEVNOTE: check the single line input
-			if (!re_newline.test(source) && avoid_minified < source.length) {
-				console.log();
-				// 🚸
+            // DEVNOTE: check the single line input
+            if (!re_newline.test(source) && avoid_minified < source.length) {
+                console.log();
+                // 🚸
                 console.log("\u{1F6B8} AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
-                return source;
-			}
+                return withNoop(source);
+            }
 
             let prev = 0;
             do {
-				const lastIndex = re_newline.lastIndex;
+                const lastIndex = re_newline.lastIndex;
                 if ( (lastIndex - prev) > avoid_minified ) {
-                    // console.log("detect minified source, cannot proceed process...");
                     // ⛔ ⚠️ 🚸
                     // process.stderr.write(".");
                     return withNoop(source);
                 }
                 prev = lastIndex;
-                // console.log(`prev: ${prev}`);
             } while ( re_newline.test(source) );
             
             if ( (source.length - prev) > avoid_minified ) {
                 return withNoop(source);
             }
-
-            // // const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
-            // re_newline.lastIndex = 0;
-            // let prev = 0;
-            // while ( re_newline.test(source) ) {
-			// 	const lastIndex = re_newline.lastIndex;
-            //     if ( (lastIndex - prev) > avoid_minified ) {
-            //         // console.log("detect minified source, cannot proceed process...");
-            //         // ⛔ ⚠️ 🚸
-            //         // process.stderr.write(".");
-            //         unable_to_process++;
-            //         return source;
-            //     }
-            //     prev = lastIndex;
-            //     // console.log(`prev: ${prev}`);
-            // }
-			// // DEVNOTE: check the single line input
-			// if (!re_newline.test(source)) {
-			// 	console.log();
-            //     console.log("🚸 AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
-			// }
         }
     }
 
@@ -227,7 +203,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
             configurable: false,
             writable: false
         },
-		getDetectedReContext: {
+        getDetectedReContext: {
             value: () => {
                 return Replacer.getDetectedReContext();
             },
