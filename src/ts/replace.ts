@@ -77,19 +77,13 @@ abstract class CharScannerBase implements ICharacterScanner {
 
     /**
      * TODO: jsdoc
+     * 
      * @param registry 
      */
-    constructor(registry: CharScannerFunctionRegistry) {
-        // DEVNOTE: ✅ there is no problem at runtime in node.js v8.4 later
-        // @ts-ignore TS2715: Abstract property 'characters' in class 'CharScannerBase' cannot be accessed in the constructor.
-        const array = this.characters.split("");
-        const callback = Array.isArray(registry)? (ch: string) => {
-            registry[ch.charCodeAt(0)] = this.scan;
-        }: (ch: string) => {
-            registry[ch] = this.scan;
-        };
-
-        array.forEach(callback);
+    static injectKnownScannersTo(registry: CharScannerFunctionRegistry) {
+        Reflect.construct(QuoteScanner, [registry]);
+        Reflect.construct(BackQuoteScanner, [registry]);
+        Reflect.construct(SlashScanner, [registry]);
     }
 
     /**
@@ -108,13 +102,19 @@ abstract class CharScannerBase implements ICharacterScanner {
 
     /**
      * TODO: jsdoc
-     * 
      * @param registry 
      */
-    static injectKnownScannersTo(registry: CharScannerFunctionRegistry) {
-        Reflect.construct(QuoteScanner, [registry]);
-        Reflect.construct(BackQuoteScanner, [registry]);
-        Reflect.construct(SlashScanner, [registry]);
+    constructor(registry: CharScannerFunctionRegistry) {
+        // DEVNOTE: ✅ there is no problem at runtime in node.js v8.4 later
+        // @ts-ignore TS2715: Abstract property 'characters' in class 'CharScannerBase' cannot be accessed in the constructor.
+        const array = this.characters.split("");
+        const callback = Array.isArray(registry)? (ch: string) => {
+            registry[ch.charCodeAt(0)] = this.scan;
+        }: (ch: string) => {
+            registry[ch] = this.scan;
+        };
+
+        array.forEach(callback);
     }
 }
 
@@ -318,7 +318,7 @@ const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\
 /**
  * regex cache
  */
-const re_tsref = /\/\/\/ <reference/g;
+const re_tsref = /\/\/\/ <reference/;
 
 /**
  * when this character appears,  
@@ -383,14 +383,13 @@ class SlashScanner extends CharScannerBase {
             if (ch === "/") {
                 // update offset. when new line character not found(eof) then...
                 context.offset = x === -1? length: x + context.newline.length;
-                // reset lastIndex
-                re_tsref.lastIndex = 0;
                 if (!re_tsref.test(remaining)) { // avoid line comment
                     // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
                     x === -1 || (context.result += context.newline);
                 } else { // avoid ts reference tag
                     context.result += source.substring(index, context.offset);
                 }
+
                 return true;
             }
 

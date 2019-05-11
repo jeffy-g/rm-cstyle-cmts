@@ -32,11 +32,21 @@ const grmc = require("../src/gulp-rm-cmts");
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // const TEST_SRC_PREFIX = "./tmp/ts/**/*";
 // const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
+/**
+ * **Scan all node module pakcages and strip comments and blank line from types of javascript source**.
+ * 
+ * 📝contents that are not text or types that are not of javascript source are passed through.
+ * 
+ * 
+ */
 const TEST_SRC_PREFIX = "./node_modules/**/";
 const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}{*,\.*,\.*/*}`;
-
 // const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}*.{js,jsx,ts,tsx}`;
 
+//⚠️CAVEAT:
+//  In test for all files in node_modules,
+//  if output directory is set immediately below working directory,
+//  vscode maybe/will be freezes
 // const TEST_SRC_FILEs_OUT = "x-node_modules";
 const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 

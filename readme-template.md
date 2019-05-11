@@ -237,7 +237,7 @@ npm run bench
 
 ```perl
 
-(?<!<)               # avoidance: jsx or tsx start tag, available on node v8.10
+(?<![<\w\]])         # avoidance: jsx or tsx start tag, available on node v8.10
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1
@@ -254,7 +254,7 @@ npm run bench
 (?:                  # start non-capturing group $3
   [gimsuy]{1,6}\b|   # validate regex flags, but this pattern is imcomplete
 )                    # end non-capturing group $3
-(?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
+(?![?*+\/[\\])       # not meta character [?*+/[\\] @anchor ...
 
 ```
 as comment on samples/es6.js with descriptive explanation,

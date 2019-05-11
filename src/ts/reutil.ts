@@ -112,7 +112,7 @@ let re_ws_qs_base: RegExp; {
     const re_dbquoted     = /"(?:\\[\s\S]|[^"])*"/; // **
     const re_singlequoted = /'(?:\\[\s\S]|[^'])*'/; // **
 
-    // NOTE: using regexp document: "without class set detect - [loose]?"
+    // NOTE: using regexp document: "without group set detect - [loose]"
     const RE_SOURCE = `
 (?<![<\\w\\]])            (?# avoidance: jsx or tsx start tag, available on node v8.10)
 \\/                       (?# regexp literal start@delimiter)
