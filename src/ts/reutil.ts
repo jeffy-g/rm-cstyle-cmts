@@ -191,7 +191,8 @@ let re_ws_qs_base: RegExp; {
         // 
         re_RegexLiteral = new RegExp(re_riteralSource);
     } catch (e) {
-        re_RegexLiteral = new RegExp(re_riteralSource.substr(6));
+        /* istanbul ignore next */
+        re_RegexLiteral = new RegExp(re_riteralSource.substr(12));
     }
 
     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|${re_RegexLiteral.source}`);

@@ -73,6 +73,10 @@ interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IAvoidance
      * reset "noops" and "processed".
      */
     reset(): void;
+    /**
+     * 
+     */
+    getDetectedReContext(): DetectedReContext;
 }
 
 module.exports = Object.defineProperties(...) as IRemoveCStyleCommentsModule;

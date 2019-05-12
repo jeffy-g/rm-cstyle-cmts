@@ -113,6 +113,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
             // const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
             re_newline.lastIndex = 0;
             // DEVNOTE: check the single line input
+            /* istanbul ignore if */
             if (!re_newline.test(source) && avoid_minified < source.length) {
                 console.log();
                 // 🚸
@@ -130,7 +131,8 @@ const removeCStyleComments: IRemoveCStyleComments = (
                 }
                 prev = lastIndex;
             } while ( re_newline.test(source) );
-            
+
+            /* istanbul ignore if */
             if ( (source.length - prev) > avoid_minified ) {
                 return withNoop(source);
             }
@@ -148,7 +150,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
     try {
         source = Replacer.apply(source);
     } catch (e) {
-        console.warn("\n::[Exception occured] The input source will be returned without any processing.");
+        console.warn("\n[Exception occured] The input source will be returned without any processing.");
         return withNoop(source);
     }
 
@@ -199,6 +201,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
             value: () => {
                 unable_to_process = 0;
                 processed = 0;
+                Replacer.reset();
             },
             configurable: false,
             writable: false

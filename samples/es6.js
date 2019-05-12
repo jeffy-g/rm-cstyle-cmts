@@ -1,10 +1,12 @@
   
+///<reference types="node"/>
+
 var i = {} / 10; // -> NaN
 
 { i = "aaa\"" } /aaa/.test(i);
-var i = 10000 / 111.77; /[/*]/.test(i); // */
+var i = 10000 / 111.77; /[*]/.test(i); // */
 
-/* comments */var i = 10000 / 111.77; /\][/*]/.test(i); // */
+/* comments */var i = 10000 / 111.77; /\][*]/.test(i); // */
 
 [/\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/];
 
@@ -32,7 +34,7 @@ let ok3 = 12.2 / 33 * .9/* comments...*/
  * triple nested es6 template string.
  */
 const test_text = `:Key Binding:${ 234 }}
-//                ^  <- parse by class BackQuoteVistor
+//                ^  <- parse by class BackQuoteScanner
 }
 about                   [alt+A]
     ${
@@ -82,7 +84,7 @@ about                   [alt+A]
 * block comment.
 */// test
 const $3 = { keyCode: $1, key: "$5\"this is\
-                               ^  <- parse by class QuoteVistor\
+                               ^  <- parse by class QuoteScanner\
 test" };
 
 const gm = 234;
@@ -93,11 +95,11 @@ var i = 100 / 10 * 123.555/gm; // comment line
 
 var HTMLIZE_TEXT = {
   title: `/anything/g`,
-  //     ^  <- parse by class BackQuoteVistor
+  //     ^  <- parse by class BackQuoteScanner
   description: '--- nothing ---',
-  //           ^  <- parse by class QuoteVistor
+  //           ^  <- parse by class QuoteScanner
   qre: "/(<button)\\s+([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*([\\w\\-]+(?:=\"[^\"]+\")?)?\\s*(>.*<\\/button>)/g.toString()",
-//     ^  <- parse by class QuoteVistor
+//     ^  <- parse by class QuoteScanner
   re: /(<button)\s+([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:=`[^`]+`)?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*([\w\-]+(?:="[^"]+")?)?\s*(>.*<\/button>)/g.toString(),
 //    ^  <- parse by class SlashVisitor. this regexp literal although contains quote character, since it is correctly recognized as regexp literal, can avoid parse by quotevisitor. 
 

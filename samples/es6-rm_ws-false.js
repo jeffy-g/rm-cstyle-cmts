@@ -1,10 +1,11 @@
   
+///<reference types="node"/>
 var i = {} / 10; 
 
 { i = "aaa\"" } /aaa/.test(i);
-var i = 10000 / 111.77; /[/*]/.test(i); 
+var i = 10000 / 111.77; /[*]/.test(i); 
 
-var i = 10000 / 111.77; /\][/*]/.test(i); 
+var i = 10000 / 111.77; /\][*]/.test(i); 
 
 [/\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/];
 
@@ -30,7 +31,7 @@ let ok3 = 12.2 / 33 * .9
 
 
 const test_text = `:Key Binding:${ 234 }}
-//                ^  <- parse by class BackQuoteVistor
+//                ^  <- parse by class BackQuoteScanner
 }
 about                   [alt+A]
     ${
@@ -78,7 +79,7 @@ about                   [alt+A]
      ;
 
 const $3 = { keyCode: $1, key: "$5\"this is\
-                               ^  <- parse by class QuoteVistor\
+                               ^  <- parse by class QuoteScanner\
 test" };
 
 const gm = 234;

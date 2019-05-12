@@ -2,7 +2,8 @@
 {
     "compilerOptions": {
         "sourceMap": true,
-        "removeComments": true,
+        // DEVNOTE: 2019-5-12 - for test (/* istanbul ignore <type> */)
+        "removeComments": false,
 
         // "declaration": true,
         // "declarationDir": "./bin",
@@ -25,8 +26,6 @@
         "moduleResolution": "node",
 
         "noEmitHelpers": false,
-
-        "noImplicitAny": false,
 
         // "alwaysStrict": true,
         "strict": true,

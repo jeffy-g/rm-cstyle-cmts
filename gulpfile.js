@@ -73,12 +73,16 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
  * @param {string|string[]} globs file pattern.
  * @param {() => void} done gulp callback function.
  */
-function _del_hook(globs, done) {
-    del(globs, { force: true }).then(paths => {
-        console.log(`Deleted files and folders:\n${paths.join("\n")}`);
-        // notify completion of task.
-        done && done();
-    });
+function _clean(globs, done) {
+    // del(globs, { force: true }).then(paths => {
+    //     console.log(`Deleted files and folders:\n${paths.join("\n")}`);
+    //     // notify completion of task.
+    //     done && done();
+    // });
+    const paths = del.sync(globs, { force: true });
+    console.log(`Deleted files and folders:\n${paths.join("\n")}`);
+    // notify completion of task.
+    done && done();
 }
 /**
  * remove file when size is zero. (d.ts
@@ -166,7 +170,7 @@ function _remove_un_js(done) {
     // in general, "del" is completed first.
     _replace_some(done, !0);
     // remove unnecessary files.
-    _del_hook([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]);
+    _clean([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]);
 }
 /**
  * 
@@ -234,7 +238,7 @@ const settings = utils.getExtraArgs();
  * @param {() => void} done gulp callback function.
  */
 gulp.task("clean", function(done) {
-    _del_hook([JS_DEST_DIR, DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR], done);
+    _clean([DISTRIBUTION_DIR, DISTRIBUTION_PACK_DIR, JS_DEST_DIR], done);
 });
 
 /**

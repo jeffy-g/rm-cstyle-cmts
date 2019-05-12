@@ -110,7 +110,7 @@ abstract class CharScannerBase implements ICharacterScanner {
         const array = this.characters.split("");
         const callback = Array.isArray(registry)? (ch: string) => {
             registry[ch.charCodeAt(0)] = this.scan;
-        }: (ch: string) => {
+        }: /* istanbul ignore next */ (ch: string) => {
             registry[ch] = this.scan;
         };
 
@@ -318,7 +318,7 @@ const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\
 /**
  * regex cache
  */
-const re_tsref = /\/\/\/ <reference/;
+const re_tsref = /\/\/\/\s*<reference/;
 
 /**
  * when this character appears,  
@@ -335,6 +335,16 @@ class SlashScanner extends CharScannerBase {
         return "/"; // 47
     }
 
+    //
+    //  DEVNOTE: 2019-5-12
+    // 
+    // 1. The detection of regex in this program is because it is necessary to skip ['"`]
+    //   which may be included in regex in order to detect quoted string correctly.
+    //
+    // 2. It is possible to misdetect a string not described as regex literal in the calculation statment,
+    //    but even if it is a misdetected regex literal, the result is that the cost processed up to this point is not wasted.
+    //    Concatenate to a string.
+    //
     public scan(ch: string, source: string, context: IReplacementContext): boolean {
 
         // fetch current offset.
@@ -344,13 +354,13 @@ class SlashScanner extends CharScannerBase {
         // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
         if (ch === void 0) {
             throw new SyntaxError("invalid input source");
-            // return false;
         }
 
         //
         // - - - check multiline comment. - - -
         //
         if (ch === "*") {
+            // TODO: 2019-5-12 - 
             const close = source.indexOf("*/", index + 2);
             // // update offset.(implicit bug at here
             // context.offset = (close === -1? index : close) + 2;
@@ -387,7 +397,10 @@ class SlashScanner extends CharScannerBase {
                     // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
                     x === -1 || (context.result += context.newline);
                 } else { // avoid ts reference tag
-                    context.result += source.substring(index, context.offset);
+                    context.result += source.substring(
+                        // DEVNOTE: 2019-5-12 - fix: imcomplete substring
+                        index, context.offset - (context.newline.length === 2? 1: 0)
+                    );
                 }
 
                 return true;
@@ -429,6 +442,7 @@ class SlashScanner extends CharScannerBase {
                     if (!simpleRegexVerify(re_literal)) {
                         // throw "🚸";
                         eval(re_literal);
+                        /* istanbul ignore next */
                         evaluatedLiterals++;
                     }
                 } catch (e) {
@@ -574,6 +588,7 @@ namespace ReplaceFrontEnd {
         let scanners: CharScannerFunctionRegistry;
         let part: string;
 
+        /* istanbul ignore if */
         if (extractVersion().major <= 9) {
             // for node.js version 9 earlier
             scanners = {} as StringMap<CharScannerFunction>;

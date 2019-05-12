@@ -6,9 +6,9 @@
     "types": "./bin/index.d.ts",
     "typings": "./bin/index.d.ts",
     "scripts": {
-        "start": "npm run build && npm run bench",
+        "start": "npm run lint && npm run build && npm run bench && npm test",
         "lint": "tslint src/**/*.ts -p tsconfig.json --project",
-        "test": "bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\" && istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
+        "test": "tsc ./test/test.ts --sourcemap true && istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
         "bench2": "node -v && bash ./scripts/extra-bench.sh",
         "batch-rmc-test": "node scripts/batch-rmc-test",
@@ -17,6 +17,9 @@
         "dist:nopack": "npx gulp dist",
         "dist": "npx gulp dist:pack",
         "grmc:comp": "tsc -t es2015 -m commonjs --removecomments true src/gulp-rm-cmts.ts"
+    },
+    "//": {
+        "test": "bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\""
     },
     "repository": {
         "type": "git",

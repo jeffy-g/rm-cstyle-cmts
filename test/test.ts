@@ -3,6 +3,8 @@ import * as rmc from "../bin/";
 import * as fs from "fs";
 import "colors";
 
+import * as assert from "assert";
+
 if (!String.prototype.padEnd) {
     String.prototype.padEnd = function(n: number): string {
         let rem = n - this.length;
@@ -15,15 +17,16 @@ if (!String.prototype.padEnd) {
     };
 }
 
-const customLog = console.log.bind(console.log, "[:TEST:]");
+const log = console.log.bind(console.log, "[:test:]");
+const warn = console.log.bind(console.log, "[:warn:]"["yellow"]);
 
-function validate(text: string, expectance: string, rm_ws: boolean = void 0, report_regex_evaluate_error?: boolean): void {
+const validate = (text: string, expectance: string, rm_ws: boolean = void 0, report_regex_evaluate_error?: boolean): void => {
     let result = rmc(text, rm_ws, report_regex_evaluate_error);
-    console.assert(result === expectance, `failed at case [${text}]`);
+    assert.strictEqual(result, expectance, `failed at case [${text}]`);
     // ✔ :\u2714
-    customLog("\u2714"["green"], `passed: input [${text["cyan"]}],`.padEnd(82), `result [${result["green"]}]`);
-}
-function caseThrow(content: string, msg: string, report_regex_evaluate_error?: boolean) {
+    log("\u2714"["green"], `passed: input [${text["cyan"]}],`.padEnd(82), `result [${result["green"]}]`);
+};
+const caseThrow = (content: string, msg: string, report_regex_evaluate_error?: boolean) => {
     let error: Error = null;
     // check type error.
     try {
@@ -31,29 +34,41 @@ function caseThrow(content: string, msg: string, report_regex_evaluate_error?: b
         rmc(content, true, report_regex_evaluate_error);
     } catch (e) {
         error = e;
-        console.info("[message]"["yellow"], e.message);
+        warn(e.message);
     }
     console.assert(error instanceof Error, "failed type check...");
-    customLog("\u2714"["green"], `passed: ${msg}`);
+    log("\u2714"["green"], `passed: ${msg}`);
+};
+const caseCannotProcessed = (content: string, msg: string) => {
+    let result = rmc(content);
+    assert.strictEqual(content, result, "failed case cannot processed");
+    log("\u2714"["green"], `passed: ${msg}`);
+};
+const stripFile = (path: string) => {
+    let js_source = fs.readFileSync(path, "utf-8");
+    let result = rmc(js_source, true, true);
+    log("A minified source has been detected:", result === js_source);
 }
 
-customLog("rm-cstyle-cmts, version: %s", rmc.version);
-customLog();
+log("rm-cstyle-cmts, version:", rmc.version);
+log();
 
 // check invalid content, deceive for tsc.
 caseThrow({} as string, "check invalid content");
+
 // QuoteScanner parse error.
-caseThrow("{} as string \'", "QuoteScanner throw check");
+caseCannotProcessed("{} as string \'", "QuoteScanner throw check");
+
 // BackQuoteScanner parse error.
-caseThrow("{} as string ` back quote! ` `", "BackQuoteScanner throw check");
+caseCannotProcessed("{} as string ` back quote! ` `", "BackQuoteScanner throw check");
 
 // SlashScanner parse error.
-caseThrow("const n: number = 1; /", "SlashScanner throw check");
+caseCannotProcessed("const n: number = 1; /", "SlashScanner throw check");
 // SlashScanner parse error.
-caseThrow("const n: number = 1; /* comment /", "SlashScanner throw check");
+caseCannotProcessed("const n: number = 1; /* comment /", "SlashScanner throw check");
 
 
-customLog();
+log();
 
 // case empty string.
 validate("", "");
@@ -62,16 +77,16 @@ validate("", "");
 validate("  var i = {} / 10; // -> NaN", "var i = {} / 10;");
 
 validate(" { i = \"aaa\\\"\" } /aaa/.test(i);", "{ i = \"aaa\\\"\" } /aaa/.test(i);");
-validate(" var i = 10000 / 111.77; /[/*]/.test(i); // */", "var i = 10000 / 111.77; /[/*]/.test(i);");
+validate(" var i = 10000 / 111.77; /[*]/.test(i); // */", "var i = 10000 / 111.77; /[*]/.test(i);");
 
-validate(" /* comments */ var i = 10000 / 111.77; /\\][/*]/.test(i); // */", "var i = 10000 / 111.77; /\\][/*]/.test(i);");
+validate(" /* comments */ var i = 10000 / 111.77; /\\][*]/.test(i); // */", "var i = 10000 / 111.77; /\\][*]/.test(i);");
 
 validate("      [/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];", "[/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];");
 validate("let ok2 = 12.2 / 33 * .9 // \"comments\"...*/", "let ok2 = 12.2 / 33 * .9");
 
 validate(" var re = 10000 / 111.77*gg /gg;;;;  ////// comments...", "var re = 10000 / 111.77*gg /gg;;;;");
-validate(" var text0 = 'is text.', text0 = \"is text.\"", "var text0 = 'is text.', text0 = \"is text.\"");
 
+validate(" var text0 = 'is text.', text0 = \"is text.\"", "var text0 = 'is text.', text0 = \"is text.\"");
 validate(" var text0 = '';", "var text0 = '';");
 
 // --- multi line input.
@@ -208,22 +223,22 @@ validate(
     void 0, false
 );
 
-
  // for coverage (codecov 
 // const js_source = fs.readFileSync("tmp/rmc-impossible#2.tsx", "utf-8");
-let js_source = fs.readFileSync("./samples/es6.js", "utf-8");
-customLog();
-customLog("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow);
-let result = rmc(js_source, true, true);
+log();
+log("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow);
+stripFile("./samples/es6.js");
 
-js_source = fs.readFileSync("./samples/typeid-map.js", "utf-8");
-customLog();
-customLog("[removing comments of ./samples/typeid-map.js with 'report_regex_evaluate_error' flag]".yellow);
-
+log();
+log("[removing comments of ./samples/typeid-map.js with 'report_regex_evaluate_error' flag]".yellow);
 // @ts-ignore 
-rmc.avoidMinified = rmc.avoidMinified - 1;
-console.dir(rmc, { getters: true });
-result = rmc(js_source, true, true);
-customLog(`all test done, processed: ${rmc.processed}, noops: ${rmc.noops}`);
+rmc.avoidMinified = 5000;
+stripFile("./samples/typeid-map.js");
 
+log();
+console.dir(rmc, { getters: true });
+console.log(rmc.getDetectedReContext());
 rmc.reset();
+
+log(`all test done, processed: ${rmc.processed}, noops: ${rmc.noops}`);
+
