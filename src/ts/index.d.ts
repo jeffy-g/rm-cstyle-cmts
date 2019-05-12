@@ -65,18 +65,18 @@ declare global {
     }
     interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IAvoidance {
         /** package version */
-        readonly version: string;
+        version: string;
 
         /**
          * **If a minified source is detected, the default configuration does nothing**.
          * 
          * number of times the process was bypassed because the line was too long
          */
-        readonly noops: number;
+        noops: number;
         /**
          * number of times successfully processed
          */
-        readonly processed: number;
+        processed: number;
         /**
          * reset "noops" and "processed".
          */
@@ -84,7 +84,9 @@ declare global {
 		/**
 		 * 
 		 */
-		getDetectedReContext(): DetectedReContext;
+        getDetectedReContext(): DetectedReContext;
+
+        testMode: boolean;
     }
 
 	/**

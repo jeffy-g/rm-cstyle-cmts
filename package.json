@@ -2,13 +2,16 @@
     "name": "rm-cstyle-cmts",
     "version": "1.6.3",
     "description": "remove c style comments from text file(javascript source, json file etc...",
+    "author": "jeffy-g",
+    "license": "Apache-2.0",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
     "typings": "./bin/index.d.ts",
     "scripts": {
         "start": "npm run build && npm run bench",
         "lint": "tslint src/**/*.ts -p tsconfig.json --project",
-        "test": "bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\" && istanbul cover test/test.js && remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
+        "test": "mocha test/test.ts",
+        "nyc": "rm -rf .nyc_output && nyc --reporter=lcov --reporter=text npm run test",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
         "bench2": "node -v && bash ./scripts/extra-bench.sh",
         "batch-rmc-test": "node scripts/batch-rmc-test",
@@ -17,6 +20,15 @@
         "dist:nopack": "npx gulp dist",
         "dist": "npx gulp dist:pack",
         "grmc:comp": "tsc -t es2015 -m commonjs --removecomments true src/gulp-rm-cmts.ts"
+    },
+    "mocha": {
+        "extension": [
+            "ts"
+        ],
+        "opts": "./test/mocha.opts",
+        "slow": 50,
+        "ui": "bdd",
+        "sourcemap": true
     },
     "repository": {
         "type": "git",
@@ -35,9 +47,8 @@
     "engines": {
         "node": ">=8.4.0"
     },
-    "author": "jeffy-g",
-    "license": "Apache-2.0",
     "devDependencies": {
+        "@types/mocha": "^5.2.6",
         "@types/node": "^12.0.0",
         "@types/through2": "^2.0.34",
         "@types/vinyl": "^2.0.3",
@@ -51,9 +62,13 @@
         "gulp-sourcemaps": "^2.6.5",
         "gulp-typescript": "^5.0.1",
         "istanbul": "^0.4.5",
+        "mocha": "^6.1.4",
+        "nyc": "^14.1.1",
         "remap-istanbul": "^0.13.0",
+        "source-map-support": "^0.5.12",
         "terser-webpack-plugin": "^1.2.3",
         "ts-loader": "^6.0.0",
+        "ts-node": "^8.1.0",
         "tslint": "^5.16.0",
         "typescript": "^3.4.5",
         "webpack-stream": "^5.1.1"

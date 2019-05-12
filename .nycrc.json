@@ -1,0 +1,20 @@
+{
+    "nyc": {
+        "include": [
+            "./src/ts/*.ts"
+        ],
+        "extension": [
+            ".ts"
+        ],
+        "require": [
+          "ts-node/register"
+        ],
+        "reporter": [
+          "json",
+          "text"
+        ],
+        "sourceMap": true,
+        "all": true,
+        "check-coverage": true
+    }
+}

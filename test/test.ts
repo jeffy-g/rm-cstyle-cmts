@@ -1,88 +1,107 @@
 
-import * as rmc from "../bin/";
+import * as rmc from "../src/ts/";
 import * as fs from "fs";
 import "colors";
 
-if (!String.prototype.padEnd) {
-    String.prototype.padEnd = function(n: number): string {
-        let rem = n - this.length;
-        if (rem < 0) rem = 0;
-        let str = "";
-        while (rem--) {
-            str +=  " ";
-        }
-        return this + str;
-    };
-}
+import "mocha";
+import * as assert from "assert";
+
 
 const customLog = console.log.bind(console.log, "[:TEST:]");
 
-function validate(text: string, expectance: string, rm_ws: boolean = void 0, report_regex_evaluate_error?: boolean): void {
+const validate = (text: string, expectance: string, rm_ws?: boolean, report_regex_evaluate_error?: boolean): void => {
     let result = rmc(text, rm_ws, report_regex_evaluate_error);
-    console.assert(result === expectance, `failed at case [${text}]`);
-    // ✔ :\u2714
-    customLog("\u2714"["green"], `passed: input [${text["cyan"]}],`.padEnd(82), `result [${result["green"]}]`);
-}
-function caseThrow(content: string, msg: string, report_regex_evaluate_error?: boolean) {
-    let error: Error = null;
-    // check type error.
-    try {
-        // deceive for tsc.
-        rmc(content, true, report_regex_evaluate_error);
-    } catch (e) {
-        error = e;
-        console.info("[message]"["yellow"], e.message);
-    }
-    console.assert(error instanceof Error, "failed type check...");
-    customLog("\u2714"["green"], `passed: ${msg}`);
-}
-
-customLog("rm-cstyle-cmts, version: %s", rmc.version);
-customLog();
-
-// check invalid content, deceive for tsc.
-caseThrow({} as string, "check invalid content");
-// QuoteScanner parse error.
-caseThrow("{} as string \'", "QuoteScanner throw check");
-// BackQuoteScanner parse error.
-caseThrow("{} as string ` back quote! ` `", "BackQuoteScanner throw check");
-
-// SlashScanner parse error.
-caseThrow("const n: number = 1; /", "SlashScanner throw check");
-// SlashScanner parse error.
-caseThrow("const n: number = 1; /* comment /", "SlashScanner throw check");
+    assert.strictEqual(result, expectance, `failed at case [${text}]`);
+};
+// const caseThrow = (content: string, msg: string, report_regex_evaluate_error?: boolean) => {
+//     assert.throws(() => {
+//         rmc(content, true, report_regex_evaluate_error);
+//     }, TypeError, msg);
+// };
+const stripSource = (path: string) => {
+    let js_source = fs.readFileSync(path, "utf-8");
+    assert.doesNotThrow(() => {
+        /* let result = */rmc(js_source, true, true);
+    });
+};
 
 
-customLog();
 
-// case empty string.
-validate("", "");
+// bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\"
+customLog("rm-cstyle-cmts, version: ", rmc.version);
+// @ts-ignore 
+rmc.testMode = true;
 
-// --- single line input.
-validate("  var i = {} / 10; // -> NaN", "var i = {} / 10;");
+describe("Only throws invalid input content", () => {
+    it("case invalid content", () => {
+        // caseThrow({} as string, "check invalid content");
+        assert.throws(() => {
+            rmc({} as string);
+        }, TypeError, "check invalid content");
+    });
+});
 
-validate(" { i = \"aaa\\\"\" } /aaa/.test(i);", "{ i = \"aaa\\\"\" } /aaa/.test(i);");
-validate(" var i = 10000 / 111.77; /[/*]/.test(i); // */", "var i = 10000 / 111.77; /[/*]/.test(i);");
+describe("The input source will be returned without any processing when exception occured", () => {
+    it("QuoteScanner::imcomplete single quote", () => {
+        validate("    let text = `this is a ${'pen'}`; '", "    let text = `this is a ${'pen'}`; '");
+    });
+    it("BackQuoteScanner::imcomplete backquote", () => {
+        validate("{} as string ` back quote! ` `", "{} as string ` back quote! ` `");
+    });
+    it("SlashScanner::extra slash", () => {
+        validate("const n: number = 1; /", "const n: number = 1; /");
+    });
+    it("SlashScanner::imcomplete block comment", () => {
+        validate("const n: number = 1; /* comment /", "const n: number = 1; /* comment /");
+    });
+});
 
-validate(" /* comments */ var i = 10000 / 111.77; /\\][/*]/.test(i); // */", "var i = 10000 / 111.77; /\\][/*]/.test(i);");
+describe("Input and Result Verification", () => {
 
-validate("      [/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];", "[/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];");
-validate("let ok2 = 12.2 / 33 * .9 // \"comments\"...*/", "let ok2 = 12.2 / 33 * .9");
+    it("case empty string.", () => {
+        validate("", "");
+    });
 
-validate(" var re = 10000 / 111.77*gg /gg;;;;  ////// comments...", "var re = 10000 / 111.77*gg /gg;;;;");
-validate(" var text0 = 'is text.', text0 = \"is text.\"", "var text0 = 'is text.', text0 = \"is text.\"");
+    describe("single line input", () => {
+        it("remove ahead whitespace + linecomment #1", () => {
+            validate("  var i = {} / 10; // -> NaN", "var i = {} / 10;");
+        });
+        it("remove ahead whitespace + linecomment #2", () => {
+            validate(" var i = 10000 / 111.77; /[/*]/.test(i); // */", "var i = 10000 / 111.77; /[/*]/.test(i);");
+        });
 
-validate(" var text0 = '';", "var text0 = '';");
+        it("remove ahead whitespace", () => {
+            validate(" { i = \"aaa\\\"\" } /aaa/.test(i);", "{ i = \"aaa\\\"\" } /aaa/.test(i);");
+        });
 
-// --- multi line input.
-validate(`  let gg = 10;
+        it("remove ahead whitespace + blockcomment + linecomment", () => {
+            validate(" /* comments */ var i = 10000 / 111.77; /\\][/*]/.test(i); // */", "var i = 10000 / 111.77; /\\][/*]/.test(i);");
+        });
+
+        it("remove ahead whitespace, detect regex", () => {
+            validate("      [/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];", "[/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];");
+        });
+        it("linecomment at around calculation statement (properly detect line comment", () => {
+            validate("let ok2 = 12.2 / 33 * .9 // \"comments\"...*/", "let ok2 = 12.2 / 33 * .9", true, true);
+        });
+        it("linecomment at around calculation statement (probably regex miss detect", () => {
+            validate(" var re = 10000 / 111.77*gg /gg;;;;  ////// comments...", "var re = 10000 / 111.77*gg /gg;;;;");
+        });
+
+    });
+
+    describe("multi line input (this case only remove kinds of comments, and blank line)", () => {
+
+        it("#1", () => {
+            validate(`  let gg = 10;
 var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
-//             ^-------------^ <- this case is match. but, not regexp literal`,
-`  let gg = 10;
+//             ^-------------^ <- this case is match. but, not regexp literal`, `  let gg = 10;
 var re = 10000 / 111.77*gg /gg;;;;  
 `, false);
+        });
 
-validate("const templete = `function ${name}($) {\n\
+        it("#2 nested es6 template string", () => {
+            validate("const templete = `function ${name}($) {\n\
     // comment line.\n\
     var some = ${\n\
         // comment line...\n\
@@ -114,11 +133,13 @@ validate("const templete = `function ${name}($) {\n\
     return true;\n\
  }\n\
 ;`");
+        });
 
-//
-// case tsx source fragment
-//
-validate(`return <>
+        //
+        // case tsx source fragment
+        //
+        it("#3 tsx source fragment", () => {
+            validate(`return <>
 {/* <div id="ccn"/> */}
 <AlertDialog
     open={open}
@@ -192,38 +213,44 @@ limitations under the License.
     />
     {}
     {VersionElement}
-</>;`);
+</>;`
+            );
+        });
 
+        it("#4 with report_regex_evaluate_error: true", () => {
+            validate(
+                "  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
+                "return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
+                void 0, true
+            );
+        });
 
-// with report_regex_evaluate_error: true
-validate(
-    "  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
-    "return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
-    void 0, true
-);
-// with report_regex_evaluate_error: true
-validate(
-    "  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
-    "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
-    void 0, false
-);
+        it("#5 with report_regex_evaluate_error: false", () => {
+            validate(
+                "  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
+                "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
+                void 0, false
+            );
+        });
 
+    });
 
- // for coverage (codecov 
-// const js_source = fs.readFileSync("tmp/rmc-impossible#2.tsx", "utf-8");
-let js_source = fs.readFileSync("./samples/es6.js", "utf-8");
-customLog();
-customLog("[removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag]".yellow);
-let result = rmc(js_source, true, true);
+    describe("strip text file (this case only remove kinds of comments, and blank line)", () => {
+        it("removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag", () => {
+            stripSource("./samples/es6.js");
+        });
+        it("removing comments of ./samples/typeid-map.js with 'report_regex_evaluate_error' flag", () => {
+            stripSource("./samples/typeid-map.js");
+        });
+    });
 
-js_source = fs.readFileSync("./samples/typeid-map.js", "utf-8");
-customLog();
-customLog("[removing comments of ./samples/typeid-map.js with 'report_regex_evaluate_error' flag]".yellow);
+    after(() => {
+        console.log();
+        customLog(" - - - - - miscellaneous::statistics - - - - -");
+        // @ts-ignore 
+        rmc.avoidMinified = rmc.avoidMinified;
+        console.dir(rmc, { getters: true });
+        rmc.reset();
+    });
+});
 
-// @ts-ignore 
-rmc.avoidMinified = rmc.avoidMinified - 1;
-console.dir(rmc, { getters: true });
-result = rmc(js_source, true, true);
-customLog(`all test done, processed: ${rmc.processed}, noops: ${rmc.noops}`);
-
-rmc.reset();

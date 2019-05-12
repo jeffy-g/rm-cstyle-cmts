@@ -55,6 +55,7 @@ const ws_qs_replacer = (matched: string/*, index: number, inputs: string*/) => {
 // NOTE: this regex seems to be the correct answer...
 };
 
+let test_mode = false;
 /**
  * number of times successfully processed
  */
@@ -114,9 +115,11 @@ const removeCStyleComments: IRemoveCStyleComments = (
             re_newline.lastIndex = 0;
             // DEVNOTE: check the single line input
             if (!re_newline.test(source) && avoid_minified < source.length) {
-                console.log();
-                // 🚸
-                console.log("\u{1F6B8} AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
+                if (!test_mode) {
+                    console.log();
+                    // 🚸
+                    console.log("\u{1F6B8} AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
+                }
                 return withNoop(source);
             }
 
@@ -148,7 +151,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
     try {
         source = Replacer.apply(source);
     } catch (e) {
-        console.warn("\n::[Exception occured] The input source will be returned without any processing.");
+        !test_mode && console.warn("\n[Exception occured] The input source will be returned without any processing.");
         return withNoop(source);
     }
 
@@ -210,6 +213,13 @@ const removeCStyleComments: IRemoveCStyleComments = (
             configurable: false,
             writable: false
         },
+
+        testMode: {
+            get: () => { return test_mode; },
+            set: (value: boolean) => { test_mode = value; },
+            enumerable: true,
+            configurable: true,
+        }
     }
 );
 

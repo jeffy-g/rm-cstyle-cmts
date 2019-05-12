@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "removeComments": false,
+        "rootDir": "./src/ts",
+        "outDir": "./bin",
+        "rootDirs": [
+            "./src/ts",
+            "./test"
+        ],
+        "newLine": "LF",
+
+        "target": "es2015",
+        "module": "commonjs",
+        "moduleResolution": "node",
+
+        "noEmitHelpers": false,
+        "strict": true,
+
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "include": [
+        "./src/ts/*.ts",
+        ".test/test.ts"
+    ],
+    "exclude": [
+        "./src/gulp-rm-cmts.ts"
+    ]
+}

@@ -26,8 +26,6 @@
 
         "noEmitHelpers": false,
 
-        "noImplicitAny": false,
-
         // "alwaysStrict": true,
         "strict": true,
 

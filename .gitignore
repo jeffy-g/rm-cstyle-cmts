@@ -11,3 +11,4 @@ core*.js
 /tmp
 /ssh
 /coverage
+/.nyc_output

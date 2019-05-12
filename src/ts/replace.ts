@@ -17,6 +17,8 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+///<reference path="./globals.d.ts"/>
+
 /** RE_NEWLINEs */
 import * as reutil from "./reutil";
 
