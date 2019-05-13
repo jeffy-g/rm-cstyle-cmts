@@ -57,7 +57,7 @@ type GulpRmcOptions = {
 /**
  * factory of 
  */
-type TransfomerFactory = (options: GulpRmcOptions) => ReturnType<typeof through>;
+type TransformerFactory = (options: GulpRmcOptions) => ReturnType<typeof through>;
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -96,14 +96,14 @@ const defaultExtensions = [
 /**
  * 
  */
-const getTransformer: TransfomerFactory = (options) => {
+const getTransformer: TransformerFactory = (options) => {
 
     options = options || {};
     // default is true;
     const rm_ws = typeof options.remove_ws === "boolean"? options.remove_ws: true;
     const render_progress = !!options.render_progress;
 
-    render_progress && console.log("rm-cstyle-cmts::", {
+    render_progress && console.log("rm-cstyle-cmts:", {
         version: rmc.version,
         avoidMinified: rmc.avoidMinified
     });
@@ -114,10 +114,6 @@ const getTransformer: TransfomerFactory = (options) => {
      */
     // @ts-ignore unused parameter "encoding"
     const transform: FixTransformFunction = function (vinyl, encoding, callback) {
-
-        if (vinyl.isNull()) {
-            return callback(null, vinyl);
-        }
 
         // plugin main
         if (vinyl.isBuffer()) {
@@ -154,6 +150,10 @@ const getTransformer: TransfomerFactory = (options) => {
                 vinyl.contents = Buffer.from(contents);
             }
 
+            return callback(null, vinyl);
+        }
+
+        if (vinyl.isNull()) {
             return callback(null, vinyl);
         }
 

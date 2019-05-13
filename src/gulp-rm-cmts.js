@@ -37,15 +37,12 @@ const getTransformer = (options) => {
     options = options || {};
     const rm_ws = typeof options.remove_ws === "boolean" ? options.remove_ws : true;
     const render_progress = !!options.render_progress;
-    render_progress && console.log("rm-cstyle-cmts::", {
+    render_progress && console.log("rm-cstyle-cmts:", {
         version: rmc.version,
         avoidMinified: rmc.avoidMinified
     });
     let prev_noops = rmc.noops;
     const transform = function (vinyl, encoding, callback) {
-        if (vinyl.isNull()) {
-            return callback(null, vinyl);
-        }
         if (vinyl.isBuffer()) {
             if (defaultExtensions.includes(vinyl.extname)) {
                 const shortPath = vinyl.relative;
@@ -58,6 +55,9 @@ const getTransformer = (options) => {
                 }
                 vinyl.contents = Buffer.from(contents);
             }
+            return callback(null, vinyl);
+        }
+        if (vinyl.isNull()) {
             return callback(null, vinyl);
         }
         if (vinyl.isStream()) {

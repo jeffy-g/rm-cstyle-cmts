@@ -38,6 +38,23 @@
             // "outFiles": [
             //     "${workspaceRoot}/**/*.js"
             // ]
+        }, {
+            "type": "node",
+            "request": "launch",
+            "name": "remap-istanbul debug",
+            "runtimeExecutable": "F:/ext_prg/Nodist/bin/node.exe",
+            "program": "${workspaceRoot}/node_modules/remap-istanbul/bin/remap-istanbul.js",
+            "args": [
+                "-i",
+                "coverage/coverage.json",
+                "-o",
+                "coverage/report-ts",
+                "-t",
+                "html"
+            ],
+            // "outFiles": [
+            //     "${workspaceRoot}/**/*.js"
+            // ]
         }
     ]
 }

@@ -259,7 +259,20 @@ gulp.task("tsc", gulp.series("clean", function(done) {
 
     // return result.js.pipe(gulp.dest(JS_DEST_DIR));
     result // .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
-    .pipe(sourcemaps.write(".", { includeContent: false, sourceRoot: JS_DEST_DIR })) // create map file per .js
+    // 
+    // DEVNOTE: 2019-5-13
+    //  [about WriteOption]:
+    //    It seems that the "sourceRoot" property is basically unnecessary.
+    //    Also, if the value of "sourceRoot" is set to empty string or not specified,
+    //    creation of coverage report (html) to typescript source will fail.
+    //
+    //    *This behavior seems to be the same when setting the "sourceRoot" property in tsconfig.json.
+    // 
+    .pipe(sourcemaps.write(".", { // create map file per .js
+        // DEVNOTE: 2019-5-14 - for test coverage, fix: remap-istanbul has incomplete detection of source.
+        includeContent: true,
+        // sourceRoot: ""
+    }))
     .pipe(gulp.dest(JS_DEST_DIR))
     .on("end", function () {
         console.log("tsc done.");
@@ -268,16 +281,16 @@ gulp.task("tsc", gulp.series("clean", function(done) {
 }));
 
 /**
- * remove file when size is zero.
+ * remove file when size is zero. (.d.ts etc)
  * @param {() => void} done gulp callback function.
  */
-gulp.task("rm:nullfile", gulp.series("tsc", function (done) {
+gulp.task("gulp:tsc", gulp.series("tsc", function (done) {
     _remove_nullfile(done);
 }));
 
 
-// tsc -> rm:nullfile -> webpack
-gulp.task("webpack-js", gulp.series("rm:nullfile", (done) => {
+// tsc -> gulp:tsc -> webpack
+gulp.task("webpack-js", gulp.series("gulp:tsc", (done) => {
     doWebpack("./webpack.configjs", done);
 }));
 // transpile tsc with webpack.
@@ -289,7 +302,7 @@ gulp.task("webpack", gulp.series("clean", (done) => {
  * task "dist"
  * without webpack
  */
-gulp.task("dist", gulp.series("rm:nullfile", function(done) {
+gulp.task("dist", gulp.series("gulp:tsc", function(done) {
     _dist(done, DISTRIBUTION_DIR);
 }));
 /**
@@ -352,6 +365,7 @@ gulp.task("readme", function(cb) {
         console.log("Please run 'npm run dist'");
     });
 });
+
 
 
 gulp.task("default", gulp.series("dist:pack", function (done) {

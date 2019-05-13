@@ -318,7 +318,7 @@ const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\
 /**
  * regex cache
  */
-const re_tsref = /\/\/\/\s*<reference/;
+const re_tsref = /\/\/\/[ \t]*<reference/;
 
 /**
  * when this character appears,  
@@ -469,11 +469,11 @@ class SlashScanner extends CharScannerBase {
  */
 const createWhite = (source: string): IReplacementContext => {
     // specify new line character.
-    const m = reutil.RE_NEWLINEs.exec(source);
+    const newline = reutil.detectNewLine(source);
     return {
         offset: 0,
         result: "",
-        newline: m? m[0]: ""
+        newline: newline || ""
     };
 };
 
@@ -568,7 +568,7 @@ const extractVersion = (versionString: string = process.version) => {
     const pv = RE_VERSION.exec(versionString);
     const [_, major = 0, minor = 0, patch = 0] = pv? pv.map((value, i) => {
         return (i > 0 && parseInt(value)) || void 0;
-    }): [""];
+    }): /* istanbul ignore next */ [""];
     return { major, minor, patch }
 };
 

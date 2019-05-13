@@ -206,27 +206,39 @@ namespace ReUtil {
      */
     export const RE_NEWLINEs = /\r\n|\n|\r/;
 
+    export type KnownNewLines =  "\r" | "\n" | "\r\n";
+    export const detectNewLine = (source: string): KnownNewLines | null => {
+        const length = source.length;
+        let index = 0;
+        while (index < length) {
+            const ch = source[index++];
+            if (ch === "\r") {
+                return source[index] === "\n"? "\r\n": ch;
+            } else if (ch === "\n") {
+                return ch;
+            }
+        }
+        return null;
+    };
+
+
     /**
      * 
      * @param source 
      * @param holder 
      */
-    const buildWsQsReRegexp = (source: string, holder: { m: RegExpExecArray | null }) => {
+    const buildWsQsReRegexp = (source: string, holder: { newline: KnownNewLines | null }) => {
         // specify new line character.
-        const m = RE_NEWLINEs.exec(source);
-        const is_single_line_input = m === null;
+        let newline = detectNewLine(source);
+        const is_single_line_input = newline === null;
         // 
-        holder.m = m;
+        holder.newline = newline;
 
-        /**
-         * will not use "newline" when is_single_line_input is true
-         */
-        let newline: string | undefined;
         // let isCRLF: boolean | undefined;
         if (!is_single_line_input) {
             // escape CR or LF
-            // @ts-ignore in this case m is not null
-            newline = (newline = m[0]) === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
+            // @ts-ignore re-assign different type
+            newline = newline === "\r\n"? "\\r\\n": newline === "\n"? "\\n": "\\r";
             // isCRLF = newline.length === 2;
         }
 
@@ -282,12 +294,11 @@ newline$  # last new line
     /**
      * null(0), \r(13), \n(10), \r\n(23)
      * 
-     * @param m 
+     * @param newline 
      */
-    const convertToIndex = (m: RegExpExecArray | null) => {
-        if (m !== null) {
-            let newline: string;
-            const index = (newline = m[0]).charCodeAt(0);
+    const convertToIndex = (newline: KnownNewLines | null) => {
+        if (newline !== null) {
+            const index = newline.charCodeAt(0);
             // \r(13), \n(10), \r\n(23)
             return newline.length === 1? index: index + newline.charCodeAt(1);
         } else {
@@ -298,11 +309,11 @@ newline$  # last new line
     type RegexSet = ReturnType<typeof buildWsQsReRegexp>;
     const regexSets: RegexSet[] = []; {
         const newlines = ["", "\r", "\n", "\r\n"];
-        const holder: Parameters<typeof buildWsQsReRegexp>[1] = { m: null };
+        const holder: Parameters<typeof buildWsQsReRegexp>[1] = { newline: null };
         for (const newline of newlines) {
             const rset = buildWsQsReRegexp(newline, holder);
             regexSets[
-                convertToIndex(holder.m)
+                convertToIndex(holder.newline)
             ] = rset;
         }
     }
@@ -312,11 +323,9 @@ newline$  # last new line
      * @param source 
      */
     export const lookupRegexes = (source: string) => {
-        // const m = RE_NEWLINEs.exec("\r\n");
-        // console.log(m[0].charCodeAt(0), m[0].charCodeAt(1));
-        const m = RE_NEWLINEs.exec(source);
+        const newline = detectNewLine(source);
         const rset = regexSets[
-            convertToIndex(m)
+            convertToIndex(newline)
         ];
         // DEVNOTE: fix: need reset lastIndex
         rset.re_ws_qs.lastIndex = 0;
