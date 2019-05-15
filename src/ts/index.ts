@@ -167,7 +167,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
     // BUG : 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
     // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
     return source.replace(
-        regexes.re_ws_qs, ws_qs_replacer
+        regexes.re_ws_qs, ws_qs_replacer // /^\s*$|\s+$/gm, ""
     )
     .replace(regexes.re_first_n_last, "");
     // .replace(/^\s+|\s+$/g, ""); // can handle it reliably, but consume a lot more cpu time a little.
