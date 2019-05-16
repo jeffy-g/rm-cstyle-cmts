@@ -32,13 +32,12 @@ const del = require("del");
 const gulp = require("gulp");
 const tsc = require("gulp-typescript");
 const rename = require("gulp-rename");
-const replacer = require("gulp-replace");
+const greplace = require("gulp-replace");
 // source map for codecov.
 const sourcemaps = require("gulp-sourcemaps");
 
 const utils = require("./scripts/utils");
-// for version string replace.
-const pkg = require("./package.json");
+
 
 // ------------------------------- constant variables ------------------------------- //
 /** ts compiled out put. */
@@ -135,18 +134,11 @@ const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_usel
  * @param {boolean} strip_code remove unused webpack code.
  */
 function _replace_some(done, strip_code) {
-    var version_replaced = false;
-    var stream = gulp.src(["./bin/index.js", "./bin/bench/index.js"])
-    .pipe( // always replace.
-        replacer(/pkg.version/, (all, tag) => {
-            version_replaced = true;
-            return tag? pkg.version: all;
-        })
-    );
-    var did_strip = 0;
+    let stream = gulp.src(["./bin/index.js", "./bin/bench/index.js"]);
+    let did_strip = 0;
     if (strip_code) {
         stream = stream.pipe( // strip webpack code
-            replacer(re_wp_striper, ($0) => {
+            greplace(re_wp_striper, ($0) => {
                 did_strip++;
                 return "";
             })
@@ -155,7 +147,6 @@ function _replace_some(done, strip_code) {
     stream.pipe(gulp.dest(function(vinyl) {
         return convertRelativeDir(vinyl, ".");
     })).on("end", () => {
-        version_replaced && console.log("bind version string.");
         did_strip && console.log("strip webpack code. did_strip=%d", did_strip);
         // notify completion of task.
         done && done();
@@ -347,7 +338,7 @@ gulp.task("readme", function(cb) {
     // create readme.md form template.
     gulp.src("./readme-template.md")
     .pipe(
-        replacer(/@(SIZE|NODE_LATEST_V|NODE_LATEST_LOG|NODE_OLD_V|NODE_OLD_LOG)/g, (matched, tag) => {
+        greplace(/@(SIZE|NODE_LATEST_V|NODE_LATEST_LOG|NODE_OLD_V|NODE_OLD_LOG)/g, (matched, tag) => {
             switch(tag) {
                 case "SIZE": return SIZE.toLocaleString();
                 case "NODE_LATEST_V": return NODE_LATEST_V;

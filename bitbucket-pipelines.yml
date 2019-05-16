@@ -12,8 +12,6 @@ pipelines:
           - node
         script: # Modify the commands below to build your repository.
           - yarn install
-          - gulp dist
-          - npm run bench
-          - npm test
+          - yarn start
 
           - bash ./scripts/ci-script.sh

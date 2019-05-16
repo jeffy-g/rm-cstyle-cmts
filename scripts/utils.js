@@ -264,6 +264,36 @@ function createBrowserifyFileEventLogger(logFilePath) {
     return logger;
 }
 
+/** @type {(options: any) => void} */
+let nodeReplace;
+/**
+ * @param {RegExp} regex 
+ * @param {string | Function} replacement 
+ * @param {string[]} paths 
+ * 
+ * @date 2019-4-26
+ */
+function fireReplace(regex, replacement, paths) {
+    nodeReplace === void 0 && (nodeReplace = require("replace"));
+    // replace init.tsx init.js ./lib/index.html && replace \\.\\/pkg\\.json ../package.json ./lib/app-properties.js
+    nodeReplace({
+        regex,//: /init\.tsx/g,
+        replacement,//: "init.js",
+        paths,//: ["./lib/index.html"],
+        recursive: false,
+        silent: false,
+        // for test?
+        preview: false,
+        // replace function.
+        // funcFile: "js source path",
+        // 
+        async: false,  /* ⚠️ */
+        // regexp flags, if "regex" are plain string then needed.
+        ignoreCase: false,
+        multiline: false,
+    });
+}
+
 module.exports = {
     extractVersion,
     dateStringForFile,
@@ -273,6 +303,7 @@ module.exports = {
     renderLine,
     createProgress,
     createWebpackProgressPluginHandler,
-    createBrowserifyFileEventLogger
+    createBrowserifyFileEventLogger,
+    fireReplace
 }
 

@@ -45,7 +45,21 @@ declare global {
             report_regex_evaluate_error?: boolean
         ): string;
     }
-    interface IAvoidance {
+    interface IRemoveCStyleCommentsProperties {
+        /** package version */
+        readonly version: string;
+
+        /**
+         * **If a minified source is detected, the default configuration does nothing**.
+         * 
+         * number of times the process was bypassed because the line was too long
+         */
+        readonly noops: number;
+        /**
+         * number of times successfully processed
+         */
+        readonly processed: number;
+
         /**
          * **set whether to avoid minified source**.
          * 
@@ -63,28 +77,16 @@ declare global {
          */
         avoidMinified: number;
     }
-    interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IAvoidance {
-        /** package version */
-        readonly version: string;
 
+    interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IRemoveCStyleCommentsProperties {
         /**
-         * **If a minified source is detected, the default configuration does nothing**.
-         * 
-         * number of times the process was bypassed because the line was too long
-         */
-        readonly noops: number;
-        /**
-         * number of times successfully processed
-         */
-        readonly processed: number;
-        /**
-         * reset "noops" and "processed".
-         */
-        reset(): void;
-		/**
-		 * 
-		 */
-		getDetectedReContext(): DetectedReContext;
+        * reset "noops" and "processed".
+        */
+       reset(): void;
+       /**
+        * 
+        */
+       getDetectedReContext(): DetectedReContext;
     }
 
 	/**
@@ -95,5 +97,6 @@ declare global {
         evaluatedLiterals: number;
     }
 }
+
 declare const removeCStyleComments: IRemoveCStyleComments;
 export = removeCStyleComments;

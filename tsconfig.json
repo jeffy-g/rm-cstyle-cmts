@@ -11,7 +11,6 @@
 
         // DEVNOTE: 2019-5-12 - for test (/* istanbul ignore <type> */)
         "removeComments": false,
-
         // "declaration": true,
         // "declarationDir": "./bin",
 
