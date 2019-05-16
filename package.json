@@ -8,7 +8,7 @@
     "author": "jeffy-g",
     "license": "Apache-2.0",
     "scripts": {
-        "start": "yarn lint && yarn gulp gulp:tsc && yarn bench && yarn test",
+        "start": "npm run lint && npm run build && npm run bench && npm test",
         "lint": "tslint src/**/*.ts -p tsconfig.json --project",
         "test": "jest --coverage",
         "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
@@ -27,14 +27,14 @@
         "posttest": "npm run report-ts",
         "test": "bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\"",
         "report-ts": "rimraf ./coverage/report-ts && remap-istanbul -i coverage/coverage.json -o coverage/report-ts -t html",
-        "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 200 -ol 10 && npm run report-ts",
-        "globals": {
-            "ts-jest": {
-                "tsConfig": "test/tsconfig.json"
-            }
-        }
+        "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 200 -ol 10 && npm run report-ts"
     },
     "jest": {
+        "globals": {
+            "ts-jest": {
+                "tsConfig": "./tsconfig.json"
+            }
+        },
         "transform": {
             "^.+\\.tsx?$": "ts-jest"
         },

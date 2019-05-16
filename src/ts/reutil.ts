@@ -177,7 +177,7 @@ let re_ws_qs_base: RegExp; {
 // (?![?*+\\/\\[\\\\])                              (?# not meta character [?*+/[\\] @anchor ...)
 // `;
     // regexp document: "use util.getRegexpSource stable version"
-    const re_riteralSource = RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, "");
+    const re_literalSource = RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, "");
 
     let re_RegexLiteral: RegExp; // *
     try {
@@ -189,10 +189,10 @@ let re_ws_qs_base: RegExp; {
         //
         // *with this new regex feature, you can almost certainly delete blank lines with jsx and tsx sources.
         // 
-        re_RegexLiteral = new RegExp(re_riteralSource);
+        re_RegexLiteral = new RegExp(re_literalSource);
     } catch (e) {
         /* istanbul ignore next */
-        re_RegexLiteral = new RegExp(re_riteralSource.substr(12));
+        re_RegexLiteral = new RegExp(re_literalSource.substr(12));
     }
 
     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|${re_RegexLiteral.source}`);

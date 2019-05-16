@@ -23,10 +23,6 @@ const stripSource = (path: string) => {
     });
 };
 
-// @ts -ignore property detect bug?
-// (<IRemoveCStyleComments>rmc).testMode = true;
-rmc.testMode = true;
-
 
 describe("Only throws invalid input content", () => {
     it("case invalid content", () => {
@@ -249,7 +245,6 @@ limitations under the License.
 `- - - - - miscellaneous::statistics - - - - -
 noops      : ${rmc.noops}
 processed  : ${rmc.processed}
-testMode   : ${rmc.testMode}
 evaluatedLiterals : ${context.evaluatedLiterals}
 detectedReLiterals: [
   ${context.detectedReLiterals.join(",\n  ")}

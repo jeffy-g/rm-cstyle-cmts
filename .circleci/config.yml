@@ -1,0 +1,29 @@
+version: 2.1
+orbs:
+  # https://circleci.com/orbs/registry/orb/circleci/node
+  node: circleci/node@1.0.1 # refers to the Orbs of circleci/node as `node`
+jobs:
+  build:
+    executor:
+      name: node/default
+      # It will be the same as image: 'circleci/node:latest' by node Orbs
+      tag: "latest"
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - node/with-cache:
+          # the default is to cache ~/project/node_modules, so if you change working_directory, match it
+          dir: ~/repo/node_modules
+          cache-version: v1
+          steps:
+          - run:
+              name: lint, build, benchmark, test
+              command: |
+                yarn install
+                yarn start
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build

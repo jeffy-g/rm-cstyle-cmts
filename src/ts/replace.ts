@@ -566,7 +566,8 @@ const extractVersion = (versionString: string = process.version) => {
     const RE_VERSION = /v(\d+).(\d+).(\d+)/;
     // NOTE: pv is Array.isArray(pv), extend Array
     const pv = RE_VERSION.exec(versionString);
-    const [_, major = 0, minor = 0, patch = 0] = pv? pv.map((value, i) => {
+	// DEVNOTE: major = 12, for web
+    const [_, major = 12, minor = 0, patch = 0] = pv? pv.map((value, i) => {
         return (i > 0 && parseInt(value)) || void 0;
     }): /* istanbul ignore next */ [""];
     return { major, minor, patch }

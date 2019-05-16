@@ -4,6 +4,7 @@
 [![LICENSE](https://img.shields.io/badge/Lisence-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield)
 [![DeepScan grade](https://deepscan.io/api/teams/3135/projects/4618/branches/37135/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3135&pid=4618&bid=37135)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fa58575d-79f0-457f-ad6e-8907623c740f/deploy-status)](https://app.netlify.com/sites/rm-cstyle-cmts-playground/deploys)
 <!-- https://img.shields.io/npm/v/rm-cstyle-cmts.svg -->
 # remove cstyle comments
 
@@ -98,6 +99,10 @@ interface DetectedReContext {
 declare const removeCStyleComments: IRemoveCStyleComments;
 export = removeCStyleComments;
 ```
+
+## Playground
+
+> [rm-cstyle-cmts Playground (powerd by monaco-editor)](https://rm-cstyle-cmts-playground.netlify.com/)
 
 ## install
 
