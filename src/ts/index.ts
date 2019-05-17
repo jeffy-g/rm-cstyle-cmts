@@ -33,7 +33,7 @@ import * as reutil from "./reutil";
 /**
  * replace to version string at build time
  */
-const latest_version: string = "v1.6.4";
+const latest_version: string = "v1.6.5";
 /**
  * singleton instance.
  */

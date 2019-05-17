@@ -170,7 +170,7 @@ function _remove_un_js(done) {
  */
 function _dist(done, dest) {
     gulp.src([
-        "LICENSE", "package.json", "README.md", "samples/!(core*)",
+        "LICENSE", "package.json", "README.md", "samples/!(core*|typeid-map*)",
         "test/test.js*",
         COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(function(vinyl) {
