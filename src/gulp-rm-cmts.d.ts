@@ -26,9 +26,9 @@ declare type GulpRmcOptions = {
     report_re_error?: boolean;
     render_progress?: boolean;
 };
-declare type TransfomerFactory = (options: GulpRmcOptions) => ReturnType<typeof through>;
+declare type TransformerFactory = (options: GulpRmcOptions) => ReturnType<typeof through>;
 declare const GulpRmc: {
-    getTransformer: TransfomerFactory;
+    getTransformer: TransformerFactory;
     readonly noopPaths: string[];
     getRmcInterface(): IRemoveCStyleComments;
 };

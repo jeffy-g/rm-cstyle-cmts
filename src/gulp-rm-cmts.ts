@@ -120,8 +120,8 @@ const getTransformer: TransformerFactory = (options) => {
 
             if (defaultExtensions.includes(vinyl.extname)) {
 
-                const shortPath = vinyl.relative;
-                render_progress && progress(shortPath);
+                // const shortPath = vinyl.relative;
+                render_progress && progress(vinyl.relative);
 
                 const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
                 // let contents: string | undefined;
@@ -134,7 +134,7 @@ const getTransformer: TransformerFactory = (options) => {
 
                 let noops = rmc.noops;
                 if (prev_noops !== noops) {
-                    noopPaths.push(shortPath);
+                    noopPaths.push(vinyl.relative);
                     prev_noops = noops;
                 }
 

@@ -4,11 +4,11 @@ import * as fs from "fs";
 import * as assert from "assert";
 // DEVNOTE: 2019-5-16 - This import statement make a read-only object.
 // import * as rmc from "../src/ts/";
-let rmc: IRemoveCStyleComments = require("../src/ts/");
+const rmc: IRemoveCStyleComments = require("../src/ts/");
 
 
 const validate = (text: string, expectance: string, rm_ws?: boolean, report_regex_evaluate_error?: boolean): void => {
-    let result = rmc(text, rm_ws, report_regex_evaluate_error);
+    const result = rmc(text, rm_ws, report_regex_evaluate_error);
     assert.strictEqual(result, expectance, `failed at case [${text}]`);
 };
 // const caseThrow = (content: string, msg: string, report_regex_evaluate_error?: boolean) => {
@@ -17,9 +17,9 @@ const validate = (text: string, expectance: string, rm_ws?: boolean, report_rege
 //     }, TypeError, msg);
 // };
 const stripSource = (path: string) => {
-    let js_source = fs.readFileSync(path, "utf-8");
+    const js_source = fs.readFileSync(path, "utf-8");
     assert.doesNotThrow(() => {
-        /* let result = */rmc(js_source, true, true);
+        /* const result = */rmc(js_source, true, true);
     });
 };
 
