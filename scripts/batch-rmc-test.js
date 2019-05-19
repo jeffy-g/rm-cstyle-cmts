@@ -76,11 +76,11 @@ const cleanUpResults = (cb) => {
  * 2.
  *   + search on vscode:
  *      search   - ^\s*$
- *      includes - ./tmp/output/*
+ *      includes - ../rmc-tmp/output/*
  *
- *   + grep ^\s*$ tmp/output -rl (or -rC 1
+ *   + grep ^\s*$ ../rmc-tmp/output -rl (or -rC 1
  * 
- * 3. Is the blank line found only inside the backquoted string? grep ^\s*$ tmp/output -rC 1
+ * 3. Is the blank line found only inside the backquoted string? grep ^\s*$ ../rmc-tmp/output -rC 1
  */
 const grmcBatchTest = (cb) => {
 

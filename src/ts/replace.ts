@@ -27,6 +27,9 @@ export interface IReplaceFrontEnd {
      * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
      */
     apply(source: string): string;
+
+    getScanner(ch: string): CharScannerFunction;
+
     /**
      * 
      * @param enable 
@@ -446,7 +449,7 @@ class SlashScanner extends CharScannerBase {
                         evaluatedLiterals++;
                     }
                 } catch (e) {
-                    regexErrorReport && console.log("Regex SyntaxError: [%s]", re_literal);
+                    regexErrorReport && console.log("Missdetection of Regex: [%s]", re_literal);
                     return false;
                 }
 
@@ -582,11 +585,12 @@ const extractVersion = (versionString: string = process.version) => {
  */
 namespace ReplaceFrontEnd {
 
+    /**
+     * CharScannerFunction registory.
+     */
+    let scanners: CharScannerFunctionRegistry;
+
     export const apply = (() => {
-        /**
-         * CharScannerFunction registory.
-         */
-        let scanners: CharScannerFunctionRegistry;
         let part: string;
 
         /* istanbul ignore if */
@@ -604,6 +608,10 @@ namespace ReplaceFrontEnd {
         return eval(emitCode(part)) as IReplaceFrontEnd["apply"];
 
     })();
+
+    export const getScanner = (ch: string) => {
+        return (scanners as CharScannerFunction[])[ch.charCodeAt(0)];
+    };
 
     export const regexErrorReportEnable = (enable: boolean): void => {
         regexErrorReport = enable;
