@@ -523,7 +523,7 @@ namespace ReplaceFrontEnd {
 
         return context.result;
     };
-
+    /* istanbul ignore next */
     export const getScanner = (ch: string) => {
         return scanners[ch.charCodeAt(0)];
     };

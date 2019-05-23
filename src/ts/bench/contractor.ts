@@ -46,7 +46,8 @@ declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag
             this.current_tag = tag;
         },
         record: function(sloop: string, sms: string): number {
-            const loop = parseInt(sloop), ms = parseFloat(sms);
+            const loop = +sloop, ms = +sms;
+            // const loop = parseInt(sloop), ms = parseFloat(sms);
             /** average for each run */
             const average = (ms / loop);
             // record loop count, time spent, average.
@@ -72,10 +73,11 @@ declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag
                     average_sum += result.average;
                 });
                 // average for every run.
-                lapr.push(average_sum / size);
+				const each_run = average_sum / size;
+                lapr.push(each_run);
                 // format message.
                 msg += `[${tag}] {
-    average of entries: ${(tspent_sum / size).toFixed(6)} ms, total ${explain}: ${(average_sum / size).toFixed(6)} ms
+    average of entries: ${(tspent_sum / size).toFixed(6)} ms, total ${explain}: ${each_run.toFixed(6)} ms
 }\n`;
             });
 
@@ -93,7 +95,7 @@ declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag
      * set true to "showlog_per_entry" param if need.
      * @param showlog_per_entry
      */
-    const emitReplacer = (showlog_per_entry: boolean = false): AverageReplacer => {
+    const emitReplacer = (showlog_per_entry: boolean): AverageReplacer => {
         const contractor = Contractor;
         // return replacement body.
         return (all, loop, ms, tag, deadline/* , index */) => {
@@ -119,7 +121,7 @@ declare type AverageReplacer = (matchBody: string, loop: string, ms: string, tag
 
     /**
      * inputs の log を regexp を使って解析し, 平均値を console に書き出します.  
-     * inputs の内容は変更されません
+     *
      * @param inputs the performance log text.
      * @param showlog_per_entry set true to "showlog_per_entry" param if need. default false
      */

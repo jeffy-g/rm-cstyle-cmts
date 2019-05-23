@@ -21,7 +21,7 @@ if [ ! -d "./logs" ]; then
 fi
 
 NODE_SWITCHER=nodist
-old=8.4
+old=8.10
 latest=12
 #
 # ATTENTION: need nodist
