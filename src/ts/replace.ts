@@ -66,7 +66,7 @@ interface ICharacterScanner {
 }
 
 type CharScannerFunction = ICharacterScanner["scan"];
-type CharScannerFunctionRegistry = CharScannerFunction[] | StringMap<CharScannerFunction>;
+type CharScannerFunctionRegistry = CharScannerFunction[];
 
 /**
  * 
@@ -111,13 +111,9 @@ abstract class CharScannerBase implements ICharacterScanner {
         // DEVNOTE: ✅ there is no problem at runtime in node.js v8.4 later
         // @ts-ignore TS2715: Abstract property 'characters' in class 'CharScannerBase' cannot be accessed in the constructor.
         const array = this.characters.split("");
-        const callback = Array.isArray(registry)? (ch: string) => {
+        array.forEach((ch: string) => {
             registry[ch.charCodeAt(0)] = this.scan;
-        }: /* istanbul ignore next */ (ch: string) => {
-            registry[ch] = this.scan;
-        };
-
-        array.forEach(callback);
+        });
     }
 }
 
@@ -227,7 +223,7 @@ class BackQuoteScanner extends CharScannerBase {
                 // DEVNOTE: 2019-4-30
                 //  abolished switch statement and adopted ifelse statement.
                 //  this slightly improves performance.
-                // 
+                //
                 // state is not escaped then let's check [`], "${", "}".
                 // however, "}" is ignore escape state?
                 if (ch === "$") {
@@ -480,137 +476,56 @@ const createWhite = (source: string): IReplacementContext => {
     };
 };
 
-const emitCode = (part: string) => {
-    // DEVNOTE: must js code
-    return `(source) => {
-
-    const size = source.length;
-    const registry = scanners;
-    const context = createWhite(source);
-    let offset = 0;
-    let prev_offset = 0;
-
-    while (offset < size) {
-        const ch = source[offset];
-        const inspectable = registry[ch${part}];
-        if (!inspectable) {
-            offset++;
-        } else {
-            context.result += source.substring(prev_offset, offset);
-            context.offset = offset;
-            prev_offset = inspectable(ch, source, context)? context.offset: context.offset++;
-            offset = context.offset;
-        }
-    }
-    if (size - prev_offset > 0) {
-        context.result += source.substring(prev_offset, offset);
-    }
-    return context.result;
-}`;
-};
-
-// type Replacementable = IReplaceFrontEnd["apply"];
-// /**
-//  * for node.js version 10 later
-//  */
-// namespace NeoReplacer {
-
-//     /**
-//      * CharScannerFunction registory.
-//      */
-//     const scanners: CharScannerFunction[] = [];
-//     CharScannerBase.injectKnownScannersTo(scanners);
-
-//     // export const apply = eval(emitCode(".charCodeAt(0)")) as Replacementable;
-//     export const apply = (source: string): string => {
-
-//         const limit = source.length;
-//         const registry = scanners;
-//         const context: IReplacementContext = createWhite(source);
-//         let prev_offset = 0;
-
-//         while (context.offset < limit) {
-//             const ch = source[context.offset];
-//             // DEVNOTE: 2019-4-30
-//             // It seems that the call cost of string.charCodeAt method is
-//             //  lower than lookup of object registed as key and value by key.
-//             const inspectable = registry[ch.charCodeAt(0)];
-//             if (!inspectable) {
-//                 context.offset++;
-//             } else {
-//                 context.result += source.substring(prev_offset, context.offset);
-//                 prev_offset = !inspectable(ch, source, context)? context.offset++: context.offset;
-//             }
-//         }
-
-//         if (limit - prev_offset > 0) {
-//             context.result += source.substring(prev_offset, context.offset);
-//         }
-
-//         return context.result;
-//     };
-// }
-
-/**
- * get node version at runtime.
- * 
- * format must be `v\d+.\d+.\d+`
- * 
- * ex:
- * ```
-const utils = require("./utils");
-const nv = utils.extractVersion();
-console.log(nv); // => {major: 10, minor: 9, patch: 0}
-```
- *
- * @param {string} versionString default is process.version
- */
-const extractVersion = (versionString: string = process.version) => {
-    const RE_VERSION = /v(\d+).(\d+).(\d+)/;
-    // NOTE: pv is Array.isArray(pv), extend Array
-    const pv = RE_VERSION.exec(versionString);
-	// DEVNOTE: major = 12, for web
-    const [_, major = 12, minor = 0, patch = 0] = pv? pv.map((value, i) => {
-        return (i > 0 && parseInt(value)) || void 0;
-    }): /* istanbul ignore next */ [""];
-    return { major, minor, patch }
-};
-
+export const createReplacementContext = createWhite;
 
 /**
  * NOTE:  
  * This namespace is implemented to correctly judge quoted string,  
  * line comment, multiline commnet, regexp literal,  
  * and delete line comment, multiline commnet. (maybe...
+ * 
+ * ---
+ * CHANGES: 2019-5-23
+ *   + from this version onwards, its an implementation of only code optimized for node v10 later.  
+ *     It works on node v9 and earlier too, but performance is not good.
  */
 namespace ReplaceFrontEnd {
 
     /**
      * CharScannerFunction registory.
      */
-    let scanners: CharScannerFunctionRegistry;
+    const scanners: CharScannerFunctionRegistry = [];
+    CharScannerBase.injectKnownScannersTo(scanners);
 
-    export const apply = (() => {
-        let part: string;
+    export const apply = (source: string) => {
 
-        /* istanbul ignore if */
-        if (extractVersion().major <= 9) {
-            // for node.js version 9 earlier
-            scanners = {} as StringMap<CharScannerFunction>;
-            part = "";
-        } else {
-            // for node.js version 10 later
-            scanners = [] as CharScannerFunction[];
-            part = ".charCodeAt(0)";
+        const size = source.length;
+        const registry = scanners;
+        const context = createWhite(source);
+        let offset = 0;
+        let prev_offset = 0;
+
+        while (offset < size) {
+            const ch = source[offset];
+            const inspectable = registry[ch.charCodeAt(0)];
+            if (!inspectable) {
+                offset++;
+            } else {
+                context.result += source.substring(prev_offset, offset);
+                context.offset = offset;
+                prev_offset = inspectable(ch, source, context)? context.offset: context.offset++;
+                offset = context.offset;
+            }
+        }
+        if (size - prev_offset > 0) {
+            context.result += source.substring(prev_offset, offset);
         }
 
-        CharScannerBase.injectKnownScannersTo(scanners);
-        return eval(emitCode(part)) as IReplaceFrontEnd["apply"];
-
-    })();
+        return context.result;
+    };
 
     export const getScanner = (ch: string) => {
-        return (scanners as CharScannerFunction[])[ch.charCodeAt(0)];
+        return scanners[ch.charCodeAt(0)];
     };
 
     export const regexErrorReportEnable = (enable: boolean): void => {

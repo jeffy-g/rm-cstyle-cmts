@@ -11,7 +11,7 @@
             "runtimeExecutable": "F:/ext_prg/Nodist/bin/node.exe",
             "program": "${workspaceFolder}/bin/bench/index.js",
             "args": [
-                "-f", "samples/rmc-impossible.tsx"
+                "-f", "samples/es6.js"
             ],
             // "outFiles": [
             //     "${workspaceFolder}/bin/**/*.js"

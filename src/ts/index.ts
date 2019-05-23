@@ -33,7 +33,7 @@ import * as reutil from "./reutil";
 /**
  * replace to version string at build time
  */
-const latest_version: string = "v1.6.5";
+const latest_version: string = "v1.7.0";
 /**
  * singleton instance.
  */
@@ -161,12 +161,38 @@ const removeCStyleComments: IRemoveCStyleComments = (
     }
 
     const regexes = reutil.lookupRegexes(source);
-    // NOTE: this combination does not do the intended work...
-    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]/gm, ""): source;
-    // return rm_blank_line_n_ws? source.replace(/^\s+$|[\r\n]+$|^[\r\n]|(`(?:\\[\s\S]|[^`])*`)|("(?:\\[\s\S]|[^"])*")|('(?:\\[\s\S]|[^'])*')/gm, _rwq): source;
-    /* remove whitespaces.*/
-    // BUG : 2017/9/6 23:52:13 #cannot keep blank line at nested es6 template string. `rm_blank_line_n_ws` flag is `true`
-    // FIXED:? 2017/9/6 22:00:10 #cannot beyond regex.
+    // /* remove whitespaces.*/
+    // let m: RegExpExecArray | null;
+    // const re_ws_qs = regexes.re_ws_qs;
+    // const context = replace.createReplacementContext(source);
+    // let offset = 0;
+    // let prev_offset = 0;
+    // while (m = re_ws_qs.exec(source)) {
+    //     const matched = m[0];
+    //     const head = matched[0];
+    //     if (head === "`" || head === "/") {
+    //         const inspectable = Replacer.getScanner(head);
+    //         context.result += source.substring(prev_offset, offset);
+    //         context.offset = offset;
+    //         prev_offset = inspectable(head, source, context)? context.offset: context.offset++;
+    //         re_ws_qs.lastIndex = offset = context.offset;
+    //         continue;
+    //     } else if (head === "'" || head === '"') {
+    //         // context.result += matched;
+    //         context.result += source.substring(prev_offset, re_ws_qs.lastIndex);
+    //         prev_offset = offset = re_ws_qs.lastIndex;
+    //     } else {
+    //         offset += matched.length;
+    //     }
+    //     // // NOTE: need skip quoted string, regexp literal.
+    //     // return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
+    // }
+    // if (source.length - prev_offset > 0) {
+    //     context.result += source.substring(prev_offset, offset);
+    // }
+
+    // return context.result.replace(regexes.re_first_n_last, "");
+
     return source.replace(
         regexes.re_ws_qs, ws_qs_replacer // /^\s*$|\s+$/gm, ""
     )

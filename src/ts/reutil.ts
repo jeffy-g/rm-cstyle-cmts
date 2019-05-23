@@ -179,26 +179,25 @@ let re_ws_qs_base: RegExp; {
     // regexp document: "use util.getRegexpSource stable version"
     const re_literalSource = RE_SOURCE.replace(/\s*\(\?#.*\)\s*$|#\s.*$|\s+/gm, "");
 
-    let re_RegexLiteral: RegExp; // *
-    try {
-        // is available "RegExp Lookbehind Assertions"?
-        // DEVNOTE: 2019-5-4
-        // >node -p process.versions.v8
-        // see: http://kangax.github.io/compat-table/es2016plus/
-        //   -> node.js seems to be able to use "RegExp Lookbehind Assertions" from v 8.10
-        //
-        // *with this new regex feature, you can almost certainly delete blank lines with jsx and tsx sources.
-        // 
-        re_RegexLiteral = new RegExp(re_literalSource);
-    } catch (e) {
-        /* istanbul ignore next */
-        re_RegexLiteral = new RegExp(re_literalSource.substr(12));
-    }
+    // is available "RegExp Lookbehind Assertions"?
+    // DEVNOTE: 2019-5-4
+    // >node -p process.versions.v8
+    // see: http://kangax.github.io/compat-table/es2016plus/
+    //   -> node.js seems to be able to use "RegExp Lookbehind Assertions" from v 8.10
+    //
+    // *with this new regex feature, you can almost certainly delete blank lines with jsx and tsx sources.
+    // 
+    const re_RegexLiteral: RegExp = new RegExp(re_literalSource);
 
     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|${re_RegexLiteral.source}`);
 }
 
 
+/**
+ * CHANGES: 2019-5-23
+ *  + This version uses the "RegExp Lookbehind Assertions" feature.  
+ *    Therefore, the execution environment of node v8.10 or later is required.
+ */
 namespace ReUtil {
 
     /**
@@ -272,7 +271,7 @@ newline\s+(?=newline)| # whitespace line or ...
 `(?:\\[\s\S]|[^`])*`|  # backquoted string
 "(?:\\[\s\S]|[^"])*"|  # double quoted string
 '(?:\\[\s\S]|[^'])*'|  # single quoted string
-(?<!<)\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\]) # regex
+(?<![<\w\]])\/(?![?*+\/])(?:\[(?:\\[\s\S]|[^\]\r\n\\])*\]|\\[\s\S]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\]) # regex
 ```
             */
             re_ws_qs,
