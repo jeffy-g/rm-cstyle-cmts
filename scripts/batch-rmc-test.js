@@ -30,7 +30,8 @@ const grmc = require("../src/gulp-rm-cmts");
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// const TEST_SRC_PREFIX = "./tmp/ts/**/*";
+// const TEST_SRC_PREFIX = "./src/ts/**/*";
+// const TEST_SRC_PREFIX = "../rmc-tmp/ts/**/*";
 // const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}.{ts,tsx}`;
 /**
  * **Scan all node module pakcages and strip comments and blank line from types of javascript source**.
@@ -65,10 +66,10 @@ const cleanUpResults = (cb) => {
 // tree node_modules > nm-tree.txt && tree ..\grmc-tmp\output > output-tree.txt
 // --------------------------------------------- [gulp-rm-cmts test]
 // sample webpack: avoidMinified = 76944;
-// npm run batch-rmc-test -- -paths "['./tmp/webpack.js', './tmp/webpack-cr.js', './tmp/webpack-crlf.js']"
+// npm run batch-rmc-test -- -paths "['../rmc-tmp/webpack.js', '../rmc-tmp/webpack-cr.js', '../rmc-tmp/webpack-crlf.js']"
 
-// npm run batch-rmc-test -- -paths tmp/rmc-impossible.tsx
-// npm run batch-rmc-test -- -paths tmp/rmc-impossible#2.tsx
+// npm run batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible.tsx
+// npm run batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible#2.tsx
 /**
  * ✅ check at own environment
  * 

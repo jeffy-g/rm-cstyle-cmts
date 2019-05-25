@@ -116,6 +116,7 @@ var re = 10000 / 111.77*gg /gg;;;;
     var some = ${\n\
         // comment line...\n\
         `12.5 / 50 * 100,\n\
+        \n\
         // might be a very important comment line.\n\
         things = \"${ name + `anything` }\",\n\
         obj={ \"\\\\\": null }`\n\

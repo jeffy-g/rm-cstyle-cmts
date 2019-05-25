@@ -1,5 +1,6 @@
   
-///<reference types="node"/>
+///<reference types="node"/>
+
 var i = {} / 10; 
 
 { i = "aaa\"" } /aaa/.test(i);

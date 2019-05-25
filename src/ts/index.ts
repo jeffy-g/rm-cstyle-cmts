@@ -33,7 +33,7 @@ import * as reutil from "./reutil";
 /**
  * replace to version string at build time
  */
-const latest_version: string = "v1.7.0";
+const latest_version: string = "v1.7.1";
 /**
  * singleton instance.
  */
@@ -43,18 +43,18 @@ const Replacer = replace.getFrondEnd();
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * 
- * @param matched 
- */
-const ws_qs_replacer = (matched: string/*, index: number, inputs: string*/) => {
-    const head = matched[0];
-    // NOTE: need skip quoted string, regexp literal.
-    return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
-    // return /\s/.test(matched[0])? "": matched;
-// FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
-// NOTE: this regex seems to be the correct answer...
-};
+// /**
+//  * 
+//  * @param matched 
+//  */
+// const ws_qs_replacer = (matched: string/*, index: number, inputs: string*/) => {
+//     const head = matched[0];
+//     // NOTE: need skip quoted string, regexp literal.
+//     return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
+//     // return /\s/.test(matched[0])? "": matched;
+// // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
+// // NOTE: this regex seems to be the correct answer...
+// };
 
 /**
  * number of times successfully processed
@@ -160,43 +160,48 @@ const removeCStyleComments: IRemoveCStyleComments = (
         return source;
     }
 
+    // - - - - 
+    // DEVNOTE: 2019-5-25
+    // Since string.replace method by regex only is difficult to control, 
+    // so we implemented code + regex replacement.
+    //
+    // ✅ This makes it possible to hold the contents of nested es6 templete string.
+    // - - - - 
     const regexes = reutil.lookupRegexes(source);
-    // /* remove whitespaces.*/
-    // let m: RegExpExecArray | null;
-    // const re_ws_qs = regexes.re_ws_qs;
-    // const context = replace.createReplacementContext(source);
-    // let offset = 0;
-    // let prev_offset = 0;
-    // while (m = re_ws_qs.exec(source)) {
-    //     const matched = m[0];
-    //     const head = matched[0];
-    //     if (head === "`" || head === "/") {
-    //         const inspectable = Replacer.getScanner(head);
-    //         context.result += source.substring(prev_offset, offset);
-    //         context.offset = offset;
-    //         prev_offset = inspectable(head, source, context)? context.offset: context.offset++;
-    //         re_ws_qs.lastIndex = offset = context.offset;
-    //         continue;
-    //     } else if (head === "'" || head === '"') {
-    //         // context.result += matched;
-    //         context.result += source.substring(prev_offset, re_ws_qs.lastIndex);
-    //         prev_offset = offset = re_ws_qs.lastIndex;
-    //     } else {
-    //         offset += matched.length;
-    //     }
-    //     // // NOTE: need skip quoted string, regexp literal.
-    //     // return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
-    // }
-    // if (source.length - prev_offset > 0) {
-    //     context.result += source.substring(prev_offset, offset);
-    // }
+    const re_ws_qs = regexes.re_ws_qs;
+    const context = replace.createReplacementContext(source);
 
-    // return context.result.replace(regexes.re_first_n_last, "");
+    let m: RegExpExecArray | null;
+    let prev_offset = 0;
+    // NOTE: need skip quoted string, regexp literal.
+    //return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
+    while (m = re_ws_qs.exec(source)) {
+        // const matched = m[0];
+        const head = m[0][0];
+        if (head === "`" || head === "/") {
+            const inspectable = Replacer.getScanner(head);
+            context.result += source.substring(prev_offset, m.index);
+            context.offset = m.index;
+            prev_offset = inspectable(head, source, context)? context.offset: context.offset++;
+            re_ws_qs.lastIndex = context.offset;
+            continue;
+        }
 
-    return source.replace(
-        regexes.re_ws_qs, ws_qs_replacer // /^\s*$|\s+$/gm, ""
-    )
-    .replace(regexes.re_first_n_last, "");
+        const sublast = (head === "'" || head === '"')? re_ws_qs.lastIndex: m.index;
+        context.result += source.substring(prev_offset, sublast);
+        prev_offset = re_ws_qs.lastIndex;
+    }
+
+    if (source.length - prev_offset > 0) {
+        context.result += source.substring(prev_offset, source.length);
+    }
+
+    return context.result.replace(regexes.re_first_n_last, "");
+
+    // return source.replace(
+    //     regexes.re_ws_qs, ws_qs_replacer // /^\s*$|\s+$/gm, ""
+    // )
+    // .replace(regexes.re_first_n_last, "");
     // .replace(/^\s+|\s+$/g, ""); // can handle it reliably, but consume a lot more cpu time a little.
 };
 

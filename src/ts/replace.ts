@@ -313,10 +313,6 @@ let evaluatedLiterals = 0;
 /**
  * regex cache
  */
-const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
-/**
- * regex cache
- */
 const re_tsref = /\/\/\/[ \t]*<reference/;
 
 /**
@@ -328,6 +324,8 @@ const re_tsref = /\/\/\/[ \t]*<reference/;
 
  ```
  */
+// CHANGES: 2019-5-25 - stopped add newline character at kinds of line comment.
+//  -> these things were required for code + regex replacement
 class SlashScanner extends CharScannerBase {
 
     get characters() {
@@ -359,7 +357,6 @@ class SlashScanner extends CharScannerBase {
         // - - - check multiline comment. - - -
         //
         if (ch === "*") {
-            // TODO: 2019-5-12 - 
             const close = source.indexOf("*/", index + 2);
             // // update offset.(implicit bug at here
             // context.offset = (close === -1? index : close) + 2;
@@ -376,89 +373,70 @@ class SlashScanner extends CharScannerBase {
         }
 
         // index + 1 ...
-        const x = context.newline && source.indexOf(context.newline, index + 1) || -1;
+        const nl_start = context.newline && source.indexOf(context.newline, index + 1) || -1;
         // limitation.
         const length = source.length;
+        // NOTE: It was necessary to extract the character strings of the remaining lines...
+        const remaining = source.substring(index, nl_start === -1? length: nl_start);
 
-        /*L: do*/ {
-
-            // NOTE: It was necessary to extract the character strings of the remaining lines...
-            const remaining = source.substring(index, x === -1? length: x);
-
-            //
-            // - - - check ts reference tag or line comment - - -
-            //
-            // check line comment.
-            if (ch === "/") {
-                // update offset. when new line character not found(eof) then...
-                context.offset = x === -1? length: x + context.newline.length;
-                if (!re_tsref.test(remaining)) { // avoid line comment
-                    // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
-                    x === -1 || (context.result += context.newline);
-                } else { // avoid ts reference tag
-                    context.result += source.substring(
-                        // DEVNOTE: 2019-5-12 - fix: imcomplete substring
-                        index, context.offset - (context.newline.length === 2? 1: 0)
-                    );
-                }
-
-                return true;
+        //
+        // - - - check ts reference tag or line comment - - -
+        //
+        if (ch === "/") {
+            // update offset. when new line character not found(eof) then...
+            context.offset = nl_start === -1? length: nl_start;// + context.newline.length;
+            if (re_tsref.test(remaining)) { // avoid ts reference tag
+                context.result += source.substring(
+                    // DEVNOTE: 2019-5-25 - fix: imcomplete substring
+                    index, context.offset// - (context.newline.length === 2? 1: 0)
+                );
             }
+            return true;
+        }
 
-            //
-            // - - - check regexp literal - - -
-            //
-            // NOTE: need lastIndex property, must add "g" flag.
-            //const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
-            // reset lastIndex
-            re_re.lastIndex = 0;
+        //
+        // - - - check regexp literal - - -
+        //
+        // NOTE: need lastIndex property, must add "g" flag.
+        const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
+        // only execute once, this is important!
+        const m = re_re.exec(remaining);
+        if (m === null) {
+            return false;
+        }
 
-            // only execute once, this is important!
-            const m = re_re.exec(remaining);
-            if (m === null) {
+        // means line comment.
+        if (remaining[m.index - 1] === "/") {
+            context.result += source.substring(index, index + m.index - 1);
+            // update offset. when new line character not found(eof) then...
+            context.offset = nl_start === -1? length: nl_start;// + context.newline.length;
+        } else {
+            // DEVNOTE: the eval function can almost certainly detect regexp literal.
+            const re_literal = m[0];
+            try {
+                // DEVNOTE: performance will be worse than "evel", and regex can not be detected accurately
+                // tslint:disable-next-line
+                // const lx = m[0].lastIndexOf("/");
+                // new RegExp(m[0].substring(1, lx));
+                // eval(m[0]);
+                if (!simpleRegexVerify(re_literal)) {
+                    // throw "🚸";
+                    eval(re_literal);
+                    /* istanbul ignore next */
+                    evaluatedLiterals++;
+                }
+            } catch (e) {
+                regexErrorReport && console.log("Missdetection of Regex: [%s]", re_literal);
                 return false;
             }
 
-            // means line comment.
-            if (remaining[m.index - 1] === "/") {
+            detectedReLiterals.push(re_literal);
+            // update offset.
+            context.offset = index + re_re.lastIndex; // "g" flag.
+            context.result += source.substring(index, context.offset);
+        }
 
-                context.result += source.substring(index, index + m.index - 1);
-                // update offset. when new line character not found(eof) then...
-                context.offset = x === -1? length: x + context.newline.length;
-                // NOTE: avoid extra loops in ReplaceFrontEnd.apply()
-                x === -1 || (context.result += context.newline);
-                return true;
-
-            } else {
-                // DEVNOTE: the eval function can almost certainly detect regexp literal.
-                const re_literal = m[0];
-                try {
-                    // DEVNOTE: performance will be worse than "evel", and regex can not be detected accurately
-                    // tslint:disable-next-line
-                    // const lx = m[0].lastIndexOf("/");
-                    // new RegExp(m[0].substring(1, lx));
-                    // eval(m[0]);
-                    if (!simpleRegexVerify(re_literal)) {
-                        // throw "🚸";
-                        eval(re_literal);
-                        /* istanbul ignore next */
-                        evaluatedLiterals++;
-                    }
-                } catch (e) {
-                    regexErrorReport && console.log("Missdetection of Regex: [%s]", re_literal);
-                    return false;
-                }
-
-                detectedReLiterals.push(re_literal);
-                // update offset.
-                context.offset = index + re_re.lastIndex; // "g" flag.
-                context.result += source.substring(index, context.offset);
-                return true;
-            }
-
-        } //while (true);
-        // unreachable...
-        // return false;
+        return true;
     }
 }
 

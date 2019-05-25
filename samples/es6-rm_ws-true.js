@@ -16,7 +16,9 @@ about                   [alt+A]
     ${
     "nest-1:" + `:Key Binding:${ 234 }}
     }
+
         ${
+
             // comment line...
             "nest-2:" + `:Key Binding:${ `let abc = ${
                 Boolean("")
@@ -32,6 +34,7 @@ about                   [alt+A]
 
                     "nest-3:" + `:Key Binding:${ 234 }}
                     }
+
                     // comment line in backquote
                     :On comment:\`\  \"\`\"\\
 
@@ -44,6 +47,7 @@ about                   [alt+A]
     :On comment:\`\  \"\`\"\\
 
     ------------------------------[ X ]`
+
     // comment line...
     }
 :On comment:\`\  \"\`\"\\
@@ -86,6 +90,7 @@ const templete = `function ${name}($) {
    var some = ${
    // comment line #2...
    `12.5 / 50 * 100,
+
    // might be a very important comment line.
    things = "${ name + `anything` }",
    obj={ "\\\\": null }`
