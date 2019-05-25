@@ -27,7 +27,7 @@ etc...
 ## rm-cstyle-cmts gulp plugin is available.
 
 ```js
-const grmc = require("rm-cstyle-cmts/gulp/");
+const grmc = require("rm-cstyle-cmts/bin/gulp/");
 
 // ...
 
