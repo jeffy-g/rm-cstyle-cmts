@@ -16,94 +16,6 @@ remove c style comments from text file(javascript source, json file etc...
 > [rm-cstyle-cmts Playground (powerd by monaco-editor)](https://rm-cstyle-cmts-playground.netlify.com/)
 
 
-## module definition
-```ts
-/**
- * "remove c style comments" function signature.
- */
-interface IRemoveCStyleCommentsTypeSig {
-    /**
-     * #### remove c style comments form "source" content.  
-     * 
-     * step 1:  
-     *  - remove line comments, multi line comments.  
-     *  - and search the regexp literal. if found then concat it to results.  
-     * 
-     * step 2:  
-     *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
-     * 
-     * @param {string} source c style commented text source.
-     * @param {boolean} [rm_blank_line_n_ws] remove blank line and whitespaces, default is `true`.
-     * @param {boolean} [report_regex_evaluate_error] want report regex literal evaluation error? default is `undefined`
-     */
-    (
-        source: string,
-        rm_blank_line_n_ws?: boolean,
-        /**
-         * NOTE:
-         *  + Once you change this setting, it will be taken over from the next time.
-         *    So, if you want to make a temporary change, be aware that you need to switch each time.
-         * ---
-         */
-        report_regex_evaluate_error?: boolean
-    ): string;
-}
-interface IRemoveCStyleCommentsProperties {
-    /** package version */
-    readonly version: string;
-
-    /**
-     * **If a minified source is detected, the default configuration does nothing**.
-     * 
-     * number of times the process was bypassed because the line was too long
-     */
-    readonly noops: number;
-    /**
-     * number of times successfully processed
-     */
-    readonly processed: number;
-
-    /**
-     * **set whether to avoid minified source**.
-     * 
-     *  + threshold to avoid processing such as minified source (line length.  
-     *    this also applies to embedded sourcemaps and so on.
-     * 
-     * NOTE: If a minified source is detected, the source is returned without any processing.
-     * 
-     * ⚠️This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
-     * 
-     * If you know in advance that you do not to handle minified sources,  
-     * setting this value to "0" will be disable this feature.
-     * 
-     * default is `8000`
-     */
-    avoidMinified: number;
-}
-
-interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IRemoveCStyleCommentsProperties {
-    /**
-    * reset "noops" and "processed".
-    */
-    reset(): void;
-    /**
-    * 
-    */
-    getDetectedReContext(): DetectedReContext;
-}
-
-/**
- *
- */
-interface DetectedReContext {
-    detectedReLiterals: string[];
-    evaluatedLiterals: number;
-}
-
-declare const removeCStyleComments: IRemoveCStyleComments;
-export = removeCStyleComments;
-```
-
 ## install
 
 > npm install rm-cstyle-cmts@latest --save-dev  
@@ -129,6 +41,11 @@ gulp.src(["./src/**/*.js"]).pipe(
     })
 ).pipe(gulp.dest("./tmp"));
 ```
+
+## TODO: asynchronous processing support
+
+ + In the near future, will be able to work with asynchronous processing
+
 
 ## BUGS
 
@@ -268,12 +185,12 @@ v12.3.1
 ✔ order => version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
 ✔ order => version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 50.689779%
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 51.416131%
 [version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 166.205500 ms, total average for each run: 0.083103 ms
+    average of entries: 168.526100 ms, total average for each run: 0.084263 ms
 }
 [version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 84.249200 ms, total average for each run: 0.042125 ms
+    average of entries: 86.649600 ms, total average for each run: 0.043325 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
@@ -281,33 +198,33 @@ v12.3.1
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
 version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 190.072ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 165.554ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 162.042ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 162.468ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 163.626ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 165.663ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 164.108ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 162.065ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 164.194ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 162.263ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 193.363ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 166.702ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 164.730ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 164.508ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 168.537ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 166.130ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 166.114ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 164.293ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 166.483ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 164.401ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
 version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 83.702ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 83.563ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 83.655ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 83.424ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 86.899ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 83.433ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 83.796ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 85.369ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 84.195ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 84.456ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 87.002ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 86.175ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 85.878ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 86.093ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 89.227ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 86.247ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 85.946ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 86.281ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 87.814ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 85.833ms
  ------------------------ end benchmark ------------------------
 --done--
-es6-rm_ws-true.js written...
 es6-rm_ws-false.js written...
+es6-rm_ws-true.js written...
 ```
 
 > at node v6.0.0
@@ -321,12 +238,12 @@ v6.0.0
 ✔ order => version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
 ✔ order => version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 50.157270%
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 50.732340%
 [version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 364.913200 ms, total average for each run: 0.182457 ms
+    average of entries: 357.067900 ms, total average for each run: 0.178534 ms
 }
 [version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 183.030500 ms, total average for each run: 0.091515 ms
+    average of entries: 181.148900 ms, total average for each run: 0.090574 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
@@ -334,33 +251,33 @@ v6.0.0
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
 version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 380.963ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 360.015ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 375.822ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 357.193ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 355.505ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 358.080ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 356.928ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 376.115ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 368.778ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 359.733ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 375.504ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 351.087ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 365.277ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 349.800ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 349.847ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 348.776ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 351.010ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 376.068ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 351.211ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 352.099ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
 version: v2.0.0, case: { source: es6.js@4,544 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 182.548ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 182.160ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 183.395ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 182.111ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 184.533ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 182.477ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 184.369ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 183.090ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 182.268ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 183.354ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 179.265ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 178.599ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 179.857ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 178.744ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 181.530ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 179.917ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 178.469ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 179.337ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 180.164ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 195.607ms
  ------------------------ end benchmark ------------------------
 --done--
-es6-rm_ws-true.js written...
 es6-rm_ws-false.js written...
+es6-rm_ws-true.js written...
 ```
 
 ## Regarding Verification of Regular Expression Literals:
@@ -400,3 +317,91 @@ es6-rm_ws-false.js written...
 as comment on samples/es6.js with descriptive explanation,
 
 please look there.
+
+## module definition
+```ts
+/**
+ * "remove c style comments" function signature.
+ */
+interface IRemoveCStyleCommentsTypeSig {
+    /**
+     * #### remove c style comments form "source" content.  
+     * 
+     * step 1:  
+     *  - remove line comments, multi line comments.  
+     *  - and search the regexp literal. if found then concat it to results.  
+     * 
+     * step 2:  
+     *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
+     * 
+     * @param {string} source c style commented text source.
+     * @param {boolean} [rm_blank_line_n_ws] remove blank line and whitespaces, default is `true`.
+     * @param {boolean} [report_regex_evaluate_error] want report regex literal evaluation error? default is `undefined`
+     */
+    (
+        source: string,
+        rm_blank_line_n_ws?: boolean,
+        /**
+         * NOTE:
+         *  + Once you change this setting, it will be taken over from the next time.
+         *    So, if you want to make a temporary change, be aware that you need to switch each time.
+         * ---
+         */
+        report_regex_evaluate_error?: boolean
+    ): string;
+}
+interface IRemoveCStyleCommentsProperties {
+    /** package version */
+    readonly version: string;
+
+    /**
+     * **If a minified source is detected, the default configuration does nothing**.
+     * 
+     * number of times the process was bypassed because the line was too long
+     */
+    readonly noops: number;
+    /**
+     * number of times successfully processed
+     */
+    readonly processed: number;
+
+    /**
+     * **set whether to avoid minified source**.
+     * 
+     *  + threshold to avoid processing such as minified source (line length.  
+     *    this also applies to embedded sourcemaps and so on.
+     * 
+     * NOTE: If a minified source is detected, the source is returned without any processing.
+     * 
+     * ⚠️This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
+     * 
+     * If you know in advance that you do not to handle minified sources,  
+     * setting this value to "0" will be disable this feature.
+     * 
+     * default is `8000`
+     */
+    avoidMinified: number;
+}
+
+interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IRemoveCStyleCommentsProperties {
+    /**
+    * reset "noops" and "processed".
+    */
+    reset(): void;
+    /**
+    * 
+    */
+    getDetectedReContext(): DetectedReContext;
+}
+
+/**
+ *
+ */
+interface DetectedReContext {
+    detectedReLiterals: string[];
+    evaluatedLiterals: number;
+}
+
+declare const removeCStyleComments: IRemoveCStyleComments;
+export = removeCStyleComments;
+```
