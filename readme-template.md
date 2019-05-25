@@ -11,7 +11,12 @@ remove c style comments from text file(javascript source, json file etc...
 
 ## npm package name: rm-cstyle-cmts
 
-> ### module definition
+## Playground
+
+> [rm-cstyle-cmts Playground (powerd by monaco-editor)](https://rm-cstyle-cmts-playground.netlify.com/)
+
+
+## module definition
 ```ts
 /**
  * "remove c style comments" function signature.
@@ -28,7 +33,7 @@ interface IRemoveCStyleCommentsTypeSig {
      *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
      * 
      * @param {string} source c style commented text source.
-     * @param {boolean} [rm_blank_line_n_ws] remove black line and whitespaces, default is `true`.
+     * @param {boolean} [rm_blank_line_n_ws] remove blank line and whitespaces, default is `true`.
      * @param {boolean} [report_regex_evaluate_error] want report regex literal evaluation error? default is `undefined`
      */
     (
@@ -99,10 +104,6 @@ declare const removeCStyleComments: IRemoveCStyleComments;
 export = removeCStyleComments;
 ```
 
-## Playground
-
-> [rm-cstyle-cmts Playground (powerd by monaco-editor)](https://rm-cstyle-cmts-playground.netlify.com/)
-
 ## install
 
 > npm install rm-cstyle-cmts@latest --save-dev  
@@ -111,9 +112,27 @@ export = removeCStyleComments;
 
 etc...
 
+## rm-cstyle-cmts gulp plugin is available.
+
+```js
+const grmc = require("rm-cstyle-cmts/gulp/");
+
+// ...
+
+gulp.src(["./src/**/*.js"]).pipe(
+    /**
+     * remove_ws : remove whitespace and blank lines.
+     */
+    grmc.getTransformer({
+        remove_ws: true,
+        render_progress: true,
+    })
+).pipe(gulp.dest("./tmp"));
+```
+
 ## BUGS
 
-* [ ] `BUG:` #cannot keep blank line at nested es6 template string, (`rm_blank_line_n_ws=true`, at src/ts/index.ts
+* [x] ~~`BUG:` #cannot keep blank line at nested es6 template string, (`rm_blank_line_n_ws=true`, at src/ts/index.ts~~
 * [X] ~~*`BUG:` When a newline character is CRLF, regexp instance specifying multiline flag can not correctly supplement CRLF with ^ and $*~~
 * [X] ~~*`BUG:` In some cases, a newline character remains at the beginning or the end of the file. (`rm_blank_line_n_ws=true`, at src/ts/index.ts*~~
 * [X] ~~*`BUG:` #cannot remove last new line char. (at src/ts/index.ts*~~

@@ -25,7 +25,7 @@ const del = require("del");
 const gulp = require("gulp");
 const utils = require("./utils");
 
-const grmc = require("../src/gulp-rm-cmts");
+const grmc = require("../bin/gulp/");
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types
@@ -145,10 +145,12 @@ const grmcBatchTest = (cb) => {
 console.log(process.argv);
 
 // step 1. cleanup prev output
+console.log("- - - step 1. cleanup prev output - - -");
 console.time("[remove-output]");
 cleanUpResults(() => console.timeEnd("[remove-output]"));
 
 // step 2. fire gulp-rm-cmts test process
+console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
 console.time("[batch-rmc-test]");
 grmcBatchTest(() => console.timeEnd("[batch-rmc-test]"));
 

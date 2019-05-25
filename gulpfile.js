@@ -144,7 +144,7 @@ function _replace_some(done, strip_code) {
             })
         );
     }
-    stream.pipe(gulp.dest(function(vinyl) {
+    stream.pipe(gulp.dest(vinyl => {
         return convertRelativeDir(vinyl, ".");
     })).on("end", () => {
         did_strip && console.log("strip webpack code. did_strip=%d", did_strip);
@@ -171,9 +171,9 @@ function _remove_un_js(done) {
 function _dist(done, dest) {
     gulp.src([
         "LICENSE", "package.json", "README.md", "samples/!(core*|typeid-map*)",
-        "test/test.js*",
+        "test/test.ts",
         COPY_SCRIPT_FILEs
-    ]).pipe(gulp.dest(function(vinyl) {
+    ]).pipe(gulp.dest(vinyl => {
         return convertRelativeDir(vinyl, dest);
     })).on("end", () => {
         // notify completion of task.
@@ -181,13 +181,58 @@ function _dist(done, dest) {
     });
 }
 
-function _copyDefinitions() {
+const _copyDefinitions = () => {
     // copy ...
-    gulp.src("./src/ts/{index,globals}.d.ts").pipe(gulp.dest(JS_DEST_DIR)).on("end", () => {
+    gulp.src(["./src/ts/**/{index,globals}.d.ts", "./src/ts/**/package.json"])
+    .pipe(gulp.dest(JS_DEST_DIR)).on("end", () => {
         // notify completion of task.
         console.log("did copy of definitions(.d.ts)");
     });
-}
+};
+
+
+/**
+ * generate gulp plugin
+ * 
+ * @param {() => void} done 
+ */
+const compileGulpPlugin = (done) => {
+
+    // const through = require("through2");
+    // const include = () => {
+    //     return through.obj(function (file, enc, callback) {
+    //         console.log("grmc:tsc:", file.relative);
+    //         if (file.relative.indexOf("gulp") !== -1) {
+    //             this.push(file);
+    //         }
+    //         return callback();
+    //     });
+    // };
+
+    const project = tsc.createProject("./tsconfig.json");
+    // cannot took dependent source.
+    // however, it seems ok if you explicitly list the file with tsconfig.json ("include" etc.
+    // const result = project.src() // Compiler option "compileOnSave" requires a value of type boolean. <- "compileOnSave" option...?
+    const result = gulp.src("./src/ts/gulp/index.ts")
+        .pipe(sourcemaps.init()) // This means sourcemaps will be generated
+        .pipe(project());
+        // .pipe(include());
+
+    // return result.js.pipe(gulp.dest(JS_DEST_DIR));
+    result.pipe(sourcemaps.write(".", { // create map file per .js
+        // DEVNOTE: 2019-5-14 - for test coverage, fix: remap-istanbul has incomplete detection of source.
+        includeContent: false,
+        // sourceRoot: ""
+    }))
+    .pipe(gulp.dest(vinyl => {
+        // DEVNOTE: see tsconfig.json@rootDir
+        return convertRelativeDir(vinyl, ".");
+    }))
+    .on("end", function () {
+        console.log("compileGulpPlugin done.");
+        done && done();
+    });
+};
 
 /**
  * 
@@ -218,6 +263,7 @@ function doWebpack(webpackConfigPath, done) {
         _remove_nullfile();
         _remove_un_js(done); // <- this is a bit slow...
         console.log("webpack done.");
+        compileGulpPlugin();
     });
 }
 // if need optional parametar.
@@ -261,7 +307,7 @@ gulp.task("tsc", gulp.series("clean", function(done) {
     // 
     .pipe(sourcemaps.write(".", { // create map file per .js
         // DEVNOTE: 2019-5-14 - for test coverage, fix: remap-istanbul has incomplete detection of source.
-        includeContent: true,
+        // includeContent: true,
         // sourceRoot: ""
     }))
     .pipe(gulp.dest(JS_DEST_DIR))

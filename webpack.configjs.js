@@ -87,7 +87,7 @@ module.exports = {
     resolve: {
         extensions: [".js", ".ts"]
     },
-    devtool: "source-map", // need this for complete sourcemap.
+    devtool: "cheap-source-map", // "source-map" -> need this for complete sourcemap.
 
     plugins: [
         // UglifyJsPlugin is included in webpack. (v3.x

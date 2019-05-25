@@ -16,12 +16,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ------------------------------------------------------------------------
-const rmc = require("rm-cstyle-cmts");
 */
+// original name: gulp-rm-cmts.ts
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import * as rmc from "../bin/";
+import * as rmc from "../";
 // use "rm-cstyle-cmts"
 // import * as rmc from "rm-cstyle-cmts";
 
@@ -47,9 +47,22 @@ type FixTransformFunction = (this: stream["Transform"]["prototype"], chunk: Viny
  * gulp-rm-cmts option type
  */
 type GulpRmcOptions = {
+    /**
+     * remove blank line and whitespaces, default is `true`.
+     */
     remove_ws?: boolean;
-    report_re_error?: boolean;
+    /**
+     * log file path(relative) currently being processed.
+     * 
+     * ```
+[processed: 1123, noops: 0]: ${path}
+     * ```
+     */
     render_progress?: boolean;
+    /**
+     * want report regex literal evaluation error? default is `undefined`
+     */
+    report_re_error?: boolean;
 
     // want extras?
     // extra_extensions: string[];
@@ -172,7 +185,7 @@ export = {
 
     getTransformer,
     /**
-     * get a list of paths whose processing has been bypassed
+     * unprocessed file is recorded
      */
     get noopPaths() {
         return noopPaths;

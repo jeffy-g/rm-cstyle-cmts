@@ -21,15 +21,41 @@ limitations under the License.
 ///<reference types="rm-cstyle-cmts"/>
 
 import * as through from "through2";
+
 declare type GulpRmcOptions = {
+    /**
+     * remove blank line and whitespaces, default is `true`.
+     */
     remove_ws?: boolean;
-    report_re_error?: boolean;
+    /**
+     * log file path(relative) currently being processed.
+     * 
+     * ```
+[processed: 1123, noops: 0]: ${path}
+     * ```
+     */
     render_progress?: boolean;
+    /**
+     * want report regex literal evaluation error? default is `undefined`
+     */
+    report_re_error?: boolean;
 };
+
 declare type TransformerFactory = (options: GulpRmcOptions) => ReturnType<typeof through>;
+
 declare const GulpRmc: {
+    /**
+     * main interface for gulp
+     */
     getTransformer: TransformerFactory;
+    /**
+     * unprocessed file is recorded
+     */
     readonly noopPaths: string[];
+    /**
+     * get IRemoveCStyleComments interface
+     */
     getRmcInterface(): IRemoveCStyleComments;
 };
+
 export = GulpRmc;

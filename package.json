@@ -1,6 +1,6 @@
 {
     "name": "rm-cstyle-cmts",
-    "version": "1.7.1",
+    "version": "2.0.0",
     "description": "remove c style comments from text file(javascript source, json file etc...",
     "main": "./bin/index.js",
     "types": "./bin/index.d.ts",
@@ -17,7 +17,6 @@
         "build": "npx gulp gulp:tsc",
         "dist:nopack": "npx gulp dist",
         "dist": "npx gulp dist:pack",
-        "grmc:comp": "tsc -t es2015 -m commonjs --removecomments true src/gulp-rm-cmts.ts",
         "v:major": "node ./scripts/version-tool -cmd version -major",
         "v:minor": "node ./scripts/version-tool -cmd version -minor",
         "v:patch": "node ./scripts/version-tool -cmd version"
@@ -27,7 +26,8 @@
         "posttest": "npm run report-ts",
         "test": "bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\"",
         "report-ts": "rimraf ./coverage/report-ts && remap-istanbul -i coverage/coverage.json -o coverage/report-ts -t html",
-        "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 200 -ol 10 && npm run report-ts"
+        "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 200 -ol 10 && npm run report-ts",
+        "grmc:comp": "tsc -t es2015 -m commonjs --removecomments true src/ts/gulp/index.ts --outDir bin/"
     },
     "jest": {
         "globals": {
@@ -59,7 +59,7 @@
         "text"
     ],
     "engines": {
-        "node": ">=8.10.0"
+        "node": ">=6.0.0"
     },
     "devDependencies": {
         "@types/jest": "^24.0.13",

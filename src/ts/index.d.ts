@@ -30,7 +30,7 @@ declare global {
          *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
          * 
          * @param {string} source c style commented text source.
-         * @param {boolean} [rm_blank_line_n_ws] remove black line and whitespaces, default is `true`.
+         * @param {boolean} [rm_blank_line_n_ws] remove blank line and whitespaces, default is `true`.
          * @param {boolean} [report_regex_evaluate_error] want report regex literal evaluation error? default is `undefined`
          */
         (

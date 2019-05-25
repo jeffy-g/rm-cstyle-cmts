@@ -24,8 +24,6 @@ const fs = require("fs");
 const path = require("path");
 // for clearLine...
 const readline = require("readline");
-// DEVNOTE: Performance Timing API since v8.5.0
-const { performance } = require("perf_hooks");
 
 /**
  * get node version at runtime.
@@ -207,6 +205,10 @@ const createProgress = (timeSpanMS, frames) => {
     //     const line = text === void 0? "" : `[${frames[index++ % frames.length]}]: ${text}`;
     //     !line && (progress(), 1) || process.nextTick(progress, line);
     // }
+
+    // DEVNOTE: Performance Timing API since v8.5.0
+    const { performance } = require("perf_hooks");
+
     let index = 0;
     let x = performance.now();
     return /**@type {(text: string) => void}*/ text => {
