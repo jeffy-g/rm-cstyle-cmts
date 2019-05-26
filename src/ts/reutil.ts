@@ -296,10 +296,13 @@ newline\s+(?=newline)| # whitespace line or ...
 namespace ReUtil {
 
     /**
-     * 
+     * regex for known newlines
      */
     export const RE_NEWLINEs = /\r\n|\n|\r/;
 
+	/**
+	 * detect newline by script
+	 */
     export const detectNewLine = _detectNewLine;
 
     /**
@@ -330,7 +333,8 @@ namespace ReUtil {
     }
 
     /**
-     * 
+     * lookup cached regexes by newline character 
+	 *
      * @param source 
      */
     export const lookupRegexes = (source: string) => {

@@ -454,6 +454,10 @@ const createWhite = (source: string): IReplacementContext => {
     };
 };
 
+/**
+ * create IReplacementContext.
+ * @param source parsing source.
+ */
 export const createReplacementContext = createWhite;
 
 /**

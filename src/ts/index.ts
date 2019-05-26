@@ -17,7 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-///<reference path="./index.d.ts"/>
+/// <reference path="./index.d.ts"/>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -43,19 +43,6 @@ const Replacer = replace.getFrondEnd();
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// /**
-//  * 
-//  * @param matched 
-//  */
-// const ws_qs_replacer = (matched: string/*, index: number, inputs: string*/) => {
-//     const head = matched[0];
-//     // NOTE: need skip quoted string, regexp literal.
-//     return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
-//     // return /\s/.test(matched[0])? "": matched;
-// // FIXED: In some cases, a newline character remains at the beginning or the end of the file. (rm_blank_line_n_ws=true, at src/ts/index.ts
-// // NOTE: this regex seems to be the correct answer...
-// };
-
 /**
  * number of times successfully processed
  */
@@ -75,7 +62,6 @@ const withNoop = <T>(contents: T) => {
     return contents;
 };
 
-// const MAX_LINE = 8000;
 const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
 
 /**

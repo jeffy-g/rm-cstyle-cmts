@@ -5,9 +5,8 @@
 core.min*
 core*.js
 /scripts/extra-bench*
-#package-lock.json
-/.d-ts
+
 /logs
 /tmp
-/ssh
+/etc
 /coverage

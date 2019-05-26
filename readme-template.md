@@ -4,7 +4,16 @@
 [![LICENSE](https://img.shields.io/badge/Lisence-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield)
 [![DeepScan grade](https://deepscan.io/api/teams/3135/projects/4618/branches/37135/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3135&pid=4618&bid=37135)
+![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/npm/rm-cstyle-cmts.svg)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/jeffy-g/rm-cstyle-cmts.svg?style=plastic)
+![npm bundle size](https://img.shields.io/bundlephobia/min/rm-cstyle-cmts.svg?style=plastic)
+![npm](https://img.shields.io/npm/dm/rm-cstyle-cmts.svg?style=plastic)
+![node](https://img.shields.io/node/v/rm-cstyle-cmts.svg?style=plastic)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/jeffy-g/rm-cstyle-cmts.svg?style=plastic)
+
+<!-- ![npm bundle size (version)](https://img.shields.io/bundlephobia/min/rm-cstyle-cmts/latest.svg) -->
 <!-- https://img.shields.io/npm/v/rm-cstyle-cmts.svg -->
+
 # remove cstyle comments
 
 remove c style comments from text file(javascript source, json file etc...
@@ -198,7 +207,6 @@ npm run bench
 
 ```perl
 
-(?<![<\w\]])         # avoidance: jsx or tsx start tag, available on node v8.10
 \/                   # regexp literal start@delimiter
   (?![?*+\/])        # not meta character "?*+/" @anchor
   (?:                # start non-capturing group $1
