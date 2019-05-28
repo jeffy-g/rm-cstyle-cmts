@@ -233,34 +233,33 @@ function progress(msg?: string): void {
 // node ./bin/bench/ -f sample-cfg.json -l 1500 | node ./bin/bench/ -p
 if (settings.p) {
 
-    // process.env.CI = "true";
+    let inputs: string;
+    // process.env.CI = 1;
     const emitResult = (): void => {
-        const log_content = typeof inputs === "string"? inputs: (<string[]>inputs).filter(v => !!v).join("");
         console.log(
             `${"\u2193  ".repeat(10)}performance log   ${"\u2193  ".repeat(10)}\n`,
-            ContractorPattern.average(log_content, !!0)
+            ContractorPattern.average(inputs, !!0)
         );
-        // ContractorPattern.average(inputs, !!0);
     };
 
-    let inputs: any = new Array(200);
     // from pipe.
     if (settings.p === true) {
         process.stdin.resume();
         process.stdin.setEncoding("utf8");
+        inputs = "";
 
         const on_data_handler = process.env.CI? (chunk: string): any => {
-            inputs.push(chunk);
-            // inputs += chunk;
+            chunk.length && (inputs += chunk);
             chunk[0] !== " " && process.stderr.write(".");
         }: (() => {
             const rotator = ["|", "/", "-", "\\", "|", "/", "-", "\\"];
             let rotator_index = 0;
             return (chunk: string): any => {
-                inputs.push(chunk);
+                chunk.length && (inputs += chunk);
                 chunk[0] !== " " && progress(`performance measurement running [${rotator[rotator_index++ % rotator.length]}]`);
             }
         })();
+
         process.stdin.on("data", on_data_handler);
         process.stdin.on("end", function () {
             !process.env.CI && (progress(), 1) || console.log();
@@ -268,16 +267,16 @@ if (settings.p) {
         });
         // ✈: \u2708
         console.log();
-        console.log(`${"\u2708  ".repeat(8)}performance log started...`);
-    // from log file.
-    } else if (typeof settings.p === "string" && fs.existsSync(<string>settings.p)) {
+        console.log(`${"✈  ".repeat(8)}performance log started...`);
+
+    } else if (typeof settings.p === "string" && fs.existsSync(<string>settings.p)) { // from log file.
         inputs = fs.readFileSync(<string>settings.p, "utf-8");
         emitResult();
     }
 
 } else {
 
-    let method: Function;
+    let method: (a: boolean) => void;
     // node ./bin/bench/ -empty -l 200000 -ol 10 | node ./bin/bench/ -p
     if (settings.empty) {
         method = benchmark0

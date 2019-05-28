@@ -76,11 +76,7 @@ type TransformerFactory = (options: GulpRmcOptions) => ReturnType<typeof through
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/**
- * 
- * @param path 
- */
-const progress = (path: string) => {
+const stdProgress = (path: string) => {
     const output = process.stderr;
     // clear the current line
     readline.clearLine(output, 0);
@@ -88,6 +84,21 @@ const progress = (path: string) => {
     // write the message.
     output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
 };
+/**
+ * 
+ * @param path 
+ */
+const progress = process.env.CI? (() => {
+    let count = 0;
+    // @ts-ignore 
+    return (path: string) => {
+        count++;
+        (count % 100) === 0 && process.stderr.write(".");
+        // write the message.
+        (count % 10000) === 0 && process.stderr.write("\n");
+    }
+})(): stdProgress;
+
 // const progress = (path: string) => {
 //     setTimeout((path: string) => {
 //         const output = process.stderr;
