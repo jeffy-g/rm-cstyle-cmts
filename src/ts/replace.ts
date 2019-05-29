@@ -17,7 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-/** RE_NEWLINEs */
+/** lookupRegexes, detectNewLine, DetectedNewLines */
 import * as reutil from "./reutil";
 
 
@@ -26,7 +26,7 @@ export interface IReplaceFrontEnd {
      * it returns result string content.
      * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
      */
-    apply(source: string): string;
+    apply(source: string, rm_blank_line_n_ws: boolean): string;
 
     getScanner(ch: string): CharScannerFunction;
 
@@ -51,7 +51,7 @@ interface IReplacementContext {
     /** replecement result */
     result: string;
     /** new line character at source. */
-    newline: string;
+    newline: reutil.DetectedNewLines;
 }
 
 interface ICharacterScanner {
@@ -72,6 +72,7 @@ type CharScannerFunctionRegistry = CharScannerFunction[];
  * 
  */
 let regexErrorReport: boolean = false;
+
 
 /**
  * TODO: jsdoc
@@ -116,7 +117,6 @@ abstract class CharScannerBase implements ICharacterScanner {
         });
     }
 }
-
 
 
 /**
@@ -167,6 +167,7 @@ class QuoteScanner extends CharScannerBase {
         throw new SyntaxError(`invalid string quotes?, offset=${context.offset}, remaining=--[${source.substring(context.offset)}]--`);
     }
 }
+
 
 /**
  * In back quote string,  
@@ -262,6 +263,7 @@ class BackQuoteScanner extends CharScannerBase {
     }
 }
 
+
 /**
  * Simple regex verifier
  * 
@@ -306,15 +308,12 @@ const simpleRegexVerify = (inputs: string) => {
     return groupIndex === 0;
 };
 
-
 const detectedReLiterals: string[] = [];
 let evaluatedLiterals = 0;
-
 /**
  * regex cache
  */
 const re_tsref = /\/\/\/[ \t]*<reference/;
-
 /**
  * when this character appears,  
  * its necessary to verify the line comment, multiline comment, regex.  
@@ -454,11 +453,6 @@ const createWhite = (source: string): IReplacementContext => {
     };
 };
 
-/**
- * create IReplacementContext.
- * @param source parsing source.
- */
-export const createReplacementContext = createWhite;
 
 /**
  * NOTE:  
@@ -479,8 +473,11 @@ namespace ReplaceFrontEnd {
     const scanners: CharScannerFunctionRegistry = [];
     CharScannerBase.injectKnownScannersTo(scanners);
 
-    export const apply = (source: string) => {
+    export const apply = (source: string, rm_blank_line_n_ws: boolean) => {
 
+        //
+        // step 1. remove {line, block} comments
+        //
         const size = source.length;
         const registry = scanners;
         const context = createWhite(source);
@@ -499,12 +496,60 @@ namespace ReplaceFrontEnd {
                 offset = context.offset;
             }
         }
+
         if (size - prev_offset > 0) {
             context.result += source.substring(prev_offset, offset);
         }
 
-        return context.result;
+        if (!rm_blank_line_n_ws) {
+            return context.result;
+        }
+
+        //
+        // step 2. remove blank line and trailing whitespaces
+        //
+        // - - - -
+        // DEVNOTE: 2019-5-25
+        // Since string.replace method by regex only is difficult to control, 
+        // so we implemented code + regex replacement.
+        //
+        // ✅ This makes it possible to hold the contents of nested es6 templete string.
+        // - - - -
+        /* replace removed comments result */
+        source = context.result;
+        /* reset context */
+        context.result = "";//, context.offset = 0;
+        const regexes = reutil.lookupRegexes(context.newline);
+        const re_ws_qs = regexes.re_ws_qs;
+
+        let m: RegExpExecArray | null;
+        prev_offset = 0;
+        // NOTE: need skip quoted string, regexp literal.
+        //return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
+        while (m = re_ws_qs.exec(source)) {
+            // const matched = m[0];
+            const head = m[0][0];
+            if (head === "`" || head === "/") {
+                const inspectable = getScanner(head);
+                context.result += source.substring(prev_offset, m.index);
+                context.offset = m.index;
+                prev_offset = inspectable(head, source, context)? context.offset: context.offset++;
+                re_ws_qs.lastIndex = context.offset;
+                continue;
+            }
+
+            const sublast = (head === "'" || head === '"')? re_ws_qs.lastIndex: m.index;
+            context.result += source.substring(prev_offset, sublast);
+            prev_offset = re_ws_qs.lastIndex;
+        }
+
+        if (source.length - prev_offset > 0) {
+            context.result += source.substring(prev_offset, source.length);
+        }
+
+        return context.result.replace(regexes.re_first_n_last, "");
     };
+
     /* istanbul ignore next */
     export const getScanner = (ch: string) => {
         return scanners[ch.charCodeAt(0)];

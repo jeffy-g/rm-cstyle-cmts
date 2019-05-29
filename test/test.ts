@@ -228,11 +228,27 @@ limitations under the License.
             );
         });
 
+        it("#6 newline is [\\n]", () => {
+            validate(
+                "const anonymouse = () => {\n    const x = 777 / 3;\n    /// this is line comment  \n    return x % 2;\n};\n\n/* block comments */",
+                "const anonymouse = () => {\n    const x = 777 / 3;\n    return x % 2;\n};",
+            );
+        });
+        it("#7 newline is [\\r]", () => {
+            validate(
+                "const anonymouse = () => {\r    const x = 777 / 3;\r    /// this is line comment  \r    return x % 2;\r};\r\r/* block comments */",
+                "const anonymouse = () => {\r    const x = 777 / 3;\r    return x % 2;\r};",
+            );
+        });
     });
 
     describe("strip text file (this case only remove kinds of comments, and blank line)", () => {
         it("removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag", () => {
+            const am = rmc.avoidMinified;
+            // ignore line max length
+            rmc.avoidMinified = 0;
             stripSource("./samples/es6.js");
+            rmc.avoidMinified = am;
         });
         it("removing comments of ./samples/typeid-map.js with 'report_regex_evaluate_error' flag", () => {
             stripSource("./samples/typeid-map.js");

@@ -23,8 +23,6 @@ limitations under the License.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** IReplaceFrontEnd */
 import * as replace from "./replace";
-/** lookupRegexes, RE_NEWLINEs */
-import * as reutil from "./reutil";
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +31,7 @@ import * as reutil from "./reutil";
 /**
  * replace to version string at build time
  */
-const latest_version: string = "v2.0.2";
+const latest_version: string = "v2.1.0";
 /**
  * singleton instance.
  */
@@ -62,7 +60,6 @@ const withNoop = <T>(contents: T) => {
     return contents;
 };
 
-const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
 
 /**
  * 
@@ -86,7 +83,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
     }
 
     AVOID_MINFIED: {
-        if (avoid_minified) {
+        if (avoid_minified > 0) {
 
             // DEVNOTE: this code take cpu cost
             // const re_line = /^.+$/gm;
@@ -97,8 +94,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
             //     }
             // }
 
-            // const re_newline = new RegExp(reutil.RE_NEWLINEs.source, "g");
-            re_newline.lastIndex = 0;
+            const re_newline = /\r\n|\n|\r/g;
             // DEVNOTE: check the single line input
             /* istanbul ignore if */
             if (!re_newline.test(source) && avoid_minified < source.length) {
@@ -130,65 +126,15 @@ const removeCStyleComments: IRemoveCStyleComments = (
         Replacer.regexErrorReportEnable(report_regex_evaluate_error);
     }
 
-    // Is nearly equal processing speed?
-    // const replacer = is_multi_t? new replace.ReplaceFrontEnd(source): REPLACER.setSubject(source);
-
-    // source = Replacer.apply(source);
     try {
-        source = Replacer.apply(source);
+        source = Replacer.apply(source, rm_blank_line_n_ws);
+        processed++;
+        return source;
     } catch (e) {
         console.warn("\n[Exception occured] The input source will be returned without any processing.");
         return withNoop(source);
     }
 
-    processed++;
-    if (!rm_blank_line_n_ws) {
-        return source;
-    }
-
-    // - - - - 
-    // DEVNOTE: 2019-5-25
-    // Since string.replace method by regex only is difficult to control, 
-    // so we implemented code + regex replacement.
-    //
-    // ✅ This makes it possible to hold the contents of nested es6 templete string.
-    // - - - - 
-    const regexes = reutil.lookupRegexes(source);
-    const re_ws_qs = regexes.re_ws_qs;
-    const context = replace.createReplacementContext(source);
-
-    let m: RegExpExecArray | null;
-    let prev_offset = 0;
-    // NOTE: need skip quoted string, regexp literal.
-    //return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
-    while (m = re_ws_qs.exec(source)) {
-        // const matched = m[0];
-        const head = m[0][0];
-        if (head === "`" || head === "/") {
-            const inspectable = Replacer.getScanner(head);
-            context.result += source.substring(prev_offset, m.index);
-            context.offset = m.index;
-            prev_offset = inspectable(head, source, context)? context.offset: context.offset++;
-            re_ws_qs.lastIndex = context.offset;
-            continue;
-        }
-
-        const sublast = (head === "'" || head === '"')? re_ws_qs.lastIndex: m.index;
-        context.result += source.substring(prev_offset, sublast);
-        prev_offset = re_ws_qs.lastIndex;
-    }
-
-    if (source.length - prev_offset > 0) {
-        context.result += source.substring(prev_offset, source.length);
-    }
-
-    return context.result.replace(regexes.re_first_n_last, "");
-
-    // return source.replace(
-    //     regexes.re_ws_qs, ws_qs_replacer // /^\s*$|\s+$/gm, ""
-    // )
-    // .replace(regexes.re_first_n_last, "");
-    // .replace(/^\s+|\s+$/g, ""); // can handle it reliably, but consume a lot more cpu time a little.
 };
 
 /* removeCStyleComments = */ Object.defineProperties(removeCStyleComments, {

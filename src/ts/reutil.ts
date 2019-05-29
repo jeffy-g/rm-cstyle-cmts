@@ -193,6 +193,12 @@ DEVNOTE: 2019/05/07
 //     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|${re_RegexLiteral.source}`);
 // }
 
+
+namespace ReUtil {
+    export type KnownNewLines = "\r" | "\n" | "\r\n";
+    export type DetectedNewLines = KnownNewLines | "";
+}
+
 /**
  * 
  */
@@ -204,8 +210,7 @@ let re_ws_qs_base: RegExp; {
     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
 }
 
-type KnownNewLines = "\r" | "\n" | "\r\n";
-const _detectNewLine = (source: string): KnownNewLines | null => {
+const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
     const length = source.length;
     let index = 0;
     while (index < length) {
@@ -219,24 +224,19 @@ const _detectNewLine = (source: string): KnownNewLines | null => {
     return null;
 };
 
+
 /**
  * 
- * @param source 
- * @param holder 
+ * @param newline 
  */
-const buildWsQsReRegexp = (source: string, holder: { newline: KnownNewLines | null }) => {
-    // specify new line character.
-    let newline = _detectNewLine(source);
-    const is_single_line_input = newline === null;
-    // 
-    holder.newline = newline;
+const buildWsQsReRegexp = (newline: ReUtil.KnownNewLines | "") => {
 
-    // let isCRLF: boolean | undefined;
+    const is_single_line_input = newline === "";
+
     if (!is_single_line_input) {
         // escape CR or LF
         // @ts-ignore re-assign different type
         newline = newline === "\r\n" ? "\\r\\n" : newline === "\n" ? "\\n" : "\\r";
-        // isCRLF = newline.length === 2;
     }
 
     // DEVNOTE: If there is no newline character, only the leading and trailing space characters are detected
@@ -286,69 +286,29 @@ newline\s+(?=newline)| # whitespace line or ...
         */
         re_first_n_last
     };
-}
+};
 
 /**
- * CHANGES: 2019-5-23
- *  + This version uses the "RegExp Lookbehind Assertions" feature.  
- *    Therefore, the execution environment of node v8.10 or later is required.
+ * ~~CHANGES: 2019-5-23~~
+ *  + ~~This version uses the "RegExp Lookbehind Assertions" feature.  
+ *    Therefore, the execution environment of node v8.10 or later is required.~~
+ *
+ * CHANGES: 2019-5-29
+ *  + Since the step2 implementation only by regex is very difficult,  
+ *    regex for detecting regex literal has been removed and it has been made simple "/".
+ *    The processing can be completed with the aid of the ICharacterScanner code.
  */
 namespace ReUtil {
-
-    /**
-     * regex for known newlines
-     */
-    export const RE_NEWLINEs = /\r\n|\n|\r/;
-
 	/**
 	 * detect newline by script
 	 */
     export const detectNewLine = _detectNewLine;
-
-    /**
-     * null(0), \r(13), \n(10), \r\n(23)
-     * 
-     * @param newline 
-     */
-    const convertToIndex = (newline: KnownNewLines | null) => {
-        if (newline !== null) {
-            const index = newline.charCodeAt(0);
-            // \r(13), \n(10), \r\n(23)
-            return newline.length === 1 ? index : index + newline.charCodeAt(1);
-        } else {
-            return 0;
-        }
-    };
-
-    type RegexSet = ReturnType<typeof buildWsQsReRegexp>;
-    const regexSets: RegexSet[] = []; {
-        const newlines = ["", "\r", "\n", "\r\n"];
-        const holder: Parameters<typeof buildWsQsReRegexp>[1] = { newline: null };
-        for (const newline of newlines) {
-            const rset = buildWsQsReRegexp(newline, holder);
-            regexSets[
-                convertToIndex(holder.newline)
-            ] = rset;
-        }
-    }
-
     /**
      * lookup cached regexes by newline character 
 	 *
      * @param source 
      */
-    export const lookupRegexes = (source: string) => {
-        const newline = _detectNewLine(source);
-        const rset = regexSets[
-            convertToIndex(newline)
-        ];
-        // DEVNOTE: fix: need reset lastIndex
-        rset.re_ws_qs.lastIndex = 0;
-        if (typeof rset.re_first_n_last !== "string") {
-            rset.re_first_n_last.lastIndex = 0
-        }
-        return rset;
-    };
+    export const lookupRegexes = buildWsQsReRegexp;
 }
 
 export = ReUtil;
