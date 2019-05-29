@@ -51,10 +51,11 @@ gulp.src(["./src/**/*.js"]).pipe(
 ).pipe(gulp.dest("./tmp"));
 ```
 
-## TODO: asynchronous processing support
+## asynchronous processing supported
 
- + In the near future, will be able to work with asynchronous processing
+ + ~~In the near future, will be able to work with asynchronous processing~~
 
+ + It is possible to process without problems in asynchronous processing from v2.1.x or later.
 
 ## BUGS
 
@@ -175,6 +176,9 @@ fs.writeFile(`./${name}-after.js`, after, 'utf-8', function() {
 ```
 
 ## performance
+
+> 📝 In v2.x and later, its **optimized to node v10 and later**.  
+  This works even on node v9 and earlier, but with poor performance.
 
 + performance bench of "samples/es6.js"
 ```bash

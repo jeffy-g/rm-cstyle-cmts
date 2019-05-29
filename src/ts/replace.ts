@@ -462,8 +462,8 @@ const createWhite = (source: string): IReplacementContext => {
  * 
  * ---
  * CHANGES: 2019-5-23
- *   + from this version onwards, its an implementation of only code optimized for node v10 later.  
- *     It works on node v9 and earlier too, but performance is not good.
+ *   + In v2.x and later, it is optimized to node v10 and later.  
+ *     This works even on node v9 and earlier, but with poor performance.
  */
 namespace ReplaceFrontEnd {
 
