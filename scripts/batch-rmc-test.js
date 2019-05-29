@@ -36,7 +36,7 @@ const grmc = require("../bin/gulp/");
 /**
  * **Scan all node module pakcages and strip comments and blank line from types of javascript source**.
  * 
- * 📝contents that are not text or types that are not of javascript source are passed through.
+ * 📝 contents that are not text or types that are not of javascript source are passed through.
  * 
  * 
  */
@@ -44,7 +44,7 @@ const TEST_SRC_PREFIX = "./node_modules/**/";
 const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}{*,\.*,\.*/*}`;
 // const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}*.{js,jsx,ts,tsx}`;
 
-//⚠️CAVEAT:
+// ⚠️ CAVEAT:
 //  In test for all files in node_modules,
 //  if output directory is set immediately below working directory,
 //  vscode maybe/will be freezes
@@ -142,6 +142,20 @@ const grmcBatchTest = (cb) => {
     });
 };
 
+const step2 = async () => {
+	// DEVNOTE: fix mkdir
+	if (require("fs").existsSync(TEST_SRC_FILEs_OUT)) {
+		console.log(`directory ${TEST_SRC_FILEs_OUT} is still available. let's wait for a while...`);
+		await new Promise(resolve => {
+			setTimeout(() => resolve(), 777);
+		});
+	}
+	// step 2. fire gulp-rm-cmts test process
+	console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
+	console.time("[batch-rmc-test]");
+	grmcBatchTest(() => console.timeEnd("[batch-rmc-test]"));
+};
+
 console.log(process.argv);
 
 // step 1. cleanup prev output
@@ -149,8 +163,5 @@ console.log("- - - step 1. cleanup prev output - - -");
 console.time("[remove-output]");
 cleanUpResults(() => console.timeEnd("[remove-output]"));
 
-// step 2. fire gulp-rm-cmts test process
-console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
-console.time("[batch-rmc-test]");
-grmcBatchTest(() => console.timeEnd("[batch-rmc-test]"));
+step2();
 
