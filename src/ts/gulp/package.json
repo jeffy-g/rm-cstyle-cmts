@@ -1,33 +1,33 @@
 {
-    "name": "gulp-rm-cmts",
-    "version": "0.1.0",
-    "description": "remove cstyle comments for gulp",
-    "dependencies": {
-        "through2": "2.0.5",
-        "rm-cstyle-cmts": "^1.6.5"
-    },
-    "devDependencies": {},
-    "scripts": {
-        "test": "echo test"
-    },
-    "repository": {},
-    "keywords": [
-        "gulp plugin",
-        "remove",
-        "delete",
-        "comment",
-        "comments",
-        "javascript",
-        "strip",
-        "json",
-        "text"
-    ],
-    "main": "./index.js",
-    "types": "index.d.ts",
-    "author": "jeffy-g",
-    "license": "Apache-2.0",
-    "bugs": {},
-    "engines": {
-        "node": ">=8.4"
-    }
+  "name": "gulp-rm-cmts",
+  "version": "0.1.0",
+  "description": "remove cstyle comments for gulp",
+  "dependencies": {
+    "through2": "2.0.5",
+    "rm-cstyle-cmts": "^2.1.0"
+  },
+  "repository": {
+  	
+  },
+  "keywords": [
+    "gulp plugin",
+    "remove",
+    "delete",
+    "comment",
+    "comments",
+    "javascript",
+    "strip",
+    "json",
+    "text"
+  ],
+  "main": "./index.js",
+  "types": "index.d.ts",
+  "author": "jeffy-g",
+  "license": "Apache-2.0",
+  "bugs": {
+  
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  }
 }

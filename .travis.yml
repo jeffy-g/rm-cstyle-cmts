@@ -21,11 +21,11 @@ install:
   - yarn install
 
 before_script:
-  - gulp dist
+  - yarn dist
 
 script:
-  - npm run bench
-  - npm test
+  - yarn bench
+  - yarn test
 
 after_success:
   # - bash <(curl -s https://codecov.io/bash)

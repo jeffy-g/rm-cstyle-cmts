@@ -66,14 +66,14 @@ const cleanUpResults = (cb) => {
 // tree node_modules > nm-tree.txt && tree ..\grmc-tmp\output > output-tree.txt
 // --------------------------------------------- [gulp-rm-cmts test]
 // sample webpack: avoidMinified = 76944;
-// npm run batch-rmc-test -- -paths "['../rmc-tmp/webpack.js', '../rmc-tmp/webpack-cr.js', '../rmc-tmp/webpack-crlf.js']"
+// yarn batch-rmc-test -- -paths "['../rmc-tmp/webpack.js', '../rmc-tmp/webpack-cr.js', '../rmc-tmp/webpack-crlf.js']"
 
-// npm run batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible.tsx
-// npm run batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible#2.tsx
+// yarn batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible.tsx
+// yarn batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible#2.tsx
 /**
  * ✅ check at own environment
  * 
- * 1. npm run batch-rmc-test
+ * 1. yarn batch-rmc-test
  * 2.
  *   + search on vscode:
  *      search   - ^\s*$

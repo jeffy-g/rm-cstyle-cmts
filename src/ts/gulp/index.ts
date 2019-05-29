@@ -22,7 +22,6 @@ limitations under the License.
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import * as rmc from "../";
-// use "rm-cstyle-cmts"
 // import * as rmc from "rm-cstyle-cmts";
 
 import * as through from "through2";
@@ -36,12 +35,12 @@ const PLUGIN_NAME = "gulp-rm-cmts";
 //                            constants, types
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 type stream = typeof import("stream");
-type Vinyl = typeof import("vinyl");
+type Vinyl = typeof import("vinyl")["prototype"];
 
 /**
  * 
  */
-type FixTransformFunction = (this: stream["Transform"]["prototype"], chunk: Vinyl["prototype"], enc: string, callback: through.TransformCallback) => void;
+type FixTransformFunction = (this: stream["Transform"]["prototype"], chunk: Vinyl, enc: string, callback: through.TransformCallback) => void;
 
 /**
  * gulp-rm-cmts option type
@@ -84,6 +83,8 @@ const stdProgress = (path: string) => {
     // write the message.
     output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
 };
+
+// process.env.CI = "1";
 /**
  * 
  * @param path 
@@ -133,6 +134,24 @@ const getTransformer: TransformerFactory = (options) => {
     });
 
     let prev_noops = rmc.noops;
+    //
+    // async/await: node ^v7.6
+    //
+    // const processBuffer = (vinyl: Vinyl["prototype"], callback: through.TransformCallback) => {
+    //     if (defaultExtensions.includes(vinyl.extname)) {
+    //         render_progress && progress(vinyl.relative);
+    //         const contents = rmc(vinyl.contents!.toString(), rm_ws, options.report_re_error);
+    // 
+    //         let noops = rmc.noops;
+    //         if (prev_noops < noops) {
+    //             noopPaths.push(vinyl.relative);
+    //             prev_noops = noops;
+    //         }
+    //    
+    //         vinyl.contents = Buffer.from(contents);
+    //     }
+    //     callback(null, vinyl);
+    // };
     /**
      * 
      */
@@ -142,34 +161,89 @@ const getTransformer: TransformerFactory = (options) => {
         // plugin main
         if (vinyl.isBuffer()) {
 
+            //
+            // DEVNOTE: 2019-5-29 - In node v12.3.1, performance of Promise seems like a little good
+            //
+            //  Promise: node.js ^4.x
+            //
+            //  + case: new Promise<void>(resolve ...
+            //    * [batch-rmc-test]: 53686.879ms (around 54sec
+            //
+            //  + case: Promise.resolve ...
+            //    * [batch-rmc-test]: 54134.899ms (around 54?sec
+            //
+            //  + case: (async () => { ... })();
+            //    * [batch-rmc-test]: 55115.755ms (around 55sec
+            //
+            //  + case: async processBuffer(...)
+            //    * [batch-rmc-test]: 56440.156ms (around 56sec
+            //
+            //  + case: processBuffer(...)
+            //    * [batch-rmc-test]: 55699.446ms (around 56sec
+            //
+            //  + case: { ... }
+            //    * [batch-rmc-test]: 54761.144ms (around 54sec
+            //
+            // new Promise<void>(resolve => {
+            //     if (defaultExtensions.includes(vinyl.extname)) {
+            //         // const shortPath = vinyl.relative;
+            //         render_progress && progress(vinyl.relative);
+            //         const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
+            // 
+            //         let noops = rmc.noops;
+            //         if (prev_noops < noops) {
+            //             noopPaths.push(vinyl.relative);
+            //             prev_noops = noops;
+            //         }
+            //    
+            //         vinyl.contents = Buffer.from(contents);
+            //     }
+            //     callback(null, vinyl);
+            //     resolve();
+            // });
+            // Promise.resolve(() => {
+            //     if (defaultExtensions.includes(vinyl.extname)) {
+            //         // const shortPath = vinyl.relative;
+            //         render_progress && progress(vinyl.relative);
+            //         const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
+            // 
+            //         let noops = rmc.noops;
+            //         if (prev_noops < noops) {
+            //             noopPaths.push(vinyl.relative);
+            //             prev_noops = noops;
+            //         }
+            //    
+            //         vinyl.contents = Buffer.from(contents);
+            //     }
+            //     callback(null, vinyl);
+            // }).then(fn => fn());
+            // (async () => {
+            //     if (defaultExtensions.includes(vinyl.extname)) {
+            //         // const shortPath = vinyl.relative;
+            //         render_progress && progress(vinyl.relative);
+            //         const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
+            // 
+            //         let noops = rmc.noops;
+            //         if (prev_noops < noops) {
+            //             noopPaths.push(vinyl.relative);
+            //             prev_noops = noops;
+            //         }
+            //
+            //         vinyl.contents = Buffer.from(contents);
+            //     }
+            //     callback(null, vinyl);
+            // })();
+
+            //processBuffer(vinyl, callback);
+
             if (defaultExtensions.includes(vinyl.extname)) {
-
-                // const shortPath = vinyl.relative;
                 render_progress && progress(vinyl.relative);
-
-                const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
-                // let contents: string | undefined;
-                // try {
-                //     contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
-                // } catch (e) {
-                //     console.warn("[Exception occured] The input source will be returned without any processing.");
-                //     return callback(null, vinyl);
-                // }
-
+                const contents = rmc(vinyl.contents!.toString(), rm_ws, options.report_re_error);
                 let noops = rmc.noops;
-                if (prev_noops !== noops) {
+                if (prev_noops < noops) {
                     noopPaths.push(vinyl.relative);
                     prev_noops = noops;
                 }
-
-                // Deprecated
-                // file.contents = new Buffer(contents);
-
-                // // node ^v5.10.0
-                // const buf = Buffer.alloc(contents.length);
-                // /* const len = */ buf.write(contents, 0);
-                // file.contents = buf;
-
                 // node ^v5.10.0
                 vinyl.contents = Buffer.from(contents);
             }

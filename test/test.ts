@@ -2,6 +2,7 @@
 
 import * as fs from "fs";
 import * as assert from "assert";
+import "colors";
 // DEVNOTE: 2019-5-16 - This import statement make a read-only object.
 // import * as rmc from "../src/ts/";
 const rmc: IRemoveCStyleComments = require("../src/ts/");
@@ -86,7 +87,7 @@ describe("Input and Result Verification", () => {
 
     describe("multi line input (this case only remove kinds of comments, and blank line)", () => {
 
-        it("#1", () => {
+        it("#1 this test source newline is " + "[CRLF]".red.bold, () => {
             validate(`  let gg = 10;
 var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
 //             ^-------------^ <- this case is match. but, not regexp literal`, `  let gg = 10;
@@ -228,13 +229,13 @@ limitations under the License.
             );
         });
 
-        it("#6 newline is [\\n]", () => {
+        it("#6 newline is " + "[LF]".red.bold, () => {
             validate(
                 "const anonymouse = () => {\n    const x = 777 / 3;\n    /// this is line comment  \n    return x % 2;\n};\n\n/* block comments */",
                 "const anonymouse = () => {\n    const x = 777 / 3;\n    return x % 2;\n};",
             );
         });
-        it("#7 newline is [\\r]", () => {
+        it("#7 newline is " + "[CR]".red.bold, () => {
             validate(
                 "const anonymouse = () => {\r    const x = 777 / 3;\r    /// this is line comment  \r    return x % 2;\r};\r\r/* block comments */",
                 "const anonymouse = () => {\r    const x = 777 / 3;\r    return x % 2;\r};",

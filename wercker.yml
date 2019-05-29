@@ -35,11 +35,11 @@ build:
           yarn install
           echo "node version $(node -v) running"
           echo "npm version $(npm -v) running"
-          npm start
+          yarn start
 
 grmc-batch-test:
   steps:
     - script:
       name: gulp-rm-cmts batch test
       code: |
-        npm run batch-rmc-test
+        yarn batch-rmc-test
