@@ -1,18 +1,20 @@
   
 ///<reference types="node"/>
 
-var i = {} / 10; 
-
-{ i = "aaa\"" } /aaa/.test(i);
 var i = 10000 / 111.77; /[*]/.test(i); 
+{ i = "aaa\"" } /aaa/.test(i);
 
 var i = 10000 / 111.77; /\][*]/.test(i); 
 
-[/\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/];
+console.log(
+  [
+    /\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/
+  ]
+);
 
 
 let gg = 10;
-var re = 10000 / 111.77*gg /gg;;;;  
+var re = 10000 / 111.77 * gg /gg;;;;  
 
 
 

@@ -1,21 +1,23 @@
   
 ///<reference types="node"/>
 
-var i = {} / 10; // -> NaN
-
-{ i = "aaa\"" } /aaa/.test(i);
 var i = 10000 / 111.77; /[*]/.test(i); // */
+{ i = "aaa\"" } /aaa/.test(i);
 
 /* comments */var i = 10000 / 111.77; /\][*]/.test(i); // */
 
-[/\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/];
+console.log(
+  [
+    /\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/
+  ]
+);
 
 
 let gg = 10;
-var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
-//             ^-------------^ <- this case is match. but, not regexp literal
-//                 skip to -->^
-//            line comment start -->^ <- parse by class SlashVisitor
+var re = 10000 / 111.77 * gg /gg;;;;  ////// comments...
+//             ^---------------^ <- this case is match. but, not regexp literal
+//                   skip to -->^
+//              line comment start -->^ <- parse by class SlashVisitor
 
 // in this case, correctly detects.
 const re4 = /\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/ /* comments...*/
