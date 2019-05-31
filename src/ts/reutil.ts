@@ -200,7 +200,7 @@ namespace ReUtil {
 }
 
 /**
- * 
+ * DEVNOTE: 190531 - removed regex detection
  */
 let re_ws_qs_base: RegExp; {
     // DEVNOTE: The suffix "*" indicates the priority.
