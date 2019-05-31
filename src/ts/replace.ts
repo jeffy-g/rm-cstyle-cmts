@@ -577,7 +577,7 @@ namespace ReplaceFrontEnd {
     export const reset = () => {
         detectedReLiterals.length = 0;
         evaluatedLiterals = 0;
-    }
+    };
 }
 
 /**

@@ -8,7 +8,7 @@ var i = 10000 / 111.77; /[*]/.test(i); // */
 
 /* comments */var i = 10000 / 111.77; /\][*]/.test(i); // */
 
-[/\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/];
+[/\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/];
 
 
 let gg = 10;
@@ -18,7 +18,7 @@ var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
 //            line comment start -->^ <- parse by class SlashVisitor
 
 // in this case, correctly detects.
-const re4 = /\s*\(\?#.*\)\/[/*///]\s*$|#\s.*$|\s+/ /* comments...*/
+const re4 = /\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/ /* comments...*/
 
 let ok2 = 12.2 / 33 * .9 // "comments"...*/
 //             ^ <- parse by class SlashVisitor

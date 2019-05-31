@@ -53,6 +53,8 @@
         "no-function-expression": false,
         "no-console": [false, "log", "error"],
 
-        "radix": false
+        "radix": false,
+
+        "semicolon": [true, "always"]
     }
 }

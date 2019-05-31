@@ -74,7 +74,7 @@ describe("Input and Result Verification", () => {
         });
 
         it("remove ahead whitespace, detect regex", () => {
-            validate("      [/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];", "[/\\s*\\(\\?#.*\\)\\/[/*///]\\s*$|#\\s.*$|\\s+/];");
+            validate("      [/\\s*\\(\\?#.*\\)\\/[/*[)(?\\]]\\s*$|#\\s.*$|\\s+/];", "[/\\s*\\(\\?#.*\\)\\/[/*[)(?\\]]\\s*$|#\\s.*$|\\s+/];");
         });
         it("linecomment at around calculation statement (properly detect line comment", () => {
             validate("let ok2 = 12.2 / 33 * .9 // \"comments\"...*/", "let ok2 = 12.2 / 33 * .9", true, true);

@@ -257,7 +257,7 @@ if (settings.p) {
             return (chunk: string): any => {
                 chunk.length && (inputs += chunk);
                 chunk[0] !== " " && progress(`performance measurement running [${rotator[rotator_index++ % rotator.length]}]`);
-            }
+            };
         })();
 
         process.stdin.on("data", on_data_handler);
@@ -279,9 +279,9 @@ if (settings.p) {
     let method: (a: boolean) => void;
     // node ./bin/bench/ -empty -l 200000 -ol 10 | node ./bin/bench/ -p
     if (settings.empty) {
-        method = benchmark0
+        method = benchmark0;
     } else {
-        method = benchmark
+        method = benchmark;
         // file: when -f optiion then
         src = parseFilePath(
             typeof settings.f === "string"? <string>settings.f: "./samples/sample-cfg.json"
