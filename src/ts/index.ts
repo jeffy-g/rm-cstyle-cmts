@@ -55,7 +55,7 @@ let unable_to_process = 0;
  */
 let avoid_minified = 8000;
 
-const withNoop = <T>(contents: T) => {
+const withNoop = (contents: string) => {
     unable_to_process++;
     return contents;
 };

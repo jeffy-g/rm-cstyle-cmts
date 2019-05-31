@@ -142,18 +142,36 @@ const grmcBatchTest = (cb) => {
     });
 };
 
-const step2 = async () => {
+// DEVNOTE: async/await available at node v7.6
+// const step2 = async () => {
+// 	// DEVNOTE: fix mkdir
+// 	if (require("fs").existsSync(TEST_SRC_FILEs_OUT)) {
+// 		console.log(`directory ${TEST_SRC_FILEs_OUT} is still available. let's wait for a while...`);
+// 		await new Promise(resolve => {
+// 			setTimeout(resolve, 777);
+// 		});
+// 	}
+// 	// step 2. fire gulp-rm-cmts test process
+// 	console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
+// 	console.time("[batch-rmc-test]");
+// 	grmcBatchTest(() => console.timeEnd("[batch-rmc-test]"));
+// };
+const step2 = () => {
+    const nextStage = () => {
+        // step 2. fire gulp-rm-cmts test process
+        console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
+        console.time("[batch-rmc-test]");
+        grmcBatchTest(() => console.timeEnd("[batch-rmc-test]"));
+    };
 	// DEVNOTE: fix mkdir
 	if (require("fs").existsSync(TEST_SRC_FILEs_OUT)) {
 		console.log(`directory ${TEST_SRC_FILEs_OUT} is still available. let's wait for a while...`);
-		await new Promise(resolve => {
-			setTimeout(() => resolve(), 777);
-		});
-	}
-	// step 2. fire gulp-rm-cmts test process
-	console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
-	console.time("[batch-rmc-test]");
-	grmcBatchTest(() => console.timeEnd("[batch-rmc-test]"));
+		new Promise(resolve => {
+			setTimeout(resolve, 777);
+		}).then(() => nextStage());
+	} else {
+        nextStage();
+    }
 };
 
 console.log(process.argv);

@@ -91,13 +91,13 @@ const stdProgress = (path: string) => {
  */
 const progress = process.env.CI? (() => {
     let count = 0;
-    // @ts-ignore 
-    return (path: string) => {
+    // @ts -ignore 
+    return (/* path: string */) => {
         count++;
         (count % 100) === 0 && process.stderr.write(".");
         // write the message.
         (count % 10000) === 0 && process.stderr.write("\n");
-    }
+    };
 })(): stdProgress;
 
 // const progress = (path: string) => {
@@ -239,10 +239,9 @@ const getTransformer: TransformerFactory = (options) => {
             if (defaultExtensions.includes(vinyl.extname)) {
                 render_progress && progress(vinyl.relative);
                 const contents = rmc(vinyl.contents!.toString(), rm_ws, options.report_re_error);
-                let noops = rmc.noops;
-                if (prev_noops < noops) {
+                if (prev_noops < rmc.noops) {
                     noopPaths.push(vinyl.relative);
-                    prev_noops = noops;
+                    prev_noops = rmc.noops;
                 }
                 // node ^v5.10.0
                 vinyl.contents = Buffer.from(contents);

@@ -204,8 +204,8 @@ namespace ReUtil {
  */
 let re_ws_qs_base: RegExp; {
     // DEVNOTE: The suffix "*" indicates the priority.
-    const re_backquoted = /`(?:\\[\s\S]|[^`])*`/; // ***
-    const re_dbquoted = /"(?:\\[\s\S]|[^"])*"/; // **
+    const re_backquoted   = /`(?:\\[\s\S]|[^`])*`/; // ***
+    const re_dbquoted     = /"(?:\\[\s\S]|[^"])*"/; // **
     const re_singlequoted = /'(?:\\[\s\S]|[^'])*'/; // **
     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
 }
@@ -223,6 +223,10 @@ const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
     }
     return null;
 };
+// const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
+//     const m = /\r\n|\n|\r/.exec(source);
+//     return m? m[0] as ReUtil.KnownNewLines: null;
+// };
 
 
 /**

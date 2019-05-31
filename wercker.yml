@@ -42,4 +42,6 @@ grmc-batch-test:
     - script:
       name: gulp-rm-cmts batch test
       code: |
+        echo "node version $(node -v) running"
+        echo "npm version $(npm -v) running"
         yarn batch-rmc-test

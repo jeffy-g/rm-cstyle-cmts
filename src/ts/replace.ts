@@ -27,9 +27,6 @@ export interface IReplaceFrontEnd {
      * @return {string} line comment, multiline comment, remaining whitespace character of line are removed
      */
     apply(source: string, rm_blank_line_n_ws: boolean): string;
-
-    getScanner(ch: string): CharScannerFunction;
-
     /**
      * 
      * @param enable 
@@ -473,6 +470,10 @@ namespace ReplaceFrontEnd {
     const scanners: CharScannerFunctionRegistry = [];
     CharScannerBase.injectKnownScannersTo(scanners);
 
+    const getScanner = (ch: string) => {
+        return scanners[ch.charCodeAt(0)];
+    };
+
     export const apply = (source: string, rm_blank_line_n_ws: boolean) => {
 
         //
@@ -494,9 +495,15 @@ namespace ReplaceFrontEnd {
                 context.offset = offset;
                 prev_offset = inspectable(ch, source, context)? context.offset: context.offset++;
                 offset = context.offset;
+                // if (inspectable(ch, source, context)) {
+                //     offset = prev_offset = context.offset;
+                // } else {
+                //     prev_offset = offset++;
+                // }
             }
         }
 
+        // adjust remaining
         if (size - prev_offset > 0) {
             context.result += source.substring(prev_offset, offset);
         }
@@ -527,14 +534,20 @@ namespace ReplaceFrontEnd {
         // NOTE: need skip quoted string, regexp literal.
         //return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
         while (m = re_ws_qs.exec(source)) {
-            // const matched = m[0];
+
             const head = m[0][0];
+
             if (head === "`" || head === "/") {
                 const inspectable = getScanner(head);
                 context.result += source.substring(prev_offset, m.index);
                 context.offset = m.index;
                 prev_offset = inspectable(head, source, context)? context.offset: context.offset++;
                 re_ws_qs.lastIndex = context.offset;
+                // if (inspectable(head, source, context)) {
+                //     re_ws_qs.lastIndex = prev_offset = context.offset;
+                // } else {
+                //     re_ws_qs.lastIndex = (prev_offset = m.index) + 1;
+                // }
                 continue;
             }
 
@@ -543,16 +556,12 @@ namespace ReplaceFrontEnd {
             prev_offset = re_ws_qs.lastIndex;
         }
 
+        // adjust remaining
         if (source.length - prev_offset > 0) {
             context.result += source.substring(prev_offset, source.length);
         }
 
         return context.result.replace(regexes.re_first_n_last, "");
-    };
-
-    /* istanbul ignore next */
-    export const getScanner = (ch: string) => {
-        return scanners[ch.charCodeAt(0)];
     };
 
     export const regexErrorReportEnable = (enable: boolean): void => {
