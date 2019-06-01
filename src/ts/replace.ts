@@ -63,7 +63,6 @@ interface ICharacterScanner {
 }
 
 type CharScannerFunction = ICharacterScanner["scan"];
-type CharScannerFunctionRegistry = CharScannerFunction[];
 
 /**
  * 
@@ -81,7 +80,7 @@ abstract class CharScannerBase implements ICharacterScanner {
      * 
      * @param registry 
      */
-    static injectKnownScannersTo(registry: CharScannerFunctionRegistry) {
+    static injectKnownScannersTo(registry: CharScannerFunction[]) {
         Reflect.construct(QuoteScanner, [registry]);
         Reflect.construct(BackQuoteScanner, [registry]);
         Reflect.construct(SlashScanner, [registry]);
@@ -105,13 +104,11 @@ abstract class CharScannerBase implements ICharacterScanner {
      * TODO: jsdoc
      * @param registry 
      */
-    constructor(registry: CharScannerFunctionRegistry) {
+    constructor(registry: CharScannerFunction[]) {
         // DEVNOTE: ✅ there is no problem at runtime in node.js v8.4 later
         // @ts-ignore TS2715: Abstract property 'characters' in class 'CharScannerBase' cannot be accessed in the constructor.
         const array = this.characters.split("");
-        array.forEach((ch: string) => {
-            registry[ch.charCodeAt(0)] = this.scan;
-        });
+        array.forEach((ch: string) => { registry[ch.charCodeAt(0)] = this.scan; });
     }
 }
 
@@ -130,9 +127,7 @@ class QuoteScanner extends CharScannerBase {
     // readonly characters: string = `"'`;
 
     // DEVNOTE: this will allow you to get the value successfully with the super constructor.
-    get characters() {
-        return `"'`; // 34, 39
-    }
+    get characters() { return `"'`; /*34, 39*/ }
 
     public scan(char: string, source: string, context: IReplacementContext): boolean {
         // maybe will not need it. because it will apply scan as soon as quote is found.
@@ -179,9 +174,7 @@ class QuoteScanner extends CharScannerBase {
 // by improving the algorithm it is now possible to process correctly.
 class BackQuoteScanner extends CharScannerBase {
 
-    get characters() {
-        return "`"; // 96
-    }
+    get characters() { return "`"; /*96*/ }
     // did not investigate the optimization of node.js,
     // rewrite code according to the optimization idiom such as C, performance has improved slightly...
     // however, it might be my imagination... :- (at no webpack
@@ -274,9 +267,10 @@ class BackQuoteScanner extends CharScannerBase {
  */
 const simpleRegexVerify = (inputs: string) => {
 
-    let groupIndex = 0;
-    let in_escape = false;
-    let in_class = 0;
+    let groupIndex = 0,
+        in_escape = false,
+        in_class = 0;
+
     const end = inputs.lastIndexOf("/");
 
     for (let i = 1; i < end;) {
@@ -324,10 +318,7 @@ const re_tsref = /\/\/\/[ \t]*<reference/;
 //  -> these things were required for code + regex replacement
 class SlashScanner extends CharScannerBase {
 
-    get characters() {
-        return "/"; // 47
-    }
-
+    get characters() { return "/"; /*47*/ }
     //
     //  DEVNOTE: 2019-5-12
     // 
@@ -467,7 +458,7 @@ namespace ReplaceFrontEnd {
     /**
      * CharScannerFunction registory.
      */
-    const scanners: CharScannerFunctionRegistry = [];
+    const scanners: CharScannerFunction[] = [];
     CharScannerBase.injectKnownScannersTo(scanners);
 
     const getScanner = (ch: string) => {
