@@ -7,6 +7,7 @@
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield)
 [![DeepScan grade](https://deepscan.io/api/teams/3135/projects/4618/branches/37135/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3135&pid=4618&bid=37135)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/jeffy-g/rm-cstyle-cmts.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jeffy-g/rm-cstyle-cmts/context:javascript)
+[![Maintainability](https://api.codeclimate.com/v1/badges/6fb687e6fd2c33a0a328/maintainability)](https://codeclimate.com/github/jeffy-g/rm-cstyle-cmts/maintainability)
 
 [![Dependencies][dependencies]][dependencies-url]
 [![Dev Dependencies][dev-dependencies]][dev-dependencies-url]
@@ -238,7 +239,7 @@ npm run bench
 (?:                  # start non-capturing group $3
   [gimsuy]{1,6}\b|   # validate regex flags, but this pattern is imcomplete
 )                    # end non-capturing group $3
-(?![?*+\/[\\])       # not meta character [?*+/[\\] @anchor ...
+(?![?*+\/\\])        # not meta character [?*+\/\\] @anchor ...
 
 ```
 as comment on samples/es6.js with descriptive explanation,

@@ -385,7 +385,7 @@ class SlashScanner extends CharScannerBase {
         // - - - check regexp literal - - -
         //
         // NOTE: need lastIndex property, must add "g" flag.
-        const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]+\b|)(?![?*+\/\[\\])/g;
+        const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
         // only execute once, this is important!
         const m = re_re.exec(remaining);
         if (m === null) {

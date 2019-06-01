@@ -233,7 +233,7 @@ const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
  * 
  * @param newline 
  */
-const buildWsQsReRegexp = (newline: ReUtil.KnownNewLines | "") => {
+const buildWsQsReRegexp = (newline: ReUtil.DetectedNewLines) => {
 
     const is_single_line_input = newline === "";
 

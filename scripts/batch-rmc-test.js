@@ -18,6 +18,7 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 "use strict";
+// @ts-check
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -83,7 +84,7 @@ const cleanUpResults = (cb) => {
  * 
  * 3. Is the blank line found only inside the backquoted string? grep ^\s*$ ../rmc-tmp/output -rC 1
  */
-const grmcBatchTest = (cb) => {
+const grmcBatchTest = (/** @type {() => unknown} */cb) => {
 
     console.log(settings);
     const target = settings.paths? settings.paths: TEST_SRC_FILEs;
@@ -139,6 +140,8 @@ const grmcBatchTest = (cb) => {
         // console.log("detected regex literals:", context.detectedReLiterals);
         console.log("detected regex count:", context.detectedReLiterals.length);
         console.log("evaluated regex literals:", context.evaluatedLiterals);
+
+        utils.writeTextUTF8(context.detectedReLiterals.join("\n"), "./tmp/grmc-detected-reLiterals.txt");
     });
 };
 

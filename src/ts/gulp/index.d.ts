@@ -17,8 +17,8 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-// @ts-ignore 
-///<reference types="rm-cstyle-cmts"/>
+// <reference types="rm-cstyle-cmts"/>
+/// <reference path="../index.d.ts"/>
 
 import * as through from "through2";
 
