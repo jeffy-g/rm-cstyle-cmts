@@ -63,11 +63,53 @@ gulp.src(["./src/**/*.js"]).pipe(
 ).pipe(gulp.dest("./tmp"));
 ```
 
-## asynchronous processing supported
+## asynchronous processing supported (v2.1.x)
 
  + ~~In the near future, will be able to work with asynchronous processing~~
 
  + It is possible to process without problems in asynchronous processing from v2.1.x or later.
+
+## rm-cstyle-cmts web version is available. (v2.2.x)
+
+ + You can use web version from cdn such as `jsdelivr`.
+
+```html
+<!-- or https://cdn.jsdelivr.net/npm/rm-cstyle-cmts@latest/bin/web/index.min.js -->
+<script src="https://cdn.jsdelivr.net/npm/rm-cstyle-cmts@2.2/bin/web/index.min.js"></script>
+```
+
+```js
+const source = `
+///  <reference types="node"/>
+
+import React from "react";
+import ReactDOM from "react-dom";
+
+/**
+ * jsdoc comment
+ */
+function App() {
+  return (
+    // TODO: can optionally include quote string in react syntax.
+    // such source input does not complete successfully.
+    <h1>Hello's world's</h1>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+`;
+
+/**
+ * You can use the API through the `Rmc` global variable.
+ */
+// disable max line limitation
+Rmc.avoidMinified = 0;
+console.log(Rmc(source));
+// print detected regex literals detail (in this case, nothing any result)
+console.log(Rmc.getDetectedReContext());
+// reset of related statistics
+Rmc.reset();
+```
 
 ## BUGS
 

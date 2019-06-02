@@ -17,6 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+// @ts-check
 // webpack config for ts file.
 
 // DEVNOTE: 2019-4-30
@@ -26,11 +27,17 @@ limitations under the License.
 // extend "webpack.configjs".
 const webpackConfig = require("./webpack.configjs");
 
-webpackConfig.entry = {
+// web
+webpackConfig[0].entry = {
+    index: "./src/ts/index.ts"
+};
+// node
+webpackConfig[1].entry = {
     index: "./src/ts/index.ts",
     "bench/index": "./src/ts/bench/index.ts"
 };
-webpackConfig.module = {
+// web, node
+webpackConfig[0].module = webpackConfig[1].module = {
     rules: [
         {
             test: /\.ts$/,

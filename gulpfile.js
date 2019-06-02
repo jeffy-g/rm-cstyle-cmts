@@ -110,10 +110,14 @@ function _remove_nullfile(done) {
 
     const re_dts = /.*\.d.ts$/;
     fs.readdir(JS_DEST_DIR, _readdir_callback.bind({ re: re_dts, base: JS_DEST_DIR }));
-    fs.readdir(JS_DEST_DIR + "/bench", _readdir_callback.bind({
-        re: re_dts, base: JS_DEST_DIR + "/bench",
-        done
-    }));
+    // DEVNOTE: when umd build
+    const benchDir = JS_DEST_DIR + "/bench";
+    if (fs.existsSync(benchDir)) {
+        fs.readdir(benchDir, _readdir_callback.bind({
+            re: re_dts, base: benchDir,
+            done
+        }));
+    }
 }
 
 /**
@@ -134,7 +138,8 @@ const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_usel
  * @param {boolean} strip_code remove unused webpack code.
  */
 function _replace_some(done, strip_code) {
-    let stream = gulp.src(["./bin/index.js", "./bin/bench/index.js"]);
+    // DEVNOTE: see - https://gulpjs.com/docs/en/api/src
+    let stream = gulp.src(["./bin/index.js", "./bin/bench/index.js"], { allowEmpty: true });
     let did_strip = 0;
     if (strip_code) {
         stream = stream.pipe( // strip webpack code
@@ -242,27 +247,38 @@ const compileGulpPlugin = (done) => {
 function doWebpack(webpackConfigPath, done) {
     const webpackStream = require("webpack-stream");
     const webpack = require("webpack");
+    /** @type {import("webpack").Configuration[]} */
     const webpackConfig = require(webpackConfigPath);
 
     // gulp webpack -no-minify
-    settings["no-minify"] && (webpackConfig.optimization = {});
+    settings["no-minify"] && (webpackConfig[0].optimization = webpackConfig[1].optimization = {});
     // copy ...
     _copyDefinitions();
 
     // webpack instance pass to param 2
+    // - - - - web build
     webpackStream(
-        webpackConfig, webpack,
+        webpackConfig[0], webpack,
         // (err, stats) => {
         //     console.log("Error:", err);
         //     console.log(stats.toJson("normal"));
         // }
     ).pipe(
+        // DEVNOTE: ⚠️ gulp.dest forces change output directory. (ignore webpack.config.js@output.path)
+        gulp.dest(JS_DEST_DIR + "/web")
+    ).on("end", function() {
+        console.log("webpack 'web' build done.");
+    });
+
+    // - - - - node build
+    webpackStream(
+        webpackConfig[1], webpack,
+    ).pipe(
         gulp.dest(JS_DEST_DIR)
-    )
-    .on("end", function() {
+    ).on("end", function() {
         _remove_nullfile();
         _remove_un_js(done); // <- this is a bit slow...
-        console.log("webpack done.");
+        console.log("webpack 'node' build done.");
         compileGulpPlugin();
     });
 }
