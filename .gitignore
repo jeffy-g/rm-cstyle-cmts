@@ -6,6 +6,7 @@ core.min*
 core*.js
 /scripts/extra-bench*
 
+/web
 /logs
 /tmp
 /etc
