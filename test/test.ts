@@ -38,10 +38,10 @@ describe("Only throws invalid input content", () => {
 // 
 //
 describe.each([
-    ["QuoteScanner::imcomplete single quote", "    let text = `this is a ${'pen'}`; '", "    let text = `this is a ${'pen'}`; '"],
-    ["BackQuoteScanner::imcomplete backquote", "{} as string ` back quote! ` `", "{} as string ` back quote! ` `"],
+    ["QuoteScanner::incomplete single quote", "    let text = `this is a ${'pen'}`; '", "    let text = `this is a ${'pen'}`; '"],
+    ["BackQuoteScanner::incomplete backquote", "{} as string ` back quote! ` `", "{} as string ` back quote! ` `"],
     ["SlashScanner::extra slash", "const n: number = 1; /", "const n: number = 1; /"],
-    ["SlashScanner::imcomplete block comment", "const n: number = 1; /* comment /", "const n: number = 1; /* comment /"],
+    ["SlashScanner::incomplete block comment", "const n: number = 1; /* comment /", "const n: number = 1; /* comment /"],
 ])(
     "The input source will be returned without any processing when exception occured",
     (title, input, output) => {

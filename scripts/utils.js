@@ -222,23 +222,68 @@ const createProgress = (timeSpanMS, frames) => {
     }
 };
 
+
 /**
  * see https://webpack.js.org/plugins/progress-plugin/
  * 
- * @param {string} logFilePath 
- * @param {boolean} disableRenderLine 
+ * @param {string} [logFilePath] can be undefined
+ * @param {boolean} [disableRenderLine] 
  */
 function createWebpackProgressPluginHandler(logFilePath, disableRenderLine = false) {
-    checkParentDirectory(logFilePath);
-    const log = fs.createWriteStream(logFilePath);
-    /** @type {(percentage: number, message: string, ...args: string[]) => void} */
-    const wpp_handler = (percentage, message, ...args) => {
-        const progressMessage = `processing ${(percentage * 100).toFixed(4)}%`;
-        log.write(`${progressMessage}, ${message}: ${args}\n`, () => {
-            !disableRenderLine && renderLine(progressMessage);
-        });
-        percentage === 1 && log.end();
+
+    const formatProgressMessage = (/** @type {number} */percentage) => {
+        return `processing ${(percentage * 100).toFixed(4)}%`;
     };
+	// process.env.CI = 1
+	let dotted = 0;
+	const renderDot = () => {
+        process.stderr.write(".");
+        // FIXME: first renderDot line length is not 100
+        dotted++;
+		if (dotted % 100 === 0) {
+			process.stderr.write("\n");
+		}
+	};
+
+    /** @type {(percentage: number, message: string, ...args: string[]) => void} */
+    let wpp_handler; {
+
+        /** @type {string} */
+        let progressMessage;
+        /** @type {((msg?: string) => void) | undefined} */
+        const renderer = process.env.CI? renderDot: renderLine;
+
+        if (logFilePath !== void 0) {
+            const wpp_logger = createLogStreamAndResolvePath(logFilePath);
+            /** @type {((p: number) => void) | undefined} */
+            let writeCallback = void 0;
+
+            if (!disableRenderLine) {
+                writeCallback = (/** @type {number} */percentage) => {
+                    renderer(progressMessage);
+                    percentage === 1 && (console.log(), dotted = 0);
+                };
+            }
+            wpp_handler = (percentage, message, ...args) => {
+                // e.g. Output each progress message directly to the console:
+                // console.info(percentage, message, ...args);
+                // let [transformer, src] = (args[2] + "").split("!");
+                // const m = /node_modules\\([^\\]+)\\/.exec(transformer);
+                // transformer = m && m[1] || "error";
+                progressMessage = formatProgressMessage(percentage);
+                wpp_logger.write(`${progressMessage}, ${message}: ${args}\n`, () => {
+                    writeCallback && writeCallback(percentage);
+                });
+                percentage === 1 && wpp_logger.end();
+            };
+        } else {
+            wpp_handler = !disableRenderLine? (percentage/* , message, ...args */) => {
+                renderer(formatProgressMessage(percentage));
+                percentage === 1 && (console.log(), dotted = 0);
+            }: () => {};
+        }
+    }
+
     return wpp_handler;
 }
 /**

@@ -18,6 +18,8 @@ limitations under the License.
 ------------------------------------------------------------------------
 */
 // @ts-check
+const path = require("path");
+
 // webpack config for js file.
 const webpack = require("webpack");
 
@@ -102,10 +104,9 @@ const createWebpackConfig = (
             // UglifyJsPlugin is included in webpack. (v3.x
             // new webpack.optimize.UglifyJsPlugin(uglifyOptions), 
             new webpack.ProgressPlugin(
-                utils.createWebpackProgressPluginHandler(`./logs/${utils.dateStringForFile()}-webpack.log`, true)
+                utils.createWebpackProgressPluginHandler(/*`./logs/${utils.dateStringForFile()}-webpack.log`*/)
             ),
         ],
-        profile: true,
         optimization: {
             // minimize: true
             minimizer: [
@@ -120,7 +121,12 @@ const createWebpackConfig = (
                     terserOptions
                 })
             ]
-        }
+        },
+        profile: true,
+        cache: true,
+		// DEVNOTE: 23:17 2019/06/03 - this project using gulp webpack stream package. so following things are not work
+        recordsInputPath: path.join(__dirname, `./logs/${utils.dateStringForFile()}-records.json`),
+        recordsOutputPath: path.join(__dirname, `./logs/${utils.dateStringForFile()}-newRecords.json`)
     };
 };
 

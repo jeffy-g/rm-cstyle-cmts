@@ -245,7 +245,7 @@ const compileGulpPlugin = (done) => {
  * @param {() => void} done callback for gulp task chain
  */
 function doWebpack(webpackConfigPath, done) {
-    const webpackStream = require("webpack-stream");
+    // const webpackStream = require("webpack-stream");
     const webpack = require("webpack");
     /** @type {import("webpack").Configuration[]} */
     const webpackConfig = require(webpackConfigPath);
@@ -255,32 +255,43 @@ function doWebpack(webpackConfigPath, done) {
     // copy ...
     _copyDefinitions();
 
-    // webpack instance pass to param 2
-    // - - - - web build
-    webpackStream(
-        webpackConfig[0], webpack,
-        // (err, stats) => {
-        //     console.log("Error:", err);
-        //     console.log(stats.toJson("normal"));
-        // }
-    ).pipe(
-        // DEVNOTE: ⚠️ gulp.dest forces change output directory. (ignore webpack.config.js@output.path)
-        gulp.dest(JS_DEST_DIR + "/web")
-    ).on("end", function() {
-        console.log("webpack 'web' build done.");
-    });
-
-    // - - - - node build
-    webpackStream(
-        webpackConfig[1], webpack,
-    ).pipe(
-        gulp.dest(JS_DEST_DIR)
-    ).on("end", function() {
+    // const compiler =
+    webpack(webpackConfig, (error, stats) => {
+        if (error) {
+            console.log(error);
+            return;
+        }
         _remove_nullfile();
         _remove_un_js(done); // <- this is a bit slow...
-        console.log("webpack 'node' build done.");
+        console.log("webpack build done.");
         compileGulpPlugin();
     });
+    // // webpack instance pass to param 2
+    // // - - - - web build
+    // webpackStream(
+    //     webpackConfig[0], webpack,
+    //     // (err, stats) => {
+    //     //     console.log("Error:", err);
+    //     //     console.log(stats.toJson("normal"));
+    //     // }
+    // ).pipe(
+    //     // DEVNOTE: ⚠️ gulp.dest forces change output directory. (ignore webpack.config.js@output.path)
+    //     gulp.dest(JS_DEST_DIR + "/web")
+    // ).on("end", function() {
+    //     console.log("webpack 'web' build done.");
+    // });
+
+    // // - - - - node build
+    // webpackStream(
+    //     webpackConfig[1], webpack,
+    // ).pipe(
+    //     gulp.dest(JS_DEST_DIR)
+    // ).on("end", function() {
+    //     _remove_nullfile();
+    //     _remove_un_js(done); // <- this is a bit slow...
+    //     console.log("webpack 'node' build done.");
+    //     compileGulpPlugin();
+    // });
 }
 // if need optional parametar.
 const settings = utils.getExtraArgs();
