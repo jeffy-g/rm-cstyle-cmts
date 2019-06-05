@@ -234,16 +234,16 @@ function createWebpackProgressPluginHandler(logFilePath, disableRenderLine = fal
     const formatProgressMessage = (/** @type {number} */percentage) => {
         return `processing ${(percentage * 100).toFixed(4)}%`;
     };
-	// process.env.CI = 1
-	let dotted = 0;
-	const renderDot = () => {
+    // process.env.CI = 1
+    let dotted = 0;
+    const renderDot = () => {
         process.stderr.write(".");
         // FIXME: first renderDot line length is not 100
         dotted++;
-		if (dotted % 100 === 0) {
-			process.stderr.write("\n");
-		}
-	};
+        if (dotted % 100 === 0) {
+            process.stderr.write("\n");
+        }
+    };
 
     /** @type {(percentage: number, message: string, ...args: string[]) => void} */
     let wpp_handler; {
