@@ -250,7 +250,7 @@ const buildWsQsReRegexp = (newline: ReUtil.DetectedNewLines) => {
     // DEVNOTE: "^" and "$" is consume a lot more cpu time.
     // let re_ws_qs: RegExp;
     // if (is_single_line_input) {
-    //     re_ws_qs =  /^\s+|\s+$/g;
+    //     re_ws_qs = /^\s+|\s+$/g;
     // } else {
     //     if (isCRLF) {
     //         re_ws_qs = new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
@@ -268,13 +268,13 @@ const buildWsQsReRegexp = (newline: ReUtil.DetectedNewLines) => {
          * `regex summary:`
          *
          * ```perl
-newline\s+(?=newline)| # whitespace line or ...
-\s+(?=newline)|        # spaces ahead of new line
-`(?:\\[\s\S]|[^`])*`|  # backquoted string
-"(?:\\[\s\S]|[^"])*"|  # double quoted string
-'(?:\\[\s\S]|[^'])*'|  # single quoted string
-\/                     # ts reference tag, regex, jsx tag terminator
-  ```
+$newline\s+(?=$newline)| # whitespace line or ...
+\s+(?=$newline)|         # spaces ahead of new line
+`(?:\\[\s\S]|[^`])*`|    # backquoted string
+"(?:\\[\s\S]|[^"])*"|    # double quoted string
+'(?:\\[\s\S]|[^'])*'|    # single quoted string
+\/                       # detection for ts reference tag, regex, jsx tag terminator
+```
         */
         re_ws_qs,
         /**
@@ -284,9 +284,9 @@ newline\s+(?=newline)| # whitespace line or ...
          * `regex summary:`
          *
          ```perl
-  ^newline| # first new line
-  newline$  # last new line
-  ```
+^$newline| # first new line
+$newline$  # last new line
+```
         */
         re_first_n_last
     };

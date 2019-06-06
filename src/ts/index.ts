@@ -109,7 +109,6 @@ const removeCStyleComments: IRemoveCStyleComments = (
                 const lastIndex = re_newline.lastIndex;
                 if ( (lastIndex - prev) > avoid_minified ) {
                     // ⛔ ⚠️ 🚸
-                    // process.stderr.write(".");
                     return withNoop(source);
                 }
                 prev = lastIndex;

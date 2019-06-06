@@ -57,8 +57,11 @@ const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
 
 // ------------------------------- shared function ------------------------------- //
 /**
+ * @typedef {import("vinyl")} Vinyl
+ */
+/**
  * use for gulp.dest(...)
- * @param {File?} vinyl 
+ * @param {Vinyl} vinyl 
  * @param {string} dest 
  */
 function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/gulpjs/vinyl
@@ -70,7 +73,7 @@ function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/
  * delete files by "globs" pattern.  
  * done callback(gulp) specified if need.
  * @param {string|string[]} globs file pattern.
- * @param {() => void} done gulp callback function.
+ * @param {() => void} [done] gulp callback function.
  */
 function _clean(globs, done) {
     // del(globs, { force: true }).then(paths => {
@@ -85,7 +88,7 @@ function _clean(globs, done) {
 }
 /**
  * remove file when size is zero. (d.ts
- * @param {() => void} done gulp callback function.
+ * @param {() => void} [done] gulp callback function.
  */
 function _remove_nullfile(done) {
     function _readdir_callback(err, files) {
@@ -135,7 +138,7 @@ const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_usel
 /**
  * strip_code for webpack uglify
  * @param {() => void} done gulp callback function.
- * @param {boolean} strip_code remove unused webpack code.
+ * @param {boolean} [strip_code] remove unused webpack code.
  */
 function _replace_some(done, strip_code) {
     // DEVNOTE: see - https://gulpjs.com/docs/en/api/src
@@ -143,7 +146,7 @@ function _replace_some(done, strip_code) {
     let did_strip = 0;
     if (strip_code) {
         stream = stream.pipe( // strip webpack code
-            greplace(re_wp_striper, ($0) => {
+            greplace(re_wp_striper, (/*$0*/) => {
                 did_strip++;
                 return "";
             })
@@ -199,7 +202,7 @@ const _copyDefinitions = () => {
 /**
  * generate gulp plugin
  * 
- * @param {() => void} done 
+ * @param {() => void} [done] 
  */
 const compileGulpPlugin = (done) => {
 

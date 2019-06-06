@@ -31,7 +31,6 @@ if (!String.prototype.repeat) {
 import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
-// import readline = require('readline'); also works
 
 // NOTE: not necessary in this implementation.
 //  -> found a way for this import statement to work on intellisense.

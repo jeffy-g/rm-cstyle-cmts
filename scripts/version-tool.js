@@ -17,7 +17,6 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-// gist: https://gist.github.com/jeffy-g/d718412d7b7419ef78aca05a7b222538
 
 /* utilities module by own. */
 const utils = require("./utils");

@@ -56,7 +56,12 @@ const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/**
+ * @typedef {object} ThisTaskArgs
+ * @property {string | string[]} paths
+ */
 // if need optional parametar.
+/** @type {ThisTaskArgs} */
 const settings = utils.getExtraArgs({ startIndex: 2 });
 
 const cleanUpResults = (cb) => {
@@ -87,6 +92,7 @@ const cleanUpResults = (cb) => {
 const grmcBatchTest = (/** @type {() => unknown} */cb) => {
 
     console.log(settings);
+    /** @type {string | string[]} */
     const target = settings.paths? settings.paths: TEST_SRC_FILEs;
     const rmc = grmc.getRmcInterface();
 

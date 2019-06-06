@@ -65,7 +65,9 @@ ex:
 ```
  * if param value not specified -tag after then set value is "true".
  * 
- * @param {Partial<typeof ArgsConfig>} args_config
+ * @param {Partial<typeof ArgsConfig>} [args_config]
+ * @param {boolean} [debug]
+ * @type {<T>(argconfig: Partial<typeof ArgsConfig>, debug?: boolean) => T}
  */
 function getExtraArgs(args_config, debug = false) {
     // debug log, if need.
@@ -84,7 +86,7 @@ function getExtraArgs(args_config, debug = false) {
         for (let index = extra_index; index < args.length;) {
             const opt = args[index++];
             if (opt && opt.startsWith(args_config.prefix)) {
-                /** @type {string | string[]} */
+                /** @type {string | string[] | boolean} */
                 let value = args[index];
                 if (value === void 0 || value.startsWith(args_config.prefix)) {
                     value = true;
@@ -100,6 +102,7 @@ function getExtraArgs(args_config, debug = false) {
         }
     }
 
+    // @ts-ignore 
     return params;
 }
 
@@ -124,6 +127,14 @@ function checkParentDirectory(dest) {
     if (!fs.existsSync(parent)) {
         fs.mkdirSync(parent);
     }
+}
+/**
+ * 
+ * @param {string} logPath 
+ */
+function createLogStreamAndResolvePath(logPath) {
+    checkParentDirectory(logPath);
+    return fs.createWriteStream(logPath);
 }
 
 /**
@@ -183,7 +194,7 @@ function readTextUTF8(from, callback) {
 /**
  * use process.stderr stream
  * 
- * @param {string} msg if empty string or undefined then only clear line and move cursor to head.
+ * @param {string} [msg] if empty string or undefined then only clear line and move cursor to head.
  */
 function renderLine(msg) {
     const output = process.stderr;
