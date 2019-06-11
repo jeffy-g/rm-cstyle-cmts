@@ -203,10 +203,11 @@ namespace ReUtil {
  * DEVNOTE: 190531 - removed regex detection
  */
 let re_ws_qs_base: RegExp; {
+    const use_old = 0;
     // DEVNOTE: The suffix "*" indicates the priority.
-    const re_backquoted   = /`(?:\\[\s\S]|[^`])*`/; // ***
-    const re_dbquoted     = /"(?:\\[\s\S]|[^"])*"/; // **
-    const re_singlequoted = /'(?:\\[\s\S]|[^'])*'/; // **
+    const re_backquoted   = use_old? /`(?:\\[\s\S]|[^`])*`/: /`(?:[^\\`]|\\[\s\S])*`/; // ***
+    const re_dbquoted     = use_old? /"(?:\\[\s\S]|[^"])*"/: /"(?:[^\\"]|\\[\s\S])*"/; // **
+    const re_singlequoted = use_old? /'(?:\\[\s\S]|[^'])*'/: /'(?:[^\\']|\\[\s\S])*'/; // **
     re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
 }
 

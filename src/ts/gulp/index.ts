@@ -127,6 +127,7 @@ const getTransformer: TransformerFactory = (options) => {
     // default is true;
     const rm_ws = typeof options.remove_ws === "boolean"? options.remove_ws: true;
     const render_progress = !!options.render_progress;
+    const report_re_error = options.report_re_error;
 
     render_progress && console.log("rm-cstyle-cmts:", {
         version: rmc.version,
@@ -140,7 +141,7 @@ const getTransformer: TransformerFactory = (options) => {
     // const processBuffer = (vinyl: Vinyl["prototype"], callback: through.TransformCallback) => {
     //     if (defaultExtensions.includes(vinyl.extname)) {
     //         render_progress && progress(vinyl.relative);
-    //         const contents = rmc(vinyl.contents!.toString(), rm_ws, options.report_re_error);
+    //         const contents = rmc(vinyl.contents!.toString(), rm_ws, report_re_error);
     // 
     //         let noops = rmc.noops;
     //         if (prev_noops < noops) {
@@ -188,7 +189,7 @@ const getTransformer: TransformerFactory = (options) => {
             //     if (defaultExtensions.includes(vinyl.extname)) {
             //         // const shortPath = vinyl.relative;
             //         render_progress && progress(vinyl.relative);
-            //         const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
+            //         const contents = rmc(vinyl.contents.toString(), rm_ws, report_re_error);
             // 
             //         let noops = rmc.noops;
             //         if (prev_noops < noops) {
@@ -205,7 +206,7 @@ const getTransformer: TransformerFactory = (options) => {
             //     if (defaultExtensions.includes(vinyl.extname)) {
             //         // const shortPath = vinyl.relative;
             //         render_progress && progress(vinyl.relative);
-            //         const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
+            //         const contents = rmc(vinyl.contents.toString(), rm_ws, report_re_error);
             // 
             //         let noops = rmc.noops;
             //         if (prev_noops < noops) {
@@ -221,7 +222,7 @@ const getTransformer: TransformerFactory = (options) => {
             //     if (defaultExtensions.includes(vinyl.extname)) {
             //         // const shortPath = vinyl.relative;
             //         render_progress && progress(vinyl.relative);
-            //         const contents = rmc(vinyl.contents.toString(), rm_ws, options.report_re_error);
+            //         const contents = rmc(vinyl.contents.toString(), rm_ws, report_re_error);
             // 
             //         let noops = rmc.noops;
             //         if (prev_noops < noops) {
@@ -238,7 +239,7 @@ const getTransformer: TransformerFactory = (options) => {
 
             if (defaultExtensions.includes(vinyl.extname)) {
                 render_progress && progress(vinyl.relative);
-                const contents = rmc(vinyl.contents!.toString(), rm_ws, options.report_re_error);
+                const contents = rmc(vinyl.contents!.toString(), rm_ws, report_re_error);
                 if (prev_noops < rmc.noops) {
                     noopPaths.push(vinyl.relative);
                     prev_noops = rmc.noops;
