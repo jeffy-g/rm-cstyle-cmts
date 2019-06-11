@@ -3,7 +3,7 @@ orbs:
   # https://circleci.com/orbs/registry/orb/circleci/node
   node: circleci/node@1.0.1 # refers to the Orbs of circleci/node as `node`
 jobs:
-  build:
+  tests:
     executor:
       name: node/default
       # It will be the same as image: 'circleci/node:latest' by node Orbs
@@ -18,12 +18,19 @@ jobs:
           cache-version: v1
           steps:
           - run:
-              name: lint, build, benchmark, test
+              name: lint, build, benchmark, tests
               command: |
                 yarn install
+                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                echo '            lint -> build -> bench -> test'
+                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 yarn start
+                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                echo '                   batch-rmc-test'
+                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                yarn batch-rmc-test
 workflows:
   version: 2
   build:
     jobs:
-      - build
+      - tests
