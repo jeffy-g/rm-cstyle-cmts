@@ -205,10 +205,15 @@ namespace ReUtil {
 let re_ws_qs_base: RegExp; {
     const use_old = 0;
     // DEVNOTE: The suffix "*" indicates the priority.
-    const re_backquoted   = use_old? /`(?:\\[\s\S]|[^`])*`/: /`(?:[^\\`]|\\[\s\S])*`/; // ***
+    // DEVNOTE: 2019-6-11 - simplified back quoted strings detection regex
     const re_dbquoted     = use_old? /"(?:\\[\s\S]|[^"])*"/: /"(?:[^\\"]|\\[\s\S])*"/; // **
     const re_singlequoted = use_old? /'(?:\\[\s\S]|[^'])*'/: /'(?:[^\\']|\\[\s\S])*'/; // **
-    re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
+    re_ws_qs_base = new RegExp(`\`|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
+
+    // const re_backquoted   = use_old? /`(?:\\[\s\S]|[^`])*`/: /`(?:[^\\`]|\\[\s\S])*`/; // ***
+    // const re_dbquoted     = use_old? /"(?:\\[\s\S]|[^"])*"/: /"(?:[^\\"]|\\[\s\S])*"/; // **
+    // const re_singlequoted = use_old? /'(?:\\[\s\S]|[^'])*'/: /'(?:[^\\']|\\[\s\S])*'/; // **
+    // re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
 }
 
 const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {

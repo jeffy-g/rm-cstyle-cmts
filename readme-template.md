@@ -72,6 +72,7 @@ gulp.src(["./src/**/*.js"]).pipe(
 ## rm-cstyle-cmts web version is available. (v2.2.x)
 
  + You can use web version from cdn such as `jsdelivr`.
+   + can use the API through the `Rmc` global variable.
 
 ```html
 <!-- or https://cdn.jsdelivr.net/npm/rm-cstyle-cmts@latest/bin/web/index.min.js -->

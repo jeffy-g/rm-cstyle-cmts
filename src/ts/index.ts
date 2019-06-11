@@ -31,7 +31,7 @@ import * as replace from "./replace";
 /**
  * replace to version string at build time
  */
-const latest_version: string = "v2.2.2";
+const latest_version: string = "v2.2.3";
 /**
  * singleton instance.
  */
