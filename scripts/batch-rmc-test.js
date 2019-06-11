@@ -99,28 +99,28 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
     // default is 8000, own environment: time spent about 25sec
     // - - - example result: (default) - - - 
     //
-    // [batch-rmc-test]: 24873.684ms
+    // [batch-rmc-test]: 51518.500ms
     //
-    // task grmc-test done, processed: 4386, noops: 49
+    // task grmc-test done, processed: 6441, noops: 71
     // detected regex literals: [
     // ...
     // ]
-    // detected regex count: 2874
+    // detected regex count: 7760
     // evaluated literals: 0
     //
 
     // - - - example result: (rmc.avoidMinified = 15000) - - - 
     //
-    // [batch-rmc-test]: 25413.670ms
+    // [batch-rmc-test]: 51216.616ms
     //
-    // task grmc-test done, processed: 4402, noops: 33
+    // task grmc-test done, processed: 6463, noops: 49
     // detected regex literals: [
     // ...
     // ]
-    // detected regex count: 3057
+    // detected regex count: 8184
     // evaluated literals: 0
     //
-    //rmc.avoidMinified = 15000;
+    // rmc.avoidMinified = 15000;
 
     gulp.src(target).pipe(
         /**

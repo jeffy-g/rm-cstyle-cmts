@@ -203,13 +203,26 @@ namespace ReUtil {
  * DEVNOTE: 190531 - removed regex detection
  */
 let re_ws_qs_base: RegExp; {
-    const use_old = 0;
-    // DEVNOTE: The suffix "*" indicates the priority.
-    // DEVNOTE: 2019-6-11 - simplified back quoted strings detection regex
-    const re_dbquoted     = use_old? /"(?:\\[\s\S]|[^"])*"/: /"(?:[^\\"]|\\[\s\S])*"/; // **
-    const re_singlequoted = use_old? /'(?:\\[\s\S]|[^'])*'/: /'(?:[^\\']|\\[\s\S])*'/; // **
-    re_ws_qs_base = new RegExp(`\`|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
+    // const re_bases = {
+    //     // "2.2.1"
+    //     1: [
+    //         /"(?:\\[\s\S]|[^"])*"/, /'(?:\\[\s\S]|[^'])*'/
+    //     ],
+    //     // v2.2.2: reduce regex back track (slightly
+    //     2: [
+    //         /"(?:[^\\"]|\\[\s\S])*"/, /'(?:[^\\']|\\[\s\S])*'/
+    //     ],
+    //     4: [
+    //         /"(?:[^\\"]+|\\[\s\S])*"/, /'(?:[^\\']+|\\[\s\S])*'/
+    //     ],
+    // };
+    // const re_quotes = re_bases[4];
+    // // DEVNOTE: 2019-6-11 - simplified back quoted strings detection regex (v2.2.3
+    // re_ws_qs_base = new RegExp(`\`|${re_quotes[0].source}|${re_quotes[1].source}|\/`);
+    re_ws_qs_base = /`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//;
 
+    // // DEVNOTE: The suffix "*" indicates the priority.
+    // const use_old = 0;
     // const re_backquoted   = use_old? /`(?:\\[\s\S]|[^`])*`/: /`(?:[^\\`]|\\[\s\S])*`/; // ***
     // const re_dbquoted     = use_old? /"(?:\\[\s\S]|[^"])*"/: /"(?:[^\\"]|\\[\s\S])*"/; // **
     // const re_singlequoted = use_old? /'(?:\\[\s\S]|[^'])*'/: /'(?:[^\\']|\\[\s\S])*'/; // **
