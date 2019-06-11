@@ -202,46 +202,75 @@ namespace ReUtil {
 /**
  * DEVNOTE: 190531 - removed regex detection
  */
-let re_ws_qs_base: RegExp; {
-    // const re_bases = {
-    //     // "2.2.1"
-    //     1: [
-    //         /"(?:\\[\s\S]|[^"])*"/, /'(?:\\[\s\S]|[^'])*'/
-    //     ],
-    //     // v2.2.2: reduce regex back track (slightly
-    //     2: [
-    //         /"(?:[^\\"]|\\[\s\S])*"/, /'(?:[^\\']|\\[\s\S])*'/
-    //     ],
-    //     4: [
-    //         /"(?:[^\\"]+|\\[\s\S])*"/, /'(?:[^\\']+|\\[\s\S])*'/
-    //     ],
-    // };
-    // const re_quotes = re_bases[4];
-    // // DEVNOTE: 2019-6-11 - simplified back quoted strings detection regex (v2.2.3
-    // re_ws_qs_base = new RegExp(`\`|${re_quotes[0].source}|${re_quotes[1].source}|\/`);
-    re_ws_qs_base = /`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//;
+// let re_ws_qs_base: RegExp; {
+//     // const re_bases = {
+//     //     // "2.2.1"
+//     //     1: [
+//     //         /"(?:\\[\s\S]|[^"])*"/, /'(?:\\[\s\S]|[^'])*'/
+//     //     ],
+//     //     // v2.2.2: reduce regex back track (slightly
+//     //     2: [
+//     //         /"(?:[^\\"]|\\[\s\S])*"/, /'(?:[^\\']|\\[\s\S])*'/
+//     //     ],
+//     //     4: [
+//     //         /"(?:[^\\"]+|\\[\s\S])*"/, /'(?:[^\\']+|\\[\s\S])*'/
+//     //     ],
+//     // };
+//     // const re_quotes = re_bases[4];
+//     // // DEVNOTE: 2019-6-11 - simplified back quoted strings detection regex (v2.2.3
+//     // re_ws_qs_base = new RegExp(`\`|${re_quotes[0].source}|${re_quotes[1].source}|\/`);
 
-    // // DEVNOTE: The suffix "*" indicates the priority.
-    // const use_old = 0;
-    // const re_backquoted   = use_old? /`(?:\\[\s\S]|[^`])*`/: /`(?:[^\\`]|\\[\s\S])*`/; // ***
-    // const re_dbquoted     = use_old? /"(?:\\[\s\S]|[^"])*"/: /"(?:[^\\"]|\\[\s\S])*"/; // **
-    // const re_singlequoted = use_old? /'(?:\\[\s\S]|[^'])*'/: /'(?:[^\\']|\\[\s\S])*'/; // **
-    // re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
-}
+//     re_ws_qs_base = /`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//;
+
+//     // // DEVNOTE: The suffix "*" indicates the priority.
+//     // const use_old = 0;
+//     // const re_backquoted   = use_old? /`(?:\\[\s\S]|[^`])*`/: /`(?:[^\\`]|\\[\s\S])*`/; // ***
+//     // const re_dbquoted     = use_old? /"(?:\\[\s\S]|[^"])*"/: /"(?:[^\\"]|\\[\s\S])*"/; // **
+//     // const re_singlequoted = use_old? /'(?:\\[\s\S]|[^'])*'/: /'(?:[^\\']|\\[\s\S])*'/; // **
+//     // re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
+// }
+
+// DEVNOTE: 2019-6-11 - v2.2.4
+const re_ws_qs_base = /`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//;
+
+// DEVNOTE: 2019-6-11
+//  Although it may seem difficult to read at first glance,
+//  it should improve processing efficiency by reducing unnecessary tests.
+// 
+//  We decided not to use it because the processing speed of regex above
+//  was somewhat faster (about 1 sec) in however, "batch-rmc-test". (at node v12.4
+// 
+//  The probable cause is that this slightly
+//  more complex regex requires some cost to create a RegExp object instance, 
+//  as the current specification detects a newline character 
+//  for each string inputs and builds a regex each time. maybe.
+// const re_ws_qs_base = /`|"[^\\"]*(?:\\[\s\S][^\\"]*)*"|'[^\\']*(?:\\[\s\S][^\\']*)*'|\//;
 
 const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
-    const length = source.length;
-    let index = 0;
-    while (index < length) {
-        const ch = source[index++];
-        if (ch === "\r") {
-            return source[index] === "\n" ? "\r\n" : ch;
-        } else if (ch === "\n") {
+    let length = source.length - 1;
+    let ch: string | undefined;
+    while (ch = source[length--]) {
+        if (ch === "\n") {
+            return source[length] === "\r" ? "\r\n" : ch;
+        } else if (ch === "\r") {
             return ch;
         }
     }
     return null;
 };
+// const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
+//     const length = source.length;
+//     let index = 0;
+//     while (index < length) {
+//         const ch = source[index++];
+//         if (ch === "\r") {
+//             return source[index] === "\n" ? "\r\n" : ch;
+//         } else if (ch === "\n") {
+//             return ch;
+//         }
+//     }
+//     return null;
+// };
 // const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
 //     const m = /\r\n|\n|\r/.exec(source);
 //     return m? m[0] as ReUtil.KnownNewLines: null;
@@ -322,13 +351,13 @@ $newline$  # last new line
  *    The processing can be completed with the aid of the ICharacterScanner code.
  */
 namespace ReUtil {
-	/**
-	 * detect newline by script
-	 */
+    /**
+     * detect newline by script
+     */
     export const detectNewLine = _detectNewLine;
     /**
      * lookup cached regexes by newline character 
-	 *
+     *
      * @param source 
      */
     export const lookupRegexes = buildWsQsReRegexp;
