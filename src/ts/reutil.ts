@@ -246,31 +246,35 @@ const re_ws_qs_base = /`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//;
 //  for each string inputs and builds a regex each time. maybe.
 // const re_ws_qs_base = /`|"[^\\"]*(?:\\[\s\S][^\\"]*)*"|'[^\\']*(?:\\[\s\S][^\\']*)*'|\//;
 
-const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
-    let length = source.length - 1;
-    let ch: string | undefined;
-    while (ch = source[length--]) {
-        if (ch === "\n") {
-            return source[length] === "\r" ? "\r\n" : ch;
-        } else if (ch === "\r") {
-            return ch;
-        }
-    }
-    return null;
-};
 // const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
-//     const length = source.length;
-//     let index = 0;
-//     while (index < length) {
-//         const ch = source[index++];
-//         if (ch === "\r") {
-//             return source[index] === "\n" ? "\r\n" : ch;
-//         } else if (ch === "\n") {
+//     let length = source.length - 1;
+//     let ch: string | undefined;
+//     while (ch = source[length--]) {
+//         if (ch === "\n") {
+//             return source[length] === "\r" ? "\r\n" : ch;
+//         } else if (ch === "\r") {
 //             return ch;
 //         }
 //     }
 //     return null;
 // };
+
+// 
+// DEVNOTE: 2019-6-11 - because sourceMap may be at the end of file,
+// detection from the end of the input string can be dis-advantageous. (v2.2.5
+// 
+const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
+    let index = 0;
+    let ch: string | undefined;
+    while (ch = source[index++]) {
+        if (ch === "\r") {
+            return source[index] === "\n" ? "\r\n" : ch;
+        } else if (ch === "\n") {
+            return ch;
+        }
+    }
+    return null;
+};
 // const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
 //     const m = /\r\n|\n|\r/.exec(source);
 //     return m? m[0] as ReUtil.KnownNewLines: null;
