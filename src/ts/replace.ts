@@ -105,7 +105,7 @@ abstract class CharScannerBase implements ICharacterScanner {
      * @param registry 
      */
     constructor(registry: CharScannerFunction[]) {
-        // DEVNOTE: ✅ there is no problem at runtime in node.js v8.4 later
+        // DEVNOTE: ✅ there is no problem at runtime in node.js v6 later
         // @ts-ignore TS2715: Abstract property 'characters' in class 'CharScannerBase' cannot be accessed in the constructor.
         const array = this.characters.split("");
         array.forEach((ch: string) => { registry[ch.charCodeAt(0)] = this.scan; });
@@ -529,6 +529,7 @@ namespace ReplaceFrontEnd {
             const head = m[0][0];
 
             if (head === "`" || head === "/") {
+                // const inspectable = scanners[head.charCodeAt(0)];
                 const inspectable = getScanner(head);
                 context.result += source.substring(prev_offset, m.index);
                 context.offset = m.index;
