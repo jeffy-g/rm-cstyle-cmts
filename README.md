@@ -233,7 +233,7 @@ fs.writeFile(`./${name}-after.js`, after, 'utf-8', function() {
 
 ## performance
 
-> ?? In v2.x and later, its **optimized to node v10 and later**.  
+> 📝 In v2.x and later, its **optimized to node v10 and later**.  
   This works even on node v9 and earlier, but with poor performance.
 
 + performance bench of "samples/es6.js"
@@ -250,11 +250,11 @@ npm run bench
 
 v12.4.0
 
-?  ?  ?  ?  ?  ?  ?  ?  performance log started...
-? order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-? order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
+✔ order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+✔ order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-?  ?  ?  ?  ?  ?  ?  ?  performance ratio: 47.796744%
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 47.796744%
 [version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
     average of entries: 166.796300 ms, total average for each run: 0.083398 ms
 }
@@ -262,7 +262,7 @@ v12.4.0
     average of entries: 79.723200 ms, total average for each run: 0.039862 ms
 }
 
-?  ?  ?  ?  ?  ?  ?  ?  ?  ?  performance log   ?  ?  ?  ?  ?  ?  ?  ?  ?  ?  
+↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
@@ -303,11 +303,11 @@ es6-rm_ws-true.js written...
 
 v6.0.0
 
-?  ?  ?  ?  ?  ?  ?  ?  performance log started...
-? order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-? order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
+✔ order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+✔ order => version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-?  ?  ?  ?  ?  ?  ?  ?  performance ratio: 52.634410%
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 52.634410%
 [version: v2.2.5, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
     average of entries: 399.134900 ms, total average for each run: 0.199567 ms
 }
@@ -315,7 +315,7 @@ v6.0.0
     average of entries: 210.082300 ms, total average for each run: 0.105041 ms
 }
 
-?  ?  ?  ?  ?  ?  ?  ?  ?  ?  performance log   ?  ?  ?  ?  ?  ?  ?  ?  ?  ?  
+↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
@@ -441,7 +441,7 @@ interface IRemoveCStyleCommentsProperties {
      * 
      * NOTE: If a minified source is detected, the source is returned without any processing.
      * 
-     * ??This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
+     * ⚠️This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
      * 
      * If you know in advance that you do not to handle minified sources,  
      * setting this value to "0" will be disable this feature.
