@@ -406,8 +406,8 @@ gulp.task("readme", function(cb) {
     const re_package_desc = /(rm-cstyle-cmts@(?:[\d.]+)\s(?:[\w-]+))\s.+/;
     const re_version = /^v\d+\.\d+\.\d+$/m;
     // prepare for readme.
-    NODE_LATEST_LOG = NODE_LATEST_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$/g, "");
-    NODE_OLD_LOG = NODE_OLD_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$/g, "");
+    NODE_LATEST_LOG = NODE_LATEST_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$|\r/g, "");
+    NODE_OLD_LOG = NODE_OLD_LOG.replace(re_package_desc, "$1").replace(/^\s+|\s+$|\r/g, "");
 
     const NODE_LATEST_V = re_version.exec(NODE_LATEST_LOG)[0];
     const NODE_OLD_V =  re_version.exec(NODE_OLD_LOG)[0];
