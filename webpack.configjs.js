@@ -124,9 +124,12 @@ const createWebpackConfig = (
         },
         profile: true,
         cache: true,
-		// DEVNOTE: 23:17 2019/06/03 - this project using gulp webpack stream package. so following things are not work
-        recordsInputPath: path.join(__dirname, `./logs/${utils.dateStringForFile()}-records.json`),
-        recordsOutputPath: path.join(__dirname, `./logs/${utils.dateStringForFile()}-newRecords.json`)
+        // CHANGES: 2019/9/22 - Setting recordsPath will essentially set recordsInputPath and recordsOutputPath to the same location.
+        //   This is usually all that's necessary unless you decide to change the name of the file containing the records.
+        //   - see https://webpack.js.org/configuration/other-options/#recordspath
+        recordsPath: path.join(__dirname, "./logs/webpack-module-ids.json"),
+        // recordsInputPath: path.join(__dirname, `./logs/${utils.dateStringForFile()}-records.json`),
+        // recordsOutputPath: path.join(__dirname, `./logs/${utils.dateStringForFile()}-newRecords.json`)
     };
 };
 
