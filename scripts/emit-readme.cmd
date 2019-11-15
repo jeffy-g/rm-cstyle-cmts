@@ -22,7 +22,7 @@ rem nodist %1 && npm test>./logs/v%1.log
 if not exist "./logs" mkdir "./logs"
 
 set old=6.0
-set latest=12
+set latest=13
 rem
 rem ATTENTION: need nodist
 rem
