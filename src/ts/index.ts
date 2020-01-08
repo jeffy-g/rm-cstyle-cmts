@@ -98,9 +98,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
             // DEVNOTE: check the single line input
             /* istanbul ignore if */
             if (!re_newline.test(source) && avoid_minified < source.length) {
-                console.log();
-                // 🚸
-                console.log("\u{1F6B8} AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
+                console.log("\n\u{1F6B8} AVOID_MINFIED: source.length: %s, re_newline.lastIndex: %s", source.length, re_newline.lastIndex);
                 return withNoop(source);
             }
 
@@ -108,7 +106,6 @@ const removeCStyleComments: IRemoveCStyleComments = (
             do {
                 const lastIndex = re_newline.lastIndex;
                 if ( (lastIndex - prev) > avoid_minified ) {
-                    // ⛔ ⚠️ 🚸
                     return withNoop(source);
                 }
                 prev = lastIndex;

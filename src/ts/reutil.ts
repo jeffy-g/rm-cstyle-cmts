@@ -230,9 +230,6 @@ namespace ReUtil {
 //     // re_ws_qs_base = new RegExp(`${re_backquoted.source}|${re_dbquoted.source}|${re_singlequoted.source}|\/`);
 // }
 
-// DEVNOTE: 2019-6-11 - v2.2.4
-const re_ws_qs_base = /`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//;
-
 // DEVNOTE: 2019-6-11
 //  Although it may seem difficult to read at first glance,
 //  it should improve processing efficiency by reducing unnecessary tests.
@@ -259,59 +256,67 @@ const re_ws_qs_base = /`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//;
 //     return null;
 // };
 
-// 
+//
 // DEVNOTE: 2019-6-11 - because sourceMap may be at the end of file,
 // detection from the end of the input string can be dis-advantageous. (v2.2.5
-// 
+//
+// CHANGES: 2020/1/8 - avoid local var access
 const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
     let index = 0;
     let ch: string | undefined;
     while (ch = source[index++]) {
         if (ch === "\r") {
-            return source[index] === "\n" ? "\r\n" : ch;
+            return source[index] === "\n" ? "\r\n" : "\r";
         } else if (ch === "\n") {
-            return ch;
+            return "\n";
         }
     }
     return null;
 };
-// const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
-//     const m = /\r\n|\n|\r/.exec(source);
-//     return m? m[0] as ReUtil.KnownNewLines: null;
-// };
-
 
 /**
  * 
- * @param newline 
+ * @param nl newline character
  */
-const buildWsQsReRegexp = (newline: ReUtil.DetectedNewLines) => {
+// CHANGES: 2020/1/8 - avoid new RegExp
+//  - In this case, we can avoid building regex from RegExp class because regex is limited
+//    This can be expected to improve performance slightly
+//    -> see reliteral-vs-newre.js
+const buildWsQsReRegexp = (nl: ReUtil.DetectedNewLines) => {
 
-    const is_single_line_input = newline === "";
+    /** is (s)ingle (l)ine (i)nput */
+    const is_sli = nl === "";
 
-    if (!is_single_line_input) {
-        // escape CR or LF
-        // @ts-ignore re-assign different type
-        newline = newline === "\r\n" ? "\\r\\n" : newline === "\n" ? "\\n" : "\\r";
-    }
-
+    const re_map0 = {
+        "\n": /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+        "\r": /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+        "\r\n": /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    };
+    const re_map1 = {
+        "\n": /^\n|\n$/g,
+        "\r": /^\r|\r$/g,
+        "\r\n": /^\r\n|\r\n$/g,
+    };
     // DEVNOTE: If there is no newline character, only the leading and trailing space characters are detected
-    const re_ws_qs = is_single_line_input ? /^\s+|\s+$/g : new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
-    // \n\s+(?=\n)|\s+(?=\n)|...
+    const re_ws_qs        = is_sli ? /^\s+|\s+$/g : re_map0[nl as ReUtil.KnownNewLines];
+    const re_first_n_last = is_sli ? "" : re_map1[nl as ReUtil.KnownNewLines];
 
-    // DEVNOTE: "^" and "$" is consume a lot more cpu time.
-    // let re_ws_qs: RegExp;
-    // if (is_single_line_input) {
-    //     re_ws_qs = /^\s+|\s+$/g;
-    // } else {
-    //     if (isCRLF) {
-    //         re_ws_qs = new RegExp(`${newline}\\s+(?=${newline})|\\s+(?=${newline})|${re_ws_qs_base.source}`, "g");
-    //     } else {
-    //         re_ws_qs = new RegExp(`^\\s+(?=$)|\\s+(?=$)|${re_ws_qs_base.source}`, "gm");
-    //     }
-    // }
-
-    const re_first_n_last = is_single_line_input ? "" : new RegExp(`^${newline}|${newline}$`, "g");
+    // - - - This code seems to have a little processing cost
+    // const re_map0 = [
+    //     /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    //     /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    //     /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    // ];
+    // const re_map1 = [
+    //     /^\r|\r$/g,
+    //     /^\n|\n$/g,
+    //     /^\r\n|\r\n$/g,
+    // ];
+    // // "\r".charCodeAt(0) & 0x3 => 1 "\n".charCodeAt(0) & 0x3 => 2
+    // let map_index = nl.charCodeAt(0) & 0x3;                   /* ... */
+    // nl.length === 2 && (map_index |= nl.charCodeAt(1) & 0x3); /* ... */
+    // const re_ws_qs        = is_sli ? /^\s+|\s+$/g : re_map0[map_index - 1];
+    // const re_first_n_last = is_sli ? "" : re_map1[map_index - 1];
 
     return {
         /**
@@ -320,13 +325,13 @@ const buildWsQsReRegexp = (newline: ReUtil.DetectedNewLines) => {
          * `regex summary:`
          *
          * ```perl
-$newline\s+(?=$newline)| # whitespace line or ...
-\s+(?=$newline)|         # spaces ahead of new line
-`(?:\\[\s\S]|[^`])*`|    # backquoted string
-"(?:\\[\s\S]|[^"])*"|    # double quoted string
-'(?:\\[\s\S]|[^'])*'|    # single quoted string
-\/                       # detection for ts reference tag, regex, jsx tag terminator
-```
+         * $newline\s+(?=$newline)| # whitespace line or ...
+         * \s+(?=$newline)|         # spaces ahead of new line
+         * `(?:\\[\s\S]|[^`])*`|    # backquoted string
+         * "(?:\\[\s\S]|[^"])*"|    # double quoted string
+         * '(?:\\[\s\S]|[^'])*'|    # single quoted string
+         * \/                       # detection for ts reference tag, regex, jsx tag terminator
+         * ```
         */
         re_ws_qs,
         /**
@@ -335,10 +340,10 @@ $newline\s+(?=$newline)| # whitespace line or ...
          * 
          * `regex summary:`
          *
-         ```perl
-^$newline| # first new line
-$newline$  # last new line
-```
+         * ```perl
+         * ^$newline| # first new line
+         * $newline$  # last new line
+         * ```
         */
         re_first_n_last
     };

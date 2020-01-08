@@ -362,16 +362,16 @@ class SlashScanner extends CharScannerBase {
         // index + 1 ...
         const nl_start = context.newline && source.indexOf(context.newline, index + 1) || -1;
         // limitation.
-        const length = source.length;
+        const nls_or_eos = nl_start === -1? source.length: nl_start;
         // NOTE: It was necessary to extract the character strings of the remaining lines...
-        const remaining = source.substring(index, nl_start === -1? length: nl_start);
+        const remaining = source.substring(index, nls_or_eos);
 
         //
         // - - - check ts reference tag or line comment - - -
         //
         if (ch === "/") {
             // update offset. when new line character not found(eof) then...
-            context.offset = nl_start === -1? length: nl_start;// + context.newline.length;
+            context.offset = nls_or_eos;// + context.newline.length;
             if (re_tsref.test(remaining)) { // avoid ts reference tag
                 context.result += source.substring(
                     // DEVNOTE: 2019-5-25 - fix: imcomplete substring
@@ -396,7 +396,7 @@ class SlashScanner extends CharScannerBase {
         if (remaining[m.index - 1] === "/") {
             context.result += source.substring(index, index + m.index - 1);
             // update offset. when new line character not found(eof) then...
-            context.offset = nl_start === -1? length: nl_start;// + context.newline.length;
+            context.offset = nls_or_eos;
         } else {
             // DEVNOTE: the eval function can almost certainly detect regexp literal.
             const re_literal = m[0];
@@ -461,19 +461,15 @@ namespace ReplaceFrontEnd {
     const scanners: CharScannerFunction[] = [];
     CharScannerBase.injectKnownScannersTo(scanners);
 
-    const getScanner = (ch: string) => {
-        return scanners[ch.charCodeAt(0)];
-    };
-
     export const apply = (source: string, rm_blank_line_n_ws: boolean) => {
 
         //
         // step 1. remove {line, block} comments
         //
-        const size = source.length;
+        const size     = source.length;
         const registry = scanners;
-        const context = createWhite(source);
-        let offset = 0;
+        const context  = createWhite(source);
+        let offset      = 0;
         let prev_offset = 0;
 
         while (offset < size) {
@@ -523,23 +519,15 @@ namespace ReplaceFrontEnd {
         let m: RegExpExecArray | null;
         prev_offset = 0;
         // NOTE: need skip quoted string, regexp literal.
-        //return (head === "`" || head === "/" || head === "'" || head === '"')? matched: "";
         while (m = re_ws_qs.exec(source)) {
 
             const head = m[0][0];
 
             if (head === "`" || head === "/") {
-                // const inspectable = scanners[head.charCodeAt(0)];
-                const inspectable = getScanner(head);
                 context.result += source.substring(prev_offset, m.index);
                 context.offset = m.index;
-                prev_offset = inspectable(head, source, context)? context.offset: context.offset++;
+                prev_offset = registry[head.charCodeAt(0)](head, source, context)? context.offset: context.offset++;
                 re_ws_qs.lastIndex = context.offset;
-                // if (inspectable(head, source, context)) {
-                //     re_ws_qs.lastIndex = prev_offset = context.offset;
-                // } else {
-                //     re_ws_qs.lastIndex = (prev_offset = m.index) + 1;
-                // }
                 continue;
             }
 
