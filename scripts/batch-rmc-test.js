@@ -69,6 +69,25 @@ const cleanUpResults = (cb) => {
     cb();
 };
 
+/**
+ * @param {string[]} ra regex literal array
+ */
+const uniq = (ra) => {
+    // known elements
+    /** @type {Map<string, boolean>} */
+    const ke = new Map();
+    // uniqued Array
+    const ua = [];
+    for (const e of ra) {
+        if (ke.has(e)) {
+            continue;
+        }
+        ua.push(e);
+        ke.set(e, true);
+    }
+    return ua;
+};
+
 // tree node_modules > nm-tree.txt && tree ..\grmc-tmp\output > output-tree.txt
 // --------------------------------------------- [gulp-rm-cmts test]
 // sample webpack: avoidMinified = 76944;
@@ -143,11 +162,22 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
         console.log("task grmc-test done, processed: %s, noops:", rmc.processed, rmc.noops);
         console.log("noop paths:", grmc.noopPaths);
         const context = rmc.getDetectedReContext();
+        const uniqReLiterals = uniq(context.detectedReLiterals);
         // console.log("detected regex literals:", context.detectedReLiterals);
         console.log("detected regex count:", context.detectedReLiterals.length);
+        console.log("unique regex count:", uniqReLiterals.length);
         console.log("evaluated regex literals:", context.evaluatedLiterals);
 
-        utils.writeTextUTF8(context.detectedReLiterals.join("\n"), "./tmp/grmc-detected-reLiterals.txt");
+        context.detectedReLiterals.length && utils.writeTextUTF8(
+`const reLiterals = [
+  ${uniqReLiterals.sort().join(",\n  ")}
+];
+module.exports = {
+    reLiterals
+};
+`,
+            "./tmp/grmc-detected-reLiterals.js"
+        );
     });
 };
 
