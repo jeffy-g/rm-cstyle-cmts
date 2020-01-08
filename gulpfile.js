@@ -217,6 +217,7 @@ const compileGulpPlugin = (done) => {
     //     });
     // };
 
+    console.log("start compileGulpPlugin");
     const project = tsc.createProject("./tsconfig.json");
     // cannot took dependent source.
     // however, it seems ok if you explicitly list the file with tsconfig.json ("include" etc.

@@ -11,6 +11,8 @@
   "scripts": {
     "start": "yarn lint && yarn build && yarn bench && yarn test",
     "lint": "tslint src/**/*.ts -p tsconfig.json --project",
+    "inst:clean": "npx rimraf yarn.lock node_modules && yarn install",
+    "update:packages": "yarn upgrade-interactive --latest",
     "test": "jest --coverage",
     "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
     "batch-rmc-test": "node scripts/batch-rmc-test",
