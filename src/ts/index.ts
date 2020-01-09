@@ -21,8 +21,8 @@ limitations under the License.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** IReplaceFrontEnd */
-import * as replace from "./replace";
+/** character scanner module */
+import * as JsScanner from "./js-scanner";
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -32,10 +32,6 @@ import * as replace from "./replace";
  * replace to version string at build time
  */
 const latest_version: string = "v2.2.7";
-/**
- * singleton instance.
- */
-const Replacer = replace.getFrondEnd();
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,11 +115,11 @@ const removeCStyleComments: IRemoveCStyleComments = (
     }
 
     if (typeof report_regex_evaluate_error === "boolean") {
-        Replacer.regexErrorReportEnable(report_regex_evaluate_error);
+        JsScanner.regexErrorReportEnable(report_regex_evaluate_error);
     }
 
     try {
-        source = Replacer.apply(source, rm_blank_line_n_ws);
+        source = JsScanner.apply(source, rm_blank_line_n_ws);
         processed++;
         return source;
     } catch (e) {
@@ -161,14 +157,14 @@ const removeCStyleComments: IRemoveCStyleComments = (
             value: () => {
                 unable_to_process = 0;
                 processed = 0;
-                Replacer.reset();
+                JsScanner.reset();
             },
             configurable: false,
             writable: false
         },
         getDetectedReContext: {
             value: () => {
-                return Replacer.getDetectedReContext();
+                return JsScanner.getDetectedReContext();
             },
             configurable: false,
             writable: false
