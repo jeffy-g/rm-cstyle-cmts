@@ -69,25 +69,6 @@ const cleanUpResults = (cb) => {
     cb();
 };
 
-/**
- * @param {string[]} ra regex literal array
- */
-const uniq = (ra) => {
-    // known elements
-    /** @type {Map<string, boolean>} */
-    const ke = new Map();
-    // uniqued Array
-    const ua = [];
-    for (const e of ra) {
-        if (ke.has(e)) {
-            continue;
-        }
-        ua.push(e);
-        ke.set(e, true);
-    }
-    return ua;
-};
-
 // tree node_modules > nm-tree.txt && tree ..\grmc-tmp\output > output-tree.txt
 // --------------------------------------------- [gulp-rm-cmts test]
 // sample webpack: avoidMinified = 76944;
@@ -115,32 +96,6 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
     const target = settings.paths? settings.paths: TEST_SRC_FILEs;
     const rmc = grmc.getRmcInterface();
 
-    // default is 8000, own environment: time spent about 25sec
-    // - - - example result: (default) - - - 
-    //
-    // [batch-rmc-test]: 51518.500ms
-    //
-    // task grmc-test done, processed: 6441, noops: 71
-    // detected regex literals: [
-    // ...
-    // ]
-    // detected regex count: 7760
-    // evaluated literals: 0
-    //
-
-    // - - - example result: (rmc.avoidMinified = 15000) - - - 
-    //
-    // [batch-rmc-test]: 51216.616ms
-    //
-    // task grmc-test done, processed: 6463, noops: 49
-    // detected regex literals: [
-    // ...
-    // ]
-    // detected regex count: 8184
-    // evaluated literals: 0
-    //
-    // rmc.avoidMinified = 15000;
-
     gulp.src(target).pipe(
         /**
          * remove_ws : remove whitespace and blank lines.
@@ -150,9 +105,7 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
             render_progress: true,
             // report_re_error: true,
         })
-    )
-    // .pipe(rename({ suffix: "-after" }))
-    .pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
+    ).pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
 
         console.log("\n");
         // notify completion of task.
@@ -161,16 +114,16 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
         console.log();
         console.log("task grmc-test done, processed: %s, noops:", rmc.processed, rmc.noops);
         console.log("noop paths:", grmc.noopPaths);
+
         const context = rmc.getDetectedReContext();
-        const uniqReLiterals = uniq(context.detectedReLiterals);
         // console.log("detected regex literals:", context.detectedReLiterals);
         console.log("detected regex count:", context.detectedReLiterals.length);
-        console.log("unique regex count:", uniqReLiterals.length);
+        console.log("unique regex count:", context.uniqReLiterals.length);
         console.log("evaluated regex literals:", context.evaluatedLiterals);
 
-        context.detectedReLiterals.length && utils.writeTextUTF8(
+        context.uniqReLiterals.length && utils.writeTextUTF8(
 `const reLiterals = [
-  ${uniqReLiterals.sort().join(",\n  ")}
+  ${context.uniqReLiterals.join(",\n  ")}
 ];
 module.exports = {
     reLiterals

@@ -94,6 +94,7 @@ declare global {
 	 */
     interface DetectedReContext {
         detectedReLiterals: string[];
+        uniqReLiterals: string[];
         evaluatedLiterals: number;
     }
 }

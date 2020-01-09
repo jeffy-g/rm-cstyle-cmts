@@ -282,45 +282,24 @@ const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
 //  - In this case, we can avoid building regex from RegExp class because regex is limited
 //    This can be expected to improve performance slightly
 //    -> see reliteral-vs-newre.js
-const buildWsQsReRegexp = (nl: ReUtil.DetectedNewLines) => {
-
-    /** is (s)ingle (l)ine (i)nput */
-    const is_sli = nl === "";
-
-    const re_map0 = {
-        "\n": /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
-        "\r": /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
-        "\r\n": /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
-    };
-    const re_map1 = {
-        "\n": /^\n|\n$/g,
-        "\r": /^\r|\r$/g,
-        "\r\n": /^\r\n|\r\n$/g,
-    };
-    // DEVNOTE: If there is no newline character, only the leading and trailing space characters are detected
-    const re_ws_qs        = is_sli ? /^\s+|\s+$/g : re_map0[nl as ReUtil.KnownNewLines];
-    const re_first_n_last = is_sli ? "" : re_map1[nl as ReUtil.KnownNewLines];
-
-    // - - - This code seems to have a little processing cost
-    // const re_map0 = [
-    //     /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
-    //     /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
-    //     /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
-    // ];
-    // const re_map1 = [
-    //     /^\r|\r$/g,
-    //     /^\n|\n$/g,
-    //     /^\r\n|\r\n$/g,
-    // ];
-    // // "\r".charCodeAt(0) & 0x3 => 1 "\n".charCodeAt(0) & 0x3 => 2
-    // let map_index = nl.charCodeAt(0) & 0x3;                   /* ... */
-    // nl.length === 2 && (map_index |= nl.charCodeAt(1) & 0x3); /* ... */
-    // const re_ws_qs        = is_sli ? /^\s+|\s+$/g : re_map0[map_index - 1];
-    // const re_first_n_last = is_sli ? "" : re_map1[map_index - 1];
-
+const _lookupRegexes = (nl: ReUtil.DetectedNewLines) => {
+    // const wsqs_map = {
+    //     "": /^\s+|\s+$/g ,
+    //     "\n": /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    //     "\r": /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    //     "\r\n": /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    // };
+    // const fnl_map = {
+    //     "": "",
+    //     "\n": /^\n|\n$/g,
+    //     "\r": /^\r|\r$/g,
+    //     "\r\n": /^\r\n|\r\n$/g,
+    // };
     return {
         /**
-         * regex: whitespaces, quoted string, regexp literal.
+         * regex: whitespaces, quoted string, regexp literal
+         * 
+         *   + If there is no newline character, only the leading and trailing space characters are detected
          *
          * `regex summary:`
          *
@@ -332,8 +311,13 @@ const buildWsQsReRegexp = (nl: ReUtil.DetectedNewLines) => {
          * '(?:\\[\s\S]|[^'])*'|    # single quoted string
          * \/                       # detection for ts reference tag, regex, jsx tag terminator
          * ```
-        */
-        re_ws_qs,
+         */
+        re_wsqs: {
+            "": /^\s+|\s+$/g ,
+            "\n": /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+            "\r": /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+            "\r\n": /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+        }[nl],
         /**
          * If do not specify a multiline flag,  
          * noticed that it matches the very first and last in the string ...
@@ -344,9 +328,36 @@ const buildWsQsReRegexp = (nl: ReUtil.DetectedNewLines) => {
          * ^$newline| # first new line
          * $newline$  # last new line
          * ```
-        */
-        re_first_n_last
+         */
+        re_first_n_last: {
+            "": "",
+            "\n": /^\n|\n$/g,
+            "\r": /^\r|\r$/g,
+            "\r\n": /^\r\n|\r\n$/g,
+        }[nl]
     };
+
+    // - - - This code seems to have a little processing cost
+    // /** is (s)ingle (l)ine (i)nput */
+    // const is_sli = nl === "";
+    // const wsqs_map = [
+    //     /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    //     /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    //     /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
+    // ];
+    // const fnl_map = [
+    //     /^\r|\r$/g,
+    //     /^\n|\n$/g,
+    //     /^\r\n|\r\n$/g,
+    // ];
+    // // "\r".charCodeAt(0) & 0x3 => 1 "\n".charCodeAt(0) & 0x3 => 2
+    // let map_index = nl.charCodeAt(0) & 0x3;                   /* ... */
+    // nl.length === 2 && (map_index |= nl.charCodeAt(1) & 0x3); /* ... */
+    // const re_wsqs         = is_sli ? /^\s+|\s+$/g : wsqs_map[map_index - 1];
+    // const re_first_n_last = is_sli ? "" : fnl_map[map_index - 1];
+    // return {
+    //     re_wsqs, re_first_n_last
+    // };
 };
 
 /**
@@ -365,11 +376,11 @@ namespace ReUtil {
      */
     export const detectNewLine = _detectNewLine;
     /**
-     * lookup cached regexes by newline character 
+     * lookup regexes by newline character 
      *
-     * @param source 
+     * @param nl MUST be "" or "\r" or "\n" or "\r\n"
      */
-    export const lookupRegexes = buildWsQsReRegexp;
+    export const lookupRegexes = _lookupRegexes;
 }
 
 export = ReUtil;

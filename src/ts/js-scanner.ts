@@ -67,7 +67,7 @@ const createWhite = (source: string): TReplacementContext => {
  * case '"': // double quote
  * ```
  */
-const quoteScanner = (source: string, context: TReplacementContext): boolean => {
+const quote = (source: string, context: TReplacementContext): boolean => {
 
     const st = context.offset;
     const char = source[st];
@@ -113,7 +113,7 @@ const quoteScanner = (source: string, context: TReplacementContext): boolean => 
 // did not investigate the optimization of node.js,
 // rewrite code according to the optimization idiom such as C, performance has improved slightly...
 // however, it might be my imagination... :- (at no webpack
-const backQuoteScanner = (source: string, context: TReplacementContext): boolean => {
+const backQuote = (source: string, context: TReplacementContext): boolean => {
 
     // store "next" postion character. 
     let ch: string;
@@ -199,7 +199,7 @@ const backQuoteScanner = (source: string, context: TReplacementContext): boolean
  * 
  * @param inputs regex literal string.
  */
-const simpleRegexVerify = (inputs: string) => {
+const validateRegex = (inputs: string) => {
 
     let groupIndex = 0,
         in_escape = false,
@@ -260,12 +260,12 @@ const re_tsref = /\/\/\/[ \t]*<reference/;
  */
 // CHANGES: 2019-5-25 - stopped add newline character at kinds of line comment.
 //  -> these things were required for code + regex replacement
-const slashScanner = (source: string, context: TReplacementContext): boolean => {
+const slash = (source: string, context: TReplacementContext): boolean => {
 
     // fetch current offset.
-    const index = context.offset;
+    const i = context.offset;
     // fetch next char.
-    let ch = source[index + 1];
+    let ch = source[i + 1];
     // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
     if (ch === void 0) {
         throw new SyntaxError("invalid input source");
@@ -275,7 +275,7 @@ const slashScanner = (source: string, context: TReplacementContext): boolean => 
     // - - - check multiline comment. - - -
     //
     if (ch === "*") {
-        const close = source.indexOf("*/", index + 2);
+        const close = source.indexOf("*/", i + 2);
         // // update offset.(implicit bug at here
         // context.offset = (close === -1? index : close) + 2;
         if (close !== -1) {
@@ -286,16 +286,15 @@ const slashScanner = (source: string, context: TReplacementContext): boolean => 
         throw new SyntaxError("multi line comment close mark not found");
     }
     // avoid jsx, tsx tag
-    if (source[index - 1] === "<") {
+    if (source[i - 1] === "<") {
         return false;
     }
 
-    // index + 1 ...
-    const nl_start = context.newline && source.indexOf(context.newline, index + 1) || -1;
     // limitation.
-    const nls_or_eos = nl_start === -1? source.length: nl_start;
+    let nls_or_eos = context.newline && source.indexOf(context.newline, i + 1) || -1;
+    nls_or_eos === -1 && (nls_or_eos = source.length);
     // NOTE: It was necessary to extract the character strings of the remaining lines...
-    const remaining = source.substring(index, nls_or_eos);
+    const remaining = source.substring(i, nls_or_eos);
 
     //
     // - - - check ts reference tag or line comment - - -
@@ -304,10 +303,7 @@ const slashScanner = (source: string, context: TReplacementContext): boolean => 
         // update offset. when new line character not found(eof) then...
         context.offset = nls_or_eos;// + context.newline.length;
         if (re_tsref.test(remaining)) { // avoid ts reference tag
-            context.result += source.substring(
-                // DEVNOTE: 2019-5-25 - fix: imcomplete substring
-                index, context.offset// - (context.newline.length === 2? 1: 0)
-            );
+            context.result += source.substring(i, nls_or_eos);
         }
         return true;
     }
@@ -325,7 +321,7 @@ const slashScanner = (source: string, context: TReplacementContext): boolean => 
 
     // means line comment.
     if (remaining[m.index - 1] === "/") {
-        context.result += source.substring(index, index + m.index - 1);
+        context.result += source.substring(i, i + m.index - 1);
         // update offset. when new line character not found(eof) then...
         context.offset = nls_or_eos;
     } else {
@@ -337,7 +333,7 @@ const slashScanner = (source: string, context: TReplacementContext): boolean => 
             // const lx = m[0].lastIndexOf("/");
             // new RegExp(m[0].substring(1, lx));
             // eval(m[0]);
-            if (!simpleRegexVerify(re_literal)) {
+            if (!validateRegex(re_literal)) {
                 // throw "🚸";
                 eval(re_literal);
                 /* istanbul ignore next */
@@ -350,8 +346,8 @@ const slashScanner = (source: string, context: TReplacementContext): boolean => 
 
         detectedReLiterals.push(re_literal);
         // update offset.
-        context.offset = index + re_re.lastIndex; // "g" flag.
-        context.result += source.substring(index, context.offset);
+        context.offset = i + re_re.lastIndex; // "g" flag.
+        context.result += source.substring(i, context.offset);
     }
 
     return true;
@@ -361,10 +357,10 @@ const slashScanner = (source: string, context: TReplacementContext): boolean => 
  * CharScannerFunction registry.
  */
 const scanners: TCharScannerFunction[] = [];
-scanners['"'.charCodeAt(0)] = quoteScanner;      // 34
-scanners["'".charCodeAt(0)] = quoteScanner;      // 39
-scanners["`".charCodeAt(0)] = backQuoteScanner;  // 96
-scanners["/".charCodeAt(0)] = slashScanner;      // 47
+scanners['"'.charCodeAt(0)] = quote;      // 34
+scanners["'".charCodeAt(0)] = quote;      // 39
+scanners["`".charCodeAt(0)] = backQuote;  // 96
+scanners["/".charCodeAt(0)] = slash;      // 47
 
 /**
  * NOTE:  
@@ -432,12 +428,12 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     /* reset context */
     context.result = "";//, context.offset = 0;
     const regexes = reutil.lookupRegexes(context.newline);
-    const re_ws_qs = regexes.re_ws_qs;
+    const re_wsqs = regexes.re_wsqs;
 
     let m: RegExpExecArray | null;
     prev_offset = 0;
     // NOTE: need skip quoted string, regexp literal.
-    while (m = re_ws_qs.exec(source)) {
+    while (m = re_wsqs.exec(source)) {
 
         const head = m[0][0];
 
@@ -445,13 +441,13 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
             context.result += source.substring(prev_offset, m.index);
             context.offset = m.index;
             prev_offset = registry[head.charCodeAt(0)](source, context)? context.offset: context.offset++;
-            re_ws_qs.lastIndex = context.offset;
+            re_wsqs.lastIndex = context.offset;
             continue;
         }
 
-        const sublast = (head === "'" || head === '"')? re_ws_qs.lastIndex: m.index;
+        const sublast = (head === "'" || head === '"')? re_wsqs.lastIndex: m.index;
         context.result += source.substring(prev_offset, sublast);
-        prev_offset = re_ws_qs.lastIndex;
+        prev_offset = re_wsqs.lastIndex;
     }
 
     // adjust remaining
@@ -472,12 +468,30 @@ const regexErrorReportEnable = (enable: boolean): void => {
 };
 
 /**
+ * @param ra regex literal array
+ */
+const uniq = (ra: string[]) => {
+    // known elements
+    const ke = new Map<string, boolean>();
+    // uniqued Array
+    const ua = [] as typeof ra;
+    for (const e of ra) {
+        if (ke.has(e)) {
+            continue;
+        }
+        ua.push(e);
+        ke.set(e, true);
+    }
+    return ua;
+};
+/**
  * acquire the regex detection related context
  */
 const getDetectedReContext = () => {
     return {
         detectedReLiterals,
-        evaluatedLiterals
+        evaluatedLiterals,
+        uniqReLiterals: uniq(detectedReLiterals).sort()
     };
 };
 /**
