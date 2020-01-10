@@ -123,38 +123,35 @@ function _remove_nullfile(done) {
     }
 }
 
-/**
- *  gulp webpack(-js) strip useless webpack code.
- */
-// no minify code.
-const re_useless_webpack_pattern = /\/[*]+\/\s+__webpack_require__\.d[^]+call\(object, property\).+/;
-// minify code.
-const re_useless_webpack_minified_pattern = /,\s?\w\.d\s?=\s?function\(\w,\s?\w,\s?\w\)\s?\{[\s\S]+hasOwnProperty\.call\(\w,\s?\w\);\s+\}(?=,)/;
-
-const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_useless_webpack_minified_pattern.source}`);
+// /**
+//  *  gulp webpack(-js) strip useless webpack code.
+//  */
+// // no minify code.
+// const re_useless_webpack_pattern = /\/[*]+\/\s+__webpack_require__\.d[^]+call\(object, property\).+/;
+// // minify code.
+// const re_useless_webpack_minified_pattern = /,\s?\w\.d\s?=\s?function\(\w,\s?\w,\s?\w\)\s?\{[\s\S]+hasOwnProperty\.call\(\w,\s?\w\);\s+\}(?=,)/;
+// const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_useless_webpack_minified_pattern.source}`);
 
 // for "tsc", "webpack-js"
 // bind version string, and replace something...(for webpack
 /**
- * strip_code for webpack uglify
+ * strip unnecessary code from webpack uglify
+ * 
  * @param {() => void} done gulp callback function.
- * @param {boolean} [strip_code] remove unused webpack code.
  */
-function _replace_some(done, strip_code) {
-    // DEVNOTE: see - https://gulpjs.com/docs/en/api/src
-    let stream = gulp.src(["./bin/index.js", "./bin/bench/index.js"], { allowEmpty: true });
+function stripUnnecessaryCode(done) {
     let did_strip = 0;
-    if (strip_code) {
-        stream = stream.pipe( // strip webpack code
-            greplace(re_wp_striper, (/*$0*/) => {
-                did_strip++;
-                return "";
-            })
-        );
-    }
-    stream.pipe(gulp.dest(vinyl => {
-        return convertRelativeDir(vinyl, ".");
-    })).on("end", () => {
+    // DEVNOTE: see - https://gulpjs.com/docs/en/api/src
+    gulp.src(
+        ["./bin/index.js", "./bin/bench/index.js", "./bin/web/index.js"], { allowEmpty: true }
+    ).pipe( // strip webpack code
+        greplace(
+            /\/[*]+\/\s+__webpack_require__\.d[^]+call\(object, property\).+|,\s?\w\.d\s?=\s?function\(\w,\s?\w,\s?\w\)\s?\{[\s\S]+hasOwnProperty\.call\(\w,\s?\w\);\s+\}(?=,)/,
+            (/*$0*/) => { did_strip++; return ""; }
+        )
+    ).pipe(
+        gulp.dest(vinyl => convertRelativeDir(vinyl, "."))
+    ).on("end", () => {
         did_strip && console.log("strip webpack code. did_strip=%d", did_strip);
         // notify completion of task.
         done && done();
@@ -167,7 +164,7 @@ function _replace_some(done, strip_code) {
  */
 function _remove_un_js(done) {
     // in general, "del" is completed first.
-    _replace_some(done, !0);
+    stripUnnecessaryCode(done);
     // remove unnecessary files.
     _clean([`${JS_DEST_DIR}/{replace,reutil}*`, `${JS_DEST_DIR}/bench/contractor*`]);
 }
@@ -201,6 +198,8 @@ const _copyDefinitions = () => {
 
 /**
  * generate gulp plugin
+ * 
+ *   + gulp plugin code is not bundled with webpack, so it needs to be processed separately
  * 
  * @param {() => void} [done] 
  */
@@ -266,9 +265,9 @@ function doWebpack(webpackConfigPath, done) {
             return;
         }
         _remove_nullfile();
-        _remove_un_js(done); // <- this is a bit slow...
         console.log("webpack build done.");
         compileGulpPlugin();
+        _remove_un_js(done); // <- this is a bit slow...
     });
     // // webpack instance pass to param 2
     // // - - - - web build
@@ -344,7 +343,7 @@ gulp.task("tsc", gulp.series("clean", function(done) {
     .pipe(gulp.dest(JS_DEST_DIR))
     .on("end", function () {
         console.log("tsc done.");
-        _replace_some(done);
+        done && done();
     });
 }));
 

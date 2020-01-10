@@ -34,20 +34,14 @@
 
         "noEmitHelpers": false,
 
-        // "alwaysStrict": true,
         "strict": true,
-
-        // "allowJs": true,
-        // "checkJs": true,
 
         // NOTE: test use.
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
     "include": [
-        "./src/**/*.ts"
+        "./src/ts/**/*.ts"
     ],
-    "exclude": [
-        "./src/gulp-rm-cmts.ts"
-    ]
+    "exclude": []
 }

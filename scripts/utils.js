@@ -363,5 +363,4 @@ module.exports = {
     createWebpackProgressPluginHandler,
     createBrowserifyFileEventLogger,
     fireReplace
-}
-
+};
