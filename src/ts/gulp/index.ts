@@ -101,12 +101,13 @@ const stdProgress = (path: string) => {
  */
 const progress = process.env.CI? (() => {
     let count = 0;
+    const output = process.stderr;
     // @ts -ignore 
     return (/* path: string */) => {
         count++;
-        (count % 100) === 0 && process.stderr.write(".");
+        (count % 100) === 0 && output.write(".");
         // write the message.
-        (count % 10000) === 0 && process.stderr.write("\n");
+        (count % 10000) === 0 && output.write("\n");
     };
 })(): stdProgress;
 
@@ -277,7 +278,6 @@ const getTransformer: TransformerFactory = (options) => {
 };
 
 export = {
-
     getTransformer,
     /**
      * unprocessed file is recorded
