@@ -9,7 +9,7 @@
   "author": "jeffy-g",
   "license": "Apache-2.0",
   "scripts": {
-    "start": "yarn lint && yarn build && yarn bench && yarn test",
+    "start": "yarn lint && yarn build && yarn bench && yarn test && yarn dist:nopack",
     "lint": "tslint src/**/*.ts -p tsconfig.json --project",
     "inst:clean": "npx rimraf yarn.lock node_modules && yarn install",
     "update:packages": "yarn upgrade-interactive --latest",

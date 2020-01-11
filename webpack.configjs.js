@@ -44,7 +44,7 @@ const terserOptions = {
     mangle: true,
     output: {
         comments: false,
-        beautify: true,
+        //beautify: true,
         indent_level: 1,
         // ecma: 9,
         max_line_len: 800,

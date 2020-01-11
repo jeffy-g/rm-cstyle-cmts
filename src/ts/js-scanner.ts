@@ -50,11 +50,11 @@ let regexErrorReport: boolean = false;
  */
 const createWhite = (source: string): TReplacementContext => {
     // specify new line character.
-    const newline = reutil.detectNewLine(source);
+    const newline = reutil.detectNewLine(source) || "";
     return {
         offset: 0,
         result: "",
-        newline: newline || ""
+        newline
     };
 };
 
@@ -81,20 +81,29 @@ const quote = (source: string, context: TReplacementContext): boolean => {
     let ch: string;
 
     while (next < limiter) {
-        if ((ch = source[next++]) === "\\") {
+        if ((ch = source[next]) === "\\") {
             in_escape = !in_escape;
-        } else if (!in_escape && ch === char) { /* need in_escape = false state. */
-            // const str = source.substring(start, next);
-            // console.log(`--[${str}]--`);
-            // context.result += str;
-            context.result += source.substring(st, next);
+        } else if (in_escape) { /* need in_escape = false state. */
+            in_escape = false;
+        } else if (ch === char) { // last state is "in escape" then current ch is ignored.
+            context.result += source.substring(st, ++next);
             context.offset = next;
             return true;
-        } else { // last state is "in escape" then current ch is ignored.
-            in_escape = false;
         }
+        next++;
     }
+    // while (next < limiter) {
+    //     if ((ch = source[next++]) === "\\") {
+    //         in_escape = !in_escape;
+    //     } else if (!in_escape && ch === char) { /* need in_escape = false state. */
+    //         context.result += source.substring(st, next);
+    //         context.offset = next;
+    //         return true;
+    //     } else { // last state is "in escape" then current ch is ignored.
+    //         in_escape && (in_escape = false);
+    //     }
     // }
+
     throw new SyntaxError(`invalid string quotes?, offset=${st}, remaining=--[${source.substring(st)}]--`);
 };
 
@@ -144,49 +153,27 @@ const backQuote = (source: string, context: TReplacementContext): boolean => {
         } else if (in_escape) {
             // last state is "in escape" then current ch is ignored.
             in_escape = false;
-        } else {
-
-            // DEVNOTE: 2019-4-30
-            //  abolished switch statement and adopted ifelse statement.
-            //  this slightly improves performance.
-            //
-            // state is not escaped then let's check [`], "${", "}".
-            // however, "}" is ignore escape state?
-            if (ch === "$") {
-                if (source[next + 1] === "{") {
-                    next += 2, depth++;
-                    continue $;
-                }
-            } else if (ch === "`") {
-                if (depth > 0) {
-                    // if (depth - 1 === bq_depth) {    // can increment.
-                    //     bq_depth++;
-                    // } else if (depth === bq_depth) { // can decrement.
-                    //     bq_depth--;
-                    // }
-                    depth - 1 === bq_depth ? bq_depth++ : depth === bq_depth && bq_depth--;
-                } else /* if (depth === 0) */ {
-                    context.result += source.substring(context.offset, ++next);
-                    context.offset = next;
-                    return true;
-                }
-            } else if (ch === "}") {
-                // NOTE: can be decremented only when it is nested?
-                // if (depth > 0 && depth - 1 === bq_depth) {
-                //     depth--;
-                // }
-                // again, this one seems better (at no webpack
-                (depth > 0 && depth - 1 === bq_depth) && depth--;
+        } else if (ch === "$") {
+            if (source[next + 1] === "{") {
+                next += 2, depth++;
+                continue $;
             }
-
+        } else if (ch === "}") {
+            (depth > 0 && depth - 1 === bq_depth) && depth--;
+        } else if (ch === "`") {
+            if (depth > 0) {
+                depth - 1 === bq_depth ? bq_depth++ : depth === bq_depth && bq_depth--;
+            } else /* if (depth === 0) */ {
+                context.result += source.substring(context.offset, ++next);
+                context.offset = next;
+                return true;
+            }
         }
-
         next++;
     }
 
     throw new SyntaxError(`BackQuoteScanner error: offset=${context.offset}, remaining=--[${source.substring(context.offset)}]--`);
 };
-
 
 /**
  * Simple regex verifier
@@ -226,7 +213,7 @@ const validateRegex = (inputs: string) => {
                 return false;
             }
         } else {
-            in_escape = false;
+            in_escape && (in_escape = false);
         }
     }
 
