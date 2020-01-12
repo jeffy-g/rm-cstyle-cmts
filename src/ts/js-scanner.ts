@@ -213,7 +213,7 @@ const validateRegex = (inputs: string) => {
                 return false;
             }
         } else {
-            in_escape && (in_escape = false);
+            in_escape = false;
         }
     }
 
