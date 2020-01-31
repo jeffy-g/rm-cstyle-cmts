@@ -64,7 +64,7 @@ const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 /** @type {ThisTaskArgs} */
 const settings = utils.getExtraArgs({ startIndex: 2 });
 
-const cleanUpResults = (cb) => {
+const cleanUpResults = (/** @type {() => unknown} */cb) => {
     del.sync(TEST_SRC_FILEs_OUT, { force: true });
     cb();
 };

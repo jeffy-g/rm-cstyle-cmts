@@ -91,7 +91,7 @@ function _clean(globs, done) {
 //  *  gulp webpack(-js) strip useless webpack code.
 //  */
 // // no minify code.
-// const re_useless_webpack_pattern = /\/[*]+\/\s+__webpack_require__\.d[^]+call\(object, property\).+/;
+// const re_useless_webpack_pattern = /\/[*]+\/\s+__webpack_require__\.d[^]+call\(object, property\).+/; // or \/[*]+\/\s+__webpack_require__\.d[\s\S\n]+call\(object, property\).+
 // // minify code.
 // const re_useless_webpack_minified_pattern = /,\s?\w\.d\s?=\s?function\(\w,\s?\w,\s?\w\)\s?\{[\s\S]+hasOwnProperty\.call\(\w,\s?\w\);?\s*\}(?=,)/;
 // const re_wp_striper = new RegExp(`${re_useless_webpack_pattern.source}|${re_useless_webpack_minified_pattern.source}`);
