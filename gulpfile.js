@@ -57,19 +57,6 @@ const COPY_SCRIPT_FILEs = `${JS_DEST_DIR}/**/*{.js,.d.ts,.js.map}`;
 
 // ------------------------------- shared function ------------------------------- //
 /**
- * @typedef {import("vinyl")} Vinyl
- */
-/**
- * use for gulp.dest(...)
- * @param {Vinyl} vinyl 
- * @param {string} dest 
- */
-function convertRelativeDir(vinyl, dest) { // NOTE: vinyl is https://github.com/gulpjs/vinyl
-    let x = vinyl.cwd.length + 1;
-    let relative_dir = vinyl.base.substring(x);
-    return `${dest}/${relative_dir}`;
-}
-/**
  * delete files by "globs" pattern.  
  * done callback(gulp) specified if need.
  * @param {string|string[]} globs file pattern.
@@ -113,7 +100,7 @@ function stripUnnecessaryCode(done) {
             (/*$0*/) => { did_strip++; return ""; }
         )
     ).pipe(
-        gulp.dest(vinyl => convertRelativeDir(vinyl, "."))
+        gulp.dest(vinyl => utils.convertRelativeDir(vinyl, "."))
     ).on("end", () => {
         did_strip && console.log("strip webpack code. did_strip=%d", did_strip);
         // notify completion of task.
@@ -132,7 +119,7 @@ function _dist(done, dest) {
         // "test/test.ts",
         COPY_SCRIPT_FILEs
     ]).pipe(gulp.dest(vinyl => {
-        return convertRelativeDir(vinyl, dest);
+        return utils.convertRelativeDir(vinyl, dest);
     })).on("end", () => {
         // notify completion of task.
         done();
@@ -185,7 +172,7 @@ const compileGulpPlugin = (done) => {
     }))
     .pipe(gulp.dest(vinyl => {
         // DEVNOTE: see tsconfig.json@rootDir
-        return convertRelativeDir(vinyl, ".");
+        return utils.convertRelativeDir(vinyl, ".");
     }))
     .on("end", function () {
         console.log("compileGulpPlugin done.");

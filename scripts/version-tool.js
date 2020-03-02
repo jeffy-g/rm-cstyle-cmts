@@ -17,50 +17,48 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-
 /* utilities module by own. */
 const utils = require("./utils");
 
 const params = utils.getExtraArgs({ startIndex: 2 });
-console.log(params);
 
+/**
+ * @typedef {(matchs: string, ...args: any[]) => string} TStringReplacer
+ */
 const ToolFunctions = {
-    // node ./scripts/version-tool -cmd version
+    // // node ./scripts/version-tool -cmd version -extras "['src/ts/index.ts']"
     version: () => {
-        const targets = [
-            "src/ts/index.ts"
-        ];
-
         let { major, minor/*, patch*/ } = params;
         /** @type {string} */
         let nextVersion;
-        utils.fireReplace(/"version": "(\d+)\.(\d+)\.(\d+)"/, ($0, $1, $2, $3) => {
+        utils.fireReplace(/"version": "(\d+)\.(\d+)\.(\d+)(-\w+)?"/, /** @type {TStringReplacer} */($0, $1, $2, $3, tag) => {
+            /** @type {string | number} */
             let _major = $1;
+            /** @type {string | number} */
             let _minor = $2;
+            /** @type {string | number} */
             let _patch = $3;
             if (major) {
                 _minor = 0;
-                _major = parseInt(_major) + 1;
+                _major = +_major + 1;
             }
             else if (minor) {
-                _minor = parseInt(_minor) + 1;
+                _minor = +_minor + 1;
             }
             if (major || minor) {
                 _patch = 0;
             } else {
-                _patch = parseInt(_patch) + 1;
+                _patch = +_patch + 1;
             }
-            nextVersion = `${_major}.${_minor}.${_patch}`;
+            nextVersion = `${_major}.${_minor}.${_patch}${tag? tag: ""}`;
             return `"version": "${nextVersion}"`;
         }, ["./package.json"]);
-
-        utils.fireReplace(/v(\d+\.\d+\.\d+)/, ($0, $1) => {
+        utils.fireReplace(/v(\d+\.\d+\.\d+)(-\w+)?/g, /** @type {TStringReplacer} */($0, $1, $2) => {
             if ($1) {
-                return "v" + nextVersion;
+                return "v" + nextVersion; // + ($2? $2: "");
             }
             return $0;
-        }, targets);
-
+        }, params.extras || ["src/ts/index.ts"]);
         console.log("version updated: %s", nextVersion);
     },
 }
