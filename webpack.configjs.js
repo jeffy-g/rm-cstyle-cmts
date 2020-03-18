@@ -39,14 +39,16 @@ const WEBPACK_OUTPUT = "./bin/";
 //   it seems that it becomes an incomplete sourcemap.
 // NOTE: for ts
 //   if do not explicitly specify both uglifyOptions.sourceMap and devtool option, the sourcemap was not created...
+
+// DEVNOTE: 2020/3/4 - https://terser.org/docs/api-reference
 const terserOptions = {
+    ecma: 2020,
     sourceMap: true,
     mangle: true,
     output: {
         comments: false,
         //beautify: true,
         indent_level: 1,
-        // ecma: 9,
         max_line_len: 800,
         /**
         @example
