@@ -206,21 +206,18 @@ function benchmark0(b?: boolean): void {
  */
 function progress(msg?: string): void {
     const output = process.stderr;
-    // clear the current line
-    /** TIP: readline.clearLine(stream, dir[, callback])
-     * dir <number>
-     *  -1 - to the left from cursor
-     *   1 - to the right from cursor
-     *   0 - the entire line
-     */
-    readline.clearLine(output, 0);
-    // DEVNOTE: 2019/8/8 - fixed missing parameter "y"
-    //  - The following are absolute coordinates and will not behave as intended.
-    //    Therefore, its avoided by passing undefined to "y" parameter.
-    // readline.cursorTo(output, 0, 0);
-    readline.cursorTo(output, 0, undefined as unknown as number);
+    // TIP: readline.clearLine(stream, dir[, callback])
+    // dir <number>
+    // -1 - to the left from cursor
+    //  1 - to the right from cursor
+    //  0 - the entire line
+    //
+    // move cursor to line head
+    readline.cursorTo(output, 0);
     // write the message.
     msg && output.write(msg);
+    // clear line to the right from cursor
+    readline.clearLine(output, 1);
 }
 // old version (wrong reference?
 // function progress(msg?: string): void {

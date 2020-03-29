@@ -247,7 +247,6 @@ function fireReplace(regex, replacement, paths, async = false) {
  * @param {string} [msg] if empty string or undefined then only clear line and move cursor to head.
  */
 // CHANGES: 2020/2/18 18:28:17 - fix ちらつき
-//   - readline.clearLine の sconed parameter に `1` を指定することで余計な描画を抑制?
 // dir <number>
 //   -1: to the left from cursor
 //    1: to the right from cursor
@@ -255,10 +254,11 @@ function fireReplace(regex, replacement, paths, async = false) {
 // 
 function renderLine(msg) {
     const output = process.stderr;
-    // clear the current line
-    readline.cursorTo(output, 0, null);
+    // move cursor to line head
+    readline.cursorTo(output, 0);
     // write the message.
     msg && output.write(msg);
+    // clear line to the right from cursor
     readline.clearLine(output, 1);
 }
 

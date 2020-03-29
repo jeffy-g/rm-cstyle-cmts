@@ -77,21 +77,18 @@ type TransformerFactory = (options: GulpRmcOptions) => ReturnType<typeof through
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const stdProgress = (path: string) => {
     const output = process.stderr;
-    // clear the current line
-    /** TIP: readline.clearLine(stream, dir[, callback])
-     * dir <number>
-     *  -1 - to the left from cursor
-     *   1 - to the right from cursor
-     *   0 - the entire line
-     */
-    readline.clearLine(output, 0);
-    // DEVNOTE: 2019/8/8 - fixed missing parameter "y"
-    //  - The following are absolute coordinates and will not behave as intended.
-    //    Therefore, its avoided by passing undefined to "y" parameter.
-    // readline.cursorTo(output, 0, 0);
-    readline.cursorTo(output, 0, undefined as unknown as number);
+    // TIP: readline.clearLine(stream, dir[, callback])
+    // dir <number>
+    // -1 - to the left from cursor
+    //  1 - to the right from cursor
+    //  0 - the entire line
+    //
+    // move cursor to line head
+    readline.cursorTo(output, 0);
     // write the message.
     output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
+    // clear line to the right from cursor
+    readline.clearLine(output, 1);
 };
 
 // process.env.CI = "1";
