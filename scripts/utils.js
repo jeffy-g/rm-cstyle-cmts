@@ -45,7 +45,8 @@ const ArgsConfig = {
  * if param value not specified -tag after then set value is "true".
  * 
  * @param {Partial<typeof ArgsConfig>} [args_config]
- * @type {<T, K extends keyof T>(config: Partial<typeof ArgsConfig>) => { [key in K]: T[key] }}
+ * @param {boolean} [debug]
+ * @type {<T, K extends keyof T>(config: Partial<typeof ArgsConfig>, debug?: boolean) => { [key in K]: T[key] }}
  */
 function getExtraArgs(args_config, debug = false) {
     // debug log, if need.
@@ -90,7 +91,6 @@ function getExtraArgs(args_config, debug = false) {
  *  + should be truthy/falsy value
  */
 function dateStringForFile(ymd = false) {
-    // return new Date().toLocaleString().replace(/\//g, "-").replace(/:/g, "_").replace(/ /g, "@");
     return new Date().toLocaleString(void 0, {
         year: "2-digit",
         month: "2-digit",
@@ -98,7 +98,6 @@ function dateStringForFile(ymd = false) {
         hour: ymd? void 0: "2-digit",
         minute: ymd? void 0: "2-digit",
         second: ymd? void 0: "2-digit",
-        // DEVNOTE: 191215 - "-" character appeared in node v13.3.0 (maybe
     }).replace(/(-|\/|:| )/g, (match, $1) => {
         switch($1) {
             case "-":
@@ -108,14 +107,6 @@ function dateStringForFile(ymd = false) {
         }
         return match;
     });
-//    return new Date().toLocaleString().replace(/(\/|:| )/g, (match, $1) => {
-//        switch($1) {
-//            case "/": return "-";
-//            case ":": return "_";
-//            case " ": return "@";
-//        }
-//        return match;
-//    });
 }
 
 function checkParentDirectory(dest) {
@@ -139,7 +130,7 @@ function createLogStreamAndResolvePath(logPath) {
  * 
  * @param {string|NodeJS.ReadableStream|Buffer} content text? content.
  * @param {string} dest content output path
- * @param {() => void} callback the callback function
+ * @param {() => void} [callback] the callback function
  */
 function writeTextUTF8(content, dest, callback = null) {
     // need dest parent dir check.
@@ -222,11 +213,10 @@ let nodeReplace;
  */
 function fireReplace(regex, replacement, paths, async = false) {
     nodeReplace === void 0 && (nodeReplace = require("replace"));
-    // replace init.tsx init.js ./lib/index.html && replace \\.\\/pkg\\.json ../package.json ./lib/app-properties.js
     nodeReplace({
-        regex,//: /init\.tsx/g,
-        replacement,//: "init.js",
-        paths,//: ["./lib/index.html"],
+        regex,
+        replacement,
+        paths,
         recursive: false,
         silent: false,
         // for test?
@@ -297,7 +287,7 @@ function createWebpackProgressPluginHandler(logFilePath, disableRenderLine = fal
         if (logFilePath !== void 0) {
             const wpp_logger = createLogStreamAndResolvePath(logFilePath);
             /** @type {((p: number) => void) | undefined} */
-            let writeCallback = void 0;
+            let writeCallback;
 
             if (!disableRenderLine) {
                 writeCallback = (/** @type {number} */percentage) => {
