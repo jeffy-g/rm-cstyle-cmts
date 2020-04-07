@@ -272,18 +272,18 @@ npm run bench
   (?:                # start non-capturing group $1
     \[               # class set start
       (?:            # non-capturing group $2
-        \\[\s\S]|    # escaped any character or
-        [^\]\r\n\\]  # without class set end, newline, backslash
+        [^\]\r\n\\]| # without class set end, newline, backslash
+        \\[\s\S]     # escaped any character or
       )*             # end non-capturing group $2, q:0 or more
     \]|              # class set end, or
-    \\[\s\S]|        # escaped any character or
-    [^\/\r\n\\]      # characters without slash, newline, backslash
+    [^\/\r\n\\]|     # characters without slash, newline, backslash
+    \\[\s\S]         # escaped any character or
   )+                 # end non-capturing group $1, q:1 or more
 \/                   # regexp literal end@delimiter
 (?:                  # start non-capturing group $3
   [gimsuy]{1,6}\b|   # validate regex flags, but this pattern is imcomplete
 )                    # end non-capturing group $3
-(?![?*+\/\\])        # not meta character [?*+\/\\] @anchor ...
+(?![?*+\/\[\\])      # not meta character [?*+/[\] @anchor ...
 
 ```
 as comment on samples/es6.js with descriptive explanation,

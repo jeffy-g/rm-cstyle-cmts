@@ -247,6 +247,7 @@ const re_tsref = /\/\/\/[ \t]*<reference/;
  */
 // CHANGES: 2019-5-25 - stopped add newline character at kinds of line comment.
 //  -> these things were required for code + regex replacement
+// CHANGES: 2020/4/8 - reduce regex backtracking
 const slash = (source: string, context: TReplacementContext): boolean => {
 
     // fetch current offset.
@@ -299,7 +300,7 @@ const slash = (source: string, context: TReplacementContext): boolean => {
     // - - - check regexp literal - - -
     //
     // NOTE: need lastIndex property, must add "g" flag.
-    const re_re = /\/(?![?*+\/])(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\r\n\\])*\]|[^\/\r\n\\])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
+    const re_re = /\/(?![?*+\/])(?:\[(?:[^\]\r\n\\]|\\[^])*\]|[^\/\r\n\\]|\\[^])+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
     // only execute once, this is important!
     const m = re_re.exec(remaining);
     if (m === null) {
