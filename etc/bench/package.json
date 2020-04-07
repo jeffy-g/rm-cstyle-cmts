@@ -1,0 +1,15 @@
+{
+  "name": "bench",
+  "version": "1.0.0",
+  "main": "./bench.js",
+  "license": "MIT",
+  "author": "jeffy-g",
+  "scripts": {
+    "start": "node bench"
+  },
+  "dependencies": {
+    "benchmark": "^2.1.4",
+    "strip-comments": "^2.0.1",
+    "strip-json-comments": "^3.0.1"
+  }
+}
