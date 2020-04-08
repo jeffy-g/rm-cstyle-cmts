@@ -31,7 +31,7 @@ import * as JsScanner from "./js-scanner";
 /**
  * replace to version string at build time
  */
-const latest_version: string = "v2.3.3";
+const latest_version: string = "v2.3.4";
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
