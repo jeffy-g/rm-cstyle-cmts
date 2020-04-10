@@ -1,0 +1,12 @@
+{
+    "extends": [
+        "config:base"
+    ],
+    "statusCheckVerify": true,
+    "ignoreDeps": [
+        "through2"
+    ],
+    "automerge": true,
+    "automergeType": "branch",
+    "rangeStrategy": "bump"
+}
