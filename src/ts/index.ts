@@ -167,8 +167,15 @@ const removeCStyleComments: IRemoveCStyleComments = (
             configurable: false,
             writable: false
         },
-        getDetectedJSDocTags: {
-            value: () => JsScanner.getDetectedJSDocTags(),
+        // getDetectedJSDocTags: {
+        //     value: () => JsScanner.getDetectedJSDocTags(),
+        //     configurable: false,
+        //     writable: false
+        // },
+        addListener: {
+            value: (listener: IScannerListener) => {
+                JsScanner.setListener(listener);
+            },
             configurable: false,
             writable: false
         },
