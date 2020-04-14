@@ -87,6 +87,11 @@ declare global {
         * 
         */
        getDetectedReContext(): DetectedReContext;
+    //    getDetectedJSDocTags(): string[];
+       /**
+        * @date 2020/4/14
+        */
+       addListener(listener: IScannerListener): void;
     }
 
 	/**
@@ -102,8 +107,8 @@ declare global {
         SingleLineComment,
         MultiLineComment,
     }
-    interface IScannerLister {
-        on(event: ScannerEvent, fragment: string): void;
+    interface IScannerListener {
+        (event: ScannerEvent, fragment: string): void;
     }
 }
 

@@ -17,6 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+/// <reference path="../src/ts/index.d.ts"/>
 "use strict";
 // @ts-check
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,8 +59,9 @@ const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @typedef {object} ThisTaskArgs
- * @property {string | string[]} paths
- * @prop {number} avoid
+ * @property {string | string[]} [paths]
+ * @prop {number} [avoid]
+ * @prop {boolean} [progress]
  */
 // if need optional parametar.
 /** @type {ThisTaskArgs} */
@@ -69,6 +71,73 @@ const cleanUpResults = (/** @type {() => unknown} */cb) => {
     del.sync(TEST_SRC_FILEs_OUT, { force: true });
     cb();
 };
+
+//
+// - - - - - jsdoc tag detection [2020/4/14]
+//
+/**
+ * @param {string[]} ra regex literal array
+ */
+const uniq = (ra) => {
+    // known elements
+    /** @type {Map<string, boolean>} */
+    const ke = new Map();
+    // uniqued Array
+    /** @type {typeof ra} */
+    const ua = [];
+    for (const e of ra) {
+        if (ke.has(e))
+            continue;
+        ua.push(e);
+        ke.set(e, true);
+    }
+    return ua;
+};
+/** @type {string[]} */
+const jsdocTags = [];
+/** @type {Map<string, number>} */
+const tagStatistics = new Map();
+/**
+ * @param {ScannerEvent} event 
+ * @param {string} fragment 
+ */
+const listener = (event, fragment) => {
+    // DEVNOTE: \b is not contained LF
+    if (/\/\*\*[^*]/.test(fragment)) {
+        const re = /@\w+\b/g;
+        /** @type {RegExpExecArray} */
+        let m;
+        while (m = re.exec(fragment)) {
+            const tag = m[0];
+            let count = tagStatistics.get(tag) || 0;
+            tagStatistics.set(tag, count + 1);
+            // jsdocTags.push(m[0]);
+        }
+    }
+};
+function getTagStatistics() {
+    const entries = tagStatistics.entries();
+    /** @type {[string, number][]} */
+    const ret = [];
+    do {
+        // /** @type {string} */
+        // let tag;
+        // /** @type {number} */
+        // let count;
+        const { value, done } = entries.next();
+        if (done) break;
+        ret.push(
+            [value[0], value[1]]
+            // `${value[0]}:${value[1]}`
+        );
+    } while (1);
+
+    return ret.sort((a, b) => {
+        const diff = a[1] - b[1];
+        return diff ? diff: a[0].localeCompare(b[0]);
+    });
+}
+
 
 // tree node_modules > nm-tree.txt && tree ..\grmc-tmp\output > output-tree.txt
 // --------------------------------------------- [gulp-rm-cmts test]
@@ -94,10 +163,14 @@ const cleanUpResults = (/** @type {() => unknown} */cb) => {
 const grmcBatchTest = (/** @type {() => unknown} */cb) => {
 
     console.log(settings);
+
     /** @type {string | string[]} */
     const target = settings.paths? settings.paths: TEST_SRC_FILEs;
     const rmc = grmc.getRmcInterface();
-	if (settings.avoid) {
+    // 2020/4/14
+    rmc.addListener(listener);
+
+    if (settings.avoid) {
 		const avm = +settings.avoid;
 		if (avm >= 0) rmc.avoidMinified = avm;
 	}
@@ -108,7 +181,7 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
          */
         grmc.getTransformer({
             remove_ws: true,
-            render_progress: true,
+            render_progress: !!settings.progress,
             // report_re_error: true,
         })
     ).pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {
@@ -126,6 +199,11 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
         console.log("detected regex count:", context.detectedReLiterals.length);
         console.log("unique regex count:", context.uniqReLiterals.length);
         console.log("evaluated regex literals:", context.evaluatedLiterals);
+
+        const tags = getTagStatistics();
+        // const tags = uniq(jsdocTags).sort();
+        console.log("detected JSDoc tag count:", tags.length);
+        console.log("detected JSDoc tags:", tags);
 
         context.uniqReLiterals.length && utils.writeTextUTF8(
 `const reLiterals = [
