@@ -245,104 +245,104 @@ npm run bench
 > with remove blank line and whitespaces and without (at node v13.12.0, intel core i5-2500k 3.3ghz
 
 ```ts
-> rm-cstyle-cmts@2.3.3 bench
+> rm-cstyle-cmts@2.4.0 bench
 > node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p
 
 v13.12.0
 
 ✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
-✔ order => version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-✔ order => version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+✔ order => version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+✔ order => version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 46.028147%
-[version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 145.365400 ms, total average for each run: 0.072683 ms
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 44.080741%
+[version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
+    average of entries: 140.236300 ms, total average for each run: 0.070118 ms
 }
-[version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 66.909000 ms, total average for each run: 0.033454 ms
+[version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
+    average of entries: 61.817200 ms, total average for each run: 0.030909 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
-version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 176.321ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 144.792ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 140.746ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 142.679ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 140.185ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 143.911ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 141.839ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 139.079ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 144.153ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 139.949ms
+version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=true, loop=2000: 165.303ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 141.355ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 134.427ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 136.966ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 133.825ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 142.413ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 137.296ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 135.693ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 139.276ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 135.809ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
-version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 67.304ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 67.706ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 65.333ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 67.732ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 68.291ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 65.223ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 67.88ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 65.332ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 68.347ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 65.942ms
+version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=false, loop=2000: 62.969ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 62.778ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 60.365ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 63.1ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 63.149ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 62.689ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 60.458ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 60.249ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 62.493ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 59.922ms
  ------------------------ end benchmark ------------------------
 --done--
-es6-rm_ws-false.js written...
 es6-rm_ws-true.js written...
+es6-rm_ws-false.js written...
 ```
 
 > at node v6.0.0
 ```ts
-> rm-cstyle-cmts@2.3.3 bench
+> rm-cstyle-cmts@2.4.0 bench
 > node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p
 
 v6.0.0
 
 ✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance log started...
-✔ order => version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-✔ order => version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+✔ order => version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+✔ order => version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
 
-✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 53.801612%
-[version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
-    average of entries: 383.187400 ms, total average for each run: 0.191594 ms
+✈  ✈  ✈  ✈  ✈  ✈  ✈  ✈  performance ratio: 52.838312%
+[version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000] {
+    average of entries: 376.361000 ms, total average for each run: 0.188181 ms
 }
-[version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
-    average of entries: 206.161000 ms, total average for each run: 0.103080 ms
+[version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000] {
+    average of entries: 198.862800 ms, total average for each run: 0.099431 ms
 }
 
 ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  performance log   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  
  { f: 'samples/es6.js', l: '2000', ol: '10' }
 avoidMinified: 8000
  --------------- start benchmark (remove blanks) ---------------
-version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=true, loop=2000: 402.106ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 377.142ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 393.215ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 377.811ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 374.122ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 373.664ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 375.077ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 400.810ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 381.400ms
-es6.js, rm_blank_line_n_ws=true, loop=2000: 376.527ms
+version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=true }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=true, loop=2000: 397.152ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 371.594ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 389.365ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 368.111ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 368.005ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 366.553ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 367.572ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 390.976ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 373.609ms
+es6.js, rm_blank_line_n_ws=true, loop=2000: 370.673ms
  ------------------------ end benchmark ------------------------
  --------------- start benchmark (!remove blanks) ---------------
-version: v2.3.3, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
-es6.js, rm_blank_line_n_ws=false, loop=2000: 205.012ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 206.497ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 206.297ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 206.316ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 209.329ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 204.978ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 206.442ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 206.646ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 206.038ms
-es6.js, rm_blank_line_n_ws=false, loop=2000: 204.055ms
+version: v2.4.0, case: { source: es6.js@4,557 bytes, remove_blanks=false }, outerloop=10, innerloop=2000
+es6.js, rm_blank_line_n_ws=false, loop=2000: 197.837ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.295ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 199.844ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.615ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 201.847ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 197.124ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.584ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.821ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.824ms
+es6.js, rm_blank_line_n_ws=false, loop=2000: 198.837ms
  ------------------------ end benchmark ------------------------
 --done--
 es6-rm_ws-true.js written...
@@ -385,91 +385,3 @@ es6-rm_ws-false.js written...
 as comment on samples/es6.js with descriptive explanation,
 
 please look there.
-
-## module definition
-```ts
-/**
- * "remove c style comments" function signature.
- */
-interface IRemoveCStyleCommentsTypeSig {
-    /**
-     * #### remove c style comments form "source" content.  
-     * 
-     * step 1:  
-     *  - remove line comments, multi line comments.  
-     *  - and search the regexp literal. if found then concat it to results.  
-     * 
-     * step 2:  
-     *  - remove whitespaces.(if need, see @param rm_blank_line_n_ws
-     * 
-     * @param {string} source c style commented text source.
-     * @param {boolean} [rm_blank_line_n_ws] remove blank line and whitespaces, default is `true`.
-     * @param {boolean} [report_regex_evaluate_error] want report regex literal evaluation error? default is `undefined`
-     */
-    (
-        source: string,
-        rm_blank_line_n_ws?: boolean,
-        /**
-         * NOTE:
-         *  + Once you change this setting, it will be taken over from the next time.
-         *    So, if you want to make a temporary change, be aware that you need to switch each time.
-         * ---
-         */
-        report_regex_evaluate_error?: boolean
-    ): string;
-}
-interface IRemoveCStyleCommentsProperties {
-    /** package version */
-    readonly version: string;
-
-    /**
-     * **If a minified source is detected, the default configuration does nothing**.
-     * 
-     * number of times the process was bypassed because the line was too long
-     */
-    readonly noops: number;
-    /**
-     * number of times successfully processed
-     */
-    readonly processed: number;
-
-    /**
-     * **set whether to avoid minified source**.
-     * 
-     *  + threshold to avoid processing such as minified source (line length.  
-     *    this also applies to embedded sourcemaps and so on.
-     * 
-     * NOTE: If a minified source is detected, the source is returned without any processing.
-     * 
-     * ⚠️This flag was set because it was found that the processing of this program would be very slow at the source to which minify was applied.
-     * 
-     * If you know in advance that you do not to handle minified sources,  
-     * setting this value to "0" will be disable this feature.
-     * 
-     * default is `8000`
-     */
-    avoidMinified: number;
-}
-
-interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IRemoveCStyleCommentsProperties {
-    /**
-    * reset "noops" and "processed".
-    */
-    reset(): void;
-    /**
-    * 
-    */
-    getDetectedReContext(): DetectedReContext;
-}
-
-/**
- *
- */
-interface DetectedReContext {
-    detectedReLiterals: string[];
-    evaluatedLiterals: number;
-}
-
-declare const removeCStyleComments: IRemoveCStyleComments;
-export = removeCStyleComments;
-```
