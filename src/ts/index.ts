@@ -138,18 +138,18 @@ const removeCStyleComments: IRemoveCStyleComments = (
             writable: false
         },
         avoidMinified: {
-            get: () => { return avoid_minified; },
+            get: () => avoid_minified,
             set: (value: number) => { avoid_minified = value; },
             enumerable: true,
             configurable: true,
         },
         noops: {
-            get: () => { return unable_to_process; },
+            get: () => unable_to_process,
             enumerable: true,
             configurable: false,
         },
         processed: {
-            get: () => { return processed; },
+            get: () => processed,
             enumerable: true,
             configurable: false,
         },
@@ -163,9 +163,12 @@ const removeCStyleComments: IRemoveCStyleComments = (
             writable: false
         },
         getDetectedReContext: {
-            value: () => {
-                return JsScanner.getDetectedReContext();
-            },
+            value: () => JsScanner.getDetectedReContext(),
+            configurable: false,
+            writable: false
+        },
+        getDetectedJSDocTags: {
+            value: () => JsScanner.getDetectedJSDocTags(),
             configurable: false,
             writable: false
         },
