@@ -83,7 +83,7 @@ const tagStatistics = new Map();
  * @param {string} fragment 
  */
 const listener = (event, fragment) => {
-    if (event === ScannerEvent.MultiLineComment) {
+    if (event === /*ScannerEvent.MultiLineComment*/1) {
         // DEVNOTE: \b is not contained LF
         if (/^\/\*\*[^*]/.test(fragment)) {
             const re = /@\w+\b/g;
@@ -97,10 +97,10 @@ const listener = (event, fragment) => {
             }
         }
     }
-    else if (event === ScannerEvent.SingleLineComment) {
+    else if (event === /*ScannerEvent.SingleLineComment*/0) {
         ;
     }
-    else if (event === ScannerEvent.ES6Template) {
+    else if (event === /*ScannerEvent.ES6Template*/2) {
         ;
     }
 };
