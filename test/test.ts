@@ -270,6 +270,9 @@ uniqReLiterals: [
 ]
 `
         );
+        type OK = Parameters<typeof rmc["addListener"]>[0];
+        // @ts-ignore 
+        rmc.addListener(null as OK);
         rmc.reset();
     });
 });
