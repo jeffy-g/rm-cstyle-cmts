@@ -377,8 +377,7 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     let prev_offset = 0;
 
     while (offset < size) {
-        const ch = source[offset];
-        const inspectable = registry[ch.charCodeAt(0)];
+        const inspectable = registry[source.charCodeAt(offset)];
         if (!inspectable) {
             offset++;
         } else {
@@ -459,17 +458,17 @@ const regexErrorReportEnable = (enable: boolean): void => {
 };
 
 /**
- * @param ra regex literal array
+ * @param {string[]} ra regex literal array
  */
 const uniq = (ra: string[]) => {
     // known elements
-    const ke = new Map<string, boolean>();
+    /** @type {Map<string, boolean>} */
+    const ke: Map<string, boolean> = new Map<string, boolean>();
     // uniqued Array
-    const ua = [] as typeof ra;
+    /** @type {typeof ra} */
+    const ua: typeof ra = [] as typeof ra;
     for (const e of ra) {
-        if (ke.has(e)) {
-            continue;
-        }
+        if (ke.has(e)) continue;
         ua.push(e);
         ke.set(e, true);
     }

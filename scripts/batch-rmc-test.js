@@ -17,6 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+/// <reference path="../src/ts/index.d.ts"/>
 "use strict";
 // @ts-check
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,8 +59,9 @@ const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @typedef {object} ThisTaskArgs
- * @property {string | string[]} paths
- * @prop {number} avoid
+ * @property {string | string[]} [paths]
+ * @prop {number} [avoid]
+ * @prop {boolean} [progress]
  */
 // if need optional parametar.
 /** @type {ThisTaskArgs} */
@@ -108,7 +110,7 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
          */
         grmc.getTransformer({
             remove_ws: true,
-            render_progress: true,
+            render_progress: !!settings.progress,
             // report_re_error: true,
         })
     ).pipe(gulp.dest(TEST_SRC_FILEs_OUT)).on("end", () => {

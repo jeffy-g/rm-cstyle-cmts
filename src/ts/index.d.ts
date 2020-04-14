@@ -99,5 +99,5 @@ declare global {
     }
 }
 
-declare const removeCStyleComments: IRemoveCStyleComments;
-export = removeCStyleComments;
+declare const Rmc: IRemoveCStyleComments;
+export = Rmc;

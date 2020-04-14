@@ -9,6 +9,7 @@
         // DEVNOTE: 2019-5-14 - for test coverage, fix: remap-istanbul has incomplete detection of source.
         "inlineSources": false,                    /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
 
+        "preserveConstEnums": true,
         // DEVNOTE: 2019-5-12 - for test (/* istanbul ignore <type> */)
         //  -> 2019-5-26 - this not require at "jest" ("removeComments": false)
         "removeComments": true,
