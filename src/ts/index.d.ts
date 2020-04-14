@@ -103,14 +103,15 @@ declare global {
         evaluatedLiterals: number;
     }
 
-    enum ScannerEvent {
+    const enum ScannerEvent {
         SingleLineComment,
         MultiLineComment,
+        ES6Template
     }
     interface IScannerListener {
         (event: ScannerEvent, fragment: string): void;
     }
 }
 
-declare const removeCStyleComments: IRemoveCStyleComments;
-export = removeCStyleComments;
+declare const Rmc: IRemoveCStyleComments;
+export = Rmc;

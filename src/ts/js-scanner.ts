@@ -20,7 +20,6 @@
 /** lookupRegexes, detectNewLine, DetectedNewLines */
 import * as reutil from "./reutil";
 
-
 type TReplacementContext = {
     /** content offset(read, write */
     offset: number;
@@ -29,7 +28,6 @@ type TReplacementContext = {
     /** new line character at source. */
     newline: reutil.DetectedNewLines;
 };
-
 /**
  * #### main function.
  * 
@@ -280,12 +278,11 @@ const slash = (source: string, context: TReplacementContext): boolean => {
         // // update offset.(implicit bug at here
         // context.offset = (close === -1? index : close) + 2;
         if (close !== -1) {
-            if (typeof scanListener === "function") {
+            /* istanbul ignore next */
+            if (scanListener) {
                 const comment = source.substring(i, close + 2);
                 // console.log(comment);
-                // listener(comment);
-                scanListener(1, comment);
-                // scanListener(ScannerEvent.MultiLineComment, comment);
+                scanListener(ScannerEvent.MultiLineComment, comment);
             }
             // update offset.
             context.offset = close + 2;
@@ -396,8 +393,8 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     let prev_offset = 0;
 
     while (offset < size) {
-        const ch = source[offset];
-        const inspectable = registry[ch.charCodeAt(0)];
+        // const ch = source[offset];
+        const inspectable = registry[source.charCodeAt(offset)];
         if (!inspectable) {
             offset++;
         } else {
@@ -515,7 +512,8 @@ const reset = () => {
 // const getDetectedJSDocTags = () => uniq(jsdoctags).sort();
 let scanListener: IScannerListener | undefined;
 const setListener = (listener: IScannerListener) => {
-    scanListener = listener;
+    /* istanbul ignore if */
+    if (typeof listener === "function") scanListener = listener;
 };
 
 export {
