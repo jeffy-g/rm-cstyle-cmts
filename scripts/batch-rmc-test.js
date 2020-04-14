@@ -103,17 +103,25 @@ const tagStatistics = new Map();
  * @param {string} fragment 
  */
 const listener = (event, fragment) => {
-    // DEVNOTE: \b is not contained LF
-    if (/\/\*\*[^*]/.test(fragment)) {
-        const re = /@\w+\b/g;
-        /** @type {RegExpExecArray} */
-        let m;
-        while (m = re.exec(fragment)) {
-            const tag = m[0];
-            let count = tagStatistics.get(tag) || 0;
-            tagStatistics.set(tag, count + 1);
-            // jsdocTags.push(m[0]);
+    if (event === ScannerEvent.MultiLineComment) {
+        // DEVNOTE: \b is not contained LF
+        if (/^\/\*\*[^*]/.test(fragment)) {
+            const re = /@\w+\b/g;
+            /** @type {RegExpExecArray} */
+            let m;
+            while (m = re.exec(fragment)) {
+                const tag = m[0];
+                let count = tagStatistics.get(tag) || 0;
+                tagStatistics.set(tag, count + 1);
+                // jsdocTags.push(m[0]);
+            }
         }
+    }
+    else if (event === ScannerEvent.SingleLineComment) {
+        ;
+    }
+    else if (event === ScannerEvent.ES6Template) {
+        ;
     }
 };
 function getTagStatistics() {
