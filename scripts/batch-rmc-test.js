@@ -59,6 +59,7 @@ const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 /**
  * @typedef {object} ThisTaskArgs
  * @property {string | string[]} paths
+ * @prop {number} avoid
  */
 // if need optional parametar.
 /** @type {ThisTaskArgs} */
@@ -74,8 +75,9 @@ const cleanUpResults = (/** @type {() => unknown} */cb) => {
 // sample webpack: avoidMinified = 76944;
 // yarn batch-rmc-test -- -paths "['../rmc-tmp/webpack.js', '../rmc-tmp/webpack-cr.js', '../rmc-tmp/webpack-crlf.js']"
 
-// yarn batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible.tsx
-// yarn batch-rmc-test -- -paths ../rmc-tmp/rmc-impossible#2.tsx
+// yarn batch-rmc-test -paths ../rmc-tmp/rmc-impossible.tsx
+// yarn batch-rmc-test -paths ../rmc-tmp/rmc-impossible#2.tsx
+// yarn batch-rmc-test -paths ../../../../typescript/TypeScript/src/**/{*,\.*,\.*/*} -avoid 15000
 /**
  * ✅ check at own environment
  * 
@@ -95,6 +97,10 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
     /** @type {string | string[]} */
     const target = settings.paths? settings.paths: TEST_SRC_FILEs;
     const rmc = grmc.getRmcInterface();
+	if (settings.avoid) {
+		const avm = +settings.avoid;
+		if (avm >= 0) rmc.avoidMinified = avm;
+	}
 
     gulp.src(target).pipe(
         /**
