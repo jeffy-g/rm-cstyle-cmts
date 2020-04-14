@@ -227,6 +227,30 @@ let evaluatedLiterals = 0;
  */
 const re_tsref = /^\/\/\/\s*<reference/;
 
+const jsdoctags: string[] = [];
+// const multiListner: IScannerLister = {
+//     // @ts-ignore 
+//     on(event, fragment) {
+//         if (/\/\*\*\b/.test(fragment)) {
+//             const re = /\b@\w+\b/g;
+//             let m: RegExpExecArray | null;
+//             while (m = re.exec(fragment)) {
+//                 jsdoctags.push(m[0]);
+//             }
+//         }
+//     }
+// };
+
+const listener = (fragment: string) => {
+    if (/\/\*\*\b/.test(fragment)) {
+        const re = /\b@\w+\b/g;
+        let m: RegExpExecArray | null;
+        while (m = re.exec(fragment)) {
+            jsdoctags.push(m[0]);
+        }
+    }
+};
+
 //
 //  DEVNOTE: 2019-5-12
 // 
@@ -268,6 +292,9 @@ const slash = (source: string, context: TReplacementContext): boolean => {
         // // update offset.(implicit bug at here
         // context.offset = (close === -1? index : close) + 2;
         if (close !== -1) {
+            listener(
+                source.substring(i, close + 2)
+            );
             // update offset.
             context.offset = close + 2;
             return true;
@@ -485,9 +512,12 @@ const reset = () => {
     evaluatedLiterals = 0;
 };
 
+const getDetectedJSDocTags = () => uniq(jsdoctags).sort();
+
 export {
     apply,
     regexErrorReportEnable,
     getDetectedReContext,
     reset,
+    getDetectedJSDocTags
 };

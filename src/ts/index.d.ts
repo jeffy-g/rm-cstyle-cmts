@@ -97,6 +97,14 @@ declare global {
         uniqReLiterals: string[];
         evaluatedLiterals: number;
     }
+
+    enum ScannerEvent {
+        SingleLineComment,
+        MultiLineComment,
+    }
+    interface IScannerLister {
+        on(event: ScannerEvent, fragment: string): void;
+    }
 }
 
 declare const Rmc: IRemoveCStyleComments;
