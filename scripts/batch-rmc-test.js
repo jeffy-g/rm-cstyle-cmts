@@ -76,26 +76,6 @@ const cleanUpResults = (/** @type {() => unknown} */cb) => {
 //
 // - - - - - jsdoc tag detection [2020/4/14]
 //
-/**
- * @param {string[]} ra regex literal array
- */
-const uniq = (ra) => {
-    // known elements
-    /** @type {Map<string, boolean>} */
-    const ke = new Map();
-    // uniqued Array
-    /** @type {typeof ra} */
-    const ua = [];
-    for (const e of ra) {
-        if (ke.has(e))
-            continue;
-        ua.push(e);
-        ke.set(e, true);
-    }
-    return ua;
-};
-/** @type {string[]} */
-const jsdocTags = [];
 /** @type {Map<string, number>} */
 const tagStatistics = new Map();
 /**
