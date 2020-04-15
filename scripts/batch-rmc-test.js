@@ -59,13 +59,14 @@ const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @typedef {object} ThisTaskArgs
- * @property {string | string[]} [paths]
+ * @prop {string | string[]} [paths]
  * @prop {number} [avoid]
  * @prop {boolean} [progress]
+ * @prop {boolean} [showNoops]
  */
 // if need optional parametar.
 /** @type {ThisTaskArgs} */
-const settings = utils.getExtraArgs({ startIndex: 2 });
+const settings = utils.getExtraArgs();
 
 const cleanUpResults = (/** @type {() => unknown} */cb) => {
     del.sync(TEST_SRC_FILEs_OUT, { force: true });
@@ -121,7 +122,7 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
 
         console.log();
         console.log("task grmc-test done, processed: %s, noops:", rmc.processed, rmc.noops);
-        console.log("noop paths:", grmc.noopPaths);
+        settings.showNoops && console.log("noop paths:", grmc.noopPaths);
 
         const context = rmc.getDetectedReContext();
         // console.log("detected regex literals:", context.detectedReLiterals);
