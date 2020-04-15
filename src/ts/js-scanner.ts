@@ -225,7 +225,7 @@ let evaluatedLiterals = 0;
 /**
  * regex cache
  */
-const re_tsref = /\/\/\/[ \t]*<reference/;
+const re_tsref = /^\/\/\/\s*<reference/;
 
 //
 //  DEVNOTE: 2019-5-12
@@ -325,7 +325,6 @@ const slash = (source: string, context: TReplacementContext): boolean => {
             // new RegExp(m[0].substring(1, lx));
             // eval(m[0]);
             if (!validateRegex(re_literal)) {
-                // throw "🚸";
                 eval(re_literal);
                 /* istanbul ignore next */
                 evaluatedLiterals++;
@@ -384,13 +383,7 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
             context.result += source.substring(prev_offset, offset);
             context.offset = offset;
             prev_offset = inspectable(source, context)? context.offset: context.offset++;
-            // prev_offset = inspectable(ch, source, context)? context.offset: context.offset++;
             offset = context.offset;
-            // if (inspectable(ch, source, context)) {
-            //     offset = prev_offset = context.offset;
-            // } else {
-            //     prev_offset = offset++;
-            // }
         }
     }
 
@@ -427,7 +420,7 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
 
         const head = m[0][0];
 
-        if (head === "`" || head === "/") {
+        if (head === "/" || head === "`") {
             context.result += source.substring(prev_offset, m.index);
             context.offset = m.index;
             prev_offset = registry[head.charCodeAt(0)](source, context)? context.offset: context.offset++;
@@ -466,7 +459,7 @@ const uniq = (ra: string[]) => {
     const ke: Map<string, boolean> = new Map<string, boolean>();
     // uniqued Array
     /** @type {typeof ra} */
-    const ua: typeof ra = [] as typeof ra;
+    const ua: typeof ra = [];
     for (const e of ra) {
         if (ke.has(e)) continue;
         ua.push(e);

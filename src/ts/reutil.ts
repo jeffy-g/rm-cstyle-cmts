@@ -330,12 +330,17 @@ const _lookupRegexes = (nl: ReUtil.DetectedNewLines) => {
          * $newline$  # last new line
          * ```
          */
-        re_first_n_last: {
-            "": "",
-            "\n": /^\n|\n$/g,
-            "\r": /^\r|\r$/g,
-            "\r\n": /^\r\n|\r\n$/g,
-        }[nl]
+        // DEVNOTE: 2020/4/16 - can apply `/^\s+|\s+$/g` to everything but performance will be slower
+        // re_first_n_last: {
+        //     "": "",
+        //     // "\n": /^\s|\s$/g,
+        //     // "\r": /^\s|\s$/g,
+        //     // "\r\n": /^\s+|\s+$/g,
+        //     "\n": /^\n|\n$/g,
+        //     "\r": /^\r|\r$/g,
+        //     "\r\n": /^\r\n|\r\n$/g,
+        // }[nl]
+        re_first_n_last: nl === "\n" ? /^\n|\n$/g: nl === "\r" ? /^\r|\r$/g: nl === "\r\n" ? /^\r\n|\r\n$/g: ""
     };
 
     // - - - This code seems to have a little processing cost

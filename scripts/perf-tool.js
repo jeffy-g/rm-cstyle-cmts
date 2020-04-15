@@ -19,7 +19,7 @@
 */
 /**
  * @file Script comparing performance between two versions from `npm run bench` output logs
- * @author jeffy-g hirotom1107@gmail.com
+ * @author jeffy-g <hirotom1107@gmail.com>
  * @version 1.0
  */
 /**
