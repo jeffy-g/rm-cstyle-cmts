@@ -312,13 +312,20 @@ const _lookupRegexes = (nl: ReUtil.DetectedNewLines) => {
          * \/                       # detection for ts reference tag, regex, jsx tag terminator
          * ```
          */
+        /*
         re_wsqs: {
-            "": /^\s+|\s+$/g ,
+            "": /^\s+|\s+$/g,
             // DEVNOTE: 2020/3/29 - [^] or [\s\S], "." is need "s" flag (see fragments.js#304)
             "\n": /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g,
             "\r": /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g,
             "\r\n": /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g,
         }[nl],
+        /*/ // reduce memory usage (maybe slightly
+        re_wsqs: nl === "\n" ? /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g:
+                 nl === "\r\n" ? /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g:
+                 nl === "\r" ? /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g:
+                 /^\s+|\s+$/g,
+        //*/
         /**
          * If do not specify a multiline flag,  
          * noticed that it matches the very first and last in the string ...
@@ -331,16 +338,22 @@ const _lookupRegexes = (nl: ReUtil.DetectedNewLines) => {
          * ```
          */
         // DEVNOTE: 2020/4/16 - can apply `/^\s+|\s+$/g` to everything but performance will be slower
-        // re_first_n_last: {
-        //     "": "",
-        //     // "\n": /^\s|\s$/g,
-        //     // "\r": /^\s|\s$/g,
-        //     // "\r\n": /^\s+|\s+$/g,
-        //     "\n": /^\n|\n$/g,
-        //     "\r": /^\r|\r$/g,
-        //     "\r\n": /^\r\n|\r\n$/g,
-        // }[nl]
-        re_first_n_last: nl === "\n" ? /^\n|\n$/g: nl === "\r" ? /^\r|\r$/g: nl === "\r\n" ? /^\r\n|\r\n$/g: ""
+        /*
+        re_first_n_last: {
+            "": "",
+            "\n": /^\n|\n$/g,
+            "\r": /^\r|\r$/g,
+            "\r\n": /^\r\n|\r\n$/g,
+            // "\n": /^\s|\s$/g,
+            // "\r": /^\s|\s$/g,
+            // "\r\n": /^\s+|\s+$/g,
+        }[nl]
+        /*/ // reduce memory usage (maybe slightly
+        re_first_n_last: nl === "\n" ? /^\n|\n$/g:
+                         nl === "\r\n" ? /^\r\n|\r\n$/g:
+                         nl === "\r" ? /^\r|\r$/g:
+                         ""
+        //*/
     };
 
     // - - - This code seems to have a little processing cost
