@@ -32,7 +32,13 @@ const readline = require("readline");
  */
 /** getExtraArgs default config.  */
 const ArgsConfig = {
+    /**
+     * @default 2
+     */
     startIndex: 2,
+    /**
+     * @default "-"
+     */
     prefix: "-",
 };
 /**
