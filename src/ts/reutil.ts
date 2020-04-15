@@ -316,6 +316,9 @@ const _lookupRegexes = (nl: ReUtil.DetectedNewLines) => {
         re_wsqs: {
             "": /^\s+|\s+$/g,
             // DEVNOTE: 2020/3/29 - [^] or [\s\S], "." is need "s" flag (see fragments.js#304)
+            // DEVNOTE: 2020/4/15 - https://regex101.com/r/rp4cZc/2
+            // -> For regex like /(["'])(?:(?:[^\\"']+)|\\.)*\1/ (incomplete)
+            //    will have an increased step count due to forward referencing using capture.
             "\n": /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g,
             "\r": /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g,
             "\r\n": /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]+|\\[^])*"|'(?:[^\\']+|\\[^])*'|\//g,
