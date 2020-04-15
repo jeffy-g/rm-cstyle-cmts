@@ -97,22 +97,28 @@ const listener = (event, fragment) => {
             }
         }
     }
-    else if (event === /*ScannerEvent.SingleLineComment*/0) {
-        ;
-    }
-    else if (event === /*ScannerEvent.ES6Template*/2) {
-        ;
-    }
+    // else if (event === /*ScannerEvent.SingleLineComment*/0) {
+    //     ;
+    // }
+    // else if (event === /*ScannerEvent.ES6Template*/2) {
+    //     ;
+    // }
 };
+
+/**
+ * @typedef {[string, number]} TPriorityEntry
+ */
+/**
+ * @returns {TPriorityEntry[]}
+ */
 function getTagStatistics() {
+    /**
+     * @type {Iterator<TPriorityEntry, TPriorityEntry>}
+     */
     const entries = tagStatistics.entries();
-    /** @type {[string, number][]} */
+    /** @type {TPriorityEntry[]} */
     const ret = [];
     do {
-        // /** @type {string} */
-        // let tag;
-        // /** @type {number} */
-        // let count;
         const { value, done } = entries.next();
         if (done) break;
         ret.push(
@@ -189,10 +195,10 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
         console.log("unique regex count:", context.uniqReLiterals.length);
         console.log("evaluated regex literals:", context.evaluatedLiterals);
 
-        const tags = getTagStatistics();
+        const tagPriorityEntries = getTagStatistics();
         // const tags = uniq(jsdocTags).sort();
-        console.log("detected JSDoc tag count:", tags.length);
-        console.log("detected JSDoc tags:", tags);
+        console.log("detected JSDoc tag count:", tagPriorityEntries.length);
+        console.log("detected JSDoc tags:", tagPriorityEntries);
 
         context.uniqReLiterals.length && utils.writeTextUTF8(
 `const reLiterals = [
@@ -203,6 +209,16 @@ module.exports = {
 };
 `,
             "./tmp/grmc-detected-reLiterals.js"
+        );
+        tagPriorityEntries.length && utils.writeTextUTF8(
+`const jsDocTagStatistics = [
+  ${tagPriorityEntries.map(entry => `["${entry[0]}", ${entry[1]}]`).join(",\n  ")}
+];
+module.exports = {
+    jsDocTagStatistics
+};
+`,
+            "./tmp/grmc-detected-jsdocTags.js"
         );
     });
 };
