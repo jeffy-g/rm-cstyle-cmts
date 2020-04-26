@@ -142,6 +142,7 @@ function getTagStatistics() {
 // yarn batch-rmc-test -paths ../rmc-tmp/rmc-impossible.tsx
 // yarn batch-rmc-test -paths ../rmc-tmp/rmc-impossible#2.tsx
 // yarn batch-rmc-test -paths ../../../../typescript/TypeScript/src/**/{*,\.*,\.*/*} -avoid 15000
+// yarn batch-rmc-test -paths ../../../../typescript/vscode/src/**/{*,\.*,\.*/*} -avoid 15000
 /**
  * ✅ check at own environment
  * 
