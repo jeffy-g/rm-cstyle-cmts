@@ -109,7 +109,10 @@ declare global {
         ES6Template
     }
     interface IScannerListener {
-        (event: ScannerEvent, fragment: string): void;
+        /**
+         * @returns If it returns `true`, it is concatenated to the resulting source, otherwise it is deleted
+         */
+        (event: ScannerEvent, fragment: string): boolean;
     }
 }
 

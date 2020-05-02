@@ -103,6 +103,7 @@ const listener = (event, fragment) => {
     // else if (event === /*ScannerEvent.ES6Template*/2) {
     //     ;
     // }
+    return false;
 };
 
 /**

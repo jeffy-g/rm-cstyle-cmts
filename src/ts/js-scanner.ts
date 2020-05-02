@@ -282,7 +282,9 @@ const slash = (source: string, context: TReplacementContext): boolean => {
             if (scanListener) {
                 const comment = source.substring(i, close + 2);
                 // console.log(comment);
-                scanListener(ScannerEvent.MultiLineComment, comment);
+                if (scanListener(ScannerEvent.MultiLineComment, comment)) {
+                    context.result += comment;
+                }
             }
             // update offset.
             context.offset = close + 2;
@@ -309,6 +311,13 @@ const slash = (source: string, context: TReplacementContext): boolean => {
         context.offset = nls_or_eos;// + context.newline.length;
         if (re_tsref.test(remaining)) { // avoid ts reference tag
             context.result += source.substring(i, nls_or_eos);
+        }
+        /* istanbul ignore next */
+        else if (scanListener) {
+            const lineComment = source.substring(i, nls_or_eos);
+            if (scanListener(ScannerEvent.SingleLineComment, lineComment)) {
+                context.result += lineComment;
+            }
         }
         return true;
     }
@@ -433,6 +442,7 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     let m: RegExpExecArray | null;
     prev_offset = 0;
     // NOTE: need skip quoted string, regexp literal.
+    // TODO: 2020/5/2 19:30:22 - The current implementation calls the scan event listener twice
     while (m = re_wsqs.exec(source)) {
 
         const head = m[0][0];
