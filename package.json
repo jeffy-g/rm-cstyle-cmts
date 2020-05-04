@@ -78,7 +78,7 @@
     "gulp-replace": "^1.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
-    "jest": "^25.5.4",
+    "jest": "^26.0.0",
     "replace": "^1.2.0",
     "terser-webpack-plugin": "^3.0.0",
     "ts-jest": "^25.4.0",
