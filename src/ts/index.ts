@@ -63,7 +63,8 @@ const withNoop = (contents: string) => {
  * @param rm_blank_line_n_ws 
  * @param report_regex_evaluate_error 
  */
-// @ts-ignore 
+// DEVNOTE: 2020/5/5 - adopt this statement to avoid TS2497
+// @ts-ignore adopt this statement to avoid TS2497
 const removeCStyleComments: IRemoveCStyleComments = (
     source: string,
     rm_blank_line_n_ws: boolean = true,
@@ -129,7 +130,8 @@ const removeCStyleComments: IRemoveCStyleComments = (
 
 };
 
-/* removeCStyleComments = */ Object.defineProperties(removeCStyleComments, {
+// DEVNOTE: 2020/5/5 - adopt this statement to avoid TS2497
+/* export = */ Object.defineProperties(removeCStyleComments, {
         // create readonly property "version"
         version: {
             value: latest_version,
@@ -180,6 +182,7 @@ const removeCStyleComments: IRemoveCStyleComments = (
             writable: false
         },
     }
-);
+); /* as IRemoveCStyleComments */
 
+// DEVNOTE: 2020/5/5 - adopt this statement to avoid TS2497
 export = removeCStyleComments;

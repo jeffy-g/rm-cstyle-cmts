@@ -17,7 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-/// <reference path="../src/ts/index.d.ts"/>
+// <reference path="../src/ts/index.d.ts"/> // TS2769 (2020/5/5
 "use strict";
 // @ts-check
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -81,6 +81,7 @@ const tagStatistics = new Map();
 /**
  * @param {ScannerEvent} event 
  * @param {string} fragment 
+ * @type {IScannerListener}
  */
 const listener = (event, fragment) => {
     if (event === /*ScannerEvent.MultiLineComment*/1) {
