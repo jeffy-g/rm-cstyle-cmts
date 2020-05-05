@@ -221,9 +221,12 @@ const validateRegex = (inputs: string) => {
 const detectedReLiterals: string[] = [];
 let evaluatedLiterals = 0;
 /**
+ * test for "<reference .../>" and "///@ts-(ignore|check|...)..."
+ * 
  * regex cache
  */
-const re_tsref = /^\/\/\/\s*<reference/;
+// https://regex101.com/r/U79xmb/4
+const re_tsref_or_pramga = /^(?:\/\/\/?\s+@ts-\w+|\/\/\/\s*<reference)/;
 
 // const jsdoctags: string[] = [];
 // const listener = (fragment: string) => {
@@ -309,16 +312,25 @@ const slash = (source: string, context: TReplacementContext): boolean => {
     if (ch === "/") {
         // update offset. when new line character not found(eof) then...
         context.offset = nls_or_eos;// + context.newline.length;
-        if (re_tsref.test(remaining)) { // avoid ts reference tag
-            context.result += source.substring(i, nls_or_eos);
+        if (
+            re_tsref_or_pramga.test(remaining) // avoid ts reference tag
+            ||
+            (scanListener && scanListener(ScannerEvent.SingleLineComment, remaining))
+        ) {
+            /* istanbul ignore next */
+            context.result += remaining;
         }
-        /* istanbul ignore next */
-        else if (scanListener) {
-            const lineComment = source.substring(i, nls_or_eos);
-            if (scanListener(ScannerEvent.SingleLineComment, lineComment)) {
-                context.result += lineComment;
-            }
-        }
+
+        // if (re_tsref.test(remaining)) { // avoid ts reference tag
+        //     context.result += source.substring(i, nls_or_eos);
+        // }
+        // /* istanbul ignore next */
+        // else if (scanListener) {
+        //     const lineComment = source.substring(i, nls_or_eos);
+        //     if (scanListener(ScannerEvent.SingleLineComment, lineComment)) {
+        //         context.result += lineComment;
+        //     }
+        // }
         return true;
     }
 
