@@ -312,12 +312,12 @@ const slash = (source: string, context: TReplacementContext): boolean => {
     if (ch === "/") {
         // update offset. when new line character not found(eof) then...
         context.offset = nls_or_eos;// + context.newline.length;
+        /* istanbul ignore next */
         if (
             re_tsref_or_pramga.test(remaining) // avoid ts reference tag
             ||
             (scanListener && scanListener(ScannerEvent.SingleLineComment, remaining))
         ) {
-            /* istanbul ignore next */
             context.result += remaining;
         }
 
