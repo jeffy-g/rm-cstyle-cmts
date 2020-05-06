@@ -22,7 +22,14 @@ rem nodist %1 && npm test>./logs/v%1.log
 if not exist "./logs" mkdir "./logs"
 
 set old=6.0
-set latest=13
+set latest=14
+
+set NODE_V=
+for /f "usebackq delims=" %%a in (`node -v`) do set NODE_V=%%a
+set NODE_V=%NODE_V:v=%
+if not "%NODE_V%"=="" set latest=%NODE_V%
+rem echo NODE_V=%NODE_V%, latest=%latest%
+
 rem
 rem ATTENTION: need nodist
 rem
