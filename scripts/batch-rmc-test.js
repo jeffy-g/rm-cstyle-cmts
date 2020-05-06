@@ -53,6 +53,39 @@ const TEST_SRC_FILEs = `${TEST_SRC_PREFIX}{*,\.*,\.*/*}`;
 // const TEST_SRC_FILEs_OUT = "x-node_modules";
 const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 
+// - - - - - - - - [2020/05/06] About Catastrophic Backtracking - - - - - - - -
+//  
+//  TODO: I felt I needed refactoring to detect regex more accurately
+//
+// ./node_modules/node-notifier/node_modules/uuid/dist/umd/uuidv1.min.js 1676
+// ./node_modules/node-notifier/node_modules/uuid/dist/umd/uuidv5.min.js 2554
+//
+// DEVNOTE: 2020/05/06 19:49 - If you exclude the above two sources, you can execute the following command
+// yarn batch-rmc-test -avoid 10000 // is OK
+//
+/*
+>yarn batch-rmc-test -avoid 1675
+task grmc-test done, processed: 7389, noops: 125
+detected regex count: 6492
+unique regex count: 1605
+evaluated regex literals: 0
+detected JSDoc tag count: 84
+
+>yarn batch-rmc-test -avoid 15000
+task grmc-test done, processed: 7493, noops: 34
+detected regex count: 8190
+unique regex count: 1765
+evaluated regex literals: 0
+detected JSDoc tag count: 89
+
+// ./node_modules/tweetnacl/nacl.min.js 19089
+>yarn batch-rmc-test -avoid 19088
+task grmc-test done, processed: 7497, noops: 30
+detected regex count: 8459
+unique regex count: 1836
+evaluated regex literals: 0
+detected JSDoc tag count: 89
+*/
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
