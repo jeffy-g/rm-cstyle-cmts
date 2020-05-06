@@ -80,7 +80,7 @@
     "gulp-typescript": "^5.0.1",
     "jest": "^26.0.1",
     "replace": "^1.2.0",
-    "terser-webpack-plugin": "^3.0.0",
+    "terser-webpack-plugin": "^3.0.1",
     "ts-jest": "^25.5.0",
     "ts-loader": "^7.0.2",
     "tslint": "^6.1.2",
