@@ -226,7 +226,7 @@ let evaluatedLiterals = 0;
  * regex cache
  */
 // https://regex101.com/r/U79xmb/4
-const re_tsref_or_pramga = /^(?:\/\/\/?\s+@ts-\w+|\/\/\/\s*<reference)/;
+const re_tsref_or_pramga = /(?:\/\/\/?\s+@ts-\w+|\/\/\/\s*<reference)/;
 
 // const jsdoctags: string[] = [];
 // const listener = (fragment: string) => {
