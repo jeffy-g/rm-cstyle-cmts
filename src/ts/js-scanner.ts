@@ -17,6 +17,7 @@
 
 ------------------------------------------------------------------------
 */
+/// <reference path="./index.d.ts"/>
 /** lookupRegexes, detectNewLine, DetectedNewLines */
 import * as reutil from "./reutil";
 
@@ -338,8 +339,8 @@ const slash = (source: string, context: TReplacementContext): boolean => {
     // - - - check regexp literal - - -
     //
     // NOTE: need lastIndex property, must add "g" flag.
-    // new regex for regex v2 (2020
-    const re_re = /\/(?![?*+\/])(?:\[(?:[^\]\\]|\\.)*\]|[^\/\\]|\\.)+\/(?:[gimsuy]{1,6}\b|)(?![?*+\/\[\\])/g;
+    // new regex for regex v3 (2020
+    const re_re = /\/(?![?*+\/])(?:\[(?:[^\]\\]|\\.)*\]|[^\/\\]|\\.)+\/(?:[gimsuy]{1,6}\b|(?![gimsuy\d?*+\/\[\\]))/g;
 
     // only execute once, this is important!
     const m = re_re.exec(remaining);
