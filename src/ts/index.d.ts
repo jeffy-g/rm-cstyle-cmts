@@ -100,7 +100,10 @@ declare global {
     interface DetectedReContext {
         detectedReLiterals: string[];
         uniqReLiterals: string[];
-        evaluatedLiterals: number;
+        /**
+         * @deprecated no longer used
+         */
+        evaluatedLiterals?: number;
     }
 
     const enum ScannerEvent {

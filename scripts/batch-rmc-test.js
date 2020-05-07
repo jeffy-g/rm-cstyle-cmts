@@ -229,7 +229,7 @@ const grmcBatchTest = (/** @type {() => unknown} */cb) => {
         // console.log("detected regex literals:", context.detectedReLiterals);
         console.log("detected regex count:", context.detectedReLiterals.length);
         console.log("unique regex count:", context.uniqReLiterals.length);
-        console.log("evaluated regex literals:", context.evaluatedLiterals);
+        // console.log("evaluated regex literals:", context.evaluated Literals);
 
         const tagPriorityEntries = getTagStatistics();
         // const tags = uniq(jsdocTags).sort();

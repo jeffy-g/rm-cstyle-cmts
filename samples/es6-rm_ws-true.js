@@ -10,6 +10,7 @@ console.log(
 let gg = 10;
 var re = 10000 / 111.77 * gg /gg;;;;
 const re4 = /\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/
+const nnn = 123 /+"2" * gg
 let ok2 = 12.2 / 33 * .9
 let ok3 = 12.2 / 33 * .9
 const test_text = `:Key Binding:${ 234 }}

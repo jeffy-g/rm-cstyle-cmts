@@ -38,3 +38,11 @@ interface IStringMap<T> {
 type StringMap<T> = {
     [key: string]: T;
 };
+
+/**
+ * #### To Be Defined
+ * 
+ *   + can be `undefined`.
+ *   + 7 character shorten
+ */
+type TBD<T> = T | undefined;

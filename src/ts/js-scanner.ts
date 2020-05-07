@@ -18,6 +18,7 @@
 ------------------------------------------------------------------------
 */
 /// <reference path="./index.d.ts"/>
+/// <reference path="./globals.d.ts"/>
 /** lookupRegexes, detectNewLine, DetectedNewLines */
 import * as reutil from "./reutil";
 
@@ -174,8 +175,43 @@ const backQuote = (source: string, context: TReplacementContext): boolean => {
     throw new SyntaxError(`BackQuoteScanner error: offset=${context.offset}, remaining=--[${source.substring(context.offset)}]--`);
 };
 
+
+const detectedReLiterals: string[] = [];
+// let evaluatedLiterals = 0;
 /**
- * Simple regex verifier
+ * test for "<reference .../>" and "///@ts-(ignore|check|...)..."
+ * 
+ * regex cache
+ */
+// https://regex101.com/r/U79xmb/4
+const re_tsref_or_pramga = /(?:\/\/\/?\s+@ts-\w+|\/\/\/\s*<reference)/;
+
+/**
+ * return type of `detectRegex`
+ * 
+ * @date 2020/5/7
+ * @see {detectRegex}
+ */
+type TRegexDetectionResult = {
+    body: string;
+    lastIndex: number;
+};
+/**
+ * verifies that the regex immediately follows the delimiter "/" with a valid character
+ * @date 2020/5/7
+ */
+const re_validFirst = /^\/(?![?*+\/])/;
+/**
+ * if `true`, regex is invalie
+ * 
+ * ```js
+ * /[^gimsuy\d?*+\/\\]/
+ * ```
+ * @date 2020/5/7
+ */
+const re_flagsPartAfter = /[^gimsuy\d?*+\/\\]/;
+/**
+ * detect regex body and flag part
  * 
  * + perform verification of regex literal.
  * 
@@ -183,18 +219,22 @@ const backQuote = (source: string, context: TReplacementContext): boolean => {
  *  + here is only validate the placement of "(" and ")" briefly.  
  *  **this will be avoid the costly "eval" quite a number of times**.
  * 
- * @param inputs regex literal string.
+ * @param {string} line MUST starts with "/" string
  */
-const validateRegex = (inputs: string) => {
+function detectRegex(line: string): TRegexDetectionResult | null {
+
+    if (!re_validFirst.test(line)) return null;
 
     let groupIndex = 0,
         in_escape = false,
         in_class = 0;
 
-    const end = inputs.lastIndexOf("/");
-
-    for (let i = 1; i < end;) {
-        const ch = inputs[i++];
+    const end = line.length;
+    let reBody: TBD<string>;
+    let i = 1;
+    // always starts offset is "one" because line[0] is supposed to be "/"
+    for (; i < end;) {
+        const ch = line[i++];
         if (ch === "\\") {
             in_escape = !in_escape;
         } else if (!in_escape) {
@@ -208,38 +248,68 @@ const validateRegex = (inputs: string) => {
                 in_class = 0;
             }
 
+            if (ch === "/" && !in_class && !groupIndex) {
+                reBody = line.substring(0, i);
+                break;
+            }
             if (groupIndex < 0) {
-                return false;
+                return null;
             }
         } else {
             in_escape = false;
         }
     }
 
-    return groupIndex === 0;
-};
+    if (reBody) {
+        // [rm-cstyle-cmts] ***detect flag part regex (2020
+        /*
+          ^(?:
+            ([gimsuy]{1,6})?                # flags part $1
+            (?:
+              \s*(\[\s*[`"']\w+[`"']\s*\])| # property access $2 (lare)
+              (?:\s*(;|,|\.|]|\s))?         # has terminator? $3
+            )?
+          )
 
-const detectedReLiterals: string[] = [];
-let evaluatedLiterals = 0;
-/**
- * test for "<reference .../>" and "///@ts-(ignore|check|...)..."
- * 
- * regex cache
- */
-// https://regex101.com/r/U79xmb/4
-const re_tsref_or_pramga = /(?:\/\/\/?\s+@ts-\w+|\/\/\/\s*<reference)/;
+          NOTE: この regex は
 
-// const jsdoctags: string[] = [];
-// const listener = (fragment: string) => {
-//     // DEVNOTE: \b is not contained LF
-//     if (/\/\*\*[^*]/.test(fragment)) {
-//         const re = /@\w+\b/g;
-//         let m: RegExpExecArray | null;
-//         while (m = re.exec(fragment)) {
-//             jsdoctags.push(m[0]);
-//         }
-//     }
-// };
+              + flag part
+              + dot access, または "[]" による property access
+              + terminator (";" "," "]"(in array))
+
+          を検出する
+
+          $1 は flag part
+
+          $2, $3 は排他的に検出 => none capturing group とした
+        */
+        // /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\s))?)?)/g
+
+        // [rm-cstyle-cmts] ***detect flag part after regex (2020
+        // NOTE: この regex で match する場合は invalid regex と判定できる
+        // /[^gimsuy\d?*+\/\\]/
+        const re = /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\s))?)?)/g;
+        const maybeFlagPart = line.substring(i);
+        const m = re.exec(maybeFlagPart)!;
+        if (re.lastIndex === 0 && re_flagsPartAfter.test(maybeFlagPart)) {
+            return null;
+        }
+        // const [,flags = "", propAccess, terminator] = m;
+        // if (terminator || propAccess) {
+        //     return {
+        //         body: reBody + flags,
+        //         lastIndex: i + re.lastIndex
+        //     };
+        // }
+        const flags = m[1] || "";
+        return {
+            body: reBody + flags,
+            lastIndex: i + flags.length
+        };
+    }
+
+    return null;
+}
 
 //
 //  DEVNOTE: 2019-5-12
@@ -322,63 +392,65 @@ const slash = (source: string, context: TReplacementContext): boolean => {
             context.result += remaining;
         }
 
-        // if (re_tsref.test(remaining)) { // avoid ts reference tag
-        //     context.result += source.substring(i, nls_or_eos);
-        // }
-        // /* istanbul ignore next */
-        // else if (scanListener) {
-        //     const lineComment = source.substring(i, nls_or_eos);
-        //     if (scanListener(ScannerEvent.SingleLineComment, lineComment)) {
-        //         context.result += lineComment;
-        //     }
-        // }
         return true;
     }
 
     //
     // - - - check regexp literal - - -
     //
-    // NOTE: need lastIndex property, must add "g" flag.
-    // new regex for regex v3 (2020
-    const re_re = /\/(?![?*+\/])(?:\[(?:[^\]\\]|\\.)*\]|[^\/\\]|\\.)+\/(?:[gimsuy]{1,6}\b|(?![gimsuy\d?*+\/\[\\]))/g;
-
     // only execute once, this is important!
-    const m = re_re.exec(remaining);
+    const m = detectRegex(remaining);
     if (m === null) {
         return false;
     }
 
-    // means line comment.
-    if (remaining[m.index - 1] === "/") {
-        context.result += source.substring(i, i + m.index - 1);
-        // update offset. when new line character not found(eof) then...
-        context.offset = nls_or_eos;
-    } else {
-        // DEVNOTE: the eval function can almost certainly detect regexp literal.
-        const re_literal = m[0];
-        try {
-            // DEVNOTE: performance will be worse than "evel", and regex can not be detected accurately
-            // tslint:disable-next-line
-            // const lx = m[0].lastIndexOf("/");
-            // new RegExp(m[0].substring(1, lx));
-            // eval(m[0]);
-            if (!validateRegex(re_literal)) {
-                eval(re_literal);
-                /* istanbul ignore next */
-                evaluatedLiterals++;
-            }
-        } catch (e) {
-            regexErrorReport && console.log("Missdetection of Regex: [%s]", re_literal);
-            return false;
-        }
-
-        detectedReLiterals.push(re_literal);
-        // update offset.
-        context.offset = i + re_re.lastIndex; // "g" flag.
-        context.result += source.substring(i, context.offset);
-    }
-
+    detectedReLiterals.push(m.body);
+    // update offset.
+    context.offset = i + m.lastIndex; // "g" flag.
+    context.result += source.substring(i, context.offset);
     return true;
+
+    // // NOTE: need lastIndex property, must add "g" flag.
+    // // new regex for regex v3 (2020
+    // const re_re = /\/(?![?*+\/])(?:\[(?:[^\]\\]|\\.)*\]|[^\/\\]|\\.)+\/(?:[gimsuy]{1,6}\b|(?![gimsuy\d?*+\/\[\\]))/g;
+    // // only execute once, this is important!
+    // const m = re_re.exec(remaining);
+    // if (m === null) {
+    //     return false;
+    // }
+    // // means line comment.
+    // if (remaining[m.index - 1] === "/") {
+    //     const rest = source.substring(i, i + m.index - 1);
+    //     console.log(rest);
+    //     context.result += rest;
+    //     // update offset. when new line character not found(eof) then...
+    //     context.offset = nls_or_eos;
+    // } else {
+    //     // DEVNOTE: the eval function can almost certainly detect regexp literal.
+    //     const re_literal = m[0];
+    //     try {
+    //         // DEVNOTE: performance will be worse than "evel", and regex can not be detected accurately
+    //         // tslint:disable-next-line
+    //         // const lx = m[0].lastIndexOf("/");
+    //         // new RegExp(m[0].substring(1, lx));
+    //         // eval(m[0]);
+    //         if (!validateRegex(re_literal)) {
+    //             eval(re_literal);
+    //             /* istanbul ignore next */
+    //             evaluatedLiterals++;
+    //         }
+    //     } catch (e) {
+    //         regexErrorReport && console.log("Missdetection of Regex: [%s]", re_literal);
+    //         return false;
+    //     }
+
+    //     detectedReLiterals.push(re_literal);
+    //     // update offset.
+    //     context.offset = i + re_re.lastIndex; // "g" flag.
+    //     context.result += source.substring(i, context.offset);
+    // }
+
+    // return true;
 };
 
 /**
@@ -513,7 +585,7 @@ const uniq = (ra: string[]) => {
 const getDetectedReContext = () => {
     return {
         detectedReLiterals,
-        evaluatedLiterals,
+        // evaluatedLiterals,
         uniqReLiterals: uniq(detectedReLiterals).sort()
     };
 };
@@ -522,7 +594,7 @@ const getDetectedReContext = () => {
 */
 const reset = () => {
     detectedReLiterals.length = 0;
-    evaluatedLiterals = 0;
+    // evaluatedLiterals = 0;
 };
 
 // const getDetectedJSDocTags = () => uniq(jsdoctags).sort();

@@ -263,7 +263,6 @@ limitations under the License.
 `- - - - - miscellaneous::statistics - - - - -
 noops      : ${rmc.noops}
 processed  : ${rmc.processed}
-evaluatedLiterals   : ${context.evaluatedLiterals}
 detected regex count: ${context.detectedReLiterals.length}
 uniqReLiterals: [
   ${context.uniqReLiterals.join(",\n  ")}

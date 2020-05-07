@@ -21,6 +21,7 @@ var re = 10000 / 111.77 * gg /gg;;;;  ////// comments...
 
 // in this case, correctly detects.
 const re4 = /\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/ /* comments...*/
+const nnn = 123 /+"2" * gg /* comments...*/
 
 let ok2 = 12.2 / 33 * .9 // "comments"...*/
 //             ^ <- parse by class SlashVisitor
