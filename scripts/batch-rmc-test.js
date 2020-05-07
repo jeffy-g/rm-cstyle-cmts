@@ -57,6 +57,7 @@ const TEST_SRC_FILEs_OUT = "../rmc-tmp/output";
 // - - - - - - - - [2020/05/06] About Catastrophic Backtracking - - - - - - - -
 //  
 //  TODO: I felt I needed refactoring to detect regex more accurately
+//   -> DONE: 2020/5/8 tag: "detect-regex-by-script"
 //
 // ./node_modules/node-notifier/node_modules/uuid/dist/umd/uuidv1.min.js 1676
 // ./node_modules/node-notifier/node_modules/uuid/dist/umd/uuidv5.min.js 2554
@@ -177,8 +178,8 @@ function getTagStatistics() {
 
 // yarn batch-rmc-test -paths ../rmc-tmp/rmc-impossible.tsx
 // yarn batch-rmc-test -paths ../rmc-tmp/rmc-impossible#2.tsx
-// yarn batch-rmc-test -paths ../../../../typescript/TypeScript/src/**/{*,\.*,\.*/*} -avoid 15000
-// yarn batch-rmc-test -paths ../../../../typescript/vscode/src/**/{*,\.*,\.*/*} -avoid 15000
+// yarn batch-rmc-test -paths "../../../../typescript/TypeScript/src/**/{*,\.*,\.*/*}" -avoid 15000
+// yarn batch-rmc-test -paths "../../../../typescript/vscode/src/**/{*,\.*,\.*/*}" -avoid 15000
 /**
  * ✅ check at own environment
  * 
