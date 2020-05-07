@@ -511,6 +511,7 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     source = ctx.result;
     /* reset context */
     ctx.result = "";//, context.offset = 0;
+    /* halt collectRegex */
     ctx.collectRegex = false;
     const regexes = reutil.lookupRegexes(ctx.newline);
     const re_wsqs = regexes.re_wsqs;
@@ -521,6 +522,7 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     // TODO: 2020/5/2 19:30:22 - The current implementation calls the scan event listener twice
     while (m = re_wsqs.exec(source)) {
 
+        // const [head] = m[0];
         const head = m[0][0];
 
         if (head === "/" || head === "`") {
