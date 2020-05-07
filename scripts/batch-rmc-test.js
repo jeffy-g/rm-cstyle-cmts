@@ -113,7 +113,7 @@ const cleanUpResults = (/** @type {() => unknown} */cb) => {
 /** @type {Map<string, number>} */
 const tagStatistics = new Map();
 /**
- * @param {ScannerEvent} event 
+ * @param {number} event 
  * @param {string} fragment 
  * @type {IScannerListener}
  */

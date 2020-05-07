@@ -29,6 +29,13 @@ type TReplacementContext = {
     result: string;
     /** new line character at source. */
     newline: reutil.DetectedNewLines;
+
+    /**
+     * collect Regex?
+     * 
+     * @date 2020/5/8
+     */
+    collectRegex: boolean;
 };
 /**
  * #### main function.
@@ -54,6 +61,7 @@ const createWhite = (source: string): TReplacementContext => {
     return {
         offset: 0,
         result: "",
+        collectRegex: true,
         newline
     };
 };
@@ -177,6 +185,7 @@ const backQuote = (source: string, context: TReplacementContext): boolean => {
 
 
 const detectedReLiterals: string[] = [];
+let drlIndex = 0;
 // let evaluatedLiterals = 0;
 /**
  * test for "<reference .../>" and "///@ts-(ignore|check|...)..."
@@ -410,53 +419,14 @@ const slash = (source: string, context: TReplacementContext): boolean => {
         return false;
     }
 
-    detectedReLiterals.push(m.body);
+    if (context.collectRegex) {
+        // detectedReLiterals.push(m.body);
+        detectedReLiterals[drlIndex++] = m.body;
+    }
     // update offset.
     context.offset = i + m.lastIndex; // "g" flag.
     context.result += source.substring(i, context.offset);
     return true;
-
-    // // NOTE: need lastIndex property, must add "g" flag.
-    // // new regex for regex v3 (2020
-    // const re_re = /\/(?![?*+\/])(?:\[(?:[^\]\\]|\\.)*\]|[^\/\\]|\\.)+\/(?:[gimsuy]{1,6}\b|(?![gimsuy\d?*+\/\[\\]))/g;
-    // // only execute once, this is important!
-    // const m = re_re.exec(remaining);
-    // if (m === null) {
-    //     return false;
-    // }
-    // // means line comment.
-    // if (remaining[m.index - 1] === "/") {
-    //     const rest = source.substring(i, i + m.index - 1);
-    //     console.log(rest);
-    //     context.result += rest;
-    //     // update offset. when new line character not found(eof) then...
-    //     context.offset = nls_or_eos;
-    // } else {
-    //     // DEVNOTE: the eval function can almost certainly detect regexp literal.
-    //     const re_literal = m[0];
-    //     try {
-    //         // DEVNOTE: performance will be worse than "evel", and regex can not be detected accurately
-    //         // tslint:disable-next-line
-    //         // const lx = m[0].lastIndexOf("/");
-    //         // new RegExp(m[0].substring(1, lx));
-    //         // eval(m[0]);
-    //         if (!validateRegex(re_literal)) {
-    //             eval(re_literal);
-    //             /* istanbul ignore next */
-    //             evaluatedLiterals++;
-    //         }
-    //     } catch (e) {
-    //         regexErrorReport && console.log("Missdetection of Regex: [%s]", re_literal);
-    //         return false;
-    //     }
-
-    //     detectedReLiterals.push(re_literal);
-    //     // update offset.
-    //     context.offset = i + re_re.lastIndex; // "g" flag.
-    //     context.result += source.substring(i, context.offset);
-    // }
-
-    // return true;
 };
 
 /**
@@ -486,8 +456,8 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     // step 1. remove {line, block} comments
     //
     const size     = source.length;
+    const ctx      = createWhite(source);
     const registry = scanners;
-    const context  = createWhite(source);
     let offset      = 0;
     let prev_offset = 0;
 
@@ -497,20 +467,20 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
         if (!inspectable) {
             offset++;
         } else {
-            context.result += source.substring(prev_offset, offset);
-            context.offset = offset;
-            prev_offset = inspectable(source, context)? context.offset: context.offset++;
-            offset = context.offset;
+            ctx.result += source.substring(prev_offset, offset);
+            ctx.offset = offset;
+            prev_offset = inspectable(source, ctx)? ctx.offset: ctx.offset++;
+            offset = ctx.offset;
         }
     }
 
     // adjust remaining
     if (size - prev_offset > 0) {
-        context.result += source.substring(prev_offset, offset);
+        ctx.result += source.substring(prev_offset, offset);
     }
 
     if (!rm_blank_line_n_ws) {
-        return context.result;
+        return ctx.result;
     }
 
     //
@@ -524,10 +494,11 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     // ✅ This makes it possible to hold the contents of nested es6 templete string.
     // - - - -
     /* replace removed comments result */
-    source = context.result;
+    source = ctx.result;
     /* reset context */
-    context.result = "";//, context.offset = 0;
-    const regexes = reutil.lookupRegexes(context.newline);
+    ctx.result = "";//, context.offset = 0;
+    ctx.collectRegex = false;
+    const regexes = reutil.lookupRegexes(ctx.newline);
     const re_wsqs = regexes.re_wsqs;
 
     let m: RegExpExecArray | null;
@@ -539,24 +510,24 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
         const head = m[0][0];
 
         if (head === "/" || head === "`") {
-            context.result += source.substring(prev_offset, m.index);
-            context.offset = m.index;
-            prev_offset = registry[head.charCodeAt(0)](source, context)? context.offset: context.offset++;
-            re_wsqs.lastIndex = context.offset;
+            ctx.result += source.substring(prev_offset, m.index);
+            ctx.offset = m.index;
+            prev_offset = registry[head.charCodeAt(0)](source, ctx)? ctx.offset: ctx.offset++;
+            re_wsqs.lastIndex = ctx.offset;
             continue;
         }
 
         const sublast = (head === "'" || head === '"')? re_wsqs.lastIndex: m.index;
-        context.result += source.substring(prev_offset, sublast);
+        ctx.result += source.substring(prev_offset, sublast);
         prev_offset = re_wsqs.lastIndex;
     }
 
     // adjust remaining
     if (source.length - prev_offset > 0) {
-        context.result += source.substring(prev_offset, source.length);
+        ctx.result += source.substring(prev_offset, source.length);
     }
 
-    return context.result.replace(regexes.re_first_n_last, "");
+    return ctx.result.replace(regexes.re_first_n_last, "");
 };
 
 /**
@@ -600,6 +571,7 @@ const getDetectedReContext = () => {
 */
 const reset = () => {
     detectedReLiterals.length = 0;
+    drlIndex = 0;
     // evaluatedLiterals = 0;
 };
 
