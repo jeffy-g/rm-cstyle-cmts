@@ -124,7 +124,9 @@ const removeCStyleComments: IRemoveCStyleComments = (
         processed++;
         return source;
     } catch (e) {
-        console.warn("\n[Exception occured] The input source will be returned without any processing.");
+        console.warn(
+            "\n[Exception occured] The input source will be returned without any processing."//, e.message
+        );
         return withNoop(source);
     }
 

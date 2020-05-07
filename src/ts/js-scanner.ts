@@ -291,7 +291,7 @@ function detectRegex(line: string): TRegexDetectionResult | null {
 
               + flag part
               + dot access, または "[]" による property access
-              + terminator (";" "," "]"(in array))
+              + terminator (";" "," "]"(in array) ")"(function parameter))
 
           を検出する
 
@@ -299,12 +299,12 @@ function detectRegex(line: string): TRegexDetectionResult | null {
 
           $2, $3 は排他的に検出 => none capturing group とした
         */
-        // /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\s))?)?)/g
+        // /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\)|\s))?)?)/g
 
         // [rm-cstyle-cmts] ***detect flag part after regex (2020
         // NOTE: この regex で match する場合は invalid regex と判定できる
         // /[^gimsuy\d?*+\/\\]/
-        const re = /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\s))?)?)/g;
+        const re = /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\)|\s))?)?)/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart)!;
         if (re.lastIndex === 0 && re_flagsPartAfter.test(maybeFlagPart)) {
