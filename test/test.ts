@@ -228,6 +228,13 @@ limitations under the License.
                 void 0, false
             );
         });
+        it("#5-2 with report_regex_evaluate_error: false", () => {
+            validate(
+                "  const nn = value/(ret++)*8/gm;",
+                "const nn = value/(ret++)*8/gm;",
+                void 0, false
+            );
+        });
 
         it("#6 newline is " + "[LF]".red.bold, () => {
             validate(

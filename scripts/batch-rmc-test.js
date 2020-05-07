@@ -17,7 +17,8 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
-// <reference path="../src/ts/index.d.ts"/> // TS2769 (2020/5/5
+// TS2769 (2020/5/5
+// <reference path="../src/ts/index.d.ts"/>
 "use strict";
 // @ts-check
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -238,6 +238,12 @@ function detectRegex(line: string): TRegexDetectionResult | null {
         if (ch === "\\") {
             in_escape = !in_escape;
         } else if (!in_escape) {
+
+            if (ch === "/" && !in_class && !groupIndex) {
+                reBody = line.substring(0, i);
+                break;
+            }
+
             if (ch === "(") {
                 !in_class && groupIndex++;
             } else if (ch === ")") {
@@ -246,15 +252,16 @@ function detectRegex(line: string): TRegexDetectionResult | null {
                 in_class = 1;
             } else if (ch === "]") {
                 in_class = 0;
-            }
-
-            if (ch === "/" && !in_class && !groupIndex) {
-                reBody = line.substring(0, i);
-                break;
-            }
-            if (groupIndex < 0) {
+            } else if (
+                ((ch === "+" || ch === "*") && line[i] === ch) || // TODO
+                groupIndex < 0
+            ) {
                 return null;
             }
+            // if (groupIndex < 0) {
+            //     return null;
+            // }
+
         } else {
             in_escape = false;
         }
@@ -333,24 +340,23 @@ function detectRegex(line: string): TRegexDetectionResult | null {
 //  -> these things were required for code + regex replacement
 // CHANGES: 2020/4/8 - reduce regex backtracking
 // CHANGES: 2020/4/8 - [re_re] Optimize assuming target text is single line
+// CHANGES: 2020/5/8 - migrated from regex detection to script detection (use regex for some validation)
 const slash = (source: string, context: TReplacementContext): boolean => {
 
     // fetch current offset.
     const i = context.offset;
     // fetch next char.
-    let ch = source[i + 1];
-    // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
-    if (ch === void 0) {
-        throw new SyntaxError("invalid input source");
-    }
+    const ch = source[i + 1];
+    // // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
+    // if (ch === void 0) {
+    //     throw new SyntaxError("invalid input source");
+    // }
 
     //
     // - - - check multiline comment. - - -
     //
     if (ch === "*") {
         const close = source.indexOf("*/", i + 2);
-        // // update offset.(implicit bug at here
-        // context.offset = (close === -1? index : close) + 2;
         if (close !== -1) {
             /* istanbul ignore next */
             if (scanListener) {

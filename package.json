@@ -15,7 +15,7 @@
     "update:packages": "yarn upgrade-interactive --latest",
     "test": "jest --coverage",
     "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
-    "batch-rmc-test": "node scripts/batch-rmc-test -progress -avoid 1675",
+    "batch-rmc-test": "node scripts/batch-rmc-test -progress -avoid 0",
     "build": "npx gulp gulp:tsc",
     "webpack": "npx gulp webpack",
     "dist:nopack": "npx gulp dist",
