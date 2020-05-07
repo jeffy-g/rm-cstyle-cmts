@@ -186,7 +186,6 @@ const backQuote = (source: string, context: TReplacementContext): boolean => {
 
 const detectedReLiterals: string[] = [];
 let drlIndex = 0;
-// let evaluatedLiterals = 0;
 /**
  * test for "<reference .../>" and "///@ts-(ignore|check|...)..."
  * 
@@ -364,10 +363,6 @@ const slash = (source: string, context: TReplacementContext): boolean => {
     const i = context.offset;
     // fetch next char.
     const ch = source[i + 1];
-    // // remove c style comment It's a phenomenon which cannot happen with the specification of this program...
-    // if (ch === void 0) {
-    //     throw new SyntaxError("invalid input source");
-    // }
 
     //
     // - - - check multiline comment. - - -
@@ -430,14 +425,14 @@ const slash = (source: string, context: TReplacementContext): boolean => {
     // if (context.collectRegex) {
     //     detectedReLiterals[drlIndex++] = m[0];
     // }
-    // context.offset = i + m[1]; // "g" flag.
+    // context.offset = i + m[1];
 
     if (context.collectRegex) {
         // detectedReLiterals.push(m.body);
         detectedReLiterals[drlIndex++] = m.body;
     }
     // update offset.
-    context.offset = i + m.lastIndex; // "g" flag.
+    context.offset = i + m.lastIndex;
 
     context.result += source.substring(i, context.offset);
     return true;
@@ -578,7 +573,6 @@ const uniq = (ra: string[]) => {
 const getDetectedReContext = () => {
     return {
         detectedReLiterals,
-        // evaluatedLiterals,
         uniqReLiterals: uniq(detectedReLiterals).sort()
     };
 };
@@ -588,10 +582,8 @@ const getDetectedReContext = () => {
 const reset = () => {
     detectedReLiterals.length = 0;
     drlIndex = 0;
-    // evaluatedLiterals = 0;
 };
 
-// const getDetectedJSDocTags = () => uniq(jsdoctags).sort();
 let scanListener: IScannerListener | undefined;
 const setListener = (listener: IScannerListener) => {
     /* istanbul ignore if */
@@ -605,5 +597,4 @@ export {
     reset,
     // single listener only
     setListener,
-    // getDetectedJSDocTags
 };
