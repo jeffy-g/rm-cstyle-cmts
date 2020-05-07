@@ -287,7 +287,7 @@ function detectRegex(line: string): TRegexDetectResult | null {
           ^(?:
             ([gimsuy]{1,6})?                  # flags part $1
             (?:
-              \s*(?:\[\s*[`"']\w+[`"']\s*\])| # property access $2 (lare)
+              \s*(?:\[\s*[`"']\w+[`"']\s*\])| # property access $2 (lare まずこのような code は書かないだろうが、可能性としてある)
               (?:\s*(?:;|,|\.|]|\)|\s))?      # has terminator? $3
             )?
           )
