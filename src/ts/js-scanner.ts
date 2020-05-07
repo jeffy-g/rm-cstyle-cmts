@@ -201,10 +201,15 @@ const re_tsref_or_pramga = /(?:\/\/\/?\s+@ts-\w+|\/\/\/\s*<reference)/;
  * @date 2020/5/7
  * @see {detectRegex}
  */
-type TRegexDetectionResult = {
+type TRegexDetectResult = {
     body: string;
     lastIndex: number;
 };
+// type TRegexDetectResultArray = {
+//     [0]: string;
+//     [1]: number;
+// };
+
 /**
  * verifies that the regex immediately follows the delimiter "/" with a valid character
  * @date 2020/5/7
@@ -230,7 +235,7 @@ const re_flagsPartAfter = /[^gimsuy\d?*+\/\\]/;
  * 
  * @param {string} line MUST starts with "/" string
  */
-function detectRegex(line: string): TRegexDetectionResult | null {
+function detectRegex(line: string): TRegexDetectResult | null {
 
     if (!re_validFirst.test(line)) return null;
 
@@ -318,6 +323,9 @@ function detectRegex(line: string): TRegexDetectionResult | null {
         //     };
         // }
         const flags = m[1] || "";
+        // return [
+        //     reBody + flags, i + flags.length
+        // ];
         return {
             body: reBody + flags,
             lastIndex: i + flags.length
@@ -419,12 +427,18 @@ const slash = (source: string, context: TReplacementContext): boolean => {
         return false;
     }
 
+    // if (context.collectRegex) {
+    //     detectedReLiterals[drlIndex++] = m[0];
+    // }
+    // context.offset = i + m[1]; // "g" flag.
+
     if (context.collectRegex) {
         // detectedReLiterals.push(m.body);
         detectedReLiterals[drlIndex++] = m.body;
     }
     // update offset.
     context.offset = i + m.lastIndex; // "g" flag.
+
     context.result += source.substring(i, context.offset);
     return true;
 };
