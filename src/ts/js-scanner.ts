@@ -209,7 +209,6 @@ type TRegexDetectResult = {
 //     [0]: string;
 //     [1]: number;
 // };
-
 /**
  * verifies that the regex immediately follows the delimiter "/" with a valid character
  * @date 2020/5/7
@@ -253,7 +252,8 @@ function detectRegex(line: string): TRegexDetectResult | null {
             in_escape = !in_escape;
         } else if (!in_escape) {
 
-            if (ch === "/" && !in_class && !groupIndex) {
+            if (ch === "/" && !in_class) {
+                if (groupIndex) return null;
                 reBody = line.substring(0, i);
                 break;
             }
@@ -285,10 +285,10 @@ function detectRegex(line: string): TRegexDetectResult | null {
         // [rm-cstyle-cmts] ***detect flag part regex (2020
         /*
           ^(?:
-            ([gimsuy]{1,6})?                # flags part $1
+            ([gimsuy]{1,6})?                  # flags part $1
             (?:
-              \s*(\[\s*[`"']\w+[`"']\s*\])| # property access $2 (lare)
-              (?:\s*(;|,|\.|]|\s))?         # has terminator? $3
+              \s*(?:\[\s*[`"']\w+[`"']\s*\])| # property access $2 (lare)
+              (?:\s*(?:;|,|\.|]|\)|\s))?      # has terminator? $3
             )?
           )
 
