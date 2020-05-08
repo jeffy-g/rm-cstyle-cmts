@@ -17,6 +17,7 @@ limitations under the License.
 
 ------------------------------------------------------------------------
 */
+/// <reference path="./globals.d.ts"/>
 
 // DEVNOTE: When a newline character is CRLF, regexp instance specifying multiline flag can not correctly supplement CRLF with ^ and $
 /*
@@ -199,7 +200,7 @@ namespace ReUtil {
     export type DetectedNewLines = KnownNewLines | "";
 }
 
-/**
+/*
  * DEVNOTE: 190531 - removed regex detection
  */
 // let re_ws_qs_base: RegExp; {
@@ -256,12 +257,17 @@ namespace ReUtil {
 //     return null;
 // };
 
+
+/**
+ * detect newline by script
+ */
 //
 // DEVNOTE: 2019-6-11 - because sourceMap may be at the end of file,
 // detection from the end of the input string can be dis-advantageous. (v2.2.5
 //
 // CHANGES: 2020/1/8 - avoid local var access
-const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
+// (d)etect(N)ew(L)ine - dnl
+const dnl = (source: string): ReUtil.KnownNewLines | null => {
     let index = 0;
     let ch: string | undefined;
     while (ch = source[index++]) {
@@ -275,14 +281,16 @@ const _detectNewLine = (source: string): ReUtil.KnownNewLines | null => {
 };
 
 /**
- * 
- * @param nl newline character
+ * lookup regexes by newline character 
+ *
+ * @param nl MUST be "" or "\r" or "\n" or "\r\n"
  */
 // CHANGES: 2020/1/8 - avoid new RegExp
 //  - In this case, we can avoid building regex from RegExp class because regex is limited
 //    This can be expected to improve performance slightly
 //    -> see reliteral-vs-newre.js
-const _lookupRegexes = (nl: ReUtil.DetectedNewLines) => {
+// (l)ookup(R)egexes - lr
+const lr = (nl: ReUtil.DetectedNewLines) => {
     // const wsqs_map = {
     //     "": /^\s+|\s+$/g ,
     //     "\n": /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]+|\\[\s\S])*"|'(?:[^\\']+|\\[\s\S])*'|\//g,
@@ -391,18 +399,160 @@ const _lookupRegexes = (nl: ReUtil.DetectedNewLines) => {
  *  + Since the step2 implementation only by regex is very difficult,  
  *    regex for detecting regex literal has been removed and it has been made simple "/".
  *    The processing can be completed with the aid of the ICharacterScanner code.
+ * 
+ * CHANGES: 2020/5/8 - detect regex body and flag part
  */
 namespace ReUtil {
+    export const detectNewLine = dnl;
+    export const lookupRegexes = lr;
+}
+
+
+// istanbul ignore next
+namespace ReUtil {
     /**
-     * detect newline by script
+     * return type of `detectRegex`
+     * 
+     * @date 2020/5/7
+     * @see {detectRegex}
      */
-    export const detectNewLine = _detectNewLine;
-    /**
-     * lookup regexes by newline character 
-     *
-     * @param nl MUST be "" or "\r" or "\n" or "\r\n"
-     */
-    export const lookupRegexes = _lookupRegexes;
+    export type TRegexDetectResult = {
+        body: string;
+        lastIndex: number;
+    };
+    // type TRegexDetectResultArray = {
+    //     [0]: string;
+    //     [1]: number;
+    // };
+    export const detectRegex = dr;
+}
+
+/**
+ * verifies that the regex immediately follows the delimiter "/" with a valid character
+ * @date 2020/5/7
+ */
+const re_validFirst = /^\/(?![?*+\/])/;
+/**
+ * if `true`, regex is invalie
+ * 
+ * ```js
+ * /[^gimsuy\d?*+\/\\]/
+ * ```
+ * @date 2020/5/7
+ */
+const re_flagsPartAfter = /[^gimsuy\d?*+\/\\]/;
+/**
+ * detect regex body and flag part
+ * 
+ * + perform verification of regex literal.
+ * 
+ * NOTE:
+ *  + here is only validate the placement of "(" and ")" briefly.  
+ *  **this will be avoid the costly "eval" quite a number of times**.
+ * 
+ * @param {string} line MUST starts with "/" string
+ */
+// (d)etect(R)egex - dr
+function dr(line: string): ReUtil.TRegexDetectResult | null {
+
+    if (!re_validFirst.test(line)) return null;
+
+    let groupIndex = 0,
+        in_escape = false,
+        in_class = 0;
+
+    const end = line.length;
+    let reBody: TBD<string>;
+    let i = 1;
+    // always starts offset is "one" because line[0] is supposed to be "/"
+    for (; i < end;) {
+        const ch = line[i++];
+        if (ch === "\\") {
+            in_escape = !in_escape;
+        } else if (!in_escape) {
+
+            if (ch === "/" && !in_class) {
+                if (groupIndex) return null;
+                reBody = line.substring(0, i);
+                break;
+            }
+
+            if (ch === "(") {
+                !in_class && groupIndex++;
+            } else if (ch === ")") {
+                !in_class && groupIndex--;
+            } else if (ch === "[") {
+                in_class = 1;
+            } else if (ch === "]") {
+                in_class = 0;
+            } else if (
+                ((ch === "+" || ch === "*") && line[i] === ch) || // TODO
+                groupIndex < 0
+            ) {
+                return null;
+            }
+            // if (groupIndex < 0) {
+            //     return null;
+            // }
+
+        } else {
+            in_escape = false;
+        }
+    }
+
+    if (reBody) {
+        // [rm-cstyle-cmts] ***detect flag part regex (2020
+        /*
+          ^(?:
+            ([gimsuy]{1,6})?                  # flags part $1
+            (?:
+              \s*(?:\[\s*[`"']\w+[`"']\s*\])| # property access $2 (lare まずこのような code は書かないだろうが、可能性としてある)
+              (?:\s*(?:;|,|\.|]|\)|\s))?      # has terminator? $3
+            )?
+          )
+
+          NOTE: この regex は
+
+              + flag part
+              + dot access, または "[]" による property access
+              + terminator (";" "," "]"(in array) ")"(function parameter))
+
+          を検出する
+
+          $1 は flag part
+
+          $2, $3 は排他的に検出 => none capturing group とした
+        */
+        // version 1 /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\)|\s))?)?)/g
+        // version 1.1 /^([gimsuy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g
+
+        // [rm-cstyle-cmts] ***detect flag part after regex (2020
+        // NOTE: この regex で match する場合は invalid regex と判定できる
+        // /[^gimsuy\d?*+\/\\]/
+        const re = /^([gimsuy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
+        const maybeFlagPart = line.substring(i);
+        const m = re.exec(maybeFlagPart)!;
+        if (re.lastIndex === 0 && re_flagsPartAfter.test(maybeFlagPart)) {
+            return null;
+        }
+        // const [,flags = "", propAccess, terminator] = m;
+        // if (terminator || propAccess) {
+        //     return {
+        //         body: reBody + flags,
+        //         lastIndex: i + re.lastIndex
+        //     };
+        // }
+        const flags = m[1] || "";
+        // return [
+        //     reBody + flags, i + flags.length
+        // ];
+        return {
+            body: reBody + flags,
+            lastIndex: i + flags.length
+        };
+    }
+
+    return null;
 }
 
 export = ReUtil;

@@ -18,9 +18,14 @@
 ------------------------------------------------------------------------
 */
 /// <reference path="./index.d.ts"/>
-/// <reference path="./globals.d.ts"/>
 /** lookupRegexes, detectNewLine, DetectedNewLines */
 import * as reutil from "./reutil";
+const {
+    detectNewLine,
+    detectRegex,
+    lookupRegexes
+} = reutil;
+
 
 type TReplacementContext = {
     /** content offset(read, write */
@@ -57,7 +62,7 @@ let regexErrorReport: boolean = false;
  */
 const createWhite = (source: string): TReplacementContext => {
     // specify new line character.
-    const newline = reutil.detectNewLine(source) || "";
+    const newline = detectNewLine(source) || "";
     return {
         offset: 0,
         result: "",
@@ -194,146 +199,6 @@ let drlIndex = 0;
 // https://regex101.com/r/U79xmb/4
 const re_tsref_or_pramga = /(?:\/\/\/?\s+@ts-\w+|\/\/\/\s*<reference)/;
 
-/**
- * return type of `detectRegex`
- * 
- * @date 2020/5/7
- * @see {detectRegex}
- */
-type TRegexDetectResult = {
-    body: string;
-    lastIndex: number;
-};
-// type TRegexDetectResultArray = {
-//     [0]: string;
-//     [1]: number;
-// };
-/**
- * verifies that the regex immediately follows the delimiter "/" with a valid character
- * @date 2020/5/7
- */
-const re_validFirst = /^\/(?![?*+\/])/;
-/**
- * if `true`, regex is invalie
- * 
- * ```js
- * /[^gimsuy\d?*+\/\\]/
- * ```
- * @date 2020/5/7
- */
-const re_flagsPartAfter = /[^gimsuy\d?*+\/\\]/;
-/**
- * detect regex body and flag part
- * 
- * + perform verification of regex literal.
- * 
- * NOTE:
- *  + here is only validate the placement of "(" and ")" briefly.  
- *  **this will be avoid the costly "eval" quite a number of times**.
- * 
- * @param {string} line MUST starts with "/" string
- */
-function detectRegex(line: string): TRegexDetectResult | null {
-
-    if (!re_validFirst.test(line)) return null;
-
-    let groupIndex = 0,
-        in_escape = false,
-        in_class = 0;
-
-    const end = line.length;
-    let reBody: TBD<string>;
-    let i = 1;
-    // always starts offset is "one" because line[0] is supposed to be "/"
-    for (; i < end;) {
-        const ch = line[i++];
-        if (ch === "\\") {
-            in_escape = !in_escape;
-        } else if (!in_escape) {
-
-            if (ch === "/" && !in_class) {
-                if (groupIndex) return null;
-                reBody = line.substring(0, i);
-                break;
-            }
-
-            if (ch === "(") {
-                !in_class && groupIndex++;
-            } else if (ch === ")") {
-                !in_class && groupIndex--;
-            } else if (ch === "[") {
-                in_class = 1;
-            } else if (ch === "]") {
-                in_class = 0;
-            } else if (
-                ((ch === "+" || ch === "*") && line[i] === ch) || // TODO
-                groupIndex < 0
-            ) {
-                return null;
-            }
-            // if (groupIndex < 0) {
-            //     return null;
-            // }
-
-        } else {
-            in_escape = false;
-        }
-    }
-
-    if (reBody) {
-        // [rm-cstyle-cmts] ***detect flag part regex (2020
-        /*
-          ^(?:
-            ([gimsuy]{1,6})?                  # flags part $1
-            (?:
-              \s*(?:\[\s*[`"']\w+[`"']\s*\])| # property access $2 (lare まずこのような code は書かないだろうが、可能性としてある)
-              (?:\s*(?:;|,|\.|]|\)|\s))?      # has terminator? $3
-            )?
-          )
-
-          NOTE: この regex は
-
-              + flag part
-              + dot access, または "[]" による property access
-              + terminator (";" "," "]"(in array) ")"(function parameter))
-
-          を検出する
-
-          $1 は flag part
-
-          $2, $3 は排他的に検出 => none capturing group とした
-        */
-        // /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\)|\s))?)?)/g
-
-        // [rm-cstyle-cmts] ***detect flag part after regex (2020
-        // NOTE: この regex で match する場合は invalid regex と判定できる
-        // /[^gimsuy\d?*+\/\\]/
-        const re = /^(?:([gimsuy]{1,6})?(?:\s*(?:\[\s*[`"']\w+[`"']\s*\])|(?:\s*(?:;|,|\.|]|\)|\s))?)?)/g;
-        const maybeFlagPart = line.substring(i);
-        const m = re.exec(maybeFlagPart)!;
-        if (re.lastIndex === 0 && re_flagsPartAfter.test(maybeFlagPart)) {
-            return null;
-        }
-        // const [,flags = "", propAccess, terminator] = m;
-        // if (terminator || propAccess) {
-        //     return {
-        //         body: reBody + flags,
-        //         lastIndex: i + re.lastIndex
-        //     };
-        // }
-        const flags = m[1] || "";
-        // return [
-        //     reBody + flags, i + flags.length
-        // ];
-        return {
-            body: reBody + flags,
-            lastIndex: i + flags.length
-        };
-    }
-
-    return null;
-}
-
 //
 //  DEVNOTE: 2019-5-12
 // 
@@ -438,6 +303,26 @@ const slash = (source: string, context: TReplacementContext): boolean => {
     return true;
 };
 
+// /** TODO:
+//  * simple tsx, jsx support
+//  * 
+//  *   + can detect only leaf tag
+//  * 
+//  * @param source 
+//  * @param context 
+//  */
+// const lessthan = (source: string, context: TReplacementContext): boolean => {
+//     const re = /<([\w-]+)[^>]*>[^<]*<\/\1\s*>/gm;
+//     re.lastIndex = context.offset;
+//     const m = re.exec(source);
+//     if (m && m.index === context.offset) {
+//         context.result += source.substring(context.offset, context.offset + re.lastIndex);
+//         context.offset += re.lastIndex;
+//         return true;
+//     }
+//     return false;
+// };
+
 /**
  * CharScannerFunction registry.
  */
@@ -508,7 +393,7 @@ const apply = (source: string, rm_blank_line_n_ws: boolean) => {
     ctx.result = "";//, context.offset = 0;
     /* halt collectRegex */
     ctx.collectRegex = false;
-    const regexes = reutil.lookupRegexes(ctx.newline);
+    const regexes = lookupRegexes(ctx.newline);
     const re_wsqs = regexes.re_wsqs;
 
     let m: RegExpExecArray | null;
