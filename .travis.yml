@@ -1,7 +1,7 @@
 language: node_js
 
 os:
-  # - linux
+  - linux
   - osx
 
 node_js:
@@ -29,27 +29,28 @@ cache:
 install:
   - yarn install
 
-before_script:
-  - yarn dist
+before_script: |
+  yarn dist
+  if [ $TRAVIS_OS_NAME == "linux" ]; then
+    curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    chmod +x ./cc-test-reporter
+    ./cc-test-reporter before-build
+  fi
 
-if: os = linux
-  before_script:
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-    - chmod +x ./cc-test-reporter
-    - ./cc-test-reporter before-build
+script:
+  - yarn bench && yarn test
 
-  after_script:
-    # after-build: combines format-coverage and upload-coverage.
-    - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+after_script: |
+  # after-build: combines format-coverage and upload-coverage.
+  if [ $TRAVIS_OS_NAME == "linux" ]; then
+    ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  fi
 
-  after_success:
-    # - bash <(curl -s https://codecov.io/bash)
-    - codecov -f coverage/coverage-final.json
-
-script: |
-  yarn bench
-  yarn test
-
+after_success: |
+  # - bash <(curl -s https://codecov.io/bash)
+  if [ $TRAVIS_OS_NAME == "linux" ]; then
+    codecov -f coverage/coverage-final.json
+  fi
 
 before_deploy:
   - bash scripts/ci-script.sh
