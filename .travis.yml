@@ -31,7 +31,7 @@ install:
 
 before_script:
   - yarn dist
-  if: os = linux
+  - if: os = linux
     - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
     - chmod +x ./cc-test-reporter
     - ./cc-test-reporter before-build
@@ -42,12 +42,12 @@ script:
 
 after_script:
   # after-build: combines format-coverage and upload-coverage.
-  if: os = linux
+  - if: os = linux
     - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 after_success:
   # - bash <(curl -s https://codecov.io/bash)
-  if: os = linux
+  - if: os = linux
     - codecov -f coverage/coverage-final.json
 
 before_deploy:
