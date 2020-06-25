@@ -1,6 +1,6 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "2.4.29",
+  "version": "2.4.30",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "main": "./bin/index.js",
   "browser": "./bin/web/index.js",
@@ -65,7 +65,7 @@
     "node": ">=6.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.0",
+    "@types/jest": "^26.0.3",
     "@types/through2": "^2.0.36",
     "@types/vinyl": "^2.0.4",
     "@types/webpack": "^4.41.17",
@@ -78,10 +78,10 @@
     "gulp-replace": "^1.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
-    "jest": "^26.0.1",
+    "jest": "^26.1.0",
     "replace": "^1.2.0",
     "terser-webpack-plugin": "^3.0.6",
-    "ts-jest": "^26.1.0",
+    "ts-jest": "^26.1.1",
     "ts-loader": "^7.0.5",
     "tslint": "^6.1.2",
     "typescript": "^3.9.5",
