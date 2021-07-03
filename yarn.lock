@@ -734,6 +734,14 @@
     "@types/expect" "^1.20.4"
     "@types/node" "*"
 
+"@types/vinyl@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@types/vinyl/-/vinyl-2.0.5.tgz#52d3b850a4ed494aaad51e96708834c500c8d5cd"
+  integrity sha512-1m6uReH8R/RuLVQGvTT/4LlWq67jZEUxp+FBHt0hYv2BT7TUwFbKI0wa7JZVEU/XtlcnX1QcTuZ36es4rGj7jg==
+  dependencies:
+    "@types/expect" "^1.20.4"
+    "@types/node" "*"
+
 "@types/webpack@^5.28.0":
   version "5.28.0"
   resolved "https://registry.yarnpkg.com/@types/webpack/-/webpack-5.28.0.tgz#78dde06212f038d77e54116cfe69e88ae9ed2c03"
