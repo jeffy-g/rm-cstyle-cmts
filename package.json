@@ -1,6 +1,6 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "2.4.181",
+  "version": "2.4.182",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "main": "./bin/index.js",
   "browser": "./bin/web/index.js",
@@ -62,7 +62,7 @@
     "text"
   ],
   "engines": {
-    "node": ">=v14.18.0"
+    "node": ">=v14.18.1"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
