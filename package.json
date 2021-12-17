@@ -1,6 +1,6 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "2.4.205",
+  "version": "2.4.206",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "main": "./bin/index.js",
   "browser": "./bin/web/index.js",
@@ -81,7 +81,7 @@
     "jest": "^27.4.5",
     "replace": "^1.2.1",
     "terser-webpack-plugin": "^4.2.3",
-    "ts-jest": "^27.1.1",
+    "ts-jest": "^27.1.2",
     "ts-loader": "^9.2.6",
     "tslint": "^6.1.3",
     "typescript": "^4.5.4",
