@@ -115,10 +115,10 @@ const createWebpackConfig = (
                 new TerserPlugin({
                     // Enable parallelization. Default number of concurrent runs: os.cpus().length - 1.
                     parallel: true,
-                    cache: true,
+                    // cache: true,
                     // NOTE: The sourceMap setting of uglify in webpack v4,
                     // It must be set with option of UglifyJsPlugin instance.
-                    sourceMap: true,
+                    // sourceMap: true,
                     // @ts-ignore ignore type definition mistake(max_line_len)
                     terserOptions
                 })
