@@ -1,10 +1,10 @@
 {
   "name": "gulp-rm-cmts",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "remove cstyle comments for gulp",
   "dependencies": {
     "through2": "2.0.5",
-    "rm-cstyle-cmts": "^3.2.7"
+    "rm-cstyle-cmts": "^3.2.11"
   },
   "repository": {
   	
