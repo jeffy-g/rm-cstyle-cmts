@@ -35,7 +35,7 @@ build:
           yarn install
           echo "node version $(node -v) running"
           echo "npm version $(npm -v) running"
-          yarn start
+          yarn all && yarn bench && yarn test
 
 grmc-batch-test:
   steps:
@@ -44,4 +44,4 @@ grmc-batch-test:
       code: |
         echo "node version $(node -v) running"
         echo "npm version $(npm -v) running"
-        yarn batch-rmc-test
+        yarn grmc-test:cjs

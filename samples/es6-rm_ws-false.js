@@ -21,6 +21,7 @@ var re = 10000 / 111.77 * gg /gg;;;;
 
 
 const re4 = /\s*\(\?#.*\)\/[/*[)(?\]]\s*$|#\s.*$|\s+/ 
+const nnn = 123 /+"2" * gg 
 
 let ok2 = 12.2 / 33 * .9 
 
@@ -43,7 +44,7 @@ about                   [alt+A]
 
         ${
 
-            // comment line...
+            
             "nest-2:" + `:Key Binding:${ `let abc = ${
                 Boolean("")
             }` }}
@@ -52,9 +53,7 @@ about                   [alt+A]
                 // comment line in backquote
                 ${
 
-                    /**
-                    * triple nested es6 template string.
-                    */
+                    
 
                     "nest-3:" + `:Key Binding:${ 234 }}
                     }
@@ -72,7 +71,7 @@ about                   [alt+A]
 
     ------------------------------[ X ]`
 
-    // comment line...
+    
     }
 :On comment:\`\  \"\`\"\\
 
@@ -127,7 +126,7 @@ let name = "apple";
 const templete = `function ${name}($) {
    // comment line.
    var some = ${
-   // comment line #2...
+   
    `12.5 / 50 * 100,
 
    // might be a very important comment line.

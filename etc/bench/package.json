@@ -1,0 +1,18 @@
+{
+  "name": "bench",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "jeffy-g",
+  "scripts": {
+    "start": "node bench.mjs",
+    "test": "bash -c \"node bench.mjs\"",
+    "ic": "npx rimraf yarn.lock node_modules && yarn install",
+    "up": "yarn upgrade-interactive --latest"
+  },
+  "dependencies": {
+    "@types/benchmark": "^2.1.1",
+    "benchmark": "^2.1.4",
+    "strip-comments": "^2.0.1",
+    "strip-json-comments": "4.0.0"
+  }
+}

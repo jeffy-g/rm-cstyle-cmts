@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rm-cstyle-cmts umd module test</title>
+    <script type="text/javascript" src="../dist/umd/index.js"></script>
+    <script type="text/javascript">
+        const opts = {
+            preserveBlanks: void 0, 
+            showErrorMessage: void 0
+        };
+        function getDom(id) {
+            return document.getElementById(id);
+        }
+        function doRmc() {
+            const jsonc = getDom("jsonc").value;
+            getDom("jsonc-removed").value = Rmc(jsonc, opts);
+        }
+        onload = function() {
+            Object.keys(opts).forEach(opt => {
+                getDom(opt).addEventListener("change", function (e) {
+                    opts[opt] = this.checked? true: void 0;
+                    doRmc();
+                });
+            });
+            doRmc();
+        }
+    </script>
+</head>
+<body>
+    <div>sample input:</div>
+    <div>
+        <input type="checkbox" id="preserveBlanks"> preserveBlanks,
+        <input type="checkbox" id="showErrorMessage"> showErrorMessage
+    </div>
+    <div>
+    <textarea id="jsonc" style="height: 220px; width: 720px;" onchange="doRmc()">
+{
+  "compilerOptions": {
+    "newLine": "LF",
+    "incremental": true,
+    "tsBuildInfoFile": "./logs/cjs.tsbuildinfo",
+  
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    // TIP: on ts v3.8
+    // When this option is enabled, TypeScript will avoid rechecking/rebuilding all truly possibly-affected files,
+    // and only recheck/rebuild files that have changed as well as files that directly import them.
+    //
+    // "assumeChangesOnlyAffectDirectDependencies": true,
+
+    "strict": true,
+    "removeComments": false,
+
+    // ⚠️ Without this setting, typescript will issue an error (related @types/babel*
+    "moduleResolution": "node",
+
+    "target": "es2019",
+    // TIP: always specify "commonjs" for nodejs. "es6" becomes esma module
+    "module": "commonjs",
+
+    "sourceMap": false,
+    "diagnostics": true,
+
+    "baseUrl": "./src",
+    "outDir": "./build/cjs"
+  },
+  "exclude": [
+    // 2020/3/24 - TIP: https://github.com/microsoft/TypeScript/wiki/Performance#configuring-tsconfigjson-or-jsconfigjson
+    "**/node_modules",
+    "**/.*/"
+    // - - -
+  ],
+  "include": [
+    "./src"
+  ],
+}
+    </textarea>
+    </div>
+    <div>output:</div>
+    <div>
+        <textarea id="jsonc-removed" style="height: 220px; width: 720px;"></textarea>
+    </div>
+</body>
+</html>

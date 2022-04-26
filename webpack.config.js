@@ -1,50 +1,175 @@
-/*
------------------------------------------------------------------------
-
-Copyright 2017 motrohi hirotom1107@gmail.com
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-------------------------------------------------------------------------
-*/
 // @ts-check
-// webpack config for ts file.
 
-// DEVNOTE: 2019-4-30
-// "awesome-typescript-loader" is no longer maintenance.
-// so now, use "ts-loader"
+const path = require("path");
+const webpack = require("webpack");
+const TerserPlugin = require("terser-webpack-plugin");
+const progress = require("./scripts/tiny/progress/");
 
-// extend "webpack.configjs".
-const webpackConfig = require("./webpack.configjs");
 
-// web
-webpackConfig[0].entry = {
-    index: "./src/ts/index.ts"
+/** @type {import("terser").MinifyOptions} */
+const terserOptions = {
+    sourceMap: true,
+    mangle: true,
+    format: {
+        comments: false,
+        beautify: true,
+        indent_level: 1,
+        // ecma: 9,
+        max_line_len: 800,
+        quote_style: 3
+    }
 };
-// node
-webpackConfig[1].entry = {
-    index: "./src/ts/index.ts",
-    "bench/index": "./src/ts/bench/index.ts"
+/**
+ * **specify global variable name for umd build**
+ */
+const umdLibraryName = "Rmc";
+
+
+/**
+ * @typedef {import("typescript").CompilerOptions} CompilerOptions
+ */
+/** @type {CompilerOptions} */
+const tsCompilerOptions = {
+    removeComments: true
 };
-// web, node
-webpackConfig[0].module = webpackConfig[1].module = {
-    rules: [
+
+/**
+ * @typedef {import("webpack").Configuration} WebpackConfigration
+ * @typedef {WebpackConfigration["externals"]} Externals
+ * @typedef {{ beautify?: true; forceSourceMap?: true }} TExtraOptions
+ */
+/**
+ * @param {WebpackConfigration["target"]} target 
+ * @param {WebpackConfigration["output"]} output
+ * @param {WebpackConfigration["mode"]} [mode] 
+ * @param {TExtraOptions} [extraOpt] see {@link TExtraOptions}
+ * @return {WebpackConfigration}
+ * @version 2.0
+ * @date 2022/3/20 - update jsdoc, added new parameter `extraOpt`
+ */
+const createWebpackConfig = (target, output, mode = "production", extraOpt = {}) =>  {
+
+    /** @type {ConstructorParameters<typeof TerserPlugin>[0]} */
+    const terserOpt = {
+        // Enable parallelization. Default number of concurrent runs: os.cpus().length - 1.
+        parallel: true,
+        terserOptions,
+    };
+
+    const {
+        beautify,
+        forceSourceMap,
+    } = extraOpt;
+
+    terserOptions.format.beautify = beautify;
+    /**
+     * @type {WebpackConfigration["module"]}
+     */
+    const moduleConf = {
+        rules: [
+            {
+                test: /\.ts$/,
+                loader: "ts-loader",
+                exclude: /node_modules/,
+                options: {
+                    configFile: path.resolve(__dirname, "./tsconfig.json"), // DEVNOTE: 2022/03/24 - OK, works with tsconfig.json
+                    compilerOptions: tsCompilerOptions,
+                    // DEVNOTE: cannot use `transpileOnly` option because some problem of typescript enum
+                    // transpileOnly: true
+                }
+            }
+        ]
+    };
+
+    /**
+     * @type {WebpackConfigration["entry"]}
+     */
+     const entry = {
+        index: "./src/index.ts"
+    };
+
+    /**
+     * @type {Externals}
+     */
+    const externals = [];
+
+    return {
+        // "production", "development", "none"
+        mode,
+        // "web", "node"
+        target,
+        // entry point
+        entry,
+        // output config.
+        output,
+
+        module: moduleConf,
+        externals,
+        resolve: {
+            extensions: [".ts", ".js"]
+        },
+        devtool: (forceSourceMap || mode === "development")? "source-map": false, // "source-map" -> need this for complete sourcemap.
+
+        plugins: [
+            new webpack.ProgressPlugin(
+                progress.createWebpackProgressPluginHandler(/*`./logs/${utils.dateStringForFile()}-webpack.log`*/)
+            )
+        ],
+        optimization: {
+            minimizer: [
+                new TerserPlugin(terserOpt),
+            ]
+        },
+        profile: true,
+        cache: true,
+        recordsPath: path.join(__dirname, `./logs/webpack-module-ids_${target}.json`),
+    };
+};
+
+const debug = false;
+/**
+ * @type {true | undefined}
+ */
+const useSourceMap = void 0;
+
+module.exports = [
+    createWebpackConfig(
+        /* target */ "web",
+        /* output */ {
+            path: `${__dirname}/dist/umd/`,
+            filename: "[name].js",
+            // library: umdLibraryName,
+            library: {
+              name: umdLibraryName,
+              type: "umd",
+            //   export: "default"
+            },
+            // DEVNOTE: 2020/10/13
+            //  From webpack v5, if "globalObject" is omitted, it seems that `self` is output, so I decided to explicitly specify "globalThis".
+            //  This is a workaround for the problem that test stops at error
+            globalObject: "globalThis"
+        },
+        debug && "development" || void 0,
         {
-            test: /\.ts$/,
-            loader: "ts-loader",
-            exclude: /node_modules/
+            beautify: debug || void 0,
+            forceSourceMap: useSourceMap
         }
-    ]
-};
-
-module.exports = webpackConfig
+    ),
+    createWebpackConfig(
+        /* target */ "node",
+        /* output */ {
+            path: `${__dirname}/dist/webpack/`,
+            filename: "[name].js",
+            library: {
+              type: "commonjs2",
+            //   export: "default"
+            },
+            // libraryTarget: "commonjs2"
+        },
+        debug && "development" || void 0,
+        {
+            beautify: debug || void 0,
+            forceSourceMap: useSourceMap
+        }
+    ),
+];

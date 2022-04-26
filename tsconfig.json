@@ -1,48 +1,38 @@
-// see: http://json.schemastore.org/tsconfig
 {
-    "compilerOptions": {
-        "sourceMap": true,
-        /* Source Map Options */
-        // "sourceRoot": "require('path').resolve('./src/ts/') is works?(at script level)", /* Specify the location where debugger should locate TypeScript files instead of source locations. */
-        // "mapRoot": "",                         /* Specify the location where debugger should locate map files instead of generated locations. */
-        // "inlineSourceMap": true,               /* Emit a single file with source maps instead of having a separate file. */
-        // DEVNOTE: 2019-5-14 - for test coverage, fix: remap-istanbul has incomplete detection of source.
-        "inlineSources": false,                    /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
+  "compilerOptions": {
+    "newLine": "LF",
+    "incremental": true,
+    "tsBuildInfoFile": "./logs/cjs.tsbuildinfo",
+  
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    // TIP: on ts v3.8
+    // When this option is enabled, TypeScript will avoid rechecking/rebuilding all truly possibly-affected files,
+    // and only recheck/rebuild files that have changed as well as files that directly import them.
+    //
+    // "assumeChangesOnlyAffectDirectDependencies": true,
 
-        "preserveConstEnums": true,
-        // DEVNOTE: 2019-5-12 - for test (/* istanbul ignore <type> */)
-        //  -> 2019-5-26 - this not require at "jest" ("removeComments": false)
-        "removeComments": true,
-        // "declaration": true,
-        // "declarationDir": "./bin",
+    "strict": true,
+    "removeComments": false,
 
-        // statistics
-        "diagnostics": true,
-        // "inlineSourceMap": true,
-        // "inlineSources": true,
-        // Stylize errors and messages using color and context (experimental).
-        "pretty": true,
+    // ⚠️ Without this setting, typescript will issue an error (related @types/babel*
+    "moduleResolution": "node",
 
-        "rootDir": "./src/ts",
-        "outDir": "./bin",
+    "target": "es2019",
+    "module": "commonjs",
 
-        "listFiles": false,
-        "newLine": "LF",
+    "sourceMap": false,
+    "diagnostics": true,
 
-        "target": "es2015",
-        "module": "commonjs",
-        "moduleResolution": "node",
-
-        "noEmitHelpers": false,
-
-        "strict": true,
-
-        // NOTE: test use.
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
-    },
-    "include": [
-        "./src/ts/**/*.ts"
-    ],
-    "exclude": []
+    "baseUrl": "./src",
+    "outDir": "./build/cjs"
+  },
+  "exclude": [
+    "**/node_modules",
+    "**/.*/"
+    // - - -
+  ],
+  "include": [
+    "./src"
+  ],
 }

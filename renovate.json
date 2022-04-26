@@ -8,9 +8,9 @@
     ],
     "automerge": true,
     "automergeType": "branch",
-    "rangeStrategy": "bump",
-    "bumpVersion": "patch",
+    "rangeStrategy": "replace",
     "minor": {
         "groupName": "all dependencies"
-    }
+    },
+    "commitBody": "[skip ci]"
 }

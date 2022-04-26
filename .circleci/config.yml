@@ -1,36 +1,57 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-orbs:
-  # https://circleci.com/orbs/registry/orb/circleci/node
-  node: circleci/node@1.0.1 # refers to the Orbs of circleci/node as `node`
-jobs:
-  tests:
-    executor:
-      name: node/default
-      # It will be the same as image: 'circleci/node:latest' by node Orbs
-      tag: "latest"
-    working_directory: ~/repo
 
+orbs:
+  codecov: codecov/codecov@3.2.2
+  # The Node.js orb contains a set of prepackaged CircleCI configuration you can utilize
+  # Orbs reduce the amount of configuration required for common tasks.
+  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
+  node: circleci/node@5.0.2
+jobs:
+  # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
+  build-and-test:
+    # These next lines define a Docker executor: https://circleci.com/docs/2.0/executor-types/
+    # You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # A list of available CircleCI Docker Convenience Images are available here: https://circleci.com/developer/images/image/cimg/node
+    docker:
+      - image: cimg/node:16.10
+    working_directory: ~/repo
     steps:
       - checkout
-      - node/with-cache:
-          # the default is to cache ~/project/node_modules, so if you change working_directory, match it
-          dir: ~/repo/node_modules
-          cache-version: v1
-          steps:
-          - run:
-              name: lint, build, benchmark, tests
-              command: |
-                yarn install
-                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                echo '            lint -> build -> bench -> test'
-                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                yarn start
-                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                echo '                   batch-rmc-test'
-                echo - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                yarn batch-rmc-test
+      - restore_cache:
+          keys:
+            - v1-deps-{{ checksum "yarn.lock" }}
+            - v1-deps-
+      - run:
+          name: install packages
+          command: |
+            yarn install
+      - save_cache:
+          key: v1-deps-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - run:
+          name: lint, build, bench, test
+          command: |
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            echo '            lint -> build -> bench -> test'
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            npm run all
+            npm run bench && npm run test
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            echo '                   batch-rmc-test'
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            npm run grmc-test:cjs
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            echo '                    run benchmark'
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            npm run benchmark
+    
+      - codecov/upload:
+          file: "./coverage/coverage-final.json"
+
 workflows:
-  version: 2
-  build:
-    jobs:
-      - tests
+    build-and-test:
+      jobs:
+        - build-and-test

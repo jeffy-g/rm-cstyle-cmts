@@ -1,91 +1,93 @@
 {
   "name": "rm-cstyle-cmts",
-
-  "version": "2.4.228",
+  "version": "3.3.4",
   "description": "remove c style comments from text file(javascript source, json file etc...",
-  "main": "./bin/index.js",
-  "browser": "./bin/web/index.js",
-  "types": "./bin/index.d.ts",
-  "typings": "./bin/index.d.ts",
+  "private": false,
+  "main": "./cjs/index.js",
+  "types": "./index.d.ts",
+  "unpkg": "./umd/index.js",
+  "sideEffects": false,
   "author": "jeffy-g",
   "license": "Apache-2.0",
-  "scripts": {
-    "start": "yarn lint && yarn build && yarn bench && yarn test && yarn dist:nopack",
-    "lint": "tslint src/**/*.ts -p tsconfig.json --project",
-    "ic": "npx rimraf yarn.lock node_modules && yarn install",
-    "up": "yarn upgrade-interactive --latest",
-    "test": "jest --coverage",
-    "bench": "node -v && node ./bin/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./bin/bench/ -p",
-    "batch-rmc-test": "node scripts/batch-rmc-test -progress -avoid 1600",
-    "build": "npx gulp gulp:tsc",
-    "webpack": "npx gulp webpack",
-    "dist:nopack": "npx gulp dist",
-    "dist": "npx gulp dist:pack",
-    "v:major": "node ./scripts/version-tool -cmd version -major && yarn build",
-    "v:minor": "node ./scripts/version-tool -cmd version -minor && yarn build",
-    "v:patch": "node ./scripts/version-tool -cmd version && yarn build"
+  "bugs": {
+    "url": "https://github.com/jeffy-g/rm-cstyle-cmts/issues"
   },
-  "//": {
-    "pretest": "tsc ./test/test.ts --sourcemap true && rimraf ./coverage",
-    "posttest": "npm run report-ts",
-    "test": "bash -c \"if [ ! -e test/test.js ]; then tsc ./test/test.ts --sourcemap true; fi\"",
-    "report-ts": "rimraf ./coverage/report-ts && remap-istanbul -i coverage/coverage.json -o coverage/report-ts -t html",
-    "bench:cov": "istanbul cover ./bin/bench/ -- -f samples/es6.js -l 200 -ol 10 && npm run report-ts",
-    "grmc:comp": "tsc -t es2015 -m commonjs --removecomments true src/ts/gulp/index.ts --outDir bin/"
-  },
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "./tsconfig.json"
-      }
-    },
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "test/test\\.ts",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ]
-  },
+  "homepage": "https://github.com/jeffy-g/rm-cstyle-cmts#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jeffy-g/rm-cstyle-cmts.git"
   },
+  "files": [
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "cjs",
+    "umd",
+    "webpack",
+    "*.d.ts"
+  ],
   "keywords": [
+    "typescript",
+    "javascript",
     "remove",
     "delete",
     "comment",
     "comments",
-    "javascript",
     "strip",
     "json",
     "text"
   ],
   "engines": {
-    "node": ">=v16.14.2"
+    "node": ">=12"
+  },
+  "defs": {
+    "projectname": "rm-cstyle-cmts"
+  },
+  "scripts": {
+    "all": "yarn clean && yarn lint && yarn dist && yarn webpack && yarn copy:types && yarn preserve:jsdoc",
+    "bench": "node -v && node ./build/cjs/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./build/cjs/bench/ -p",
+    "benchmark": "cd etc/bench && yarn install && yarn start",
+    "build:test": "tsc -m commonjs -t es2019 __tests__/test.ts",
+    "build": "tsc && yarn fire:tool fix_import_path",
+    "clean": "rimraf build/* dist/* logs/*.tsbuildinfo",
+    "copy:files": "yarn fire:tool copyfiles",
+    "copy:types": "yarn fire:tool copytypes",
+    "dist": "rimraf \"dist/!(webpack|umd)\" && yarn build && yarn copy:files && yarn org-pkg -o ./dist",
+    "fire:tool": "bash scripts/tool.sh",
+    "grmc-test:cjs": "node scripts/batch-rmc-test.js -progress -collectRegex -showNoops",
+    "ic": "rimraf yarn.lock node_modules && yarn install",
+    "lint": "eslint src/**/*.ts",
+    "jstool": "node ./scripts/tiny/tools",
+    "org-pkg": "orgpkg -p -k \"jest,defs\"",
+    "patch:tag": "yarn fire:tool patch_with_tag",
+    "preserve:jsdoc": "yarn jstool -cmd rmc -rmc4ts -basePath \"./dist/cjs,./dist/cjs/gulp\" -test \"/\\.(js|d\\.ts)$/\"",
+    "test": "rimraf ./coverage/* && jest --coverage --silent=false -c=jest.config.js --testRegex=/__tests__/*",
+    "toggle:cmts": "yarn jstool -cmd cmtTrick -targets \"js-scanner.ts,\" -basePath src",
+    "ts:check": "tsc --noemit",
+    "up": "yarn upgrade-interactive --latest",
+    "v": "yarn jstool -cmd version -extras \"./src/index.ts,\"",
+    "webpack": "rimraf ./dist/webpack/* ./dist/umd/* && npx webpack && npm run fire:tool -- webpackAfter"
   },
   "devDependencies": {
+    "@jeffy-g/cpx": "^1.6.2",
     "@types/jest": "^27.4.1",
     "@types/through2": "^2.0.36",
     "@types/vinyl": "^2.0.6",
-    "@types/webpack": "^5.28.0",
-    "codecov": "^3.8.3",
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
     "colors": "^1.4.0",
-    "del": "^6.0.0",
+    "concurrently": "^7.1.0",
+    "eslint": "^8.14.0",
     "gulp": "^4.0.2",
-    "gulp-cli": "^2.3.0",
-    "gulp-rename": "^2.0.0",
-    "gulp-replace": "^1.1.3",
-    "gulp-sourcemaps": "^3.0.0",
-    "gulp-typescript": "^6.0.0-alpha.1",
     "jest": "^27.5.1",
-    "replace": "^1.2.1",
+    "organize-pkg": "^1.2.3",
+    "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^5.3.1",
+    "through2": "^4.0.2",
     "ts-jest": "^27.1.4",
-    "ts-loader": "^9.2.8",
-    "tslint": "^6.1.3",
+    "ts-loader": "^9.2.6",
     "typescript": "^4.6.3",
-    "webpack": "^5.71.0"
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
   }
 }
