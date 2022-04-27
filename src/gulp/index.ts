@@ -67,7 +67,8 @@ const progress = process.env.CI? (() => {
  */
 const noopPaths: string[] = [];
 const defaultExtensions = [
-    ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs"
+    ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs",
+    ".cts", ".mts"
 ];
 /**
  * @type {GulpRmc.TTimeSpanEntry}
