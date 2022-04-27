@@ -84,11 +84,14 @@ export function dateStringForFile(ymd?: any): string;
  *
  * if param value not specified -tag after then set value is "true".
  *
+ * @template {Record<string, any>} T
  * @param {Partial<typeof ArgsConfig>} [args_config]
  * @param {boolean} [debug]
- * @type {<T>(args_config: Partial<typeof ArgsConfig>, debug?: boolean) => T & { args?: string[] }}
+ * @returns {T & { args?: string[] }}
  */
-export function getExtraArgs<T>(args_config?: Partial<typeof ArgsConfig>, debug?: boolean): T & { args?: string[] };
+export function getExtraArgs<T extends Record<string, any>>(args_config?: Partial<typeof ArgsConfig>, debug?: boolean): T & {
+    args?: string[];
+};
 
 /**
  * write text content to dest path.
