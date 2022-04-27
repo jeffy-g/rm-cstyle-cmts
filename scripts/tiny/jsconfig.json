@@ -1,31 +1,13 @@
 {
     "compilerOptions": {
         "newLine": "LF",
-        // 2020/3/24 - TIP: https://github.com/microsoft/TypeScript/wiki/Performance#skipping-dts-checking
-        //  NOTE: These two options can often hide misconfiguration and conflicts in .d.ts files,
-        //   so we suggest using them only for faster builds.
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
-        // - - -
         "strict": true,
-        "removeComments": false,
-        // ⚠️ Without this setting, typescript will issue an error (related @types/babel*
         "moduleResolution": "node",
-        "target": "ESNext",
-        // TIP: always specify "commonjs" for nodejs. "es6" becomes esma module
-        "module": "ESNext",
-        "sourceMap": false,
-        "baseUrl": "./",
-        "outDir": "./build/"
+        "baseUrl": "./"
     },
-    // "exclude": [
-    //   // 2020/3/24 - TIP: https://github.com/microsoft/TypeScript/wiki/Performance#configuring-tsconfigjson-or-jsconfigjson
-    //   "**/node_modules",
-    //   "**/.*/",
-    //   // - - -
-    //   "./src/gcc.ts"
-    // ],
     "include": [
-        "./"
+        "./**/*"
     ]
 }

@@ -17,8 +17,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 */
-// @ts-check
-
 // NOTE: fs-extra are bit slower.
 const fs = require("fs");
 const lib = require("./common");
@@ -73,14 +71,14 @@ function getExtraArgs(args_config, debug = false) {
     // debug log, if need.
     debug && console.log("process.argv: ", process.argv);
     /** @type {typeof ArgsConfig} */
-    // @ts-ignore will be not `Partial`
+    // @ts- ignore will be not `Partial`
     let actualConfig = args_config || {};
     actualConfig = Object.assign(ArgsConfig, actualConfig);
 
     const varIndex = actualConfig.prefix.length;
 
     const extra_index = actualConfig.startIndex || 2;
-    /** @type {T & ReturnType<typeof getExtraArgs>} */
+    /** @type {ReturnType<typeof getExtraArgs>} */
     const params = {};
 
     if (process.argv.length > extra_index) {
@@ -96,7 +94,7 @@ function getExtraArgs(args_config, debug = false) {
                     } else {
                         // DEVNOTE: now possible to process array parameters. -> gulp pug --electron --dests "['../eve-cerebral-app.bitbucket.io', './src']"
                         // DEVNOTE: 2020/2/28 - support regex parameter -> node ./scripts/tools -cmd rmc -basePath ./dist -test '/.js$/'
-                        if (/\[.+\]/.test(value) || /^\/[^/]+\/[gimuy]{0,5}/.test(value)) {
+                        if (/^\[.+\]$/.test(value) || /^\/[^/]+\/[gimuys]{0,6}$/.test(value)) {
                             // value is array or regex
                             value = eval(value);
                         } else if (/\\,/.test(value)) { // not Comma Separated Value

@@ -52,25 +52,7 @@ export type TExtraArgsValue = string | boolean | RegExp | string[];
  * @version 2.0 rename `appendStringTo` -> `prependStringTo`
  */
 export function prependStringTo(str_array: string[], content: string, suffix?: string): void;
-/**
- * get node version at runtime.
- *
- * format must be `v\d+.\d+.\d+`
- *
- * ex:
- * ```
- * const utils = require("./utils");
- * const nv = utils.extractVersion();
- * console.log(nv); // => {major: 10, minor: 9, patch: 0}
- * ```
- *
- * @param {string} versionString default is process.version
- */
-export function extractVersion(versionString?: string): {
-    major: number;
-    minor: number;
-    patch: number;
-};
+
 /**
  * use toLocaleString
  *@param {any} ymd use simple year month day formant? default `false`
@@ -102,16 +84,15 @@ export function dateStringForFile(ymd?: any): string;
  *
  * if param value not specified -tag after then set value is "true".
  *
+ * @template {Record<string, any>} T
  * @param {Partial<typeof ArgsConfig>} [args_config]
  * @param {boolean} [debug]
- * @type {<T>(args_config: Partial<typeof ArgsConfig>, debug?: boolean) => T & { args?: string[] }}
+ * @returns {T & { args?: string[] }}
  */
-export function getExtraArgs<T>(args_config?: Partial<typeof ArgsConfig>, debug?: boolean): T & { args?: string[] };
-/**
- *
- * @param {string} source
- */
-export function removeJsonComments(source: string): string;
+export function getExtraArgs<T extends Record<string, any>>(args_config?: Partial<typeof ArgsConfig>, debug?: boolean): T & {
+    args?: string[];
+};
+
 /**
  * write text content to dest path.
  * when not exists parent directory, creat it.
@@ -121,22 +102,16 @@ export function removeJsonComments(source: string): string;
  * @param {() => void} [callback] the callback function
  */
 export function writeTextUTF8(content: string | NodeJS.ReadableStream | Buffer, dest: string, callback?: () => void): void;
-/**
- * @typedef {(err: any, data: string) => void} TFsCallback
- */
+
+type TFsCallback = (err: any, data: string) => void;
 /**
  * @param {string} from file path.
  * @param [callback]
  */
 export function readTextUTF8<C extends TBD<TFsCallback>, R extends undefined extends C ? string : void>(from: string, callback?: C): R;
-/**
- * @template T
- * @typedef {Record<string, T>} TypedRecord<T>
- */
-/**
- * @template T
- * @typedef {(err: any, data: TypedRecord<T>) => void} TReadJsonCallback
- */
+
+type TypedRecord<T> = Record<string, T>;
+type TReadJsonCallback<T> = (err: any, data: TypedRecord<T>) => void
 /**
  * NOTE: when callback specified, returns undefined
  *
@@ -150,20 +125,7 @@ export function readJson<T, C extends TBD<TReadJsonCallback<string>>, R extends 
  * @param {(dirent: Dirent) => void} handler
  */
 export function walkDirSync(path: string, handler: (dirent: Dirent) => void): void;
-/**
- * create sourceName zip. (using zip.min.js
- *
- * @param {string} scriptPath simple script file name. e.g - webpack (original path are "./lib/webpack.js")
- * @param {string} comment the zip file comment.
- */
-export function compressScript(scriptPath: string, comment?: string): void;
-/**
- * DEVNOTE: 10/21/2018, 9:15:00 PM - using "archiver" package, this is too fast!.
- *
- * @param {string} scriptPath
- * @param {string} comment
- */
-export function compressScript2(scriptPath: string, comment?: string): void;
+
 /**
  * it is bundled in webpack.js, other code becomes unnecessary.(at webpack
  *
@@ -174,21 +136,7 @@ export function compressScript2(scriptPath: string, comment?: string): void;
  * @param {(result: string) => void} doneCallbackWithArgs gulp callback function.
  */
 export function execWithOutputResult(command: string, doneCallbackWithArgs: (result: string) => void): any;
-/**
- * ### generate npm global package update script (windows command)
- *
- * ```js
- * const utils = require("./utils");
- * // ...
- * // execute normally
- * utils.genGlobalNpmUpdateScript("electron", "workbox-cli");
- * // debug
- * utils.genGlobalNpmUpdateScript("--debug", "electron", "workbox-cli");
- * ```
- *
- * @param  {string[]} excludes
- */
-export function genGlobalNpmUpdateScript(...excludes: string[]): void;
+
 /**
  * use for gulp.dest(...)
  *
@@ -210,17 +158,7 @@ export function genGlobalNpmUpdateScript(...excludes: string[]): void;
  * @param {string} dest default is "." -> node launched directory. (cwd?)
  */
 export function convertRelativeDir(vinyl: any, dest?: string): string;
-/**
- * ### command:
- *
- *   + windows - chcp 65001 && clip
- *   + others  - xclip
- *
- * @param {string} content the copy terget content as string.
- * @param {string} [message] default: "text copied!"
- * @param {boolean} [chcp65001] default `true`
- */
-export function copyText(content: string, message?: string, chcp65001?: boolean): void;
+
 /**
  * @param {RegExp} regex
  * @param {string | Function} replacement
