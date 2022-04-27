@@ -66,8 +66,8 @@ declare global {
          * #### Walk through the `(Java|Type)Script` source content.
          * 
          * @param source c style commented text source.
-         * @param options see TWalkThroughOpt.
-         * @see EScannerEvent
+         * @param options see {@link TWalkThroughOpt}
+         * @see {@link EScannerEvent}
          * @since 3.2
          */
         walk(source: string, options?: TWalkThroughOpt): void;
@@ -75,7 +75,6 @@ declare global {
     interface IRemoveCStyleCommentsProperties {
         /** package version */
         readonly version: string;
-
         /**
          * The number of times the process has been canceled due to an error etc.
          */
@@ -129,6 +128,9 @@ declare global {
         uniqReLiterals: string[];
     };
 
+    /**
+     * 
+     */
     const enum EScannerEvent {
         SingleLineComment,
         MultiLineComment

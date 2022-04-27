@@ -6,22 +6,17 @@
   
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    // TIP: on ts v3.8
-    // When this option is enabled, TypeScript will avoid rechecking/rebuilding all truly possibly-affected files,
-    // and only recheck/rebuild files that have changed as well as files that directly import them.
-    //
-    // "assumeChangesOnlyAffectDirectDependencies": true,
 
     "strict": true,
     "removeComments": false,
 
-    // ⚠️ Without this setting, typescript will issue an error (related @types/babel*
     "moduleResolution": "node",
 
     "target": "es2019",
     "module": "commonjs",
 
-    "sourceMap": false,
+    // Avoid explicitly setting the `sourceMap` option, for code coverage to indicate the exact line.
+    // "sourceMap": false,
     "diagnostics": true,
 
     "baseUrl": "./src",
@@ -30,7 +25,6 @@
   "exclude": [
     "**/node_modules",
     "**/.*/"
-    // - - -
   ],
   "include": [
     "./src"

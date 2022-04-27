@@ -149,7 +149,7 @@ var re = 10000 / 111.77*gg /gg;;;;
             });
 
             it(`[${path}] #2 nested es6 template string`, () => {
-                validate("const templete = `function ${name}($) {\n\
+                validate("const templete = `function ${name + (1 / 2)}($) {\n\
     // comment line (in template string)\n\
     var some = ${\n\
         // comment line...\n\
@@ -165,7 +165,7 @@ var re = 10000 / 111.77*gg /gg;;;;
      */\n\
     return true;\n\
 }\n\
-;`", "const templete = `function ${name}($) {\n\
+;`", "const templete = `function ${name + (1 / 2)}($) {\n\
     // comment line (in template string)\n\
     var some = ${\n\
         \n\
@@ -408,9 +408,9 @@ uniqReLiterals: [
 `
             );
             rmc.reset();
-            rmc.setListener(void 0);
+            rmc.setListener();
             rmc("// DEVNOTE:");
-            rmc.setListener(void 0);
+            rmc.setListener();
             rmc.walk("// DEVNOTE:");
         });
     });

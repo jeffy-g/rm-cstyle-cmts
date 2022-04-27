@@ -9,8 +9,8 @@
 /// <reference path="../index.d.ts"/>
 
 import * as through2 from "through2";
-type stream = typeof import("stream");
-type Vinyl = typeof import("vinyl")["prototype"];
+type StreamTransform = typeof import("stream")["Transform"]["prototype"];
+type File = typeof import("vinyl")["prototype"];
 
 
 declare global {
@@ -21,7 +21,7 @@ declare global {
         /**
          * 
          */
-         type FixTransformFunction = (this: stream["Transform"]["prototype"], chunk: Vinyl, enc: BufferEncoding, callback: through2.TransformCallback) => void;
+         type FixTransformFunction = (this: StreamTransform, chunk: File, enc: BufferEncoding, callback: through2.TransformCallback) => void;
         /**
          * gulp-rm-cmts option type
          */
@@ -62,7 +62,7 @@ declare global {
              * 
              * ```js
              * const defaultExtensions = [
-             *     ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs"
+             *     ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs", ".cts", ".mts"
              * ];
              * ```
              * see {@link TOptions.extraExtensions extraExtensions}
