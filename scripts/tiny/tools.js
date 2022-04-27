@@ -277,7 +277,7 @@ const ToolFunctions = {
     rmc: {
         fn: () => {
 
-            const rmc = require("rm-cstyle-cmts");
+            const rmc = require("./rm-cmts-lkg");
             // DEVNOTE: 2020/5/2 - rm-cstyle-cmts dev (with scan event listener)
             if (rmc.setListener && params.rmc4ts) {
                 rmc.setListener(({ event, fragment }) => {
