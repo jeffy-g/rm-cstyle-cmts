@@ -19,7 +19,6 @@
 <!-- ![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/npm/rm-cstyle-cmts.svg) -->
 
 
-
 # remove cstyle comments (rm-cstyle-cmts)
 
  remove c style comments from text file. (javascript source, json file etc
@@ -28,9 +27,9 @@
   It does not remove lines that are meaningful to `typescript`, such as `@ts-ignore` and `<reference types="node"/>`,  
   but removes other **single line comments** and **multi line comments**.
   
-  * For other **single line comment** and **multi line comment**, it is possible to control which comment is remove by setting [**scan listener**](#setListener).
+  * For other **single line comment** and **multi line comment**, it is possible to control which comment is remove by setting [**scan listener**](#-the-walkthrough-mode).
 
-  * This module is [much faster than the popular comment removal module](#performance).
+  * This module is [much faster than the popular comment removal module](#-performance-measurement-with-benchmarkjs).
 
 ## install
 
