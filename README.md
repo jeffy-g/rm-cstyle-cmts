@@ -1,3 +1,5 @@
+[![Node.js CI](https://github.com/jeffy-g/rm-cstyle-cmts/actions/workflows/nodejs.yml/badge.svg)](https://github.com/jeffy-g/rm-cstyle-cmts/actions/workflows/nodejs.yml)
+[![CircleCI](https://circleci.com/gh/jeffy-g/rm-cstyle-cmts/tree/master.svg?style=svg)](https://circleci.com/gh/jeffy-g/rm-cstyle-cmts/tree/master)
 [![wercker status](https://app.wercker.com/status/871330ccbec8a35d57b965d5e1d8a1d9/s/master)](https://app.wercker.com/project/byKey/871330ccbec8a35d57b965d5e1d8a1d9 "wercker status")
 [![codecov](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts)
 [![npm version](https://badge.fury.io/js/rm-cstyle-cmts.svg)](https://badge.fury.io/js/rm-cstyle-cmts)
