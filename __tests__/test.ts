@@ -408,6 +408,10 @@ uniqReLiterals: [
 `
             );
             rmc.reset();
+            rmc.setListener(void 0);
+            rmc("// DEVNOTE:");
+            rmc.setListener(void 0);
+            rmc.walk("// DEVNOTE:");
         });
     });
 
