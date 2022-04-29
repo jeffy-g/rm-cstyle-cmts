@@ -103,9 +103,9 @@ const removed = rmc("<source file content>", opt);
 
 - **source** `{string}` -- The target source content.
 - **opt** `{object}`
-  - [**opt.collectRegex**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L29) `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
-  - [**opt.showErrorMessage**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L37) `{true | undefined}` -- Whether to display an error message. Default: `undefined`.
-  - [**opt.preserveBlanks**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L47) `{true | undefined}` -- Whether preserve whitespace and blank lines. Default: `undefined`.
+  - [**opt.collectRegex**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L19) `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
+  - [**opt.showErrorMessage**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L27) `{true | undefined}` -- Whether to display an error message. Default: `undefined`.
+  - [**opt.preserveBlanks**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L37) `{true | undefined}` -- Whether preserve whitespace and blank lines. Default: `undefined`.
 
 ### run as walkthrough mode
 
@@ -116,8 +116,8 @@ rmc.walk("<source file content>", opt);
 
 - **source** `{string}` -- The target source content.
 - **opt** `{object}`
-  - [**opt.collectRegex**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L29) `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
-  - [**opt.showErrorMessage**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L37) `{true | undefined}` -- Whether to display an error message. Default: `undefined`.
+  - [**opt.collectRegex**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L19) `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
+  - [**opt.showErrorMessage**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L27) `{true | undefined}` -- Whether to display an error message. Default: `undefined`.
 
 ## Playground
 
@@ -281,15 +281,14 @@ gulp.src(["./src/**/*.{js,jsx,ts,tsx}"]).pipe(
 
 #### gulp plugin options
 
-- **opt** `{object}`
-  - **opt.preserveBlanks** `{true | undefined}` -- Whether preserve whitespace and blank lines. Default: `undefined`.
-  - **opt.renderProgress** `{true | undefined}` -- log scan source path(relative) currently being processed. Default: `undefined`.
-  - **opt.collectRegex** `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
-  - **opt.isWalk** `{true | undefined}` -- Whether to run in walkthrough mode. Default: `undefined`.
-  - **opt.extraExtensions** `{string[] | undefined}` -- Add additional extensions. Default: `undefined`.
-  - **opt.disableDefaultExtentions** `{true | undefined}` -- use `extraExtensions` only, instaed of `defaultExtensions`. Default: `undefined`.
-    + `defaultExtensions` - ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs"
-  - **opt.timeMeasure** `{true | undefined}` -- Whether to record the processing time for each file (replace mode only). Default: `undefined`.
+- [**preserveBlanks**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/9f110983eac55d29ff34e86ca366de450810cde1/src/gulp/index.d.ts#L32) `{true | undefined}` -- Whether preserve whitespace and blank lines. Default: `undefined`.
+- [**renderProgress**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/9f110983eac55d29ff34e86ca366de450810cde1/src/gulp/index.d.ts#L40) `{true | undefined}` -- log scan source path(relative) currently being processed. Default: `undefined`.
+- [**collectRegex**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/9f110983eac55d29ff34e86ca366de450810cde1/src/gulp/index.d.ts#L44) `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
+- [**isWalk**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/9f110983eac55d29ff34e86ca366de450810cde1/src/gulp/index.d.ts#L50) `{true | undefined}` -- Whether to run in walkthrough mode. Default: `undefined`.
+- [**extraExtensions**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/9f110983eac55d29ff34e86ca366de450810cde1/src/gulp/index.d.ts#L56) `{string[] | undefined}` -- Add additional extensions. Default: `undefined`.
+- [**disableDefaultExtentions**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/9f110983eac55d29ff34e86ca366de450810cde1/src/gulp/index.d.ts#L72) `{true | undefined}` -- use `extraExtensions` only, instaed of `defaultExtensions`. Default: `undefined`.
+  + `defaultExtensions` - ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs", ".cts", ".mts"
+- [**timeMeasure**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/9f110983eac55d29ff34e86ca366de450810cde1/src/gulp/index.d.ts#L78) `{true | undefined}` -- Whether to record the processing time for each file (replace mode only). Default: `undefined`.
 
 #### example with `scan listener`
 
