@@ -33,7 +33,8 @@ patch_with_tag() {
 
 fix_import_path() {
   local target="./build/cjs/bench/index.js"
-  cat $target | sed -E 's/([./]+)(scripts\/tiny\/utils)/\.\.\/\.\.\/\.\.\/\2/'>$target
+  cat $target | sed -E 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/'>$target.tmp
+  mv $target.tmp $target
 }
 
 copyfiles() {
