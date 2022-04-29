@@ -397,7 +397,7 @@ const Component = <div></div>;
 
         afterAll(() => {
             const context = rmc.getDetectedReContext();
-            console.log(
+            !process.env.CI && console.log(
 `- - - - - miscellaneous::statistics - - - - -
 noops      : ${rmc.noops}
 processed  : ${rmc.processed}
