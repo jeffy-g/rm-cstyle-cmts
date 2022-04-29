@@ -20,13 +20,31 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v3
+    - name: checkout
+      uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-    - run: |
-        yarn install
+
+    - name: Cache node modules
+      id: cache-node
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/cache
+          !~/cache/exclude
+          **/node_modules
+        key: node-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          node-
+
+    - name: check cache
+      if: steps.cache-node.outputs.cache-hit != 'true'
+      run: yarn install
+
+    - name: lint, build, bench, test
+      run: |
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
         echo '            lint -> build -> bench -> test'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
@@ -40,4 +58,3 @@ jobs:
         echo '                    run benchmark'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
         yarn benchmark
-

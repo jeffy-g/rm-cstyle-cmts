@@ -22,6 +22,9 @@ const fs = require("fs");
 const lib = require("./common");
 
 const CI = !!process.env.CI;
+const log = (() => {
+    return CI? () => ({}): console.log;
+})();
 /**
  * @typedef {string | string[] | boolean | RegExp} TExtraArgsValue
  */
@@ -166,27 +169,27 @@ function writeTextUTF8(content, dest, callback) {
     // need dest parent dir check.
     lib.checkParentDirectory(dest);
 
-    const ws = fs.createWriteStream(dest);
-    ws.on("error", function(err) {
+    const ws = fs.createWriteStream(dest)
+    .on("error", function(err) {
         console.log("WriteStream.error evnet!", arguments);
     })
     .on("close", function(/*no args*/) {
-        !CI && console.log("[close] %s, stream closed", dest);
+        log("[close] %s, stream closed", dest);
         callback && callback();
     });
 
     if (content instanceof Buffer) {
-        content = content.toString();
+        content = content.toString("utf8");
     }
 
     if (typeof content === "string") {
         // chunk <string> | <Buffer> | <Uint8Array> | <any>
         const success = ws.write(content);
 
-        !CI && console.log("writeTextUTF8: write: %s,", dest, success);
+        log("writeTextUTF8: write: %s,", dest, success);
         if (!success) {
             ws.once("drain", function () {
-                !CI && console.log("[drain] file written: %s,", dest, ws.bytesWritten);
+                log("[drain] file written: %s,", dest, ws.bytesWritten);
                 ws.end(); // -> call close()
             });
         }
