@@ -57,16 +57,11 @@ function eachModule(path: string) {
         return false;
     };
 
-    beforeAll(() => {
-        return new Promise<void>(resolve => {
-            import(path).then((mod: typeof import("../src/")) => {
-                // @ts -ignore 
-                rmc = mod;
-                rmc.setListener(listener);
-                resolve();
-            })
-        });
-    })
+    beforeAll(async () => {
+        const mod = await import(path);
+        rmc = mod;
+        rmc.setListener(listener);
+    });
 
     describe("Only throws invalid input content", () => {
         it(`[${path}] case invalid content`, () => {
@@ -397,16 +392,19 @@ const Component = <div></div>;
 
         afterAll(() => {
             const context = rmc.getDetectedReContext();
-            !process.env.CI && console.log(
+            const noops = rmc.noops;
+            const processed = rmc.processed;
+            if (!process.env.CI) {
+                console.log(
 `- - - - - miscellaneous::statistics - - - - -
-noops      : ${rmc.noops}
-processed  : ${rmc.processed}
+noops      : ${noops}
+processed  : ${processed}
 detected regex count: ${context.detectedReLiterals.length}
 uniqReLiterals: [
   ${context.uniqReLiterals.join(",\n  ")}
 ]
-`
-            );
+`);
+            }
             rmc.reset();
             rmc.setListener();
             rmc("// DEVNOTE:");
