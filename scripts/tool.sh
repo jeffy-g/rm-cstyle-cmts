@@ -22,6 +22,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 #
+cpxopt=$([ -z $CI ] && echo "-v" || echo "")
 patch_with_tag() {
   local ret=$(yarn v $1);
   local after=$(echo $ret | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/');
@@ -38,25 +39,30 @@ fix_import_path() {
 }
 
 copyfiles() {
-  concurrently -n copy:lic,copy:js,copy:js:gulp -c green,blue "cpx -v \"./{README.md,LICENSE}\" dist"\
-    "cpx -v -t ./scripts/fix-refpath \"./build/**/!(bench|gulp)/*.js\" dist"\
-    "cpx -v \"./build/**/gulp/*.js\" dist"
+  concurrently -n "copy:lic,copy:js,copy:js:gulp" -c "green,blue" "cpx $cpxopt \"./{README.md,LICENSE}\" dist"\
+    "cpx $cpxopt -t ./scripts/fix-refpath \"./build/**/!(bench|gulp)/*.js\" dist"\
+    "cpx $cpxopt \"./build/**/gulp/*.js\" dist"
 }
 
 copytypes() {
-  local cpx_pre='cpx -v src/index.d.ts'
-  local cpx_pre_gulp='cpx -v -t ./scripts/fix-refpath "src/gulp/{index.d.ts,package.json}"'
+  local cpx_pre="cpx $cpxopt src/index.d.ts"
+  local cpx_pre_gulp="cpx $cpxopt -t ./scripts/fix-refpath \"src/gulp/{index.d.ts,package.json}\""
   local -a commands=(
     "$cpx_pre ./dist"
     "$cpx_pre ./dist/umd"
     "$cpx_pre ./dist/webpack"
     "$cpx_pre_gulp ./dist/cjs/gulp"
   )
-    concurrently -n dts:dist,dts:dist:umd,dts:dist:webpack,dts:gulp -c red,green,yellow,blue "${commands[@]@Q}" # need quote
+  concurrently -n dts:dist,dts:dist:umd,dts:dist:webpack,dts:gulp -c red,green,yellow,blue "${commands[@]@Q}" # need quote
 }
 
+webpack() {
+  rimraf "./dist/webpack/*" "./dist/umd/*"
+  [ -z $CI ] && npx webpack || npx webpack>/dev/null
+  echo
+}
 webpackAfter() {
-  concurrently -n copy:dts,jstool:rws -c green,yellow  "cpx -v \"./dist/*.d.ts\" \"./dist/webpack/\"" "yarn jstool -cmd rws"
+  concurrently -n copy:dts,jstool:rws -c green,yellow  "cpx $cpxopt \"./dist/*.d.ts\" \"./dist/webpack/\"" "yarn jstool -cmd rws"
 }
 
 if [ ! -z $1 ]; then

@@ -60,7 +60,7 @@ const utils = require("./utils");
  * @type {TToolArgs & ReturnType<typeof utils.getExtraArgs>}
  */
 const params = utils.getExtraArgs();
-console.log(params);
+!utils.CI && console.log(params);
 
 
 
@@ -182,7 +182,7 @@ const ToolFunctions = {
     
             if (Object.keys(entry).length) {
                 sizeRecord[versionStr] = entry;
-                console.log(sizeRecord);
+                !utils.CI && console.log(sizeRecord);
                 utils.writeTextUTF8(
                     JSON.stringify(sizeRecord, null, 2), recordPath, () => {
                         console.log("[%s] is updated", recordPath);

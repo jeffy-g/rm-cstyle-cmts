@@ -75,6 +75,7 @@
     const tagStatistics = new Map();
     let inlineSourceMap = 0;
 
+    const silent = !!process.env.CI;
     /**
      * @param {boolean} iswalk
      * @returns {IScanEventCallback}
@@ -102,7 +103,7 @@
             }
             else if (event === /*ScannerEvent.SingleLineComment*/0) {
                 if (/^\/\/# sourceMappingURL=data:application/.test(fragment)) {
-                    console.log(`\ninline source map detected=[${fragment.substring(0, 48)}...]`);
+                    !silent && console.log(`\ninline source map detected=[${fragment.substring(0, 48)}...]`);
                     inlineSourceMap++;
                 }
             }

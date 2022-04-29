@@ -17,7 +17,6 @@
 
     // Avoid explicitly setting the `sourceMap` option, for code coverage to indicate the exact line.
     // "sourceMap": false,
-    "diagnostics": true,
 
     "baseUrl": "./src",
     "outDir": "./build/cjs"

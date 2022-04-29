@@ -21,7 +21,7 @@
 const fs = require("fs");
 const lib = require("./common");
 
-
+const CI = !!process.env.CI;
 /**
  * @typedef {string | string[] | boolean | RegExp} TExtraArgsValue
  */
@@ -171,7 +171,7 @@ function writeTextUTF8(content, dest, callback) {
         console.log("WriteStream.error evnet!", arguments);
     })
     .on("close", function(/*no args*/) {
-        console.log("[close] %s, stream closed", dest);
+        !CI && console.log("[close] %s, stream closed", dest);
         callback && callback();
     });
 
@@ -183,10 +183,10 @@ function writeTextUTF8(content, dest, callback) {
         // chunk <string> | <Buffer> | <Uint8Array> | <any>
         const success = ws.write(content);
 
-        console.log("writeTextUTF8: write: %s,", dest, success);
+        !CI && console.log("writeTextUTF8: write: %s,", dest, success);
         if (!success) {
             ws.once("drain", function () {
-                console.log("[drain] file written: %s,", dest, ws.bytesWritten);
+                !CI && console.log("[drain] file written: %s,", dest, ws.bytesWritten);
                 ws.end(); // -> call close()
             });
         }
@@ -379,5 +379,6 @@ module.exports = {
     execWithOutputResult,
     convertRelativeDir,
 
-    fireReplace
+    fireReplace,
+    CI
 };

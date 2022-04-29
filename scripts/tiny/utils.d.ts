@@ -172,4 +172,5 @@ declare namespace ArgsConfig {
     const startIndex: number;
     const prefix: string;
 }
-export {};
+
+export const CI: boolean;

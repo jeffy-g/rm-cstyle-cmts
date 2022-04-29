@@ -66,7 +66,7 @@
     "ts:check": "tsc --noemit",
     "up": "yarn upgrade-interactive --latest",
     "v": "yarn jstool -cmd version -extras \"./src/index.ts,\"",
-    "webpack": "rimraf ./dist/webpack/* ./dist/umd/* && npx webpack && npm run fire:tool -- webpackAfter"
+    "webpack": "npm run fire:tool -- webpack && npm run fire:tool -- webpackAfter"
   },
   "devDependencies": {
     "@jeffy-g/cpx": "^1.6.2",
