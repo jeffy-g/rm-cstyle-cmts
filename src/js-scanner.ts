@@ -17,7 +17,7 @@ const {
 
 
 type TScannerContext = {
-    /** content offset (read, write */
+    /** The source offset currently being scanned is recorded. (read, write */
     offset: number;
     /** new line character at source. (read */
     readonly newline: util.TDetectedNewLines;
@@ -29,7 +29,7 @@ type TScannerContext = {
     eventDone?: true;
 
     /**
-     * collect Regex? (read, write
+     * Whether to record the detected regex. (read, write
      * 
      * @date 2020/5/8
      */
@@ -113,10 +113,10 @@ type TCharScannerFunction =
 
 /**
  * @typedef {object} TScannerContext
- * @prop {number} offset  content offset (read, write
- * @prop {util.TDetectedNewLines} newline  new line character at source. (read
- * @prop {boolean} [collectRegex] collect Regex? (read, write
- * @prop {string} [result]  replecement result (read, write
+ * @prop {number} offset The source offset currently being scanned is recorded.(read, write
+ * @prop {util.TDetectedNewLines} newline new line character at source. (read
+ * @prop {boolean} [collectRegex] Whether to record the detected regex. (read, write
+ * @prop {string} result replecement result (read, write
  * @prop {boolean} [isWalk] always true if running at walk through mode
  * @prop {boolean} [proceed] whether to continue walk through
  * @prop {true} [eventDone] suppress secondary scan event
@@ -441,15 +441,14 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
  * 
  * @type {Array<TCharScannerFunction | undefined>}
  */
-const scanners: Array<TCharScannerFunction | undefined> = [];
+const scanners: Array<TBD<TCharScannerFunction>> = [];
 scanners[EMetaChars.BACK_QUOTE]   = backQuote;  // 96
 scanners[EMetaChars.DOUBLE_QUOTE] = quote;      // 34
 scanners[EMetaChars.SINGLE_QUOTE] = quote;      // 39
 scanners[EMetaChars.SLASH]        = slash;      // 47
 
-// TODO: preserve per instance?
 /** @type {IScanEventCallback | undefined} */
-let scanListener: IScanEventCallback | undefined;
+let scanListener: TBD<IScanEventCallback>;
 
 /**
  * ### replace mode
@@ -478,7 +477,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
     const size  = src.length;
     const ctx   = createWhite(src, opt.collectRegex);
     const scans = scanners;
-    let offset      = 0;
+    let offset     = 0;
     let prevOffset = 0;
 
     // check listener
@@ -543,7 +542,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
             if (prevOffset !== ctx.offset) {
                 ctx.result += src.substring(prevOffset, ctx.offset);
             }
-            prevOffset = scans[head === "/" ? 47 : 96]!(src, ctx)? ctx.offset: ctx.offset++;
+            prevOffset = (head === "/" ? slash : backQuote)(src, ctx)? ctx.offset: ctx.offset++;
             reWsqs.lastIndex = ctx.offset;
             continue;
         }
