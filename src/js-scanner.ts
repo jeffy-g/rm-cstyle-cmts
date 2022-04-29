@@ -542,7 +542,9 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
             if (prevOffset !== ctx.offset) {
                 ctx.result += src.substring(prevOffset, ctx.offset);
             }
-            prevOffset = (head === "/" ? slash : backQuote)(src, ctx)? ctx.offset: ctx.offset++;
+            prevOffset = scans[
+                head === "/" ? EMetaChars.SLASH : EMetaChars.BACK_QUOTE
+            ]!(src, ctx)? ctx.offset: ctx.offset++;
             reWsqs.lastIndex = ctx.offset;
             continue;
         }
