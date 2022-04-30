@@ -15,32 +15,34 @@
 //                            constants, types
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
+ * @typedef {object} TGrmcTaskArgs
+ * @prop {string | string[]} [paths]
+ * @prop {true} [progress]
+ * @prop {boolean} [showNoops]
+ * @prop {boolean} [collectRegex]
+ * @prop {boolean} [isWalk] &#64;since 3.1
+ * @prop {boolean} [timeMeasure]
+ * @prop {boolean} [cleanup] cleanup previous output then exit
+ * @prop {boolean} [useExtern] scan external directory?
+ */
+
+/**
  * #### Fire `gulp-rm-cmts` test task
  * 
  * @param {typeof import("gulp")} gulp gulp package
  * @param {typeof import("rimraf")} rimraf rimraf package
  * @param {typeof import("./tiny/utils")} utils tiny/utils module
  * @param {typeof import("../src/gulp")} grmc gulp-rm-cmts package
+ * @param {TGrmcTaskArgs & GulpRmc.TOptions} settings
  * @param {"cjs" | "esm"} mode 
  */
  function task(
-    gulp, rimraf, utils, grmc, mode = "cjs"
+    gulp, rimraf, utils, grmc,
+    settings,
+    mode = "cjs"
 ) {
-
-    /**
-     * @typedef {object} ThisTaskArgs
-     * @prop {string | string[]} [paths]
-     * @prop {true} [progress]
-     * @prop {boolean} [showNoops]
-     * @prop {boolean} [collectRegex]
-     * @prop {boolean} [isWalk] &#64;since 3.1
-     * @prop {boolean} [timeMeasure]
-     * @prop {boolean} [cleanup] cleanup previous output then exit
-     * @prop {boolean} [useExtern] scan external directory?
-     */
     // if need optional parametar.
-    /** @type {ThisTaskArgs & GulpRmc.TOptions} */
-    const settings = utils.getExtraArgs();
+    // const settings = utils.getExtraArgs();
     const BASE_PREFIX = settings.useExtern ? "[If you want to scan external node_modules directory etc., set path here]" : ".";
     /**
      * **Scan all node module pakcages and strip comments and blank line from types of javascript source**.

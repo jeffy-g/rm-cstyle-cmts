@@ -20,4 +20,6 @@ const task = require("./grmc-test-task").task;
 //                            constants, types
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // [batch-rmc-test:cjs]: 17.629s
-task(gulp, rimraf, utils, grmc);
+/** @type {import("./grmc-test-task").TGrmcTaskArgs & GulpRmc.TOptions} */
+const taskArgs = utils.getExtraArgs();
+task(gulp, rimraf, utils, grmc, taskArgs);
