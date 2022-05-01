@@ -53,11 +53,13 @@ jobs:
             echo '                     run tests'
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
             npm run test
-    
+
       - codecov/upload:
           file: "./coverage/coverage-final.json"
+    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
+    resource_class: large
 
 workflows:
-    build-and-test:
-      jobs:
-        - build-and-test
+  build-and-test:
+    jobs:
+      - build-and-test
