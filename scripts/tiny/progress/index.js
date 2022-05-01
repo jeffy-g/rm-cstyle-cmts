@@ -30,57 +30,58 @@ function createWebpackProgressPluginHandler(logFilePath, disableRenderLine = fal
 
     let dotted = 0;
     const renderDot = () => {
+        /*
+        let dot = ".";
+        (++dotted % 50 === 0) && (dot += "\n");
+        process.stderr.write(dot);
+        /*/
         process.stderr.write(".");
-        // FIXME: first renderDot line length is not 100
-        dotted++;
-        if (dotted % 100 === 0) {
-            process.stderr.write("\n");
-        }
+        //*/
     };
     /** @type {((msg?: string) => void) | undefined} */
     const renderer = process.env.CI? renderDot: lib.renderLine;
 
     // (percentage: number, msg: string, moduleProgress?: string, activeModules?: string, moduleName?: string) => void
     /** @type {TWebpackProgressHandler} */
-    let wpp_handler; {
+    let wppHandler; {
         const shorttenProgress = (/** @type {number} */pct) => {
             renderer(formatPercentage(pct));
             pct === 1 && (console.log(), dotted = 0);
         };
         if (logFilePath !== void 0) {
-            const wpp_logger = lib.createLogStreamAndResolvePath(logFilePath);
+            const wppLogger = lib.createLogStreamAndResolvePath(logFilePath);
             /** @type {((p: number) => void) | undefined} */
             let writeCallback;
 
             if (!disableRenderLine) {
                 writeCallback = shorttenProgress;
             }
-            wpp_handler = (percentage, message, ...args) => {
-                wpp_logger.write(`${formatPercentage(percentage)}, ${message}: ${args}\n`, () => {
+            wppHandler = (percentage, message, ...args) => {
+                wppLogger.write(`${formatPercentage(percentage)}, ${message}: ${args}\n`, () => {
                     writeCallback && writeCallback(percentage);
                 });
-                percentage === 1 && wpp_logger.end();
+                percentage === 1 && wppLogger.end();
             };
         } else {
             if (disableRenderLine) {
                 // DEVNOTE: 2022/02/16 ignore CI process
-                wpp_handler = () => {};
+                wppHandler = () => {};
             } else {
                 const processType = checkENV();
                 if (processType === "ci") {
-                    wpp_handler = renderDot;
+                    wppHandler = renderDot;
                 } else {
                     if (processType === "gitpod") {
-                        wpp_handler = shorttenProgress;
+                        wppHandler = shorttenProgress;
                     } else {
-                        wpp_handler = isWebpackV5later()? wppHandlerV5: wppHandlerV4;
+                        wppHandler = isWebpackV5later()? wppHandlerV5: wppHandlerV4;
                     }
                 }
             }
         }
     }
 
-    return wpp_handler;
+    return wppHandler;
 }
 
 module.exports = {

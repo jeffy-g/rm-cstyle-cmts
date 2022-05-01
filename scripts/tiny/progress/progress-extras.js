@@ -54,7 +54,8 @@ const wppHandlerV5 = ((renderer, cwd) => {
                 args[1] = str.substring(x + cwd.length);
             }
         }
-        str = args.shift();
+        str = args[0];
+        args = args.slice(1);
         renderer(
             `pct: ${(percentage * 100).toFixed(4)}%, process: [${message}]${str ? `, info: [${str}]` : ""}${args.length ? " - " : ""}${args.join(", ")}`
         );
