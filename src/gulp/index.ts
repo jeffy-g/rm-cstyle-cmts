@@ -12,18 +12,15 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import * as rmc from "../";
 // import * as rmc from "rm-cstyle-cmts";
-
 import * as through2 from "through2";
 import * as readline from "readline";
 import { performance } from "perf_hooks";
 
-// gulp plugin name.
-const PLUGIN_NAME = "gulp-rm-cmts";
-
-
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// gulp plugin name.
+const PLUGIN_NAME = "gulp-rm-cmts";
 const perf = performance;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -44,7 +41,6 @@ const stdProgress = (() => {
         readline.clearLine(output, 1);
     };
 })();
-
 /**
  * @type {string[]}
  */

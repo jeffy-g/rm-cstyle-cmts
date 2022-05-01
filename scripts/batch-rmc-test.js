@@ -12,7 +12,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const grmc = require("../dist/cjs/gulp/");
 const getArgs = require("./tiny/get-extra-args");
-const task = require("./grmc-test-task").task;
+const { task } = require("./grmc-test-task");
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types

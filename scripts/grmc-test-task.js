@@ -10,7 +10,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const fs = require("fs");
+const utils = require("./tiny/utils");
 const gulp = require("gulp");
 const rimraf = require("rimraf");
 
@@ -226,27 +226,26 @@ module.exports = {
                 let pending = 
                     +(!!context.uniqReLiterals.length) + +(!!tagPriorityEntries.length) + +(!!timeSpans.length);
                 /**
-                 * @type {Parameters<typeof fs.writeFile>[2]}
+                 * @type {Parameters<typeof utils.writeTextUTF8>[2]}
                  */
-                const writeCallback = (err) => {
-                    if (err) {
-                        console.log(err);
-                    }
+                const writeCallback = () => {
                     --pending === 0 && resolve();
                 };
-                context.uniqReLiterals.length && fs.writeFile(
+                context.uniqReLiterals.length && utils.writeTextUTF8(
+                    generateSource(context.uniqReLiterals, "reLiterals"),
                     "./tmp/grmc-detected-reLiterals.js",
-                    generateSource(context.uniqReLiterals, "reLiterals"), "utf8", writeCallback
+                    writeCallback
                 );
-                tagPriorityEntries.length && fs.writeFile(
+                tagPriorityEntries.length && utils.writeTextUTF8(
+                    formatStatictics(tagPriorityEntries),
                     "./tmp/grmc-detected-jsdocTags.js",
-                    formatStatictics(tagPriorityEntries), "utf8", writeCallback
+                    writeCallback
                 );
-                timeSpans.length && fs.writeFile(
+                timeSpans.length && utils.writeTextUTF8(
+                    JSON.stringify(timeSpans, null, 2),
                     "./tmp/grmc-time-spans.json",
-                    JSON.stringify(timeSpans, null, 2), "utf8", writeCallback
+                    writeCallback
                 );
-                // resolve();
             });
         });
     };
