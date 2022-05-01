@@ -145,7 +145,7 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
 
     const end = line.length;
     /** @type {string | undefined} */
-    let reBody: string | undefined;
+    let reBody: TBD<string>;
     let i = 1;
     // always starts offset is "one" because line[0] is supposed to be "/"
     for (; i < end;) {
