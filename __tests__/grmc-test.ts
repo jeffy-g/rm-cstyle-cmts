@@ -22,19 +22,6 @@ import {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 describe("rm-sctyle-cmts gulp plugin test", () => {
 
-    /** @type {string | undefined} */
-    let envCI: string | undefined;
-    let onRealCI = false;
-    beforeAll(() => {
-        envCI = process.env.CI;
-        onRealCI = typeof envCI === "string";
-        console.log("process.env.CI:", envCI);
-    });
-    afterAll(() => {
-        if (onRealCI) {
-            process.env.CI = envCI;
-        }
-    });
     /**
      * @param {TGrmcTaskArgs} args 
      */
@@ -49,7 +36,6 @@ describe("rm-sctyle-cmts gulp plugin test", () => {
     };
 
     it("Scan the js related files of `node_modules (walkthrough mode)`", async () => {
-        onRealCI && (process.env.CI = "");
         await tryTask({
             progress: true,
             // showNoops: true,
@@ -62,7 +48,6 @@ describe("rm-sctyle-cmts gulp plugin test", () => {
     it("Scan the js related files of `node_modules (remove mode)`", async () => {
         grmc.getRmcInterface().reset();
         grmc.noopPaths.length = 0;
-        onRealCI && (process.env.CI = "1");
         await tryTask({
             progress: true,
             showNoops: true,
@@ -70,4 +55,5 @@ describe("rm-sctyle-cmts gulp plugin test", () => {
             // collectRegex: true,
         });
     }, 80 * 1000);
+
 });

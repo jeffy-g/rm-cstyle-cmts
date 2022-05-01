@@ -32,21 +32,18 @@ const perf = performance;
 /**
  * @param {string} path 
  */
-const stdProgress = (path: string) => {
+/* istanbul ignore next */
+const stdProgress = (() => {
     const output = process.stderr;
-    // TIP: readline.clearLine(stream, dir[, callback])
-    // dir <number>
-    // -1 - to the left from cursor
-    //  1 - to the right from cursor
-    //  0 - the entire line
-    //
-    // move cursor to line head
-    readline.cursorTo(output, 0);
-    // write the message.
-    output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
-    // clear line to the right from cursor
-    readline.clearLine(output, 1);
-};
+    return (path: string) => {
+        // move cursor to line head
+        readline.cursorTo(output, 0);
+        // write the message.
+        output.write(`[processed: ${rmc.processed}, noops: ${rmc.noops}]: ${path}`);
+        // clear line to the right from cursor
+        readline.clearLine(output, 1);
+    };
+})();
 
 /**
  * @type {string[]}
@@ -67,7 +64,11 @@ const timeSpans: GulpRmc.TTimeSpanEntry = [];
  */
 const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof through2.obj> => {
 
-    options = options || {};
+    /* istanbul ignore if */
+    if (options === void 0) {
+        options = {} as GulpRmc.TOptions;
+    }
+
     /** @type {TRemoveCStyleCommentsOpt} */
     const opt: TRemoveCStyleCommentsOpt = {
         preserveBlanks: options.preserveBlanks,
@@ -93,6 +94,7 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
     /**
      * @param path 
      */
+    /* istanbul ignore next */
     const progress = process.env.CI? (() => {
         let count = 0;
         const output = process.stderr;
@@ -111,7 +113,6 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
     /**
      * @type {GulpRmc.FixTransformFunction}
      */
-    // @ts-ignore unused parameter "encoding"
     const transform: GulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
 
         // plugin main
@@ -121,6 +122,7 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
                 renderProgress && process.nextTick(progress, vinyl.relative);
                 // renderProgress && progress(vinyl.relative);
                 let contents: string;
+                /* istanbul ignore else */
                 if (timeMeasure) {
                     const a = perf.now();
                     contents = rmc(vinyl.contents!.toString(encoding), opt);
@@ -129,7 +131,6 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
                         `${span}:${vinyl.relative}`
                     );
                 } else {
-                    /* istanbul ignore next */
                     contents = rmc(vinyl.contents!.toString(encoding), opt);
                 }
                 // node ^v5.10.0
@@ -160,7 +161,6 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
     /**
      * @type {GulpRmc.FixTransformFunction}
      */
-    // @ts-ignore unused parameter "encoding"
     const transformWithWalk: GulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
 
         // plugin main
