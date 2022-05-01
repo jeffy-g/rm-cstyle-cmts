@@ -49,20 +49,6 @@ const stdProgress = (path: string) => {
 };
 
 /**
- * @param path 
- */
-const progress = process.env.CI? (() => {
-    let count = 0;
-    const output = process.stderr;
-    return (/* path: string */) => {
-        count++;
-        (count % 100) === 0 && output.write(".");
-        // write the message.
-        (count % 10000) === 0 && output.write("\n");
-    };
-})(): stdProgress;
-
-/**
  * @type {string[]}
  */
 const noopPaths: string[] = [];
@@ -91,6 +77,7 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
     const renderProgress = options.renderProgress;
     // DEVNOTE: 2022/04/07
     const extensions = (() => {
+        /* istanbul ignore if */
         if (options.disableDefaultExtentions) {
             return options.extraExtensions || [".js"];
         } else {
@@ -103,6 +90,18 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
      * @see {@link GulpRmc.TOptions.timeMeasure timeMeasure}
      */
     const timeMeasure = options.timeMeasure;
+    /**
+     * @param path 
+     */
+    const progress = process.env.CI? (() => {
+        let count = 0;
+        const output = process.stderr;
+        return (/* path: string */) => {
+            (++count % 100) === 0 && output.write("\u2708 ");
+            (count % 5000) === 0 && output.write("\n");
+        };
+    })(): stdProgress;
+
     let prevNoops = rmc.noops;
 
     renderProgress && console.log("rm-cstyle-cmts:", {
@@ -124,13 +123,14 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
                 let contents: string;
                 if (timeMeasure) {
                     const a = perf.now();
-                    contents = rmc(vinyl.contents!.toString(), opt);
+                    contents = rmc(vinyl.contents!.toString(encoding), opt);
                     const span = perf.now() - a;
                     timeSpans.push(
                         `${span}:${vinyl.relative}`
                     );
                 } else {
-                    contents = rmc(vinyl.contents!.toString(), opt);
+                    /* istanbul ignore next */
+                    contents = rmc(vinyl.contents!.toString(encoding), opt);
                 }
                 // node ^v5.10.0
                 vinyl.contents = Buffer.from(contents);
@@ -147,11 +147,14 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
             return callback(null, vinyl);
         }
 
+        /* istanbul ignore next */
         if (vinyl.isStream()) {
             this.emit("error", new TypeError(`[${PLUGIN_NAME}]: Streams not supported!`));
         }
 
+        /* istanbul ignore next */
         this.push(vinyl);
+        /* istanbul ignore next */
         callback();
     };
     /**
@@ -166,7 +169,7 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
             if (extensions.includes(vinyl.extname)) {
                 renderProgress && process.nextTick(progress, vinyl.relative);
                 // renderProgress && progress(vinyl.relative);
-                rmc.walk(vinyl.contents!.toString(), opt);
+                rmc.walk(vinyl.contents!.toString(encoding), opt);
                 if (prevNoops < rmc.noops) {
                     noopPaths.push(vinyl.relative);
                     prevNoops = rmc.noops;
@@ -180,11 +183,14 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
             return callback(null, vinyl);
         }
 
+        /* istanbul ignore next */
         if (vinyl.isStream()) {
             this.emit("error", new TypeError(`[${PLUGIN_NAME}]: Streams not supported!`));
         }
 
+        /* istanbul ignore next */
         this.push(vinyl);
+        /* istanbul ignore next */
         callback();
     };
 

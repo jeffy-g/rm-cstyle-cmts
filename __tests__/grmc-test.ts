@@ -8,15 +8,11 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import * as assert from "assert";
 import * as gulp from "gulp";
-// @ts-ignore
 import * as rimraf from "rimraf";
-import * as utils from "../scripts/tiny/utils";
 import * as grmc from "../src/gulp/";
 import {
     task, TGrmcTaskArgs
-    // @ts-ignore
 } from "../scripts/grmc-test-task";
 /**
  * @typedef {import("../scripts/grmc-test-task").TGrmcTaskArgs} TGrmcTaskArgs
@@ -24,24 +20,54 @@ import {
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//                            constants, types
+//                                  run test
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-/** @type {TGrmcTaskArgs & GulpRmc.TOptions} */
-const taskArgs: TGrmcTaskArgs & GulpRmc.TOptions = {
-    progress: true,
-    showNoops: true,
-    timeMeasure: true,
-    collectRegex: true,
-};
-
-beforeAll(() => {
-    process.env.CI = "true";
-});
-
 describe("rm-sctyle-cmts gulp plugin test", () => {
-    it("will be scan the js related files of `node_modules` without error", () => {
-        assert.doesNotThrow(() => {
-            task(gulp, rimraf, utils, grmc, taskArgs);
-        });
+
+    /** @type {string | undefined} */
+    let envCI: string | undefined;
+    beforeAll(() => {
+        envCI = process.env.CI;
+        console.log("process.env.CI:", envCI);
     });
+    afterAll(() => {
+        if (typeof envCI === "string") {
+            process.env.CI = envCI;
+        }
+    });
+    /**
+     * @param {TGrmcTaskArgs} args 
+     */
+    const tryTask = async (args: TGrmcTaskArgs) => {
+        let error: any = null;
+        try {
+            await task(gulp, rimraf, grmc, args);
+        } catch (e: any) {
+            error = e;
+        }
+        expect(error).toBe(null);
+    };
+
+    it("Scan the js related files of `node_modules (walkthrough mode)`", async () => {
+        process.env.CI = "";
+        await tryTask({
+            progress: true,
+            // showNoops: true,
+            // timeMeasure: true,
+            collectRegex: true,
+            collectJSDocTag: true,
+            isWalk: true
+        });
+    }, 40 * 1000);
+    it("Scan the js related files of `node_modules (remove mode)`", async () => {
+        grmc.getRmcInterface().reset();
+        grmc.noopPaths.length = 0;
+        process.env.CI = "1";
+        await tryTask({
+            progress: true,
+            showNoops: true,
+            timeMeasure: true,
+            // collectRegex: true,
+        });
+    }, 80 * 1000);
 });

@@ -10,20 +10,21 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const fs = require("fs");
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
- * @typedef {object} TGrmcTaskArgs
+ * @typedef TGrmcTaskArgsBase
  * @prop {string | string[]} [paths]
  * @prop {true} [progress]
+ * @prop {true} [collectJSDocTag]
  * @prop {boolean} [showNoops]
- * @prop {boolean} [collectRegex]
- * @prop {boolean} [isWalk] &#64;since 3.1
- * @prop {boolean} [timeMeasure]
  * @prop {boolean} [cleanup] cleanup previous output then exit
  * @prop {boolean} [useExtern] scan external directory?
+ * 
+ * @typedef {TGrmcTaskArgsBase & GulpRmc.TOptions} TGrmcTaskArgs
  */
 
 /**
@@ -31,18 +32,14 @@
  * 
  * @param {typeof import("gulp")} gulp gulp package
  * @param {typeof import("rimraf")} rimraf rimraf package
- * @param {typeof import("./tiny/utils")} utils tiny/utils module
  * @param {typeof import("../src/gulp")} grmc gulp-rm-cmts package
- * @param {TGrmcTaskArgs & GulpRmc.TOptions} settings
+ * @param {TGrmcTaskArgs} settings
  * @param {"cjs" | "esm"} mode 
  */
- function task(
-    gulp, rimraf, utils, grmc,
-    settings,
+ async function task(
+    gulp, rimraf, grmc, settings,
     mode = "cjs"
 ) {
-    // if need optional parametar.
-    // const settings = utils.getExtraArgs();
     const BASE_PREFIX = settings.useExtern ? "[If you want to scan external node_modules directory etc., set path here]" : ".";
     /**
      * **Scan all node module pakcages and strip comments and blank line from types of javascript source**.
@@ -77,13 +74,13 @@
     const tagStatistics = new Map();
     let inlineSourceMap = 0;
 
-    const silent = !!process.env.CI;
     /**
      * @param {boolean} iswalk
      * @returns {IScanEventCallback}
      */
     const emitListener = (iswalk = false) => {
 
+        const collectTag = settings.collectJSDocTag;
         /**
          * @param {object} context
          * @param {TScannerEventContext["event"]} context.event
@@ -92,7 +89,7 @@
         function _handler({ event, fragment }) {
             if (event === /*ScannerEvent.MultiLineComment*/1) {
                 // DEVNOTE: \b is not contained LF
-                if (/^\/\*\*[^*]/.test(fragment)) {
+                if (collectTag && /^\/\*\*[^*]/.test(fragment)) {
                     const re = /(?<=[\s\*{])@\w+(?=\s)/g; // regex for correct detection
                     /** @type {RegExpExecArray} */
                     let m;
@@ -105,7 +102,7 @@
             }
             else if (event === /*ScannerEvent.SingleLineComment*/0) {
                 if (/^\/\/# sourceMappingURL=data:application/.test(fragment)) {
-                    !silent && console.log(`\ninline source map detected=[${fragment.substring(0, 48)}...]`);
+                    // !silent && console.log(`\ninline source map detected=[${fragment.substring(0, 48)}...]`);
                     inlineSourceMap++;
                 }
             }
@@ -144,26 +141,16 @@
     }
 
     /**
-     * @param {string} content 
+     * @template T
+     * @param {T[]} content
+     * @param {string} name
      */
-    const formatRegexResult = (content)  => {
-        return `const reLiterals = [
+    const generateSource = (content, name)  => {
+        return `const ${name} = [
   ${content}
 ];
 module.exports = {
-  reLiterals
-};
-`;
-    };
-    /**
-     * @param {string} content 
-     */
-    const formatStatictics = (content) => {
-        return `const jsDocTagStatistics = [
-  ${content}
-];
-module.exports = {
-  jsDocTagStatistics
+  ${name}
 };
 `;
     };
@@ -180,77 +167,90 @@ module.exports = {
      *   + grep ^\s*$ ../rmc-tmp/output -rl (or -rC 1
      * 
      * 3. Is the blank line found only inside the backquoted string? grep ^\s*$ ../rmc-tmp/output -rC 1
+     * 
+     * @returns {Promise<void>}
      */
     const grmcBatchTest = () => {
 
         console.log(settings);
-
-        /** @type {string | string[]} */
-        const target = settings.paths? settings.paths: SCAN_SRC_FILEs;
-        const rmc = grmc.getRmcInterface();
         // 2020/4/14
-        rmc.setListener(emitListener(settings.isWalk));
+        grmc.getRmcInterface().setListener(emitListener(settings.isWalk));
 
-        console.time(`[batch-rmc-test:${mode}]`);
-        gulp.src(target).pipe(
-            grmc.getTransformer({
-                // preserveBlanks: true,
-                collectRegex: settings.collectRegex,
-                renderProgress: settings.progress,
-                isWalk: settings.isWalk,
-                timeMeasure: settings.timeMeasure,
-                extraExtensions: settings.extraExtensions,
-                disableDefaultExtentions: settings.extraExtensions ? true: void 0,
-            })
-        ).pipe(gulp.dest(RESULT_SRC_FILEs_OUT)).on("end", () => {
-
-            console.log("\n");
-            // notify completion of task.
-            console.timeEnd(`[batch-rmc-test:${mode}]`);
-
-            console.log("\ntask grmc-test done, processed: %s, noops:", rmc.processed, rmc.noops);
-            settings.showNoops && console.log("noop paths:", grmc.noopPaths);
-
-            console.log(`detected inline source map: ${inlineSourceMap}`);
-
-            const context = rmc.getDetectedReContext();
-            console.log("detected regex count:", context.detectedReLiterals.length);
-            console.log("unique regex count:", context.uniqReLiterals.length);
-
-            const tagPriorityEntries = getTagStatistics();
-            console.log("detected JSDoc tag count:", tagPriorityEntries.length);
-            console.log("detected JSDoc tags:", tagPriorityEntries);
-
-            context.uniqReLiterals.length && utils.writeTextUTF8(
-                formatRegexResult(context.uniqReLiterals.join(",\n  ")),
-                "./tmp/grmc-detected-reLiterals.js"
-            );
-            tagPriorityEntries.length && utils.writeTextUTF8(
-                formatStatictics(
-                    tagPriorityEntries.map(entry => `["${entry[0]}", ${entry[1]}]`).join(",\n  ")
-                ),
-                "./tmp/grmc-detected-jsdocTags.js"
-            );
-            utils.writeTextUTF8(
-                JSON.stringify(grmc.getTimeSpans(), null, 2),
-                "./tmp/grmc-time-spans.json"
-            );
+        return new Promise(resolve => {
+            /** @type {string | string[]} */
+            const target = settings.paths? settings.paths: SCAN_SRC_FILEs;
+            console.time(`[batch-rmc-test:${mode}]`);
+            gulp.src(target).pipe(
+                grmc.getTransformer({
+                    // preserveBlanks: true,
+                    collectRegex: settings.collectRegex,
+                    renderProgress: settings.progress,
+                    isWalk: settings.isWalk,
+                    timeMeasure: settings.timeMeasure,
+                    extraExtensions: settings.extraExtensions,
+                    disableDefaultExtentions: settings.extraExtensions ? true: void 0,
+                })
+            ).pipe(gulp.dest(RESULT_SRC_FILEs_OUT)).on("end", () => {
+    
+                console.log("\n");
+                // notify completion of task.
+                console.timeEnd(`[batch-rmc-test:${mode}]`);
+    
+                const rmc = grmc.getRmcInterface();
+                const context = rmc.getDetectedReContext();
+                const tagPriorityEntries = getTagStatistics();
+                console.log(
+                    `\ntask grmc-test done, processed: ${rmc.processed}, noops: ${rmc.noops}\n` +
+                    `detected inline source map: ${inlineSourceMap}\n` +
+                    `detected regex count: ${context.detectedReLiterals.length}\nunique regex count: ${context.uniqReLiterals.length}\n` +
+                    `detected JSDoc tag count: ${tagPriorityEntries.length}\ndetected JSDoc tags: %o\n` +
+                    `${settings.showNoops ? `noop paths: %o`: ""}`,
+                    tagPriorityEntries, settings.showNoops ? grmc.noopPaths: ""
+                );
+                
+                const timeSpans = grmc.getTimeSpans();
+                let pending = 
+                    +(!!context.uniqReLiterals.length) + +(!!tagPriorityEntries.length) + +(!!timeSpans.length);
+                /**
+                 * @type {Parameters<typeof fs.writeFile>[2]}
+                 */
+                const writeCallback = (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    --pending === 0 && resolve();
+                };
+                context.uniqReLiterals.length && fs.writeFile(
+                    "./tmp/grmc-detected-reLiterals.js",
+                    generateSource(context.uniqReLiterals, "reLiterals"), "utf8", writeCallback
+                );
+                tagPriorityEntries.length && fs.writeFile(
+                    "./tmp/grmc-detected-jsdocTags.js",
+                    generateSource(tagPriorityEntries, "jsDocTagStatistics"), "utf8", writeCallback
+                );
+                timeSpans.length && fs.writeFile(
+                    "./tmp/grmc-time-spans.json",
+                    JSON.stringify(timeSpans, null, 2), "utf8", writeCallback
+                );
+                // resolve();
+            });
         });
     };
 
-    const step2 = () => {
-        const nextStage = () => {
+    const step2 = async () => {
+        const nextStage = async () => {
             // step 2. fire gulp-rm-cmts test process
             console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
-            grmcBatchTest();
+            await grmcBatchTest();
         };
         // Wait for a while to avoid nodejs specific error "EPERM: operation not permitted, mkdir..."
-        new Promise(resolve => {
+        await new Promise(resolve => {
             setTimeout(resolve, 1000);
-        }).then(() => nextStage());
+        });
+        return nextStage();
     };
 
-    console.log(process.argv);
+    // console.log(process.argv);
 
     // step 1. cleanup prev output
     console.log("- - - step 1. cleanup prev output - - -");
@@ -258,7 +258,7 @@ module.exports = {
     cleanUpResults(() => console.timeEnd("[remove-output]"));
 
     if (!settings.cleanup) {
-        step2();
+        await step2();
     }
 }
 
