@@ -35,15 +35,11 @@ export type TGrmcTaskArgs = TGrmcTaskArgsBase & GulpRmc.TOptions;
 /**
  * #### Fire `gulp-rm-cmts` test task
  *
- * @param {typeof import("gulp")} gulp gulp package
- * @param {typeof import("rimraf")} rimraf rimraf package
  * @param {typeof import("../src/gulp")} grmc gulp-rm-cmts package
  * @param {TGrmcTaskArgs} settings
  * @param {"cjs" | "esm"} mode
  */
 export function task(
-    gulp: typeof import("gulp"),
-    rimraf: typeof import("rimraf"),
     grmc: typeof import("../src/gulp"),
     settings: TGrmcTaskArgs & GulpRmc.TOptions,
     mode?: "cjs" | "esm"

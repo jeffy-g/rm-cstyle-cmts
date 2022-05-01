@@ -34,13 +34,13 @@ let okay = 0;
 let failure = 0;
 
 /**
- * @param {true} [showErrorMessage] 
+ * @param {TRemoveCStyleCommentsOpt} opt 
  * @param {any} [e] 
  */
-const handleError = (showErrorMessage?: true, e?: any) => {
+const handleError = (opt: TRemoveCStyleCommentsOpt, e?: any) => {
     console.warn(
         "\n[Exception occured] The input source will be returned without any processing.",
-        showErrorMessage? (e instanceof Error && e.message): ""
+        opt.showErrorMessage? (e instanceof Error && e.message): ""
     );
 };
 
@@ -67,7 +67,7 @@ const rmc = /** @type {IRemoveCStyleComments} */(
             source = apply(source, opt);
             okay++;
         } catch (e) {
-            handleError(opt.showErrorMessage, e);
+            handleError(opt, e);
             failure++;
         }
 
@@ -95,7 +95,7 @@ rmc.walk = (source: string, opt?: TWalkThroughOpt ) => {
         walk(source, opt);
         okay++;
     } catch (e) {
-        handleError(opt.showErrorMessage, e);
+        handleError(opt, e);
         failure++;
     }
 };

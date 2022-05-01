@@ -11,6 +11,8 @@
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const fs = require("fs");
+const gulp = require("gulp");
+const rimraf = require("rimraf");
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types
@@ -30,15 +32,12 @@ const fs = require("fs");
 /**
  * #### Fire `gulp-rm-cmts` test task
  * 
- * @param {typeof import("gulp")} gulp gulp package
- * @param {typeof import("rimraf")} rimraf rimraf package
  * @param {typeof import("../src/gulp")} grmc gulp-rm-cmts package
  * @param {TGrmcTaskArgs} settings
  * @param {"cjs" | "esm"} mode 
  */
  async function task(
-    gulp, rimraf, grmc, settings,
-    mode = "cjs"
+    grmc, settings, mode = "cjs"
 ) {
     const BASE_PREFIX = settings.useExtern ? "[If you want to scan external node_modules directory etc., set path here]" : ".";
     /**

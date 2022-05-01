@@ -10,8 +10,6 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const gulp = require("gulp"); // should global install
-const rimraf = require("rimraf");
 const grmc = require("../dist/cjs/gulp/");
 const getArgs = require("./tiny/get-extra-args");
 const task = require("./grmc-test-task").task;
@@ -22,4 +20,4 @@ const task = require("./grmc-test-task").task;
 // [batch-rmc-test:cjs]: 17.629s
 /** @type {import("./grmc-test-task").TGrmcTaskArgs & GulpRmc.TOptions} */
 const taskArgs = getArgs();
-task(gulp, rimraf, grmc, taskArgs);
+task(grmc, taskArgs);

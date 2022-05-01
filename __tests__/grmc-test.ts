@@ -8,8 +8,6 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-import * as gulp from "gulp";
-import * as rimraf from "rimraf";
 import * as grmc from "../src/gulp/";
 import {
     task, TGrmcTaskArgs
@@ -41,7 +39,7 @@ describe("rm-sctyle-cmts gulp plugin test", () => {
     const tryTask = async (args: TGrmcTaskArgs) => {
         let error: any = null;
         try {
-            await task(gulp, rimraf, grmc, args);
+            await task(grmc, args);
         } catch (e: any) {
             error = e;
         }
