@@ -4,14 +4,13 @@
 [![codecov](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts)
 [![npm version](https://badge.fury.io/js/rm-cstyle-cmts.svg)](https://badge.fury.io/js/rm-cstyle-cmts)
 ![node](https://img.shields.io/node/v/rm-cstyle-cmts.svg?style=plastic)
-
 [![LICENSE](https://img.shields.io/badge/Lisence-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield)
 [![DeepScan grade](https://deepscan.io/api/teams/3135/projects/4618/branches/37135/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3135&pid=4618&bid=37135)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/jeffy-g/rm-cstyle-cmts.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jeffy-g/rm-cstyle-cmts/context:javascript)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/jeffy-g/rm-cstyle-cmts.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jeffy-g/rm-cstyle-cmts/alerts/)
 [![Maintainability](https://api.codeclimate.com/v1/badges/6fb687e6fd2c33a0a328/maintainability)](https://codeclimate.com/github/jeffy-g/rm-cstyle-cmts/maintainability)
-
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/jeffy-g/rm-cstyle-cmts.svg?style=plastic)
 ![npm bundle size](https://img.shields.io/bundlephobia/min/rm-cstyle-cmts.svg?style=plastic)
 ![npm](https://img.shields.io/npm/dm/rm-cstyle-cmts.svg?style=plastic)
@@ -28,17 +27,29 @@
   It does not remove lines that are meaningful to `typescript`, such as `@ts-ignore` and `<reference types="node"/>`,  
   but removes other **single line comments** and **multi line comments**.
   
-  * For other **single line comment** and **multi line comment**, it is possible to control which comment is remove by setting [**scan listener**](#-the-walkthrough-mode).
+  * For other **single line comment** and **multi line comment**, it is possible to control which comment is remove by setting [**scan listener**](#the-walkthrough-mode).
 
-  * This module is [much faster than the popular comment removal module](#-performance-measurement-with-benchmarkjs).
+  * This module is [much faster than the popular comment removal module](#performance-measurement-with-benchmarkjs).
+
+  * [**gulp plugin**](#rm-cstyle-cmts-gulp-plugin) is available.
+
+  * [**web version**](#rm-cstyle-cmts-web-version) is available.
 
 ## install
 
-```shell
-npm install rm-cstyle-cmts@latest --save-dev  
-# shorthand  
-npm i rm-cstyle-cmts@latest -D
-```
+  * npm
+
+  ```shell
+  $ npm install rm-cstyle-cmts --save-dev  
+  # shorthand  
+  $ npm i rm-cstyle-cmts -D
+  ```
+
+  * yarn
+ 
+   ```shell
+   $ yarn add rm-cstyle-cmts -D
+   ```
 
 ## Features
 
@@ -88,11 +99,11 @@ npm i rm-cstyle-cmts@latest -D
 
 ## API
 
-node module.
+  node module.
 
-```js
-const rmc = require("rm-cstyle-cmts");
-```
+  ```js
+  const rmc = require("rm-cstyle-cmts");
+  ```
 
 ### run as remove mode
 
@@ -123,51 +134,55 @@ rmc.walk("<source file content>", opt);
 
  + [rm-cstyle-cmts Playground (powerd by monaco-editor)](https://rm-cstyle-cmts-playground.netlify.com/)
 
-## <a name="performance"></a> Performance measurement with `Benchmark.js`
+## Performance measurement with `Benchmark.js`
 
   ```shell
-  npm run benchmark
+  $ npm run benchmark
   ```
 
   + We are comparing the process of deleting only `comment` from the following sample
 
-  ```js
-  const json = `// see: http://json.schemastore.org/tsconfig
-  {
-    "compilerOptions": {
-      /* Basic Options */
-      "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
-      "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
-      // "allowJs": true,                       /* Allow javascript files to be compiled. */
-      // "checkJs": true,                       /* Report errors in .js files. */
-      // "declaration": true,                   /* Generates corresponding '.d.ts' file. */
-      // "sourceMap": true,                     /* Generates corresponding '.map' file. */
-      // "outFile": "./",                       /* Concatenate and emit output to single file. */
-      // "outDir": "./",                        /* Redirect output structure to the directory. */
-  
-      /* Strict Type-Checking Options */
-      "strict": true,                           /* Enable all strict type-checking options. */
-      // "strictNullChecks": true,              /* Enable strict null checks. */
-      // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
-  
-      /* Additional Checks */
-      // "noUnusedLocals": true,                /* Report errors on unused locals. */
-      // "noUnusedParameters": true,            /* Report errors on unused parameters. */
-  
-      /* Module Resolution Options */
-      // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
-      // "typeRoots": [],                       /* List of folders to include type definitions from. */
-      "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
-  
-      /* Experimental Options */
-      // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
-      // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
-    },
-    "files": [
-      "y"
-    ]
-  }`;
-  ```
+    <details>
+
+    ```js
+    const json = `// see: http://json.schemastore.org/tsconfig
+    {
+      "compilerOptions": {
+        /* Basic Options */
+        "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
+        "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
+        // "allowJs": true,                       /* Allow javascript files to be compiled. */
+        // "checkJs": true,                       /* Report errors in .js files. */
+        // "declaration": true,                   /* Generates corresponding '.d.ts' file. */
+        // "sourceMap": true,                     /* Generates corresponding '.map' file. */
+        // "outFile": "./",                       /* Concatenate and emit output to single file. */
+        // "outDir": "./",                        /* Redirect output structure to the directory. */
+    
+        /* Strict Type-Checking Options */
+        "strict": true,                           /* Enable all strict type-checking options. */
+        // "strictNullChecks": true,              /* Enable strict null checks. */
+        // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
+    
+        /* Additional Checks */
+        // "noUnusedLocals": true,                /* Report errors on unused locals. */
+        // "noUnusedParameters": true,            /* Report errors on unused parameters. */
+    
+        /* Module Resolution Options */
+        // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
+        // "typeRoots": [],                       /* List of folders to include type definitions from. */
+        "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    
+        /* Experimental Options */
+        // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
+        // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
+      },
+      "files": [
+        "y"
+      ]
+    }`;
+    ```
+
+    </details>
 
   > ### node v12.22.11
   
@@ -182,14 +197,14 @@ rmc.walk("<source file content>", opt);
   V8     : 7.8.279.23-node.56
   Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz x 4
 
-  strip-comments x 11,834 ops/sec ±0.37% (88 runs sampled)
-  strip-json-comments x 16,806 ops/sec ±0.10% (95 runs sampled)
-  rm-cstyle-cmts x 165,566 ops/sec ±0.08% (96 runs sampled)
-  rm-cstyle-cmts (webpack) x 174,867 ops/sec ±0.17% (93 runs sampled)
-  rm-cstyle-cmts (umd) x 171,169 ops/sec ±0.09% (95 runs sampled)
+  strip-comments x 11,677 ops/sec ±0.32% (90 runs sampled)
+  strip-json-comments x 16,759 ops/sec ±0.11% (97 runs sampled)
+  rm-cstyle-cmts x 169,240 ops/sec ±0.09% (95 runs sampled)
+  rm-cstyle-cmts (webpack) x 174,768 ops/sec ±0.16% (94 runs sampled)
+  rm-cstyle-cmts (umd) x 172,408 ops/sec ±0.18% (94 runs sampled)
   - - done - -
   all results are equals? true # see NOTE:
-  Done in 27.68s.
+  Done in 27.79s.
   ```
 
   > ### node v17.9.0
@@ -205,20 +220,20 @@ rmc.walk("<source file content>", opt);
   V8     : 9.6.180.15-node.16
   Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz x 4
 
-  strip-comments x 11,454 ops/sec ±0.43% (89 runs sampled)
-  strip-json-comments x 17,129 ops/sec ±0.23% (97 runs sampled)
-  rm-cstyle-cmts x 161,120 ops/sec ±0.09% (97 runs sampled)
-  rm-cstyle-cmts (webpack) x 159,812 ops/sec ±0.08% (95 runs sampled)
-  rm-cstyle-cmts (umd) x 158,483 ops/sec ±0.08% (95 runs sampled)
+  strip-comments x 11,327 ops/sec ±0.43% (87 runs sampled)
+  strip-json-comments x 17,281 ops/sec ±0.08% (95 runs sampled)
+  rm-cstyle-cmts x 163,564 ops/sec ±0.08% (94 runs sampled)
+  rm-cstyle-cmts (webpack) x 159,575 ops/sec ±0.08% (93 runs sampled)
+  rm-cstyle-cmts (umd) x 160,841 ops/sec ±0.18% (96 runs sampled)
   - - done - -
   all results are equals? true # see NOTE:
-  Done in 27.68s.
+  Done in 27.74s.
   ```
 
   + NOTE: `strip-comments` may be buggy and is excluded from comparison
 
 
-## <a name="setListener"></a> The `Walkthrough mode`
+## The `Walkthrough mode`
 
 `Walkthrough mode` is not modify original source.
 
@@ -256,13 +271,14 @@ rmc.walk("<commented source>", opt);
   + In `remove mode`: it returns `true` to preserve in the **line comment** and **multi line comment** deletion process.
 
 
-## `rm-cstyle-cmts` gulp plugin is available.
+## `rm-cstyle-cmts` gulp plugin
 
-  + gulp plugin sample: sample task to scan javascript related files directly under `node_modules`
+### gulp plugin sample task
+  + sample task to scan javascript related files directly under `node_modules`
 
-```bash
-npm run grmc-test:cjs
-```
+  ```shell
+  $ npm run grmc-test:cjs
+  ```
 
 ### API of gulp plugin
 
