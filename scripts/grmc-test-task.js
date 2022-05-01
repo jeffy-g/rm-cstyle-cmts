@@ -145,14 +145,29 @@ const rimraf = require("rimraf");
      * @param {string} name
      */
     const generateSource = (content, name)  => {
-        return `const ${name} = [
-  ${content}
-];
+        return `const ${name} = ${JSON.stringify(content, null, 2)};
 module.exports = {
   ${name}
 };
 `;
     };
+    /**
+     * @param {TPriorityEntry[]} content 
+     */
+     const formatStatictics = (content) => {
+        return `const jsDocTagStatistics = [
+  ${content.map(entry => `["${entry[0]}", ${entry[1]}]`)
+    .reduce((acc, value, idx) => {
+        return acc + value + ",\n  ";
+        // return acc + value + (idx && !(idx % 5) ? ",\n  ": ", ");
+    }, "")}
+];
+module.exports = {
+  jsDocTagStatistics
+};
+`;
+    };
+
 
     /**
      * ✅ check at own environment
@@ -225,7 +240,7 @@ module.exports = {
                 );
                 tagPriorityEntries.length && fs.writeFile(
                     "./tmp/grmc-detected-jsdocTags.js",
-                    generateSource(tagPriorityEntries, "jsDocTagStatistics"), "utf8", writeCallback
+                    formatStatictics(tagPriorityEntries), "utf8", writeCallback
                 );
                 timeSpans.length && fs.writeFile(
                     "./tmp/grmc-time-spans.json",
