@@ -32,21 +32,27 @@ jobs:
           paths:
             - node_modules
       - run:
-          name: lint, build, bench, test
+          name: lint, build
           command: |
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-            echo '            lint -> build -> bench -> test'
+            echo '                   lint -> build'
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
             npm run all
-            npm run bench && npm run test
+      - run:
+          name: Run benchmark
+          command: |
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-            echo '                   batch-rmc-test'
+            echo '                   run benchmark'
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-            npm run grmc-test:cjs
-            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-            echo '                    run benchmark'
-            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            npm run bench
             npm run benchmark
+      - run:
+          name: Run tests
+          command: |
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            echo '                     run tests'
+            echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+            npm run test
     
       - codecov/upload:
           file: "./coverage/coverage-final.json"

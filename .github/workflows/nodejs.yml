@@ -43,18 +43,24 @@ jobs:
       if: steps.cache-node.outputs.cache-hit != 'true'
       run: yarn install
 
-    - name: lint, build, bench, test
+    - name: lint, build
       run: |
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        echo '            lint -> build -> bench -> test'
+        echo '                   lint -> build'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        yarn all
-        yarn bench && yarn test
+        npm run all
+
+    - name: Run benchmark
+      run: |
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        echo '                   batch-rmc-test'
+        echo '                   run benchmark'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        yarn grmc-test:cjs
+        npm run bench
+        npm run benchmark
+
+    - name: Run tests
+      run: |
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        echo '                    run benchmark'
+        echo '                     run tests'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        yarn benchmark
+        npm run test
