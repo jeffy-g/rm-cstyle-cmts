@@ -20,7 +20,7 @@ import {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                  run test
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-describe("rm-sctyle-cmts gulp plugin test", () => {
+describe("rm-cstyle-cmts gulp plugin test", () => {
 
     /**
      * @param {TGrmcTaskArgs} args 
@@ -35,7 +35,7 @@ describe("rm-sctyle-cmts gulp plugin test", () => {
         expect(error).toBe(null);
     };
 
-    it("Scan the js related files of `node_modules (walkthrough mode)`", async () => {
+    it("Scan the js related files of `node_modules`(walkthrough mode)", async () => {
         await tryTask({
             progress: true,
             // showNoops: true,
@@ -45,7 +45,7 @@ describe("rm-sctyle-cmts gulp plugin test", () => {
             isWalk: true
         });
     }, 40 * 1000);
-    it("Scan the js related files of `node_modules (remove mode)`", async () => {
+    it("Scan the js related files of `node_modules`(remove mode)", async () => {
         grmc.getRmcInterface().reset();
         grmc.noopPaths.length = 0;
         await tryTask({
