@@ -65,7 +65,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
     /**
      * @type {WebpackConfigration["module"]}
      */
-    const moduleConf = {
+    const module = {
         rules: [
             {
                 test: /\.ts$/,
@@ -94,6 +94,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
     const externals = [];
 
     return {
+        name: `${target}-${mode}`,
         // "production", "development", "none"
         mode,
         // "web", "node"
@@ -102,8 +103,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
         entry,
         // output config.
         output,
-
-        module: moduleConf,
+        module,
         externals,
         resolve: {
             extensions: [".ts", ".js"]
