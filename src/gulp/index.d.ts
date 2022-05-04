@@ -8,20 +8,23 @@
 // <reference types="rm-cstyle-cmts"/>
 /// <reference path="../index.d.ts"/>
 
-import * as through2 from "through2";
-type StreamTransform = typeof import("stream")["Transform"]["prototype"];
-type File = typeof import("vinyl")["prototype"];
-
 
 declare global {
     /**
      * 
      */
     namespace GulpRmc {
+
+        // type StreamTransform = typeof import("stream").Transform["prototype"];
+        // type File = typeof import("vinyl")["prototype"];
+        type StreamTransform = import("stream").Transform;
+        type File = import("vinyl");
+        type TransformCallback = (err?: any, data?: any) => void;
+
         /**
          * 
          */
-         type FixTransformFunction = (this: StreamTransform, chunk: File, enc: BufferEncoding, callback: through2.TransformCallback) => void;
+         type FixTransformFunction = (this: StreamTransform, chunk: File, enc: BufferEncoding, callback: TransformCallback) => void;
         /**
          * gulp-rm-cmts option type
          */
@@ -81,7 +84,7 @@ declare global {
         /**
          * factory of 
          */
-        type TTransformerFactory = (options: GulpRmc.TOptions) => ReturnType<typeof through2>;
+        type TTransformerFactory = (options: GulpRmc.TOptions) => StreamTransform;
 
         type TTimeSpanEntry = Array<(`${number}:${string}`)>;
     }

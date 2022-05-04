@@ -12,7 +12,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 import * as rmc from "../";
 // import * as rmc from "rm-cstyle-cmts";
-import * as through2 from "through2";
+import * as stream from "stream";
 import * as readline from "readline";
 import { performance } from "perf_hooks";
 
@@ -56,9 +56,9 @@ const timeSpans: GulpRmc.TTimeSpanEntry = [];
 
 
 /**
- * @type {(options: GulpRmc.TOptions) => ReturnType<typeof through2.obj>}
+ * @type {(options: GulpRmc.TOptions) => GulpRmc.StreamTransform}
  */
-const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof through2.obj> => {
+const getTransformer: GulpRmc.TTransformerFactory = (options): GulpRmc.StreamTransform => {
 
     /* istanbul ignore if */
     if (options === void 0) {
@@ -190,7 +190,10 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): ReturnType<typeof
         callback();
     };
 
-    return through2.obj(!options.isWalk? transform: transformWithWalk);
+    return new stream.Transform({
+        objectMode: true, highWaterMark: 256,
+        transform: !options.isWalk? transform: transformWithWalk
+    });
 };
 
 const getTimeSpans = () => {
