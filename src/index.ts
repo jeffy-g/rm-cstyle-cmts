@@ -103,7 +103,7 @@ rmc.walk = (source: string, opt?: TWalkThroughOpt ) => {
 Object.defineProperties(rmc, {
     version: {
         // `npm run patch:tag` replaces version string
-        value: "v3.3.5",
+        value: "v3.3.6",
         enumerable: true
     },
     noops: {
