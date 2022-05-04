@@ -251,16 +251,15 @@ module.exports = {
     };
 
     const step2 = async () => {
-        const nextStage = async () => {
-            // step 2. fire gulp-rm-cmts test process
-            console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
-            await grmcBatchTest();
-        };
         // Wait for a while to avoid nodejs specific error "EPERM: operation not permitted, mkdir..."
         await new Promise(resolve => {
             setTimeout(resolve, 1000);
         });
-        return nextStage();
+        return (async () => {
+            // step 2. fire gulp-rm-cmts test process
+            console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
+            await grmcBatchTest();
+        })();
     };
 
     // console.log(process.argv);
