@@ -11,10 +11,13 @@ module.exports = {
   // testRegex: "./__tests__/*\\.ts$",
   collectCoverageFrom: [
     "./src/!(*.d.ts|*.json)",
-    "./src/gulp/!(*.d.ts|*.json)",
     "./dist/cjs/*.js",
     "./dist/webpack/index.js",
     "./dist/umd/index.js",
+
+    "./src/gulp/!(*.d.ts|*.json)",
+    "./dist/cjs/gulp/index.js",
+    "./dist/webpack/gulp/index.js",
   ],
   moduleFileExtensions: [
     "ts",

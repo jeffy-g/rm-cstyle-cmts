@@ -52,6 +52,7 @@ copytypes() {
     "$cpx_pre ./dist/umd"
     "$cpx_pre ./dist/webpack"
     "$cpx_pre_gulp ./dist/cjs/gulp"
+    "$cpx_pre_gulp ./dist/webpack/gulp"
   )
   concurrently -n dts:dist,dts:dist:umd,dts:dist:webpack,dts:gulp -c red,green,yellow,blue "${commands[@]@Q}" # need quote
 }
@@ -62,7 +63,8 @@ webpack() {
   echo
 }
 webpackAfter() {
-  concurrently -n copy:dts,jstool:rws -c green,yellow  "cpx $cpxopt \"./dist/*.d.ts\" \"./dist/webpack/\"" "yarn jstool -cmd rws"
+  # concurrently -n copy:dts,jstool:rws -c green,yellow  "cpx $cpxopt \"./dist/*.d.ts\" \"./dist/webpack/\"" "yarn jstool -cmd rws"
+  yarn jstool -cmd rws
 }
 
 if [ ! -z $1 ]; then

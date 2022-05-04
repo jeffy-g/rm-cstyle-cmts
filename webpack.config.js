@@ -54,11 +54,11 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
         parallel: true,
         terserOptions,
     };
-
     const {
         beautify,
         forceSourceMap,
     } = extraOpt;
+    const isNode = target === "node";
 
     terserOptions.format.beautify = beautify;
     /**
@@ -83,14 +83,21 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
     /**
      * @type {WebpackConfigration["entry"]}
      */
-     const entry = {
+    const entry = {
         index: "./src/index.ts"
     };
-
     /**
      * @type {WebpackConfigration["externals"]}
      */
-    const externals = [];
+    const externals = [
+        "../",
+        "stream",
+        "readline",
+        "perf_hooks",
+    ];
+    if (isNode) {
+        entry["gulp/index"] = "./src/gulp/index.ts";
+    }
 
     return {
         name: `${target}-${mode}`,
