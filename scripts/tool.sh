@@ -23,8 +23,13 @@
 #  THE SOFTWARE.
 #
 cpxopt=$([ -z $CI ] && echo "-v" || echo "")
+jstool() {
+  shift 0
+  node "./scripts/tiny/tools.js" $*
+}
+
 patch_with_tag() {
-  local ret=$(yarn v $1);
+  local ret=$(jstool -cmd "version" -extras "./src/index.ts," $1);
   local after=$(echo $ret | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/');
   echo version=[$after];
   git add -u;
@@ -63,8 +68,7 @@ webpack() {
   echo
 }
 webpackAfter() {
-  # concurrently -n copy:dts,jstool:rws -c green,yellow  "cpx $cpxopt \"./dist/*.d.ts\" \"./dist/webpack/\"" "yarn jstool -cmd rws"
-  yarn jstool -cmd rws
+  jstool -cmd rws
 }
 
 if [ ! -z $1 ]; then
