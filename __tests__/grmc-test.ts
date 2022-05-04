@@ -34,26 +34,32 @@ describe("rm-cstyle-cmts gulp plugin test", () => {
         }
         expect(error).toBe(null);
     };
+    const reset = () => {
+        grmc.getRmcInterface().reset();
+        grmc.noopPaths.length = 0;
+    };
 
-    it("Scan the js related files of `node_modules`(walkthrough mode)", async () => {
-        await tryTask({
+    describe.each<[string, TGrmcTaskArgs, number]>([
+        ["walkthrough mode", {
             progress: true,
             // showNoops: true,
-            // timeMeasure: true,
             collectRegex: true,
             collectJSDocTag: true,
             isWalk: true
-        });
-    }, 40 * 1000);
-    it("Scan the js related files of `node_modules`(remove mode)", async () => {
-        grmc.getRmcInterface().reset();
-        grmc.noopPaths.length = 0;
-        await tryTask({
+        }, 40 * 1000],
+        ["remove mode", {
             progress: true,
             showNoops: true,
             timeMeasure: true,
             // collectRegex: true,
-        });
-    }, 80 * 1000);
-
+        }, 80 * 1000],
+    ])(
+        "Scan the js related files of `node_modules`",
+        (title, opt, timeout) => {
+            it(title, async () => {
+                !opt.isWalk && reset();
+                await tryTask(opt);
+            }, timeout);
+        }
+    );
 });
