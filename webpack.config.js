@@ -35,7 +35,6 @@ const tsCompilerOptions = {
 
 /**
  * @typedef {import("webpack").Configuration} WebpackConfigration
- * @typedef {WebpackConfigration["externals"]} Externals
  * @typedef {{ beautify?: true; forceSourceMap?: true }} TExtraOptions
  */
 /**
@@ -89,7 +88,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
     };
 
     /**
-     * @type {Externals}
+     * @type {WebpackConfigration["externals"]}
      */
     const externals = [];
 
@@ -138,7 +137,6 @@ module.exports = [
         /* output */ {
             path: `${__dirname}/dist/umd/`,
             filename: "[name].js",
-            // library: umdLibraryName,
             library: {
               name: umdLibraryName,
               type: "umd",
@@ -164,7 +162,6 @@ module.exports = [
               type: "commonjs2",
             //   export: "default"
             },
-            // libraryTarget: "commonjs2"
         },
         debug && "development" || void 0,
         {
