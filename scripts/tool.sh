@@ -24,7 +24,9 @@
 #
 cpxopt=$([ -z $CI ] && echo "-v" || echo "")
 jstool() {
-  shift 0
+  [[ $1 == jstool ]] && {
+    shift 1 
+  }
   node "./scripts/tiny/tools.js" $*
 }
 
@@ -92,7 +94,9 @@ webpack() {
 }
 
 if [ ! -z $1 ]; then
-    [ "$1" = "patch_with_tag" ] && patch_with_tag $2 || $1
+    [ "$1" = "patch_with_tag" ] && patch_with_tag $2 || {
+      $1 $*
+    }
 else
     echo "no parameters..."
 fi

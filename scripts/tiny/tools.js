@@ -152,11 +152,28 @@ const ToolFunctions = {
     /** (r)ecord(W)ebpack(S)ize */
     // jstool -cmd rws [-webpack lib/webpack.js -dest "./dev-extras/webpack-size.json"]
     rws: {
+        /**
+         * @typedef {`${number}.${number}.${number}`} TVersionString
+         * @typedef {[number, number, number]} TNVersion
+         */
         fn: () => {
             const thisPackage = utils.readJson("./package.json");
             const recordPath = params.dest || "./logs/webpack-size.json";
+            /** @type {Record<TVersionString, { webpack?: number; umd?: number}>} */
             const sizeRecord = fs.existsSync(recordPath)? utils.readJson(recordPath): {};
+            /** @type {TVersionString} */
             const versionStr = thisPackage.version;
+            /** @type {(v: TNVersion) => TVersionString} */
+            const decrementVersion = (version) => {
+                if (version[2] > 0) {
+                    version[2]--;
+                } else if (version[1] > 0) {
+                    version[1]--;
+                } else if (version[0] > 0) {
+                    version[0]--;
+                }
+                return /** @type {TVersionString} */(version.join("."));
+            };
     
             const entry = {};
             let sourcePath = params.webpack || "./dist/webpack/index.js";
@@ -168,21 +185,47 @@ const ToolFunctions = {
                 entry.umd = fs.statSync(sourcePath).size;
             }
     
-            if (Object.keys(entry).length) {
-                sizeRecord[versionStr] = entry;
-                !utils.CI && console.log(sizeRecord);
-                utils.writeTextUTF8(
-                    JSON.stringify(sizeRecord, null, 2), recordPath, () => {
-                        console.log("[%s] is updated", recordPath);
+            if (entry.webpack || entry.umd) {
+                const nversion = /** @type {RegExpExecArray} */(/(\d+).(\d+).(\d+)/.exec(versionStr));
+                nversion.shift();
+                /** @type {typeof sizeRecord["0.0.0"]} */
+                let prevEntry;
+                do {
+                    // @ts-ignore 
+                    const version = decrementVersion(nversion);
+                    prevEntry = sizeRecord[version];
+                    if (prevEntry || version === "0.0.0") {
+                        break;
                     }
-                );
+                   
+                } while (1);
+
+                if (prevEntry) {
+                    if (
+                        (prevEntry.webpack && entry.webpack) && (prevEntry.webpack ^ entry.webpack) ||
+                        (prevEntry.umd && entry.umd) && (prevEntry.umd ^ entry.umd)
+                    ) {
+                        sizeRecord[versionStr] = entry;
+                        !utils.CI && console.log(sizeRecord);
+                        utils.writeTextUTF8(
+                            JSON.stringify(sizeRecord, null, 2), recordPath, () => {
+                                console.log("[%s] is updated", recordPath);
+                            }
+                        );
+                    } else {
+                        console.log("(R)ecord(W)ebpack(S)ize: No change from previours webpack size record.", prevEntry);
+                    }
+                } else {
+                    console.log("(R)ecord(W)ebpack(S)ize: webpack size record were nothing.");
+                }
             }
         },
         help: `(r)ecord(W)ebpack(S)ize
-  ex - jstool -cmd rws [-webpack lib/webpack.js -dest "./dev-extras/webpack-size.json"]
+  ex - jstool -cmd rws [-webpack lib/webpack.js -umd umd/webpack.js -dest "./dev-extras/webpack-size.json"]
   note:
     webpack - if not specified then apply "./dist/webpack/index.js"
-    dest - if not specified then apply "./dev-extras/webpack-size.json"`
+    umd     - if not specified then apply "./dist/umd/index.js"
+    dest    - if not specified then apply "./logs/webpack-size.json"`
     },
 
     // jstool -cmd cmtTrick -targets "['core.js', 'object.js']" [-basePath extra-tests/mini-semaphore]
