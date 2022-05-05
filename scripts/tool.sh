@@ -30,44 +30,64 @@ jstool() {
 
 patch_with_tag() {
   local ret=$(jstool -cmd "version" -extras "./src/index.ts," $1);
-  local after=$(echo $ret | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/');
-  echo version=[$after];
+  local after=$(echo ${ret} | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/');
+  echo version=[${after}];
   git add -u;
-  git commit -m v$after;
-  git tag v$after
+  git commit -m v${after};
+  git tag v${after}
 }
 
 fix_import_path() {
   local target="./build/cjs/bench/index.js"
-  cat $target | sed -E 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/'>$target.tmp
-  mv $target.tmp $target
+  cat ${target} | sed -E 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/'>${target}.tmp
+  mv ${target}.tmp ${target}
 }
 
 copyfiles() {
-  concurrently -n "copy:lic,copy:js,copy:js:gulp" -c "green,blue" "cpx $cpxopt \"./{README.md,LICENSE}\" dist"\
-    "cpx $cpxopt -t ./scripts/fix-refpath \"./build/**/!(bench|gulp)/*.js\" dist"\
-    "cpx $cpxopt \"./build/**/gulp/*.js\" dist"
+  cpx ${cpxopt} "./{README.md,LICENSE}" dist &\
+  cpx ${cpxopt} -t "./scripts/fix-refpath" "./build/**/!(bench|gulp)/*.js" dist &\
+  cpx ${cpxopt} "./build/**/gulp/*.js" dist
 }
 
+# copytypes() {
+#   local cpx_pre=$(echo "cpx ${cpxopt}" '"src/index.d.ts"')
+#   local cpx_pre_gulp=$(echo "cpx ${cpxopt} -t" '"./scripts/fix-refpath" "src/gulp/{index.d.ts,package.json}"')
+#   local -a commands=(
+#     "${cpx_pre} ./dist"
+#     "${cpx_pre} ./dist/umd"
+#     "${cpx_pre} ./dist/webpack"
+#     "${cpx_pre_gulp} ./dist/cjs/gulp"
+#     "${cpx_pre_gulp} ./dist/webpack/gulp"
+#   )
+#   local executes=
+#   for cmd in "${commands[@]}"; do
+#     if [[ -z ${executes} ]]; then
+#       executes="${cmd}"
+#     else
+#       executes="${executes} & ${cmd}"
+#     fi
+#   done
+
+#   eval ${executes}
+# }
 copytypes() {
-  local cpx_pre="cpx $cpxopt src/index.d.ts"
-  local cpx_pre_gulp="cpx $cpxopt -t ./scripts/fix-refpath \"src/gulp/{index.d.ts,package.json}\""
-  local -a commands=(
-    "$cpx_pre ./dist"
-    "$cpx_pre ./dist/umd"
-    "$cpx_pre ./dist/webpack"
-    "$cpx_pre_gulp ./dist/cjs/gulp"
-    "$cpx_pre_gulp ./dist/webpack/gulp"
-  )
-  concurrently -n dts:dist,dts:dist:umd,dts:dist:webpack,dts:gulp -c red,green,yellow,blue "${commands[@]@Q}" # need quote
+  local cpx_pre=$(echo "cpx ${cpxopt}" '"src/index.d.ts"')
+  local cpx_pre_gulp=$(echo "cpx ${cpxopt} -t" '"./scripts/fix-refpath" "src/gulp/{index.d.ts,package.json}"')
+  local executes="${cpx_pre} ./dist"
+  local -a dirs=(umd webpack cjs/gulp webpack/gulp)
+  for dir in "${dirs[@]}"; do
+    local pre
+    [[ "$dir" =~ "gulp" ]] && pre="${cpx_pre_gulp}" || pre="${cpx_pre}"
+    executes+=" & ${pre} ./dist/${dir}"
+  done
+
+  eval ${executes}
 }
 
 webpack() {
-  rimraf "./dist/webpack/*" "./dist/umd/*"
+  # rimraf "./dist/webpack/*" "./dist/umd/*"
   [ -z $CI ] && npx webpack || npx webpack>/dev/null
   echo
-}
-webpackAfter() {
   jstool -cmd rws
 }
 
