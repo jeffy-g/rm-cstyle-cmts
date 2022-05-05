@@ -67,6 +67,8 @@
     "ts:check": "tsc --noemit",
     "up": "yarn upgrade-interactive --latest",
     "v": "yarn jstool -cmd version -extras \"./src/index.ts,\"",
+    "preversion": "echo fire PREVERSION!!",
+    "postversion": "echo fire POSTVERSION!!",
     "webpack": "npm run fire:tool -- webpack"
   },
   "devDependencies": {
@@ -78,7 +80,6 @@
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
     "colors": "^1.4.0",
-    "concurrently": "^7.1.0",
     "eslint": "^8.14.0",
     "gulp": "^4.0.2",
     "jest": "^27.5.1",
