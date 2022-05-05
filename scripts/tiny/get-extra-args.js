@@ -45,12 +45,12 @@ const ArgsConfig = {
  *
  * if param value not specified -tag after then set value is "true".
  * 
- * @template {Record<string, any>} T
- * @param {Partial<typeof ArgsConfig>} [args_config]
+ * @template {Record<string, TExtraArgsValue>} T
+ * @param {typeof ArgsConfig} [args_config]
  * @param {boolean} [debug]
- * @returns {T & { args?: string[] }}
+ * @returns {T & { args?: string[]; }}
  */
-module.exports = function getExtraArgs(args_config, debug = false) {
+function getExtraArgs(args_config, debug = false) {
     // debug log, if need.
     debug && console.log("process.argv: ", process.argv);
     /** @type {typeof ArgsConfig} */
@@ -79,7 +79,7 @@ module.exports = function getExtraArgs(args_config, debug = false) {
                         // DEVNOTE: 2020/2/28 - support regex parameter
                         if (/^\[.+\]$/.test(value) || /^\/[^/]+\/[gimuys]{0,6}$/.test(value)) {
                             // value is array or regex
-                            value = eval(value);
+                            value = /** @type {string[] | RegExp} */(eval(value));
                         } else if (/\\,/.test(value)) { // not Comma Separated Value
                             // DEVNOTE: fix comma in glob strings
                             value = value.replace(/\\,/g, ",");
@@ -92,7 +92,7 @@ module.exports = function getExtraArgs(args_config, debug = false) {
                         /** @type {keyof typeof params} */(opt.substring(varIndex))
                     ] = value;
                 } else {
-                    let args = params.args;
+                    let args = /** @type {string[]} */(params.args);
                     !args && (params.args = args = []);
                     args.push(opt);
                 }
@@ -101,3 +101,5 @@ module.exports = function getExtraArgs(args_config, debug = false) {
     }
     return params;
 };
+
+module.exports = getExtraArgs;

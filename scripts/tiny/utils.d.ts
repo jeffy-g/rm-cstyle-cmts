@@ -59,39 +59,8 @@ export function prependStringTo(str_array: string[], content: string, suffix?: s
  *  + should be truthy/falsy value
  */
 export function dateStringForFile(ymd?: any): string;
-/**
- * get arguments helper.
- * extra params must be start with "-".
- *
- * > command example:
- *
- * ```shell
- * node <script path> -minify -t es6 -values "value0,value1,value2" -array "['value0', 100, true, /\r?\n/g]" -regex "/\d+/g"
- * ```
- *
- * + then resut is
- *
- * ```js
- * // params
- * {
- *   minify: true,
- *   t: "es6",
- *   values: ["value0", "value1", "value2"],
- *   array: ["value0", 100, true, /\r?\n/g],
- *   regex: /\d+/g,
- * }
- * ```
- *
- * if param value not specified -tag after then set value is "true".
- *
- * @template {Record<string, any>} T
- * @param {Partial<typeof ArgsConfig>} [args_config]
- * @param {boolean} [debug]
- * @returns {T & { args?: string[] }}
- */
-export function getExtraArgs<T extends Record<string, any>>(args_config?: Partial<typeof ArgsConfig>, debug?: boolean): T & {
-    args?: string[];
-};
+
+export * as getExtraArgs from "./get-extra-args";
 
 /**
  * write text content to dest path.
@@ -168,9 +137,5 @@ export function convertRelativeDir(vinyl: any, dest?: string): string;
  * @date 2019-4-26
  */
 export function fireReplace(regex: RegExp, replacement: string | Function, paths: string[], async?: boolean): void;
-declare namespace ArgsConfig {
-    const startIndex: number;
-    const prefix: string;
-}
 
 export const CI: boolean;
