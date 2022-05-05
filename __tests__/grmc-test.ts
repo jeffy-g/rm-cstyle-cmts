@@ -60,13 +60,13 @@ function eachModule(path: string) {
                 collectRegex: true,
                 collectJSDocTag: true,
                 isWalk: true
-            }, 40 * 1000],
+            }, 120 * 1000],
             [`[${path}] remove mode`, {
                 progress: true,
                 showNoops: true,
                 timeMeasure: true,
                 // collectRegex: true,
-            }, 80 * 1000],
+            }, 180 * 1000],
         ])(
             "Scan the js related files of `node_modules`",
             (title, opt, timeout) => {
