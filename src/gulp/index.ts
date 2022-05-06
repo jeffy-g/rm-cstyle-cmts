@@ -22,6 +22,11 @@ import { performance } from "perf_hooks";
 // gulp plugin name.
 const PLUGIN_NAME = "gulp-rm-cmts";
 const perf = performance;
+const enum EConstants {
+    /** highWaterMark */
+    HWM = 16,
+}
+
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
@@ -191,13 +196,13 @@ const getTransformer: GulpRmc.TTransformerFactory = (options): GulpRmc.StreamTra
     };
 
     return new stream.Transform({
-        objectMode: true, highWaterMark: 256,
+        objectMode: true, highWaterMark: EConstants.HWM,
         transform: !options.isWalk? transform: transformWithWalk
     });
 };
 
 const getTimeSpans = () => {
-    return timeSpans.sort((a, b) => {
+    const ret = timeSpans.slice().sort((a, b) => {
         const [atime, apath] = a.split(":");
         const [btime, bpath] = b.split(":");
         const diff = +atime - + btime;
@@ -207,6 +212,9 @@ const getTimeSpans = () => {
         return diff < 0 ? -1: +(diff > 0);
         //*/
     });
+    // DEVNOTE: 2022/05/06 - clear `timeSpans`
+    timeSpans.length = 0;
+    return ret;
 };
 /**
  * get IRemoveCStyleComments interface
