@@ -1,6 +1,4 @@
 // @ts-check
-
-const path = require("path");
 const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const progress = require("./scripts/tiny/progress/");
@@ -19,16 +17,17 @@ const terserOptions = {
         quote_style: 3
     }
 };
+/** @type {ConstructorParameters<typeof TerserPlugin>[0]} */
+const terserOpt = {
+    // Enable parallelization. Default number of concurrent runs: os.cpus().length - 1.
+    parallel: true,
+    terserOptions,
+};
 /**
  * **specify global variable name for umd build**
  */
 const umdLibraryName = "Rmc";
-
-
-/**
- * @typedef {import("typescript").CompilerOptions} CompilerOptions
- */
-/** @type {CompilerOptions} */
+/** @type {import("typescript").CompilerOptions} */
 const tsCompilerOptions = {
     removeComments: true
 };
@@ -48,18 +47,12 @@ const tsCompilerOptions = {
  */
 const createWebpackConfig = (target, output, mode = "production", extraOpt = {}) =>  {
 
-    /** @type {ConstructorParameters<typeof TerserPlugin>[0]} */
-    const terserOpt = {
-        // Enable parallelization. Default number of concurrent runs: os.cpus().length - 1.
-        parallel: true,
-        terserOptions,
-    };
     const {
         beautify,
         forceSourceMap,
     } = extraOpt;
-    const isNode = target === "node";
 
+    const isNode = target === "node";
     terserOptions.format.beautify = beautify;
     /**
      * @type {WebpackConfigration["module"]}
@@ -71,7 +64,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
                 loader: "ts-loader",
                 exclude: /node_modules/,
                 options: {
-                    configFile: path.resolve(__dirname, "./tsconfig.json"), // DEVNOTE: 2022/03/24 - OK, works with tsconfig.json
+                    configFile: `${__dirname}/tsconfig.json`,
                     compilerOptions: tsCompilerOptions,
                     // DEVNOTE: cannot use `transpileOnly` option because some problem of typescript enum
                     // transpileOnly: true
@@ -79,7 +72,6 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
             }
         ]
     };
-
     /**
      * @type {WebpackConfigration["entry"]}
      */
@@ -98,8 +90,8 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
     if (isNode) {
         entry["gulp/index"] = "./src/gulp/index.ts";
     }
-
     const mainName = `${target}@${output.library.type}`;
+
     return {
         name: `${mainName}-${mode}`,
         // "production", "development", "none"
@@ -127,9 +119,9 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
                 new TerserPlugin(terserOpt),
             ]
         },
-        profile: true,
+        profile: !!0,
         cache: true,
-        recordsPath: path.join(__dirname, `./logs/webpack-module-ids_${mainName}.json`),
+        recordsPath: `${__dirname}/logs/webpack-module-ids_${mainName}.json`
     };
 };
 
