@@ -101,30 +101,33 @@ function processSources(
         }
     }
 
-    console.time(taskName);
+    let count = sourceFiles.length;
+    count && console.time(taskName);
     for (const sourceFile of sourceFiles) {
-        if (fs.existsSync(sourceFile)) {
-            // (err: any, data: string) => void
-            utils.readTextUTF8(sourceFile, (err, data) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                const ret = process(data);
-                const outputName = sourceFile.replace(/(?=\.js$)/, suffix);
-                if (/** @type {any} */(ret) instanceof Promise) {
-                    ret.then((/** @type {string} */data) => {
-                        utils.writeTextUTF8(data, outputName);
-                    });
-                } else {
-                    utils.writeTextUTF8(ret, outputName);
-                }
-            });
-        } else {
-            console.warn(`file: "${sourceFile}" is not exists`);
-        }
+        fs.stat(sourceFile, (err, s) => {
+            if (err) {
+                console.error(err);
+            } else if (s.isFile()) {
+                utils.readTextUTF8(sourceFile, (err, data) => {
+                    if (err) {
+                        console.error(err);
+                    } else {
+                        const ret = process(data);
+                        const outputName = sourceFile.replace(/(?=\.js$)/, suffix);
+                        if (/** @type {any} */(ret) instanceof Promise) {
+                            ret.then((/** @type {string} */data) => {
+                                utils.writeTextUTF8(data, outputName);
+                            });
+                        } else {
+                            utils.writeTextUTF8(ret, outputName);
+                        }
+                    }
+                });
+            }
+            // TODO: 2022/5/7 - how to console.timeEnd
+            --count === 0 && console.timeEnd(taskName);
+        });
     }
-    console.timeEnd(taskName);
 }
 
 /**

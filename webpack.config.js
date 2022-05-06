@@ -23,10 +23,6 @@ const terserOpt = {
     parallel: true,
     terserOptions,
 };
-/**
- * **specify global variable name for umd build**
- */
-const umdLibraryName = "Rmc";
 /** @type {import("typescript").CompilerOptions} */
 const tsCompilerOptions = {
     removeComments: true
@@ -90,11 +86,11 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
     if (isNode) {
         entry["gulp/index"] = "./src/gulp/index.ts";
     }
-    const mainName = `${target}@${output.library.type}`;
+    const mainName = `${target}@${/** @type {webpack.LibraryOptions} */(output.library).type}`;
 
     return {
         name: `${mainName}-${mode}`,
-        // "production", "development", "none"
+        // "none" | "development" | "production"
         mode,
         // "web", "node"
         target,
@@ -126,6 +122,35 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
 };
 
 
+/**
+ * @typedef {Parameters<typeof createWebpackConfig>} TConfigParameters
+ * @typedef {[TConfigParameters[0], TConfigParameters[1]]} TPrimaryParameters
+ */
+/**
+ * @type {(TPrimaryParameters)[]}
+ */
+const configParameters = [
+    [
+        "web", /* target */ 
+        {      /* output */
+            path: "dist/umd/",
+            library: {
+                name: "Rmc",
+                type: "umd"
+            },
+            globalObject: "globalThis"
+        }
+    ], [
+        "node", /* target */
+        {       /* output */
+            path: "dist/webpack/",
+            library: {
+                type: "commonjs2"
+            },
+        }
+    ]
+];
+
 const debug = false;
 /** @type {WebpackConfigration["mode"]} */
 const mode = debug && "development" || void 0;
@@ -134,34 +159,13 @@ const extraOpt = {
     beautify: debug || void 0,
     // forceSourceMap: true
 };
-module.exports = [
-    createWebpackConfig(
-        /* target */ "web",
-        /* output */ {
-            path: `${__dirname}/dist/umd/`,
-            filename: "[name].js",
-            library: {
-              name: umdLibraryName,
-              type: "umd",
-            //   export: "default"
-            },
-            // DEVNOTE: 2020/10/13
-            //  From webpack v5, if "globalObject" is omitted, it seems that `self` is output, so I decided to explicitly specify "globalThis".
-            //  This is a workaround for the problem that test stops at error
-            globalObject: "globalThis"
-        },
-        mode, extraOpt
-    ),
-    createWebpackConfig(
-        /* target */ "node",
-        /* output */ {
-            path: `${__dirname}/dist/webpack/`,
-            filename: "[name].js",
-            library: {
-              type: "commonjs2",
-            //   export: "default"
-            },
-        },
-        mode, extraOpt
-    ),
-];
+module.exports = configParameters.map(config => {
+    const [
+        target, output
+    ] = config;
+    if (!output.filename) {
+        output.filename = "[name].js";
+    }
+    output.path = `${__dirname}/${output.path}`;
+    return createWebpackConfig(target, output, mode, extraOpt);
+});
