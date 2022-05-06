@@ -132,12 +132,15 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
     };
 };
 
-const debug = false;
-/**
- * @type {true | undefined}
- */
-const useSourceMap = void 0;
 
+const debug = false;
+/** @type {WebpackConfigration["mode"]} */
+const mode = debug && "development" || void 0;
+/** @type {TExtraOptions} */
+const extraOpt = {
+    beautify: debug || void 0,
+    // forceSourceMap: true
+};
 module.exports = [
     createWebpackConfig(
         /* target */ "web",
@@ -154,11 +157,7 @@ module.exports = [
             //  This is a workaround for the problem that test stops at error
             globalObject: "globalThis"
         },
-        debug && "development" || void 0,
-        {
-            beautify: debug || void 0,
-            forceSourceMap: useSourceMap
-        }
+        mode, extraOpt
     ),
     createWebpackConfig(
         /* target */ "node",
@@ -170,10 +169,6 @@ module.exports = [
             //   export: "default"
             },
         },
-        debug && "development" || void 0,
-        {
-            beautify: debug || void 0,
-            forceSourceMap: useSourceMap
-        }
+        mode, extraOpt
     ),
 ];

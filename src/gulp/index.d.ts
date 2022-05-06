@@ -84,7 +84,7 @@ declare global {
         /**
          * factory of 
          */
-        type TTransformerFactory = (options: GulpRmc.TOptions) => StreamTransform;
+        type TTransformerFactory = (options?: GulpRmc.TOptions) => StreamTransform;
 
         type TTimeSpanEntry = Array<(`${number}:${string}`)>;
     }

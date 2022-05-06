@@ -61,14 +61,12 @@ const timeSpans: GulpRmc.TTimeSpanEntry = [];
 
 
 /**
- * @type {(options: GulpRmc.TOptions) => GulpRmc.StreamTransform}
+ * @type {(options?: GulpRmc.TOptions) => GulpRmc.StreamTransform}
  */
-const getTransformer: GulpRmc.TTransformerFactory = (options): GulpRmc.StreamTransform => {
-
-    /* istanbul ignore if */
-    if (options === void 0) {
-        options = {} as GulpRmc.TOptions;
-    }
+const getTransformer: GulpRmc.TTransformerFactory = (
+    /* istanbul ignore next */
+    options = {}
+): GulpRmc.StreamTransform => {
 
     /** @type {TRemoveCStyleCommentsOpt} */
     const opt: TRemoveCStyleCommentsOpt = {
