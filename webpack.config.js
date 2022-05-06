@@ -99,8 +99,9 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
         entry["gulp/index"] = "./src/gulp/index.ts";
     }
 
+    const mainName = `${target}@${output.library.type}`;
     return {
-        name: `${target}-${mode}`,
+        name: `${mainName}-${mode}`,
         // "production", "development", "none"
         mode,
         // "web", "node"
@@ -128,7 +129,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
         },
         profile: true,
         cache: true,
-        recordsPath: path.join(__dirname, `./logs/webpack-module-ids_${target}.json`),
+        recordsPath: path.join(__dirname, `./logs/webpack-module-ids_${mainName}.json`),
     };
 };
 
