@@ -287,5 +287,6 @@ module.exports = {
     convertRelativeDir,
 
     fireReplace,
-    CI
+    CI,
+    log
 };

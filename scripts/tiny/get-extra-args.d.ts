@@ -31,12 +31,12 @@ export = getExtraArgs;
  *
  * if param value not specified -tag after then set value is "true".
  *
- * @template {Record<string, TExtraArgsValue>} T
+ * @template T
  * @param {typeof ArgsConfig} [args_config]
  * @param {boolean} [debug]
  * @returns {T & { args?: string[]; }}
  */
-function getExtraArgs<T extends Record<string, TExtraArgsValue>>(args_config?: typeof ArgsConfig, debug?: boolean): T & {
+function getExtraArgs<T>(args_config?: typeof ArgsConfig, debug?: boolean): T & {
     args?: string[];
 };
 declare namespace getExtraArgs {

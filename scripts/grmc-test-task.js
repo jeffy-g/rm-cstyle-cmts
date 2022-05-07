@@ -192,9 +192,8 @@ module.exports = {
 
         return new Promise(resolve => {
             /** @type {string | string[]} */
-            const target = settings.paths? settings.paths: SCAN_SRC_FILEs;
             console.time(`[batch-rmc-test:${mode}]`);
-            gulp.src(target).pipe(
+            gulp.src(settings.paths || SCAN_SRC_FILEs).pipe(
                 grmc.getTransformer({
                     // preserveBlanks: true,
                     collectRegex: settings.collectRegex,
@@ -203,6 +202,8 @@ module.exports = {
                     timeMeasure: settings.timeMeasure,
                     extraExtensions: settings.extraExtensions,
                     disableDefaultExtentions: settings.extraExtensions ? true: void 0,
+                    // 2022/5/7
+                    highWaterMark: +(settings.highWaterMark) || void 0
                 })
             ).pipe(gulp.dest(RESULT_SRC_FILEs_OUT)).on("end", () => {
     

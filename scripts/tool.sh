@@ -27,7 +27,7 @@ jstool() {
   [[ $1 == jstool ]] && {
     shift 1 
   }
-  node "./scripts/tiny/tools.js" $*
+  node "./scripts/tiny/tools.js" "$@"
 }
 
 patch_with_tag() {
@@ -95,7 +95,7 @@ webpack() {
 
 if [ ! -z $1 ]; then
     [ "$1" = "patch_with_tag" ] && patch_with_tag $2 || {
-      $1 $*
+      $1 "$@"
     }
 else
     echo "no parameters..."

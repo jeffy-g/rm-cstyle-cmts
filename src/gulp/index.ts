@@ -24,7 +24,7 @@ const PLUGIN_NAME = "gulp-rm-cmts";
 const perf = performance;
 const enum EConstants {
     /** highWaterMark */
-    HWM = 16,
+    HWM = 4096, // DEVNOTE: 2022/05/07 - In my PC environment, `4096` seemed to be the best
 }
 
 
@@ -59,14 +59,10 @@ const defaultExtensions = [
  */
 const timeSpans: GulpRmc.TTimeSpanEntry = [];
 
-
 /**
- * @type {(options?: GulpRmc.TOptions) => GulpRmc.StreamTransform}
+ * @param {GulpRmc.TOptions} options
  */
-const getTransformer: GulpRmc.TTransformerFactory = (
-    /* istanbul ignore next */
-    options = {}
-): GulpRmc.StreamTransform => {
+const createContext = (options: GulpRmc.TOptions) => {
 
     /** @type {TRemoveCStyleCommentsOpt} */
     const opt: TRemoveCStyleCommentsOpt = {
@@ -103,6 +99,26 @@ const getTransformer: GulpRmc.TTransformerFactory = (
         };
     })(): stdProgress;
 
+    const highWaterMark = options.highWaterMark || EConstants.HWM;
+
+    return [
+        opt, renderProgress, extensions, timeMeasure, progress, highWaterMark
+    ] as [
+        typeof opt, typeof renderProgress, typeof extensions, typeof timeMeasure, typeof progress, typeof highWaterMark
+    ];
+};
+
+/**
+ * @type {(options?: GulpRmc.TOptions) => GulpRmc.StreamTransform}
+ */
+const getTransformer: GulpRmc.TTransformerFactory = (
+    /* istanbul ignore next */
+    options = {}
+): GulpRmc.StreamTransform => {
+
+    const [
+        opt, renderProgress, extensions, timeMeasure, progress, highWaterMark
+    ] = createContext(options);
     let prevNoops = rmc.noops;
 
     renderProgress && console.log("rm-cstyle-cmts:", {
@@ -118,24 +134,25 @@ const getTransformer: GulpRmc.TTransformerFactory = (
         if (vinyl.isBuffer()) {
 
             if (extensions.includes(vinyl.extname)) {
-                renderProgress && process.nextTick(progress, vinyl.relative);
-                // renderProgress && progress(vinyl.relative);
+                const path = vinyl.relative;
+                renderProgress && process.nextTick(progress, `[${encoding}]: ${path}`);
+                // renderProgress && progress(path);
                 let contents: string;
                 /* istanbul ignore else */
                 if (timeMeasure) {
                     const a = perf.now();
-                    contents = rmc(vinyl.contents!.toString(encoding), opt);
+                    contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
                     const span = perf.now() - a;
                     timeSpans.push(
-                        `${span}:${vinyl.relative}`
+                        `${span}:${path}`
                     );
                 } else {
-                    contents = rmc(vinyl.contents!.toString(encoding), opt);
+                    contents = rmc(vinyl.contents.toString(), opt);
                 }
                 // node ^v5.10.0
                 vinyl.contents = Buffer.from(contents);
                 if (prevNoops ^ rmc.noops) {
-                    noopPaths.push(vinyl.relative);
+                    noopPaths.push(path);
                     prevNoops = rmc.noops;
                 }
             }
@@ -166,9 +183,9 @@ const getTransformer: GulpRmc.TTransformerFactory = (
         if (vinyl.isBuffer()) {
 
             if (extensions.includes(vinyl.extname)) {
-                renderProgress && process.nextTick(progress, vinyl.relative);
-                // renderProgress && progress(vinyl.relative);
-                rmc.walk(vinyl.contents!.toString(encoding), opt);
+                renderProgress && process.nextTick(progress, `[${encoding}]: ${vinyl.relative}`);
+                // renderProgress && progress(path);
+                rmc.walk(vinyl.contents.toString(), opt);
                 if (prevNoops < rmc.noops) {
                     noopPaths.push(vinyl.relative);
                     prevNoops = rmc.noops;
@@ -194,7 +211,7 @@ const getTransformer: GulpRmc.TTransformerFactory = (
     };
 
     return new stream.Transform({
-        objectMode: true, highWaterMark: EConstants.HWM,
+        objectMode: true, highWaterMark,
         transform: !options.isWalk? transform: transformWithWalk
     });
 };

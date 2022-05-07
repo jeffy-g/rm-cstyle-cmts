@@ -4,6 +4,7 @@
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "strict": true,
+        "target": "es2019",
         "moduleResolution": "node",
         "baseUrl": "./"
     },

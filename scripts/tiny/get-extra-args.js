@@ -45,7 +45,7 @@ const ArgsConfig = {
  *
  * if param value not specified -tag after then set value is "true".
  * 
- * @template {Record<string, TExtraArgsValue>} T
+ * @template T
  * @param {typeof ArgsConfig} [args_config]
  * @param {boolean} [debug]
  * @returns {T & { args?: string[]; }}

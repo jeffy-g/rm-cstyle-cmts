@@ -79,6 +79,11 @@ declare global {
              * @date 2022/4/24
              */
             timeMeasure?: true;
+
+            /**
+             * @date 2022/5/7
+             */
+            highWaterMark?: number;
         };
 
         /**

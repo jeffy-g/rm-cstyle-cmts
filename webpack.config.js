@@ -131,7 +131,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
  */
 const configParameters = [
     [
-        "web", /* target */ 
+        "web", /* target, can be omitted as default is 'web' */ 
         {      /* output */
             path: "dist/umd/",
             library: {

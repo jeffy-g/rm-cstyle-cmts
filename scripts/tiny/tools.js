@@ -26,18 +26,14 @@ const utils = require("./utils");
  * @prop {string} patch
  * @prop {string[]} extras
  * @prop {string} dest
- * @prop {string} projectName
  * @prop {string} cmd
  * @prop {string} ext for `cjbm` replace extension. default is `js`
  * @prop {RegExp} test
  * @prop {RegExp} regex
- * @prop {boolean} beautify
  * @prop {boolean} rmc4ts
  * 
  * @prop {string} webpack - actual webpack source path
  * @prop {string} umd - actual umd source path
- * 
- * @prop {string} comment - zip comment
  * 
  * @prop {string[]} pkgJsons - version command
  * 
@@ -48,7 +44,7 @@ const utils = require("./utils");
  * @type {TToolArgs & ReturnType<typeof utils.getExtraArgs>}
  */
 const params = utils.getExtraArgs();
-!utils.CI && console.log(params);
+utils.log(params);
 
 
 
@@ -102,30 +98,47 @@ function processSources(
     }
 
     let count = sourceFiles.length;
+    /** @param {string} [fileName] */
+    const done = (fileName) => {
+        --count === 0 && console.timeEnd(taskName);
+        fileName && utils.log(`write: ${fileName}`);
+    };
+    /** @param {NodeJS.ErrnoException} err */
+    const handleError = (err) => {
+        console.error(err);
+        done();
+    };
     count && console.time(taskName);
     for (const sourceFile of sourceFiles) {
         fs.stat(sourceFile, (err, s) => {
             if (err) {
-                console.error(err);
+                handleError(err);
             } else if (s.isFile()) {
-                utils.readTextUTF8(sourceFile, (err, data) => {
+                fs.readFile(sourceFile, "utf8", async (err, data) => {
                     if (err) {
-                        console.error(err);
+                        handleError(err);
                     } else {
-                        const ret = process(data);
-                        const outputName = sourceFile.replace(/(?=\.js$)/, suffix);
-                        if (/** @type {any} */(ret) instanceof Promise) {
-                            ret.then((/** @type {string} */data) => {
-                                utils.writeTextUTF8(data, outputName);
-                            });
-                        } else {
-                            utils.writeTextUTF8(ret, outputName);
-                        }
+                        /** @type {string} */
+                        const result = await new Promise(resolve => {
+                            const ret = process(data);
+                            if (/** @type {any} */(ret) instanceof Promise) {
+                                ret.then((/** @type {string} */data) => {
+                                    resolve(data);
+                                });
+                            } else {
+                                resolve(data);
+                            }
+                        });
+                        // TODO: changeable extensions
+                        const outputFileName = sourceFile.replace(/(?=\.js$)/, suffix);
+                        fs.writeFile(
+                            outputFileName, result, () => done(outputFileName)
+                        );
                     }
                 });
+            } else {
+                done();
             }
-            // TODO: 2022/5/7 - how to console.timeEnd
-            --count === 0 && console.timeEnd(taskName);
         });
     }
 }
@@ -134,6 +147,7 @@ function processSources(
  * @typedef {{
  *    fn: () => void;
  *    help: string;
+ *    taskName?: string;
  * }} TJSToolEntry
  */
 /**
@@ -155,24 +169,28 @@ const ToolFunctions = {
     /** (r)ecord(W)ebpack(S)ize */
     // jstool -cmd rws [-webpack lib/webpack.js -dest "./dev-extras/webpack-size.json"]
     rws: {
+        taskName: "(R)ecord(W)ebpack(S)ize",
         /**
          * @typedef {`${number}.${number}.${number}`} TVersionString
          * @typedef {[number, number, number]} TNVersion
          */
-        fn: () => {
+        fn() {
             const thisPackage = utils.readJson("./package.json");
             const recordPath = params.dest || "./logs/webpack-size.json";
             /** @type {Record<TVersionString, { webpack?: number; umd?: number}>} */
             const sizeRecord = fs.existsSync(recordPath)? utils.readJson(recordPath): {};
             /** @type {TVersionString} */
             const versionStr = thisPackage.version;
-            /** @type {(v: TNVersion) => TVersionString} */
+            /** @type {(v: RegExpExecArray) => TVersionString} */
             const decrementVersion = (version) => {
-                if (version[2] > 0) {
+                if (+version[2] > 0) {
+                    // @ts-ignore 
                     version[2]--;
-                } else if (version[1] > 0) {
+                } else if (+version[1] > 0) {
+                    // @ts-ignore 
                     version[1]--;
-                } else if (version[0] > 0) {
+                } else if (+version[0] > 0) {
+                    // @ts-ignore 
                     version[0]--;
                 }
                 return /** @type {TVersionString} */(version.join("."));
@@ -194,7 +212,6 @@ const ToolFunctions = {
                 /** @type {typeof sizeRecord["0.0.0"]} */
                 let prevEntry;
                 do {
-                    // @ts-ignore 
                     const version = decrementVersion(nversion);
                     prevEntry = sizeRecord[version];
                     if (prevEntry || version === "0.0.0") {
@@ -209,26 +226,28 @@ const ToolFunctions = {
                         (prevEntry.umd && entry.umd) && (prevEntry.umd ^ entry.umd)
                     ) {
                         sizeRecord[versionStr] = entry;
-                        !utils.CI && console.log(sizeRecord);
+                        utils.log(sizeRecord);
                         utils.writeTextUTF8(
                             JSON.stringify(sizeRecord, null, 2), recordPath, () => {
                                 console.log("[%s] is updated", recordPath);
                             }
                         );
                     } else {
-                        console.log("(R)ecord(W)ebpack(S)ize: No change from previours webpack size record.", prevEntry);
+                        console.log(`${this.taskName}: No change from previours webpack size record.`, prevEntry);
                     }
                 } else {
-                    console.log("(R)ecord(W)ebpack(S)ize: webpack size record were nothing.");
+                    console.log(`${this.taskName}: webpack size record were nothing.`);
                 }
             }
         },
-        help: `(r)ecord(W)ebpack(S)ize
+        get help() {
+            return `${this.taskName}
   ex - jstool -cmd rws [-webpack lib/webpack.js -umd umd/webpack.js -dest "./dev-extras/webpack-size.json"]
   note:
     webpack - if not specified then apply "./dist/webpack/index.js"
     umd     - if not specified then apply "./dist/umd/index.js"
-    dest    - if not specified then apply "./logs/webpack-size.json"`
+    dest    - if not specified then apply "./logs/webpack-size.json"`;
+        }
     },
 
     // jstool -cmd cmtTrick -targets "['core.js', 'object.js']" [-basePath extra-tests/mini-semaphore]
@@ -344,11 +363,11 @@ const ToolFunctions = {
                     bases: basePaths,
                     targets,
                     suffix: params.suffix,
-                    test: params.test || /\.js$/
+                    test: params.test// || /\.js$/
                 }
             );
         },
-        help: `jstool -cmd rmc -basePath ./dist [-rmc4ts]
+        help: `jstool -cmd rmc  -basePath "./dist/cjs,./dist/cjs/gulp" -test "/\\.(js|d\\.ts)$/"
   note: basePath - can be "<path>,<path>,..." (array type arg)
         rmc4ts - for typescript source.
           keep comment that start with "/*" when "*/" end mark appears in same line.

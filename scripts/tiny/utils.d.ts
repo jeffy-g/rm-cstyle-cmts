@@ -139,3 +139,4 @@ export function convertRelativeDir(vinyl: any, dest?: string): string;
 export function fireReplace(regex: RegExp, replacement: string | Function, paths: string[], async?: boolean): void;
 
 export const CI: boolean;
+export const log: typeof console.log;
