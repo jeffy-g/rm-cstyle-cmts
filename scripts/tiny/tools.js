@@ -188,10 +188,10 @@ const ToolFunctions = {
                     version[2]--;
                 } else if (+version[1] > 0) {
                     // @ts-ignore 
-                    version[1]--;
+                    version[1]--, version[2] = 99;
                 } else if (+version[0] > 0) {
                     // @ts-ignore 
-                    version[0]--;
+                    version[0]--, version[1] = version[2] = 99;
                 }
                 return /** @type {TVersionString} */(version.join("."));
             };
