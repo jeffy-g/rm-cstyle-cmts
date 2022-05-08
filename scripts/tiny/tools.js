@@ -210,14 +210,15 @@ const ToolFunctions = {
                 const nversion = /** @type {RegExpExecArray} */(/(\d+).(\d+).(\d+)/.exec(versionStr));
                 nversion.shift();
                 /** @type {typeof sizeRecord["0.0.0"]} */
-                let prevEntry;
-                do {
+                let prevEntry = sizeRecord[
+                    /** @type {TVersionString} */(nversion.join("."))
+                ];
+                if (!prevEntry) do {
                     const version = decrementVersion(nversion);
                     prevEntry = sizeRecord[version];
                     if (prevEntry || version === "0.0.0") {
                         break;
                     }
-                   
                 } while (1);
 
                 if (prevEntry) {
