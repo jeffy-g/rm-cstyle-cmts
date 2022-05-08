@@ -197,7 +197,7 @@ const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
         }
     }
 
-    throw new SyntaxError(`invalid quote string, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`incomplete quote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
 };
 
 
@@ -297,7 +297,7 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
         }
     }
 
-    throw new SyntaxError(`invalid backquote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`incomplete backquote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
 };
 
 /** @type {string[]} */
