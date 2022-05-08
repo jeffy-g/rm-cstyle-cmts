@@ -79,7 +79,8 @@ const rmc = /** @type {IRemoveCStyleComments} */(
  * @param {string} source
  * @param {TWalkThroughOpt} opt
  */
-rmc.walk = (source: string, opt?: TWalkThroughOpt ) => {
+// DEVNOTE: 2022/05/08 - avoid ts(2300)
+const rmcWalk = (source: string, opt?: TWalkThroughOpt ) => {
 
     if (typeof source !== "string") {
         throw new TypeError("invalid text content!");
@@ -101,6 +102,9 @@ rmc.walk = (source: string, opt?: TWalkThroughOpt ) => {
 };
 
 Object.defineProperties(rmc, {
+    walk: {
+        value: rmcWalk
+    },
     version: {
         // `npm run patch:tag` replaces version string
         value: "v3.3.6",

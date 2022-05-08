@@ -126,7 +126,7 @@ function processSources(
                                     resolve(data);
                                 });
                             } else {
-                                resolve(data);
+                                resolve(ret);
                             }
                         });
                         // TODO: changeable extensions
@@ -352,10 +352,11 @@ const ToolFunctions = {
             const basePaths = Array.isArray(params.basePath)? params.basePath: [params.basePath];
             processSources(
                 "rm-cstyle-cmts", data => {
-                    /*
+                    //*
                     const after = rmc(data);
-                    // purge typescript v3.9.x extra statement
-                    return after.replace(/\s(exports\.\w+\s=\s)+void 0;/m, "");
+                    return after.replace(/"use strict";\s/m, "");
+                    // // purge typescript v3.9.x extra statement
+                    // return after.replace(/\s(exports\.\w+\s=\s)+void 0;/m, "");
                     /*/
                     return rmc(data);
                     //*/
