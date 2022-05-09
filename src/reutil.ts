@@ -25,15 +25,6 @@ export const detectNewLine = (src: string): TDetectedNewLines => {
             return src[index] === "\n" ? "\r\n" : "\r";
         }
     }
-    /*/
-    for (let i = 0, ch: string; i < src.length;) {
-        if ((ch = src[i++]) === "\n") {
-            return "\n";
-        } else if (ch === "\r") {
-            return src[i] === "\n" ? "\r\n" : "\r";
-        }
-    }
-    //*/
     return "";
 };
 
