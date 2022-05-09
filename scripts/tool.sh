@@ -25,7 +25,7 @@
 cpxopt=$([ -z $CI ] && echo "-v" || echo "")
 jstool() {
   [[ $1 == jstool ]] && {
-    shift 1 
+    shift 1
   }
   node "./scripts/tiny/tools.js" "$@"
 }

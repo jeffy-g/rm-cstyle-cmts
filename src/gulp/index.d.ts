@@ -81,6 +81,7 @@ declare global {
             timeMeasure?: true;
 
             /**
+             * default: {@link EConstants.HWM}
              * @date 2022/5/7
              */
             highWaterMark?: number;
@@ -92,6 +93,11 @@ declare global {
         type TTransformerFactory = (options?: GulpRmc.TOptions) => StreamTransform;
 
         type TTimeSpanEntry = Array<(`${number}:${string}`)>;
+
+        const enum EConstants {
+            /** highWaterMark */
+            HWM = 4096, // DEVNOTE: 2022/05/07 - In my PC environment, `4096` seemed to be the best
+        }
     }
 }
 

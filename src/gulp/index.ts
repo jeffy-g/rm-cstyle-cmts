@@ -22,10 +22,6 @@ import { performance } from "perf_hooks";
 // gulp plugin name.
 const PLUGIN_NAME = "gulp-rm-cmts";
 const perf = performance;
-const enum EConstants {
-    /** highWaterMark */
-    HWM = 4096, // DEVNOTE: 2022/05/07 - In my PC environment, `4096` seemed to be the best
-}
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -100,7 +96,7 @@ const createContext = (options: GulpRmc.TOptions) => {
         };
     })(): stdProgress;
 
-    const highWaterMark = options.highWaterMark || EConstants.HWM;
+    const highWaterMark = options.highWaterMark || GulpRmc.EConstants.HWM;
 
     return [
         opt, renderProgress, extensions, timeMeasure, progress, highWaterMark
