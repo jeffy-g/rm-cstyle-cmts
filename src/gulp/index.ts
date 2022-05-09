@@ -61,6 +61,7 @@ const timeSpans: GulpRmc.TTimeSpanEntry = [];
 
 /**
  * @param {GulpRmc.TOptions} options
+ * @returns {[TRemoveCStyleCommentsOpt, true | undefined, string[], true | undefined, (path: string) => void, number]}
  */
 const createContext = (options: GulpRmc.TOptions) => {
 
@@ -220,9 +221,9 @@ const getTimeSpans = () => {
     const ret = timeSpans.slice().sort((a, b) => {
         const [atime, apath] = a.split(":");
         const [btime, bpath] = b.split(":");
-        const diff = +atime - + btime;
+        const diff = +atime! - +btime!;
         //*
-        return diff === 0? apath.localeCompare(bpath): diff < 0? -1: 1;
+        return diff === 0? apath!.localeCompare(bpath!): diff < 0? -1: 1;
         /*/
         return diff < 0 ? -1: +(diff > 0);
         //*/

@@ -8,6 +8,9 @@
     "skipDefaultLibCheck": true,
 
     "strict": true,
+    "alwaysStrict": false,
+    "noImplicitUseStrict": true,
+    "noUncheckedIndexedAccess": true,
     "removeComments": false,
 
     "moduleResolution": "node",

@@ -35,7 +35,7 @@ const Contractor = {
         /** average for each run */
         const average = (ms / loop);
         // record loop count, time spent, average.
-        this.entries[this.currentTag].push({
+        this.entries[this.currentTag]!.push({
             loop, ms, average
         });
         return average;
@@ -51,8 +51,8 @@ const Contractor = {
         console.log("");
         tags.forEach(tag => {
             let averageSum = 0, tspentSum = 0;
-            const size = that.entries[tag].length as number;
-            that.entries[tag].forEach(result => {
+            const size = that.entries[tag]!.length as number;
+            that.entries[tag]!.forEach(result => {
                 tspentSum += result.ms;
                 averageSum += result.average;
             });
@@ -65,8 +65,8 @@ const Contractor = {
 }\n`;
         });
 
-        const min = Math.min(lapr[0], lapr[1]);
-        const max = Math.max(lapr[0], lapr[1]);
+        const min = Math.min(lapr[0]!, lapr[1]!);
+        const max = Math.max(lapr[0]!, lapr[1]!);
         // ✈: \u2708
         console.log(`${"\u2708  ".repeat(8)}performance ratio: %s\%`, (min / max * 100).toFixed(6));
         // output result message.

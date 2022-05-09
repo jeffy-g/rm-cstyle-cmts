@@ -353,7 +353,7 @@ const ToolFunctions = {
             const basePaths = Array.isArray(params.basePath)? params.basePath: [params.basePath];
             processSources(
                 "rm-cstyle-cmts", data => {
-                    //*
+                    /*
                     const after = rmc(data);
                     return after.replace(/"use strict";\s/m, "");
                     // // purge typescript v3.9.x extra statement

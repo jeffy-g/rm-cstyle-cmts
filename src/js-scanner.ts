@@ -180,7 +180,7 @@ const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     // toggle escape flag.
     let inEscape = false;
     // store "next" postion character. 
-    let ch: string;
+    let ch: TBD<string>;
 
     while (next < limiter) {
         if ((ch = src[next++]) === "\\") {
@@ -216,7 +216,7 @@ const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
 const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean | never => {
 
     // store "next" postion character. 
-    let ch: string;
+    let ch: TBD<string>;
     // cache start offset
     let startOffset = ctx.offset;
     // move next position.
@@ -254,7 +254,7 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
                 }
                 //*/
                 while (next < limiter) {
-                    const code = src[next].charCodeAt(0);
+                    const code = src[next]!.charCodeAt(0);
                     // "}".charCodeAt(0) === 125
                     if (code === EMetaChars.RIGHT_CURLY) {
                         startOffset = ++next;
@@ -535,7 +535,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
     while (m = reWsqs.exec(src)) {
 
         // const [head] = m[0];
-        const head = m[0][0];
+        const head = m[0]![0];
 
         if (head === "/" || head === "`") {
             ctx.offset = m.index;

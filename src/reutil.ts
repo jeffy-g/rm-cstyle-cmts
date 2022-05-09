@@ -17,7 +17,7 @@ export type TDetectedNewLines = TKnownNewLines | "";
  * @param {string} src 
  */
 export const detectNewLine = (src: string): TDetectedNewLines => {
-    let index = 0, ch: string;
+    let index = 0, ch: TBD<string>;
     while (ch = src[index++]) {
         if (ch === "\n") {
             return "\n";
