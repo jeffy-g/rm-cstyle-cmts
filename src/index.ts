@@ -19,6 +19,22 @@ import * as JsScanner from "./js-scanner";
 const {
     apply, walk
 } = JsScanner;
+const throwTypeError = () => {
+    throw new TypeError("invalid text content!");
+};
+/**
+ * @param {TRemoveCStyleCommentsOpt} [opt] 
+ * @param {any} [e] 
+ */
+const handleError = (opt?: TRemoveCStyleCommentsOpt, e?: any) => {
+    if (opt) {
+        console.warn(
+            "\n[Exception occured] Input source will be returned without processing",
+            opt.showErrorMessage? (e instanceof Error && e.message): ""
+        );
+    }
+    failure++;
+};
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,17 +49,6 @@ let okay = 0;
  */
 let failure = 0;
 
-/**
- * @param {TRemoveCStyleCommentsOpt} opt 
- * @param {any} [e] 
- */
-const handleError = (opt: TRemoveCStyleCommentsOpt, e?: any) => {
-    console.warn(
-        "\n[Exception occured] The input source will be returned without any processing.",
-        opt.showErrorMessage? (e instanceof Error && e.message): ""
-    );
-};
-
 const rmc = /** @type {IRemoveCStyleComments} */(
     /**
      * @param {string} source 
@@ -53,11 +58,11 @@ const rmc = /** @type {IRemoveCStyleComments} */(
     (source: string, opt?: TRemoveCStyleCommentsOpt): string => {
 
         if (typeof source !== "string") {
-            throw new TypeError("invalid text content!");
+            throwTypeError();
         }
         if (!source.length) {
             // DEVNOTE: 2022/04/24 - check empty contents
-            failure++;
+            handleError();
             // DEVNOTE: whether return same reference or return new empty string
             return source;
         }
@@ -68,7 +73,6 @@ const rmc = /** @type {IRemoveCStyleComments} */(
             okay++;
         } catch (e) {
             handleError(opt, e);
-            failure++;
         }
 
         return source;
@@ -83,11 +87,11 @@ const rmc = /** @type {IRemoveCStyleComments} */(
 const rmcWalk = (source: string, opt?: TWalkThroughOpt ) => {
 
     if (typeof source !== "string") {
-        throw new TypeError("invalid text content!");
+        throwTypeError();
     }
     if (!source.length) {
         // DEVNOTE: 2022/04/26 - check empty contents
-        failure++;
+        handleError();
         return;
     }
 
@@ -97,7 +101,6 @@ const rmcWalk = (source: string, opt?: TWalkThroughOpt ) => {
         okay++;
     } catch (e) {
         handleError(opt, e);
-        failure++;
     }
 };
 

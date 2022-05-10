@@ -370,7 +370,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
             ctx.offset = close + 2;
             return true;
         }
-        throw new SyntaxError("multi line comment close mark not found");
+        throw new SyntaxError("incomplete multi line comment");
     }
     // avoid jsx, tsx tag
     if (src[startOffset - 1] === "<") {
