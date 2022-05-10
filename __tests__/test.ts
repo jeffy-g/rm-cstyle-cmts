@@ -6,10 +6,16 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
 ///<reference path="../src/index.d.ts"/>
+
 import * as fs from "fs";
 import * as assert from "assert";
 import "colors";
 
+
+type KRmcImportPath = `../${"src" | "dist" | "dist/webpack" | "dist/umd"}/`;
+type TRmcImport = {
+    [index in KRmcImportPath]: typeof import("../src");
+};
 
 // mute the "warn"
 console.warn = () => ({});
@@ -30,9 +36,9 @@ eachModule("../dist/umd/");
 eachModule("../dist/esm/index.mjs"); // error
 //*/
 
-function eachModule(path: string) {
+function eachModule(path: KRmcImportPath) {
 
-    let rmc: IRemoveCStyleComments;
+    let rmc: typeof import("../src/");
     const validate = (text: string, expectance: string, opt: TRemoveCStyleCommentsOpt = {}, isWalk = false): void => {
         opt = { ...defaultOpt, ...opt };
         if (!isWalk) {
@@ -58,7 +64,7 @@ function eachModule(path: string) {
     };
 
     beforeAll(async () => {
-        const mod = await import(path);
+        const mod: TRmcImport[typeof path] = await import(path);
         rmc = mod;
         rmc.setListener(listener);
     });
