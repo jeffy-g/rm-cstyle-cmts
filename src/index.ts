@@ -29,8 +29,8 @@ const throwTypeError = () => {
 const handleError = (opt?: TRemoveCStyleCommentsOpt, e?: any) => {
     if (opt) {
         console.warn(
-            "\n[Exception occured] Input source will be returned without processing",
-            opt.showErrorMessage? (e instanceof Error && e.message): ""
+            "\n[Exception occurred] source will be returned without processing",
+            opt.showErrorMessage? (e instanceof Error && `\nmessage: ${e.message}`): ""
         );
     }
     failure++;
