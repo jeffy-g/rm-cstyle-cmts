@@ -6,6 +6,7 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
 /// <reference path="../src/index.d.ts"/>
+
 // @ts-check
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
@@ -13,6 +14,7 @@
 const utils = require("./tiny/utils");
 const gulp = require("gulp");
 const rimraf = require("rimraf");
+
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types
@@ -22,15 +24,101 @@ const rimraf = require("rimraf");
  * @prop {string | string[]} [paths]
  * @prop {true} [progress]
  * @prop {true} [collectJSDocTag]
+ * @prop {boolean} [preserveJSDoc]
  * @prop {boolean} [showNoops]
  * @prop {boolean} [cleanup] cleanup previous output then exit
  * @prop {boolean} [useExtern] scan external directory?
  * 
  * @typedef {TGrmcTaskArgsBase & NsGulpRmc.TOptions} TGrmcTaskArgs
+ * @typedef {[string, number]} TPriorityEntry
  */
+// ⚠️ CAVEAT:
+//  In test for all files in node_modules,
+//  if output directory is set immediately below working directory, vscode maybe/will be freezes
+const RESULT_SRC_FILEs_OUT = "../rmc-tmp/output";
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//                         module vars, functions.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const cleanUpResults = (/** @type {() => unknown} */cb) => {
+    rimraf.sync(RESULT_SRC_FILEs_OUT);
+    cb();
+};
+/**
+ * @param {object} context
+ * @param {TScannerEventContext["event"]} context.event
+ * @param {TScannerEventContext["fragment"]} context.fragment
+ */
+const preserveJSDoc = ({ event, fragment }) => {
+    if (event === /*EScannerEvent.MultiLineComment*/1) {
+        return /^\/\*(\*|!)\s|^\/\*(?!-).+\*\/$/.test(fragment);
+    }
+    return false;
+};
+/**
+ * @template T
+ * @param {T[]} content
+ * @param {string} name
+ */
+const generateSource = (content, name)  => {
+    return `const ${name} = ${JSON.stringify(content, null, 2)};
+module.exports = {
+  ${name}
+};
+`;
+};
+/**
+ * @param {TPriorityEntry[]} content 
+ */
+const formatStatictics = (content) => {
+    return `const jsDocTagStatistics = [
+  ${content.map(entry => `["${entry[0]}", ${entry[1]}]`)
+    .reduce((acc, value/*, idx*/) => {
+        return acc + value + ",\n  ";
+        // return acc + value + (idx && !(idx % 5) ? ",\n  ": ", ");
+    }, "")}
+];
+module.exports = {
+  jsDocTagStatistics
+};
+`;
+};
 
 /**
- * #### Fire `gulp-rm-cmts` test task
+ * @param {TDetectedReContext} context 
+ * @param {TPriorityEntry[]} tagPriorityEntries 
+ * @param {NsGulpRmc.TTimeSpanEntry} timeSpans 
+ * @param {number} pending 
+ * @param {() => void} cb
+ */
+const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
+    /**
+     * @type {Parameters<typeof utils.writeTextUTF8>[2]}
+     */
+    const writeCallback = () => {
+        --pending === 0 && cb();
+    };
+    context.uniqReLiterals.length && utils.writeTextUTF8(
+        generateSource(context.uniqReLiterals, "reLiterals"),
+        "./tmp/grmc-detected-reLiterals.js",
+        writeCallback
+    );
+    tagPriorityEntries.length && utils.writeTextUTF8(
+        formatStatictics(tagPriorityEntries),
+        "./tmp/grmc-detected-jsdocTags.js",
+        writeCallback
+    );
+    timeSpans.length && utils.writeTextUTF8(
+        JSON.stringify(timeSpans, null, 2),
+        "./tmp/grmc-time-spans.json",
+        writeCallback
+    );
+};
+
+
+/**
+ * #### `gulp-rm-cmts` test task Main
  * 
  * @param {typeof import("../src/gulp")} grmc gulp-rm-cmts package
  * @param {TGrmcTaskArgs} settings
@@ -39,6 +127,7 @@ const rimraf = require("rimraf");
  async function task(
     grmc, settings, mode = "cjs"
 ) {
+
     const BASE_PREFIX = settings.useExtern ? "[If you want to scan external node_modules directory etc., set path here]" : ".";
     /**
      * **Scan all node module pakcages and strip comments and blank line from types of javascript source**.
@@ -52,19 +141,6 @@ const rimraf = require("rimraf");
     const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{js,mjs,cjs}`;
     // const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{js,jsx,ts,tsx}`;
     //*/
-
-    // ⚠️ CAVEAT:
-    //  In test for all files in node_modules,
-    //  if output directory is set immediately below working directory, vscode maybe/will be freezes
-    const RESULT_SRC_FILEs_OUT = "../rmc-tmp/output";
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    //                         module vars, functions.
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    const cleanUpResults = (/** @type {() => unknown} */cb) => {
-        rimraf.sync(RESULT_SRC_FILEs_OUT);
-        cb();
-    };
 
     //
     // - - - - - jsdoc tag detection [2020/4/14]
@@ -85,9 +161,8 @@ const rimraf = require("rimraf");
          * @param {TScannerEventContext["event"]} context.event
          * @param {TScannerEventContext["fragment"]} context.fragment
          */
-        function _handler({ event, fragment }) {
+        return ({ event, fragment }) => {
             if (event === /*ScannerEvent.MultiLineComment*/1) {
-                // DEVNOTE: \b is not contained LF
                 if (collectTag && /^\/\*\*[^*]/.test(fragment)) {
                     const re = /(?<=[\s\*{])@\w+(?=\s)/g; // regex for correct detection
                     /** @type {RegExpExecArray} */
@@ -105,20 +180,14 @@ const rimraf = require("rimraf");
                     inlineSourceMap++;
                 }
             }
-
             return iswalk;
         };
-
-        return _handler;
     };
 
     /**
-     * @typedef {[string, number]} TPriorityEntry
-     */
-    /**
      * @returns {TPriorityEntry[]}
      */
-    function getTagStatistics() {
+    const getTagStatistics = () => {
         /**
          * @type {Iterator<TPriorityEntry, TPriorityEntry>}
          */
@@ -128,8 +197,6 @@ const rimraf = require("rimraf");
         do {
             const { value, done } = entries.next();
             if (done) break;
-            // const [tag, count] = value;
-            // `${value[0]}:${value[1]}`
             ret.push(value);
         } while (1);
 
@@ -137,37 +204,7 @@ const rimraf = require("rimraf");
             const diff = a[1] - b[1];
             return diff === 0 ? a[0].localeCompare(b[0]): diff;
         });
-    }
-
-    /**
-     * @template T
-     * @param {T[]} content
-     * @param {string} name
-     */
-    const generateSource = (content, name)  => {
-        return `const ${name} = ${JSON.stringify(content, null, 2)};
-module.exports = {
-  ${name}
-};
-`;
     };
-    /**
-     * @param {TPriorityEntry[]} content 
-     */
-     const formatStatictics = (content) => {
-        return `const jsDocTagStatistics = [
-  ${content.map(entry => `["${entry[0]}", ${entry[1]}]`)
-    .reduce((acc, value/*, idx*/) => {
-        return acc + value + ",\n  ";
-        // return acc + value + (idx && !(idx % 5) ? ",\n  ": ", ");
-    }, "")}
-];
-module.exports = {
-  jsDocTagStatistics
-};
-`;
-    };
-
 
     /**
      * ✅ check at own environment
@@ -188,7 +225,9 @@ module.exports = {
 
         console.log(settings);
         // 2020/4/14
-        grmc.getRmcInterface().setListener(emitListener(settings.isWalk));
+        grmc.getRmcInterface().setListener(
+            !settings.preserveJSDoc ? emitListener(settings.isWalk) : preserveJSDoc
+        );
 
         return new Promise(resolve => {
             /** @type {string | string[]} */
@@ -224,29 +263,14 @@ module.exports = {
                 );
                 
                 const timeSpans = grmc.getTimeSpans();
-                let pending = 
-                    +(!!context.uniqReLiterals.length) + +(!!tagPriorityEntries.length) + +(!!timeSpans.length);
-                /**
-                 * @type {Parameters<typeof utils.writeTextUTF8>[2]}
-                 */
-                const writeCallback = () => {
-                    --pending === 0 && resolve();
-                };
-                context.uniqReLiterals.length && utils.writeTextUTF8(
-                    generateSource(context.uniqReLiterals, "reLiterals"),
-                    "./tmp/grmc-detected-reLiterals.js",
-                    writeCallback
-                );
-                tagPriorityEntries.length && utils.writeTextUTF8(
-                    formatStatictics(tagPriorityEntries),
-                    "./tmp/grmc-detected-jsdocTags.js",
-                    writeCallback
-                );
-                timeSpans.length && utils.writeTextUTF8(
-                    JSON.stringify(timeSpans, null, 2),
-                    "./tmp/grmc-time-spans.json",
-                    writeCallback
-                );
+                let pending = +(!!context.uniqReLiterals.length) + +(!!tagPriorityEntries.length) + +(!!timeSpans.length);
+                if (pending) {
+                    final(
+                        context, tagPriorityEntries, timeSpans, pending, resolve
+                    );
+                } else {
+                    resolve();
+                }
             });
         });
     };
@@ -256,14 +280,10 @@ module.exports = {
         await new Promise(resolve => {
             setTimeout(resolve, 1000);
         });
-        return (async () => {
-            // step 2. fire gulp-rm-cmts test process
-            console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
-            await grmcBatchTest();
-        })();
+        // step 2. fire gulp-rm-cmts test process
+        console.log("- - - step 2. fire gulp-rm-cmts test process - - -");
+        return grmcBatchTest();
     };
-
-    // console.log(process.argv);
 
     // step 1. cleanup prev output
     console.log("- - - step 1. cleanup prev output - - -");
