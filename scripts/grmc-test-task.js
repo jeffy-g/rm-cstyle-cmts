@@ -29,8 +29,9 @@ const rimraf = require("rimraf");
  * @prop {boolean} [cleanup] cleanup previous output then exit
  * @prop {boolean} [useExtern] scan external directory?
  * 
+ * @typedef {`@${string}`} TJSDocTag
  * @typedef {TGrmcTaskArgsBase & NsGulpRmc.TOptions} TGrmcTaskArgs
- * @typedef {[string, number]} TPriorityEntry
+ * @typedef {[TJSDocTag, number]} TPriorityEntry
  */
 // ⚠️ CAVEAT:
 //  In test for all files in node_modules,
@@ -46,9 +47,7 @@ const cleanUpResults = (/** @type {() => unknown} */cb) => {
     cb();
 };
 /**
- * @param {object} context
- * @param {TScannerEventContext["event"]} context.event
- * @param {TScannerEventContext["fragment"]} context.fragment
+ * @type {TBivariant<Parameters<IRemoveCStyleComments["setListener"]>[0]>}
  */
 const preserveJSDoc = ({ event, fragment }) => {
     if (event === /*EScannerEvent.MultiLineComment*/1) {
@@ -57,8 +56,7 @@ const preserveJSDoc = ({ event, fragment }) => {
     return false;
 };
 /**
- * @template T
- * @param {T[]} content
+ * @param {string[]} content
  * @param {string} name
  */
 const generateSource = (content, name)  => {
@@ -145,7 +143,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
     //
     // - - - - - jsdoc tag detection [2020/4/14]
     //
-    /** @type {Map<string, number>} */
+    /** @type {Map<TJSDocTag, number>} */
     const tagStatistics = new Map();
     let inlineSourceMap = 0;
 
@@ -168,7 +166,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
                     /** @type {RegExpExecArray} */
                     let m;
                     while (m = re.exec(fragment)) {
-                        const tag = m[0];
+                        const tag = /** @type {TJSDocTag} */(m[0]);
                         let count = tagStatistics.get(tag) || 0;
                         tagStatistics.set(tag, count + 1);
                     }

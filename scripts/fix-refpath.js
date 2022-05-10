@@ -32,7 +32,7 @@ class TsReferencePathFixer extends Transform {
      */
     _transform(data, _encoding, callback) {
         const source = data.toString();
-        const replacement = /namespace GulpRmc/.test(source)? "../../": "../";
+        const replacement = /namespace NsGulpRmc/.test(source)? "../../": "../";
         callback(null, source.replace(re, replacement));
     }
 }

@@ -5,7 +5,6 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
-"use strict";
 // @ts-check
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
@@ -18,6 +17,6 @@ const { task } = require("./grmc-test-task");
 //                            constants, types
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // [batch-rmc-test:cjs]: 17.629s
-/** @type {import("./grmc-test-task").TGrmcTaskArgs & GulpRmc.TOptions} */
+/** @type {Parameters<typeof task>[1]} */
 const taskArgs = getArgs();
 task(grmc, taskArgs);

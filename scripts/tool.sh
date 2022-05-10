@@ -72,18 +72,35 @@ copyfiles() {
 
 #   eval ${executes}
 # }
+
+emit_pkgjson() {
+  local pkgjson=$(cat <<_EOT_
+{
+  "main": "./index.js",
+  "types": "../index.d.ts"
+}
+_EOT_
+)
+  echo "${pkgjson}">$1
+}
+
 copytypes() {
-  local cpx_pre=$(echo "cpx ${cpxopt}" '"src/index.d.ts"')
+  local cpx_pre=$(echo "cpx ${cpxopt}" '"src/{index,extras}.d.ts"')
   local cpx_pre_gulp=$(echo "cpx ${cpxopt} -t" '"./scripts/fix-refpath" "src/gulp/{index.d.ts,package.json}"')
   local executes="${cpx_pre} ./dist"
-  local -a dirs=(umd webpack cjs/gulp webpack/gulp)
+  # local -a dirs=(umd webpack cjs/gulp webpack/gulp)
+  # for dir in "${dirs[@]}"; do
+  #   local pre
+  #   [[ "$dir" =~ "gulp" ]] && pre="${cpx_pre_gulp}" || pre="${cpx_pre}"
+  #   executes+=" & ${pre} ./dist/${dir}"
+  # done
+  local -a dirs=(cjs/gulp webpack/gulp)
   for dir in "${dirs[@]}"; do
-    local pre
-    [[ "$dir" =~ "gulp" ]] && pre="${cpx_pre_gulp}" || pre="${cpx_pre}"
-    executes+=" & ${pre} ./dist/${dir}"
+    executes+=" & ${cpx_pre_gulp} ./dist/${dir}"
   done
 
   eval ${executes}
+  emit_pkgjson "./dist/webpack/package.json" & emit_pkgjson "./dist/umd/package.json"
 }
 
 webpack() {

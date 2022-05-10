@@ -33,7 +33,7 @@ type TScannerContext = {
      * 
      * @date 2020/5/8
      */
-    collectRegex: boolean;
+    collectRegex?: boolean;
 
     // - - - - - - - - - - - - - - -
     // replace mode
@@ -140,12 +140,12 @@ const createWhite = (src: string, collectRegex?: true, isWalk: boolean = false):
     /** @type {util.TDetectedNewLines} */
     const newline: util.TDetectedNewLines = detectNewLine(src);
     /** @type {TScannerContext} */
-    const ctx: TScannerContext = {
+    const ctx = /** @type {TScannerContext} */({
         offset: 0,
         // result: "",
         collectRegex,
         newline
-    } as TScannerContext;
+    }) as TScannerContext;
 
     if (isWalk) {
         ctx.proceed = ctx.isWalk = true;

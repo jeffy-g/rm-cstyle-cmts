@@ -5,6 +5,7 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
+/// <reference path="./extras.d.ts"/>
 
 declare global {
 
