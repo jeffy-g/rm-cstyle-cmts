@@ -9,7 +9,8 @@
 
 import * as fs from "fs";
 import * as assert from "assert";
-import "colors";
+// depends on gulp-cli
+import * as ansi from "ansi-colors";
 
 
 type KRmcImportPath = `../${"src" | "dist" | "dist/webpack" | "dist/umd"}/`;
@@ -141,7 +142,7 @@ function eachModule(path: KRmcImportPath) {
 
         describe("multi line input (this case only remove kinds of comments, and blank line)", () => {
 
-            it(`[${path}] #1 this test source newline is ` + "[CRLF]".red + "(preserveBlanks)", () => {
+            it(`[${path}] #1 this test source newline is ` + ansi.red("[CRLF]") + "(preserveBlanks)", () => {
                 validate(`  let gg = 10;
 var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
 //             ^-------------^ <- this case is match. but, not regexp literal`, `  let gg = 10;
@@ -287,13 +288,13 @@ limitations under the License.
                 );
             });
 
-            it(`[${path}] #6 newline is ` + "[LF]".red, () => {
+            it(`[${path}] #6 newline is ` + ansi.red("[LF]"), () => {
                 validate(
                     "const anonymouse = () => {\n    const x = 777 / 3;\n    /// this is line comment  \n    return x % 2;\n};\n\n/* block comments */",
                     "const anonymouse = () => {\n    const x = 777 / 3;\n    return x % 2;\n};",
                 );
             });
-            it(`[${path}] #7 newline is ` + "[CR]".red, () => {
+            it(`[${path}] #7 newline is ` + ansi.red("[CR]"), () => {
                 validate(
                     "const anonymouse = () => {\r    const x = 777 / 3;\r    /// this is line comment  \r    return x % 2;\r};\r\r/* block comments */",
                     "const anonymouse = () => {\r    const x = 777 / 3;\r    return x % 2;\r};",
@@ -313,7 +314,7 @@ limitations under the License.
         });
 
         // describe("preserve JSDoc by TScanEventCallback", () => {
-        describe("preserve JSDoc by " + "TScanEventCallback".cyan, () => {
+        describe("preserve JSDoc by " + ansi.cyan("TScanEventCallback"), () => {
             // beforeAll(() => {
             //     return new Promise<void>(resolve => {
             //         rmc.setListener((a, b) => {

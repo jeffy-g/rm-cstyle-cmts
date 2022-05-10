@@ -75,7 +75,6 @@
     "@types/vinyl": "^2.0.6",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",
-    "colors": "^1.4.0",
     "eslint": "^8.15.0",
     "gulp": "^4.0.2",
     "jest": "^28.1.0",
