@@ -96,7 +96,7 @@ declare global {
 
         const enum EConstants {
             /** highWaterMark */
-            HWM = 4096, // DEVNOTE: 2022/05/07 - In my PC environment, `4096` seemed to be the best
+            HWM = 512, // DEVNOTE: 2022/05/07 - In my PC environment, `4096` seemed to be the best
         }
     }
 }

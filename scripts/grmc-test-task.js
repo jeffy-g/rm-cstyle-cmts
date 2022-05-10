@@ -26,7 +26,7 @@ const rimraf = require("rimraf");
  * @prop {boolean} [cleanup] cleanup previous output then exit
  * @prop {boolean} [useExtern] scan external directory?
  * 
- * @typedef {TGrmcTaskArgsBase & GulpRmc.TOptions} TGrmcTaskArgs
+ * @typedef {TGrmcTaskArgsBase & NsGulpRmc.TOptions} TGrmcTaskArgs
  */
 
 /**
@@ -157,7 +157,7 @@ module.exports = {
      const formatStatictics = (content) => {
         return `const jsDocTagStatistics = [
   ${content.map(entry => `["${entry[0]}", ${entry[1]}]`)
-    .reduce((acc, value, idx) => {
+    .reduce((acc, value/*, idx*/) => {
         return acc + value + ",\n  ";
         // return acc + value + (idx && !(idx % 5) ? ",\n  ": ", ");
     }, "")}
