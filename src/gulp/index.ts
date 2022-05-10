@@ -51,15 +51,15 @@ const defaultExtensions = [
     ".cts", ".mts"
 ];
 /**
- * @type {GulpRmc.TTimeSpanEntry}
+ * @type {NsGulpRmc.TTimeSpanEntry}
  */
-const timeSpans: GulpRmc.TTimeSpanEntry = [];
+const timeSpans: NsGulpRmc.TTimeSpanEntry = [];
 
 /**
- * @param {GulpRmc.TOptions} options
+ * @param {NsGulpRmc.TOptions} options
  * @returns {[TRemoveCStyleCommentsOpt, true | undefined, string[], true | undefined, (path: string) => void, number]}
  */
-const createContext = (options: GulpRmc.TOptions) => {
+const createContext = (options: NsGulpRmc.TOptions) => {
 
     /** @type {TRemoveCStyleCommentsOpt} */
     const opt: TRemoveCStyleCommentsOpt = {
@@ -80,7 +80,7 @@ const createContext = (options: GulpRmc.TOptions) => {
         }
     })();
     /**
-     * @see {@link GulpRmc.TOptions.timeMeasure timeMeasure}
+     * @see {@link NsGulpRmc.TOptions.timeMeasure timeMeasure}
      */
     const timeMeasure = options.timeMeasure;
     /**
@@ -96,7 +96,7 @@ const createContext = (options: GulpRmc.TOptions) => {
         };
     })(): stdProgress;
 
-    const highWaterMark = options.highWaterMark || GulpRmc.EConstants.HWM;
+    const highWaterMark = options.highWaterMark || NsGulpRmc.EConstants.HWM;
 
     return [
         opt, renderProgress, extensions, timeMeasure, progress, highWaterMark
@@ -106,12 +106,12 @@ const createContext = (options: GulpRmc.TOptions) => {
 };
 
 /**
- * @type {(options?: GulpRmc.TOptions) => GulpRmc.StreamTransform}
+ * @type {(options?: NsGulpRmc.TOptions) => NsGulpRmc.StreamTransform}
  */
-const getTransformer: GulpRmc.TTransformerFactory = (
+const getTransformer: NsGulpRmc.TTransformerFactory = (
     /* istanbul ignore next */
     options = {}
-): GulpRmc.StreamTransform => {
+): NsGulpRmc.StreamTransform => {
 
     const [
         opt, renderProgress, extensions, timeMeasure, progress, highWaterMark
@@ -123,9 +123,9 @@ const getTransformer: GulpRmc.TTransformerFactory = (
     });
 
     /**
-     * @type {GulpRmc.FixTransformFunction}
+     * @type {NsGulpRmc.FixTransformFunction}
      */
-    const transform: GulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
+    const transform: NsGulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
 
         // plugin main
         if (vinyl.isBuffer()) {
@@ -172,9 +172,9 @@ const getTransformer: GulpRmc.TTransformerFactory = (
         callback();
     };
     /**
-     * @type {GulpRmc.FixTransformFunction}
+     * @type {NsGulpRmc.FixTransformFunction}
      */
-    const transformWithWalk: GulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
+    const transformWithWalk: NsGulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
 
         // plugin main
         if (vinyl.isBuffer()) {

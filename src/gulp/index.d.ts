@@ -13,7 +13,7 @@ declare global {
     /**
      * 
      */
-    namespace GulpRmc {
+    namespace NsGulpRmc {
 
         // type StreamTransform = typeof import("stream").Transform["prototype"];
         // type File = typeof import("vinyl")["prototype"];
@@ -90,7 +90,7 @@ declare global {
         /**
          * factory of 
          */
-        type TTransformerFactory = (options?: GulpRmc.TOptions) => StreamTransform;
+        type TTransformerFactory = (options?: NsGulpRmc.TOptions) => StreamTransform;
 
         type TTimeSpanEntry = Array<(`${number}:${string}`)>;
 
@@ -105,7 +105,7 @@ declare const GulpRmc: {
     /**
      * main interface for gulp
      */
-    getTransformer: GulpRmc.TTransformerFactory;
+    getTransformer: NsGulpRmc.TTransformerFactory;
     /**
      * unprocessed file is recorded
      */
@@ -115,7 +115,7 @@ declare const GulpRmc: {
      */
     getRmcInterface(): IRemoveCStyleComments;
 
-    getTimeSpans(): GulpRmc.TTimeSpanEntry;
+    getTimeSpans(): NsGulpRmc.TTimeSpanEntry;
 };
 
 export = GulpRmc;
