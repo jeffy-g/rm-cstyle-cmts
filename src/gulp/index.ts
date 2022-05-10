@@ -130,7 +130,6 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
 
         // plugin main
         if (vinyl.isBuffer()) {
-
             if (extensions.includes(vinyl.extname)) {
                 const path = vinyl.relative;
                 renderProgress && process.nextTick(progress, `[${encoding}]: ${path}`);
@@ -154,7 +153,6 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
                     prevNoops = rmc.noops;
                 }
             }
-
             return callback(null, vinyl);
         }
 
@@ -176,10 +174,7 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
      * @type {NsGulpRmc.FixTransformFunction}
      */
     const transformWithWalk: NsGulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
-
-        // plugin main
         if (vinyl.isBuffer()) {
-
             if (extensions.includes(vinyl.extname)) {
                 renderProgress && process.nextTick(progress, `[${encoding}]: ${vinyl.relative}`);
                 // renderProgress && progress(path);
@@ -189,22 +184,10 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
                     prevNoops = rmc.noops;
                 }
             }
-            // DEVNOTE: By not passing file as the second argument of callback, there is no file that has flowed
-            return callback(null);
-        }
-
-        if (vinyl.isNull()) {
-            return callback(null, vinyl);
-        }
-
-        /* istanbul ignore next */
-        if (vinyl.isStream()) {
+        } else /* istanbul ignore if */ if (vinyl.isStream()) {
             this.emit("error", new TypeError(`[${PLUGIN_NAME}]: Streams not supported!`));
         }
-
-        /* istanbul ignore next */
-        this.push(vinyl);
-        /* istanbul ignore next */
+        // DEVNOTE: By not passing file as the second argument of callback, there is no file that has flowed
         callback();
     };
 
