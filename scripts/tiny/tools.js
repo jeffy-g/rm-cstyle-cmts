@@ -52,7 +52,7 @@ utils.log(params);
  * @typedef TProcessSourcesOpt
  * @prop {string} [base]
  * @prop {string[]} [bases] Array of search directory paths, overriding "base"
- * @prop {RegExp} [test]
+ * @prop {RegExp} [test] default: `/\.js$/`
  * @prop {string[]} [targets]
  * @prop {string} [suffix]
  */
@@ -181,7 +181,11 @@ const ToolFunctions = {
             const sizeRecord = fs.existsSync(recordPath)? utils.readJson(recordPath): {};
             /** @type {TVersionString} */
             const versionStr = thisPackage.version;
-            /** @type {(v: RegExpExecArray) => TVersionString} */
+            /**
+             * actually, return value will be like `TVersionString + "-dev"`
+             * 
+             * @type {(v: RegExpExecArray) => TVersionString}
+             */
             const decrementVersion = (version) => {
                 if (+version[2] > 0) {
                     // @ts-ignore 
@@ -193,7 +197,7 @@ const ToolFunctions = {
                     // @ts-ignore 
                     version[0]--, version[1] = version[2] = 99;
                 }
-                return /** @type {TVersionString} */(version.join("."));
+                return /** @type {TVersionString} */(version.slice(0, 3).join(".") + (version[3] || ""));
             };
     
             const entry = {};
@@ -207,16 +211,16 @@ const ToolFunctions = {
             }
     
             if (entry.webpack || entry.umd) {
-                const nversion = /** @type {RegExpExecArray} */(/(\d+).(\d+).(\d+)/.exec(versionStr));
-                nversion.shift();
+                const nversion = /** @type {RegExpExecArray} */(/(\d+)\.(\d+)\.(\d+)(-\w+)?/.exec(versionStr));
+                const $0 = nversion.shift();
                 /** @type {typeof sizeRecord["0.0.0"]} */
                 let prevEntry = sizeRecord[
-                    /** @type {TVersionString} */(nversion.join("."))
+                    /** @type {TVersionString} */($0)
                 ];
                 if (!prevEntry) do {
                     const version = decrementVersion(nversion);
                     prevEntry = sizeRecord[version];
-                    if (prevEntry || version === "0.0.0") {
+                    if (prevEntry || version.startsWith("0.0.0")) {
                         break;
                     }
                 } while (1);

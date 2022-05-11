@@ -39,7 +39,7 @@ eachModule("../dist/esm/index.mjs"); // error
 
 function eachModule(path: KRmcImportPath) {
 
-    let rmc: typeof import("../src/");
+    let rmc: TRmcImport[typeof path];
     const validate = (text: string, expectance: string, opt: TRemoveCStyleCommentsOpt = {}, isWalk = false): void => {
         opt = { ...defaultOpt, ...opt };
         if (!isWalk) {
@@ -65,8 +65,7 @@ function eachModule(path: KRmcImportPath) {
     };
 
     beforeAll(async () => {
-        const mod: TRmcImport[typeof path] = await import(path);
-        rmc = mod;
+        rmc = await import(path);
         rmc.setListener(listener);
     });
 
