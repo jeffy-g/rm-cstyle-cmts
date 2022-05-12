@@ -50,13 +50,26 @@ let okay = 0;
  */
 let failure = 0;
 
-const rmc = /** @type {IRemoveCStyleComments} */(
+/**
+ * #### Integrate similar codes
+ * 
+ * @template {typeof apply | typeof walk} T
+ * @template {T extends typeof apply ? string: void} R
+ * @param {T} fn 
+ * @returns {(...args: Parameters<T>) => R}
+ * @date 2022/5/12
+ */
+const emitMainFunction = <
+    T extends typeof apply | typeof walk,
+    R extends T extends typeof apply ? string: void
+>(fn: T): (...args: Parameters<T>) => R => {
+
     /**
      * @param {string} source 
      * @param {TRemoveCStyleCommentsOpt} [opt]
-     * @returns {string} if `options.isWalk === true`, returns original string, otherwise returns comment removed string
+     * @returns {R} if `options.isWalk === true`, returns original string, otherwise returns comment removed string
      */
-    (source: string, opt?: TRemoveCStyleCommentsOpt): string => {
+    return (source: string, opt?: TRemoveCStyleCommentsOpt): R => {
 
         if (typeof source !== "string") {
             throwTypeError();
@@ -65,45 +78,32 @@ const rmc = /** @type {IRemoveCStyleComments} */(
             // DEVNOTE: 2022/04/24 - check empty contents
             handleError();
             // DEVNOTE: whether return same reference or return new empty string
-            return source;
+            return /** @type {R} */(fn === apply ? source : void 0) as R;
         }
 
         opt = opt || {};
+        /** @type {TBD<R>} */
+        let result: TBD<R>;
         try {
-            source = apply(source, opt);
+            result = /** @type {R} */(fn(source, opt)) as R;
             okay++;
         } catch (e) {
             handleError(opt, e);
+            fn === apply && (result = /** @type {R} */(source) as R);
         }
 
-        return source;
-    }
-) as IRemoveCStyleComments;
-
-/**
- * @param {string} source
- * @param {TWalkThroughOpt} opt
- */
-// DEVNOTE: 2022/05/08 - avoid ts(2300)
-const rmcWalk = (source: string, opt?: TWalkThroughOpt ) => {
-
-    if (typeof source !== "string") {
-        throwTypeError();
-    }
-    if (!source.length) {
-        // DEVNOTE: 2022/04/26 - check empty contents
-        handleError();
-        return;
-    }
-
-    opt = opt || {};
-    try {
-        walk(source, opt);
-        okay++;
-    } catch (e) {
-        handleError(opt, e);
-    }
+        return /** @type {R} */(result) as R;
+    };
 };
+
+const rmc = /** @type {IRemoveCStyleComments} */( emitMainFunction(apply) ) as IRemoveCStyleComments;
+
+// /**
+//  * @param {string} source
+//  * @param {TWalkThroughOpt} opt
+//  */
+// // DEVNOTE: 2022/05/08 - avoid ts(2300)
+// const rmcWalk = emitMainFunction(walk);
 
 Object.defineProperties(rmc, {
     version: {
@@ -112,7 +112,7 @@ Object.defineProperties(rmc, {
         enumerable: true
     },
     walk: {
-        value: rmcWalk
+        value: emitMainFunction(walk)
     },
     noops: {
         get: () => failure,
