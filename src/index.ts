@@ -54,14 +54,14 @@ let failure = 0;
  * #### Integrate similar codes
  * 
  * @template {typeof apply | typeof walk} T
- * @template {T extends typeof apply ? string: void} R
+ * @template {ReturnType<T>} R
  * @param {T} fn 
  * @returns {(...args: Parameters<T>) => R}
  * @date 2022/5/12
  */
 const emitMainFunction = <
     T extends typeof apply | typeof walk,
-    R extends T extends typeof apply ? string: void
+    R extends ReturnType<T>
 >(fn: T): (...args: Parameters<T>) => R => {
 
     /**
