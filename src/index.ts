@@ -97,18 +97,10 @@ const emitMainFunction = <
 };
 
 const rmc = /** @type {IRemoveCStyleComments} */( emitMainFunction(apply) ) as IRemoveCStyleComments;
-
-// /**
-//  * @param {string} source
-//  * @param {TWalkThroughOpt} opt
-//  */
-// // DEVNOTE: 2022/05/08 - avoid ts(2300)
-// const rmcWalk = emitMainFunction(walk);
-
 Object.defineProperties(rmc, {
     version: {
         // `npm run patch:tag` replaces version string
-        value: "v3.3.8",
+        value: "v3.3.9",
         enumerable: true
     },
     walk: {
