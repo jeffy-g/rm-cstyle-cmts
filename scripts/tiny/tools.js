@@ -97,6 +97,7 @@ function processSources(
         }
     }
 
+    sourceFiles = sourceFiles.filter(Boolean);
     let count = sourceFiles.length;
     /** @param {string} [fileName] */
     const done = (fileName) => {
@@ -260,7 +261,7 @@ const ToolFunctions = {
         fn: () => {
             processSources(
                 "[comment trick toggle]", (data) => {
-                    return data.replace(/\/+(?=\*\s?(the-comment-toggle-trick|https:\/\/coderwall))/g, $0 => {
+                    return data.replace(/\/+(?=\*\s?(comment-toggle-trick|https:\/\/coderwall))/g, $0 => {
                         const slashes = $0.length === 2? "/": "//";
                         console.log("the-comment-toggle-trick: %s", /*enableBefore*/slashes.length === 2 ? "-->enable before<--, mute after": "mute before, -->enable after<--");
                         return slashes;
