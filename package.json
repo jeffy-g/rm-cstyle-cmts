@@ -77,7 +77,7 @@
     "@typescript-eslint/parser": "^5.26.0",
     "eslint": "^8.16.0",
     "gulp": "^4.0.2",
-    "jest": "^28.1.0",
+    "jest": "^29.0.0",
     "organize-pkg": "^1.2.4",
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.3",
