@@ -79,7 +79,7 @@
     "gulp": "^4.0.2",
     "jest": "^29.0.0",
     "organize-pkg": "^1.2.4",
-    "rimraf": "^4.0.0",
+    "rimraf": "^5.0.0",
     "ts-jest": "^29.0.0",
     "ts-loader": "^9.3.0",
     "typescript": "^5.0.0",
