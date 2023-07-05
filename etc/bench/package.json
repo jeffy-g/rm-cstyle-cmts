@@ -13,6 +13,6 @@
     "@types/benchmark": "^2.1.1",
     "benchmark": "^2.1.4",
     "strip-comments": "^2.0.1",
-    "strip-json-comments": "5.0.0"
+    "strip-json-comments": "5.0.1"
   }
 }
