@@ -25,9 +25,9 @@ const throwTypeError = () => {
 };
 /**
  * @param {TRemoveCStyleCommentsOpt} [opt] 
- * @param {any} [e] 
+ * @param {unknown} [e] 
  */
-const handleError = (opt?: TRemoveCStyleCommentsOpt, e?: any) => {
+const handleError = (opt?: TRemoveCStyleCommentsOpt, e?: unknown) => {
     if (opt) {
         console.warn(
             "\n[Exception occurred] source will be returned without processing",

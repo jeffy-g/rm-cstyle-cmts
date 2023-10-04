@@ -60,6 +60,6 @@ jobs:
     resource_class: large
 
 workflows:
-  build-and-test:
+  flows:
     jobs:
       - build-and-test
