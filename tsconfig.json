@@ -9,7 +9,7 @@
 
     "strict": true,
     "alwaysStrict": false,
-    "noImplicitUseStrict": true,
+    // "noImplicitUseStrict": true,
     "noUncheckedIndexedAccess": true,
     "removeComments": false,
 
