@@ -1,10 +1,9 @@
 [![Node.js CI](https://github.com/jeffy-g/rm-cstyle-cmts/actions/workflows/nodejs.yml/badge.svg)](https://github.com/jeffy-g/rm-cstyle-cmts/actions/workflows/nodejs.yml)
 [![CircleCI](https://circleci.com/gh/jeffy-g/rm-cstyle-cmts/tree/master.svg?style=svg)](https://circleci.com/gh/jeffy-g/rm-cstyle-cmts/tree/master)
-[![wercker status](https://app.wercker.com/status/871330ccbec8a35d57b965d5e1d8a1d9/s/master)](https://app.wercker.com/project/byKey/871330ccbec8a35d57b965d5e1d8a1d9 "wercker status")
 [![codecov](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts)
 [![npm version](https://badge.fury.io/js/rm-cstyle-cmts.svg)](https://badge.fury.io/js/rm-cstyle-cmts)
 ![node](https://img.shields.io/node/v/rm-cstyle-cmts.svg?style=plastic)
-[![LICENSE](https://img.shields.io/badge/Lisence-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+![GitHub](https://img.shields.io/github/license/jeffy-g/rm-cstyle-cmts?style=flat)
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield)
 [![DeepScan grade](https://deepscan.io/api/teams/3135/projects/4618/branches/37135/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3135&pid=4618&bid=37135)
@@ -25,7 +24,7 @@
   * This module removes comments from source files such as `typescript` and `javascript`.  
   It does not remove lines that are meaningful to `typescript`, such as `@ts-ignore` and `<reference types="node"/>`,  
   but removes other **single line comments** and **multi line comments**.
-  
+
   * For other **single line comment** and **multi line comment**, it is possible to control which comment is remove by setting [**scan listener**](#the-walkthrough-mode).
 
   * This module is [much faster than the popular comment removal module](#performance-measurement-with-benchmarkjs).
@@ -210,7 +209,7 @@ rmc.walk("<source file content>", opt);
   
   ```shell
   yarn run v1.22.18
-  $ node bench.mjs
+  $ node etc/bench/bench.mjs
 
   - - - - - - - bench mark test - - - - - - - - -
   Platform info:

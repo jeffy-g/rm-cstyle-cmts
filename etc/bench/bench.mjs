@@ -1,3 +1,5 @@
+/// <reference path="../../src/index.d.ts"/>
+
 //
 //   esm imports
 //
