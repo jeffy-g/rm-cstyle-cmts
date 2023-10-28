@@ -47,7 +47,7 @@ const cleanUpResults = (/** @type {() => unknown} */cb) => {
     cb();
 };
 /**
- * @type {TBivariant<Parameters<IRemoveCStyleComments["setListener"]>[0]>}
+ * @type {TBivariant< Required<Parameters<IRemoveCStyleComments["setListener"]>>[0] >}
  */
 const preserveJSDoc = ({ event, fragment }) => {
     if (event === /*EScannerEvent.MultiLineComment*/1) {
@@ -163,7 +163,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
             if (event === /*ScannerEvent.MultiLineComment*/1) {
                 if (collectTag && /^\/\*\*[^*]/.test(fragment)) {
                     const re = /(?<=[\s\*{])@\w+(?=\s)/g; // regex for correct detection
-                    /** @type {RegExpExecArray} */
+                    /** @type {RegExpExecArray | null} */
                     let m;
                     while (m = re.exec(fragment)) {
                         const tag = /** @type {TJSDocTag} */(m[0]);
@@ -240,6 +240,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
                     extraExtensions: settings.extraExtensions,
                     disableDefaultExtentions: settings.extraExtensions ? true: void 0,
                     // 2022/5/7
+                    // @ts-ignore 
                     highWaterMark: +(settings.highWaterMark) || void 0
                 })
             ).pipe(gulp.dest(RESULT_SRC_FILEs_OUT)).on("end", () => {
