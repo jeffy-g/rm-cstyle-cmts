@@ -447,8 +447,9 @@ scanners[EMetaChars.DOUBLE_QUOTE] = quote;      // 34
 scanners[EMetaChars.SINGLE_QUOTE] = quote;      // 39
 scanners[EMetaChars.SLASH]        = slash;      // 47
 
-/** @type {IScanEventCallback | undefined} */
-let scanListener: TBD<IScanEventCallback>;
+const emptyListener = () => false;
+/** @type {IScanEventCallback} */
+let scanListener: IScanEventCallback = emptyListener;
 
 /**
  * ### replace mode
@@ -476,18 +477,11 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
     //
     const size  = src.length;
     const ctx   = createWhite(src, opt.collectRegex);
-    const scans = scanners;
     let offset     = 0;
     let prevOffset = 0;
 
-    // check listener
-    if (!scanListener) {
-        // remove comments
-        scanListener = () => false;
-    }
-
     while (offset < size) {
-        const inspectable = scans[src.charCodeAt(offset)];
+        const inspectable = scanners[src.charCodeAt(offset)];
         if (!inspectable) {
             offset++;
         } else {
@@ -542,7 +536,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
             if (prevOffset !== ctx.offset) {
                 ctx.result += src.substring(prevOffset, ctx.offset);
             }
-            prevOffset = scans[
+            prevOffset = scanners[
                 head === "/" ? EMetaChars.SLASH : EMetaChars.BACK_QUOTE
             ]!(src, ctx)? ctx.offset: ctx.offset++;
             reWsqs.lastIndex = ctx.offset;
@@ -596,12 +590,6 @@ const walk = (src: string, opt: TRemoveCStyleCommentsOpt): void => {
     const ctx   = createWhite(src, opt.collectRegex, true);
     let offset  = 0;
 
-    // check listener
-    if (!scanListener) {
-        // proceed walk
-        scanListener = () => true;
-    }
-
     while (ctx.proceed && offset < size) {
         const inspectable = scans[src.charCodeAt(offset)];
         if (!inspectable) {
@@ -654,11 +642,7 @@ const reset = () => {
  * @param {IScanEventCallback} listener 
  */
 const setListener = (listener?: IScanEventCallback) => {
-    if (typeof listener === "function") {
-        scanListener = listener;
-    } else {
-        scanListener = void 0;
-    }
+    scanListener = typeof listener === "function" ? listener: emptyListener;
 };
 
 export {
