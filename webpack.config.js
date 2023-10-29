@@ -10,7 +10,7 @@ const terserOptions = {
     mangle: true,
     format: {
         comments: false,
-        beautify: true,
+        // beautify: true,
         indent_level: 1,
         // ecma: 9,
         max_line_len: 800,
@@ -18,6 +18,7 @@ const terserOptions = {
     }
 };
 /** @type {ConstructorParameters<typeof TerserPlugin>[0]} */
+// @ts-ignore TS2322: minify option required
 const terserOpt = {
     // Enable parallelization. Default number of concurrent runs: os.cpus().length - 1.
     parallel: true,
@@ -29,13 +30,17 @@ const tsCompilerOptions = {
 };
 
 /**
- * @typedef {import("webpack").Configuration} WebpackConfigration
- * @typedef {{ beautify?: true; forceSourceMap?: true }} TExtraOptions
+ * @typedef {webpack.Configuration} WebpackConfigration
+ * @typedef {Required<WebpackConfigration>} FixWebpackConfigration
+ * @typedef {{
+ *   beautify?: true;
+ *   forceSourceMap?: true;
+* }} TExtraOptions
  */
 /**
- * @param {WebpackConfigration["target"]} target 
- * @param {WebpackConfigration["output"]} output
- * @param {WebpackConfigration["mode"]} [mode] 
+ * @param {FixWebpackConfigration["target"]} target 
+ * @param {FixWebpackConfigration["output"]} output
+ * @param {FixWebpackConfigration["mode"]} [mode] 
  * @param {TExtraOptions} [extraOpt] see {@link TExtraOptions}
  * @return {WebpackConfigration}
  * @version 2.0
@@ -48,7 +53,8 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
         forceSourceMap,
     } = extraOpt;
 
-    const isNode = target === "node";
+    // const isNode = target === "node";
+    // @ts-ignore 
     terserOptions.format.beautify = beautify;
     /**
      * @type {WebpackConfigration["module"]}
@@ -83,7 +89,7 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
         "readline",
         "perf_hooks",
     ];
-    if (isNode) {
+    if (target === "node") {
         entry["gulp/index"] = "./src/gulp/index.ts";
     }
     const mainName = `${target}@${/** @type {webpack.LibraryOptions} */(output.library).type}`;
