@@ -327,6 +327,31 @@ const ToolFunctions = {
     extras - can be "<path>,<path>,..." (array type arg)`
     },
 
+    /**
+     * Performs string substitutions on various file contents
+     * 
+     *  + Rquired params - `regex`, `targets`
+     * 
+     * @date 2020/6/11
+     */
+    // jstool -cmd stripSome -regex \"/^\\s+<!--[\\s\\S]+?-->(?:\\r?\\n)?/gm\""
+    stripSome: {
+        fn() {
+            const re = params.regex;
+            if (re) {
+                processSources(
+                    "stripSome", data => data.replace(re, ""), {
+                        base: "",
+                        targets: params.targets
+                    }
+                );
+            }
+        },
+        help: `jstool -cmd stripSome -regex \"/^\\s+<!--[\\s\\S]+?-->(?:\\r?\\n)?/gm\" -targets "<path>,<path>,..."
+  note:
+    targets - must be array type arg, "['<path>', '<path>',...]" or "<path>,<path>,..."
+`
+    },
     // rmc version 3.x
     /**
      * NOTE: keep comment that start with "/&#42;" when "&#42;/" end mark appears in same line.
