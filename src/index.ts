@@ -111,7 +111,7 @@ const rmc = /** @type {IRemoveCStyleComments} */( emitMainFunction(apply) ) as I
 Object.defineProperties(rmc, {
     version: {
         // `npm run patch:tag` replaces version string
-        value: "v3.3.11",
+        value: "v3.3.12",
         enumerable: true
     },
     walk: {

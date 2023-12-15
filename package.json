@@ -1,6 +1,6 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "3.3.11",
+  "version": "3.3.12",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "private": false,
   "main": "./cjs/index.js",
@@ -69,8 +69,7 @@
     "webpack": "npm run fire:tool -- webpack",
     "git:push": "yarn fire:tool force-push",
     "postgit:push": "git gc --aggressive --prune=now",
-    "publish": "npm publish ./dist",
-    "prepublish": "yarn jstool -cmd stripSome -regex \"/.use strict.;\\s/g\" -targets \"dist/cjs/index.js,dist/cjs/js-scanner.js,dist/cjs/gulp/index.js\""
+    "strip:strict": "yarn jstool -cmd stripSome -regex \"/.use strict.;\\s/g\" -targets \"dist/cjs/index.js,dist/cjs/js-scanner.js,dist/cjs/gulp/index.js\""
   },
   "//": [
     "NOTE: `strip:strict` use for publish (dist)"
