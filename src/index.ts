@@ -96,11 +96,21 @@ const emitMainFunction = <
     };
 };
 
+let keepJsDoc: TBD<true>;
+/**
+ * @type {TBivariant< Required<Parameters<IRemoveCStyleComments["setListener"]>>[0] >}
+ */
+const preserveJSDoc: TBivariant<Required<Parameters<IRemoveCStyleComments["setListener"]>>[0]> = ({ event, fragment }) => {
+    if (event === /*EScannerEvent.MultiLineComment*/1) {
+        return /^\/\*(\*|!)\s|^\/\*(?!-).+\*\/$/.test(fragment);
+    }
+    return false;
+};
 const rmc = /** @type {IRemoveCStyleComments} */( emitMainFunction(apply) ) as IRemoveCStyleComments;
 Object.defineProperties(rmc, {
     version: {
         // `npm run patch:tag` replaces version string
-        value: "v3.3.10",
+        value: "v3.3.11",
         enumerable: true
     },
     walk: {
@@ -124,6 +134,15 @@ Object.defineProperties(rmc, {
     },
     setListener: {
         value: JsScanner.setListener
+    },
+    keepJsDoc: {
+        get: () => keepJsDoc,
+        set: (is?: true) => {
+            JsScanner.setListener(
+                is? preserveJSDoc: void 0
+            );
+            keepJsDoc = is;
+        }
     }
 });
 

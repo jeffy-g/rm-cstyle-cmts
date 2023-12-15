@@ -84,6 +84,12 @@ declare global {
          * number of times successfully processed
          */
         readonly processed: number;
+        /**
+         * Whether to keep only jsdoc comments
+         *  + this option is ignore on walk through mode
+         * @default undefined
+         */
+        keepJsDoc?: true;
     }
 
     interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IRemoveCStyleCommentsProperties {
@@ -115,7 +121,7 @@ declare global {
          * rmc.setListener();
          * ```
          * 
-         * @see EScannerEvent
+         * @see {@link EScannerEvent}
          * @since 3.0
          */
         setListener(listener?: IScanEventCallback): void;

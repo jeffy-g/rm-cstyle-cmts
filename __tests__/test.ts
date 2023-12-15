@@ -329,6 +329,16 @@ limitations under the License.
             // afterAll(() => {
             //     rmc.setListener(listener);
             // });
+            const source = `\
+/**
+ * for test
+ * @see {@link https://example.com Dummy link}
+ * @type {boolean} some number variable
+ */
+// DEVNOTE: dummy var
+const some = 100; 
+`;
+
             it(`[${path}] #1 jsdoc comment must be preserve`, () => {
                 let counter = 0;
                 rmc.setListener(({ event, fragment }) => {
@@ -338,16 +348,7 @@ limitations under the License.
                     }
                     return false;
                 });
-                validate(
-`
-/**
- * for test
- * @see {@link https://example.com Dummy link}
- * @type {boolean} some number variable
- */
-// DEVNOTE: dummy var
-const some = 100; 
-`,
+                validate(source,
 `/**
  * for test
  * @see {@link https://example.com Dummy link}
@@ -358,6 +359,18 @@ const some = 100;`
                 rmc.setListener(listener);
                 // TODO: "The current implementation calls the scan event listener twice"
                 expect(counter).toBe(2);
+            });
+            it(`[${path}] #2 jsdoc comment must be preserve (use "keepJsDoc" property)`, () => {
+                rmc.keepJsDoc = true;
+                validate(source,
+`/**
+ * for test
+ * @see {@link https://example.com Dummy link}
+ * @type {boolean} some number variable
+ */
+const some = 100;`
+                );
+                rmc.setListener(listener);
             });
         });
 
