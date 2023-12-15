@@ -639,7 +639,7 @@ const reset = () => {
 };
 
 /**
- * @param {IScanEventCallback} listener 
+ * @param {IScanEventCallback=} listener
  */
 const setListener = (listener?: IScanEventCallback) => {
     scanListener = typeof listener === "function" ? listener: emptyListener;

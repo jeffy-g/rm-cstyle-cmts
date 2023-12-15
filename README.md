@@ -33,6 +33,8 @@
 
   * [**web version**](#rm-cstyle-cmts-web-version) is available.
 
+  * new property `keepJsDoc` (v3.3.11)
+
 ## install
 
   * npm
