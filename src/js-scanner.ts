@@ -439,7 +439,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
  * 
  * + JSBench.Me test [array index access or object key access](https://jsbench.me/chl08elhyd/1)
  * 
- * @type {Array<TCharScannerFunction | undefined>}
+ * @type {TCharScannerFunction[]}
  */
 const scanners: Array<TBD<TCharScannerFunction>> = [];
 scanners[EMetaChars.BACK_QUOTE]   = backQuote;  // 96

@@ -96,6 +96,7 @@ const emitMainFunction = <
     };
 };
 
+/** @type {TBC<true>} */
 let keepJsDoc: TBD<true>;
 /**
  * @type {TBivariant< Required<Parameters<IRemoveCStyleComments["setListener"]>>[0] >}
