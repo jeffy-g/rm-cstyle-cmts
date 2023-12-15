@@ -8,7 +8,7 @@
   "unpkg": "./umd/index.js",
   "sideEffects": false,
   "author": "jeffy-g",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/jeffy-g/rm-cstyle-cmts/issues"
   },
