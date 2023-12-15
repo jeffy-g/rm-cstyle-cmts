@@ -67,6 +67,8 @@
     "up": "yarn upgrade-interactive --latest",
     "v": "yarn jstool -cmd version -extras \"./src/index.ts,\"",
     "webpack": "npm run fire:tool -- webpack",
+    "git:push": "yarn fire:tool force-push",
+    "postgit:push": "git gc --aggressive --prune=now",
     "publish": "npm publish ./dist",
     "prepublish": "yarn jstool -cmd stripSome -regex \"/.use strict.;\\s/g\" -targets \"dist/cjs/index.js,dist/cjs/js-scanner.js,dist/cjs/gulp/index.js\""
   },

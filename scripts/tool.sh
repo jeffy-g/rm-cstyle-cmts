@@ -30,6 +30,12 @@ jstool() {
   node "./scripts/tiny/tools.js" "$@"
 }
 
+force-push() {
+  local branch_name=$(git branch --contains=HEAD)
+  branch_name=${branch_name/* /}
+  echo "current brach name: [${branch_name}]"
+  git push --tags --force --progress origin ${branch_name}:${branch_name}
+}
 patch_with_tag() {
   local ret=$(jstool -cmd "version" -extras "./src/index.ts," $1);
   local after=$(echo ${ret} | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/');
