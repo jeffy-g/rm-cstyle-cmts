@@ -1,20 +1,18 @@
 [![Node.js CI](https://github.com/jeffy-g/rm-cstyle-cmts/actions/workflows/nodejs.yml/badge.svg)](https://github.com/jeffy-g/rm-cstyle-cmts/actions/workflows/nodejs.yml)
 [![CircleCI](https://circleci.com/gh/jeffy-g/rm-cstyle-cmts/tree/master.svg?style=svg)](https://circleci.com/gh/jeffy-g/rm-cstyle-cmts/tree/master)
-[![codecov](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts/branch/master/graph/badge.svg)](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts)
-[![npm version](https://badge.fury.io/js/rm-cstyle-cmts.svg)](https://badge.fury.io/js/rm-cstyle-cmts)
-![node](https://img.shields.io/node/v/rm-cstyle-cmts.svg?style=plastic)
-![GitHub](https://img.shields.io/github/license/jeffy-g/rm-cstyle-cmts?style=flat)
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield)
+[![codecov](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts/graph/badge.svg?token=pqMULIrDTY)](https://codecov.io/gh/jeffy-g/rm-cstyle-cmts)
+![NPM Version](https://img.shields.io/npm/v/rm-cstyle-cmts?style=plastic&color=green)
+![node-current](https://img.shields.io/node/v/rm-cstyle-cmts?style=plastic)
+![LICENSE](https://img.shields.io/badge/Lisence-MIT-blue.svg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjeffy-g%2Frm-cstyle-cmts?ref=badge_shield&issueType=license)
 [![DeepScan grade](https://deepscan.io/api/teams/3135/projects/4618/branches/37135/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3135&pid=4618&bid=37135)
+
 [![Maintainability](https://api.codeclimate.com/v1/badges/6fb687e6fd2c33a0a328/maintainability)](https://codeclimate.com/github/jeffy-g/rm-cstyle-cmts/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6fb687e6fd2c33a0a328/test_coverage)](https://codeclimate.com/github/jeffy-g/rm-cstyle-cmts/test_coverage)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/jeffy-g/rm-cstyle-cmts.svg?style=plastic)
-![npm bundle size](https://img.shields.io/bundlephobia/min/rm-cstyle-cmts.svg?style=plastic)
-![npm](https://img.shields.io/npm/dm/rm-cstyle-cmts.svg?style=plastic)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/jeffy-g/rm-cstyle-cmts.svg?style=plastic)
-
-<!-- ![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/npm/rm-cstyle-cmts.svg) -->
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/jeffy-g/rm-cstyle-cmts?style=plastic)
+![npm bundle size](https://img.shields.io/bundlephobia/min/rm-cstyle-cmts?style=plastic)
+![NPM Downloads](https://img.shields.io/npm/dm/rm-cstyle-cmts?style=plastic)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/jeffy-g/rm-cstyle-cmts?style=plastic)
 
 
 # remove cstyle comments (rm-cstyle-cmts)
