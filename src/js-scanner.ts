@@ -110,6 +110,9 @@ type TCharScannerFunction =
      */
     (src: string, ctx: TScannerContext) => boolean | never;
 
+type TCharScannerFunctionReg = {
+    [index: number]: TCharScannerFunction;
+} | Array<TBD<TCharScannerFunction>>;
 
 /**
  * @typedef {object} TScannerContext
@@ -126,6 +129,12 @@ type TCharScannerFunction =
  *   source: string, context: TScannerContext
  * ) => boolean | never} TCharScannerFunction if returns true then context has been changed.
  */
+/**
+ * @typedef {{
+ *   [index: number]: TCharScannerFunction;
+ * } | Array<TBD<TCharScannerFunction>>
+ * } TCharScannerFunctionReg if returns true then context has been changed.
+*/
 
 
 /**
@@ -439,9 +448,9 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
  * 
  * + JSBench.Me test [array index access or object key access](https://jsbench.me/chl08elhyd/1)
  * 
- * @type {TCharScannerFunction[]}
+ * @type {TCharScannerFunctionReg}
  */
-const scanners: Array<TBD<TCharScannerFunction>> = [];
+const scanners: TCharScannerFunctionReg = [];
 scanners[EMetaChars.BACK_QUOTE]   = backQuote;  // 96
 scanners[EMetaChars.DOUBLE_QUOTE] = quote;      // 34
 scanners[EMetaChars.SINGLE_QUOTE] = quote;      // 39
