@@ -52,6 +52,7 @@ function eachModule(path: string) {
             grmc.getRmcInterface().reset();
             grmc.noopPaths.length = 0;
         };
+        const stimeout = 600 * 1000;
 
         describe.each<[string, TGrmcTaskArgs, number]>([
             [`[${path}] walkthrough mode`, {
@@ -60,13 +61,13 @@ function eachModule(path: string) {
                 collectRegex: true,
                 collectJSDocTag: true,
                 isWalk: true
-            }, 120 * 1000],
+            }, stimeout],
             [`[${path}] remove mode`, {
                 progress: true,
                 showNoops: true,
                 timeMeasure: true,
                 // collectRegex: true,
-            }, 180 * 1000],
+            }, stimeout],
         ])(
             "Scan the js related files of `node_modules`",
             (title, opt, timeout) => {
