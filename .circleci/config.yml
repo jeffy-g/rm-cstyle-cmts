@@ -15,7 +15,7 @@ jobs:
     # You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # A list of available CircleCI Docker Convenience Images are available here: https://circleci.com/developer/images/image/cimg/node
     docker:
-      - image: cimg/node:22.2
+      - image: cimg/node:22.3
     working_directory: ~/repo
     steps:
       - checkout
