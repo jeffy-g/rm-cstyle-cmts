@@ -182,50 +182,60 @@ rmc.walk("<source file content>", opt);
 
     </details>
 
-  > ### node v12.22.11
+  > ### node v15.8.0
   
   ```shell
-  yarn run v1.22.18
-  $ node bench.mjs
+$ yarn benchmark
+yarn run v1.22.18
+$ cd etc/bench && yarn install && yarn start
+[1/4] Resolving packages...
+success Already up-to-date.
+$ node bench.mjs
 
-  - - - - - - - bench mark test - - - - - - - - -
-  Platform info:
-  Windows_NT 10.0.19043 x64
-  Node.JS: 12.22.11
-  V8     : 7.8.279.23-node.56
-  Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz x 4
+- - - - - - - bench mark test - - - - - - - - -
+Platform info:
+Windows_NT 10.0.19045 x64
+Node.JS: 15.8.0
+V8     : 8.6.395.17-node.23
+Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-  strip-comments x 11,677 ops/sec ±0.32% (90 runs sampled)
-  strip-json-comments x 16,759 ops/sec ±0.11% (97 runs sampled)
-  rm-cstyle-cmts x 169,240 ops/sec ±0.09% (95 runs sampled)
-  rm-cstyle-cmts (webpack) x 174,768 ops/sec ±0.16% (94 runs sampled)
-  rm-cstyle-cmts (umd) x 172,408 ops/sec ±0.18% (94 runs sampled)
-  - - done - -
-  all results are equals? true # see NOTE:
-  Done in 27.79s.
+strip-comments x 11,184 ops/sec ±0.69% (84 runs sampled)
+strip-json-comments x 17,525 ops/sec ±0.86% (94 runs sampled)
+rm-cstyle-cmts x 168,734 ops/sec ±0.84% (92 runs sampled)
+rm-cstyle-cmts (webpack) x 165,568 ops/sec ±1.22% (94 runs sampled)
+rm-cstyle-cmts (umd) x 164,756 ops/sec ±0.74% (94 runs sampled)
+- - done - -
+all results are equals? true # see NOTE:
+Done in 28.22s.
   ```
 
-  > ### node v17.9.0
+  > ### node 22.12.0
   
   ```shell
-  yarn run v1.22.18
-  $ node etc/bench/bench.mjs
+yarn run v1.22.18
+$ cd etc/bench && yarn install && yarn start
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
 
-  - - - - - - - bench mark test - - - - - - - - -
-  Platform info:
-  Windows_NT 10.0.19043 x64
-  Node.JS: 17.9.0
-  V8     : 9.6.180.15-node.16
-  Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz x 4
+$ node bench.mjs
 
-  strip-comments x 11,327 ops/sec ±0.43% (87 runs sampled)
-  strip-json-comments x 17,281 ops/sec ±0.08% (95 runs sampled)
-  rm-cstyle-cmts x 163,564 ops/sec ±0.08% (94 runs sampled)
-  rm-cstyle-cmts (webpack) x 159,575 ops/sec ±0.08% (93 runs sampled)
-  rm-cstyle-cmts (umd) x 160,841 ops/sec ±0.18% (96 runs sampled)
-  - - done - -
-  all results are equals? true # see NOTE:
-  Done in 27.74s.
+- - - - - - - bench mark test - - - - - - - - - 
+Platform info:
+Windows_NT 10.0.19045 x64
+Node.JS: 22.12.0
+V8     : 12.4.254.21-node.21
+Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
+
+strip-comments x 12,301 ops/sec ±0.43% (94 runs sampled)
+strip-json-comments x 17,116 ops/sec ±0.16% (95 runs sampled)
+rm-cstyle-cmts x 218,466 ops/sec ±0.31% (96 runs sampled)
+rm-cstyle-cmts (webpack) x 216,343 ops/sec ±0.74% (95 runs sampled)
+rm-cstyle-cmts (umd) x 216,291 ops/sec ±0.28% (96 runs sampled)
+- - done - -
+all results are equals? true # see NOTE:
+Done in 28.56s.
   ```
 
   + NOTE: `strip-comments` may be buggy and is excluded from comparison
