@@ -4,10 +4,7 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@5.0.3
-  # The Node.js orb contains a set of prepackaged CircleCI configuration you can utilize
-  # Orbs reduce the amount of configuration required for common tasks.
-  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
-  node: circleci/node@7.0.0
+
 jobs:
   # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
   build-and-test:
@@ -54,8 +51,7 @@ jobs:
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
             npm run test
 
-      - codecov/upload:
-          file: "./coverage/coverage-final.json"
+      - codecov/upload
 
       - store_test_results:
           path: test-results
