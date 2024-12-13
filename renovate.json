@@ -4,7 +4,9 @@
     ],
     "statusCheckVerify": true,
     "ignoreDeps": [
-        "through2"
+        "through2", "eslint",
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser"
     ],
     "automerge": true,
     "automergeType": "branch",
