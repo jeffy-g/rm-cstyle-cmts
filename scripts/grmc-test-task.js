@@ -60,7 +60,10 @@ const preserveJSDoc = ({ event, fragment }) => {
  * @param {string} name
  */
 const generateSource = (content, name)  => {
-    return `const ${name} = ${JSON.stringify(content, null, 2)};
+    return `const ${name} = ${
+        JSON.stringify(content.sort((a, b) => a.length - b.length), null, 2)
+            .replace(/\\\\/g, "\\").replace(/(?<=^\s+)"(.+?\/(?:\w+)?)"(?=,?)/gm, "$1")
+    };
 module.exports = {
   ${name}
 };
