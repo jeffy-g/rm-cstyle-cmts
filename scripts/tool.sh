@@ -1,6 +1,6 @@
 #!/bin/bash -x
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#  Copyright (C) 2025 jeffy-g <hirotom1107@gmail.com>
+#  Copyright (C) 2022 jeffy-g <hirotom1107@gmail.com>
 #  Released under the MIT license
 #  https://opensource.org/licenses/mit-license.php
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -36,24 +36,18 @@ fix_import_path() {
 # because typescript reference doesn't work
 #
 del_usestrict() {
-  # step 1
   local files=$(find ./dist/cjs/*.js)
   files+=" "$(find ./dist/cjs/gulp/*.js)
-  # echo -e $files
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -Ei -z -e "s/\"use strict\";\\n//" $files
-  else
-    sed -Ei -z "s/\"use strict\";\\n//" $files
-  fi
+  fire-sed "s/\"use strict\";\\n//" $files
 }
 fire-sed() {
   local regex=$1
   shift
+  local flags="-Ei -z"
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -Ei -e "$regex" "$@"
-  else
-    sed -Ei -e "$regex" "$@"
+    flags=$(echo $flags " -e")
   fi
+  sed $flags "$regex" "$@"
 }
 
 copyfiles() {
@@ -61,28 +55,6 @@ copyfiles() {
   cpx ${cpxopt} -t "./scripts/fix-refpath" "./build/**/!(bench|gulp)/*.js" dist &
   cpx ${cpxopt} "./build/**/gulp/*.js" dist
 }
-
-# copytypes() {
-#   local cpx_pre=$(echo "cpx ${cpxopt}" '"src/index.d.ts"')
-#   local cpx_pre_gulp=$(echo "cpx ${cpxopt} -t" '"./scripts/fix-refpath" "src/gulp/{index.d.ts,package.json}"')
-#   local -a commands=(
-#     "${cpx_pre} ./dist"
-#     "${cpx_pre} ./dist/umd"
-#     "${cpx_pre} ./dist/webpack"
-#     "${cpx_pre_gulp} ./dist/cjs/gulp"
-#     "${cpx_pre_gulp} ./dist/webpack/gulp"
-#   )
-#   local executes=
-#   for cmd in "${commands[@]}"; do
-#     if [[ -z ${executes} ]]; then
-#       executes="${cmd}"
-#     else
-#       executes="${executes} & ${cmd}"
-#     fi
-#   done
-
-#   eval ${executes}
-# }
 
 emit_pkgjson() {
   local pkgjson=$(
