@@ -183,10 +183,11 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
     if (reBody) {
         const re = /^([gimsuyd]{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
         const maybeFlagPart = line.substring(i);
-        const m = re.exec(maybeFlagPart)!;
+        const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
             return null;
         }
+        // @ts-expect-error
         const flags = m[1] || "";
         return {
             body: reBody + flags,

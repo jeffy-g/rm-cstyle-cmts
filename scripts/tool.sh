@@ -47,8 +47,18 @@ patch_with_tag() {
 
 fix_import_path() {
   local target="./build/cjs/bench/index.js"
-  cat ${target} | sed -E 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/'>${target}.tmp
-  mv ${target}.tmp ${target}
+  sed -i -E 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/' ${target}
+}
+# 
+# remove "use strict" directive
+# because typescript reference doesn't work
+# 
+del_usestrict() {
+  # step 1
+  local files=$(find ./dist/cjs/*.js)
+  files+=" "$(find ./dist/cjs/gulp/*.js)
+  # echo -e $files
+  sed -i -z -E "s/\"use strict\";\n//" $files
 }
 
 copyfiles() {

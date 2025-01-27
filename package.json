@@ -59,7 +59,7 @@
     "lint": "eslint src/**/*.ts",
     "jstool": "node ./scripts/tiny/tools",
     "patch:tag": "yarn fire:tool patch_with_tag",
-    "preserve:jsdoc": "yarn jstool -cmd rmc -rmc4ts -basePath \"./dist/cjs,./dist/cjs/gulp\" -test \"/\\.(js|d\\.ts)$/\"",
+    "preserve:jsdoc": "yarn fire:tool del_usestrict && yarn jstool -cmd rmc -rmc4ts -basePath \"./dist/cjs,./dist/cjs/gulp\" -test \"/\\.(js|d\\.ts)$/\"",
     "pretest": "rimraf -g ./coverage/*",
     "test": "bash -c \"[ -z $JEST_CONF ] && JEST_CONF=jest.config.js; jest --silent=false -c=$JEST_CONF\"",
     "toggle:cmts": "yarn jstool -cmd cmtTrick -targets \"js-scanner.ts,\" -basePath src",

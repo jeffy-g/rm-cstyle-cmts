@@ -108,7 +108,7 @@ type TCharScannerFunction =
      * @param src  current replacement source.
      * @param ctx see {@link TScannerContext}
      */
-    (src: string, ctx: TScannerContext) => boolean | never;
+    (src: string, ctx: TScannerContext) => boolean;
 
 
 /**
@@ -124,7 +124,7 @@ type TCharScannerFunction =
 /**
  * @typedef {(
  *   source: string, context: TScannerContext
- * ) => boolean | never} TCharScannerFunction if returns true then context has been changed.
+ * ) => boolean} TCharScannerFunction if returns true then context has been changed.
  */
 
 
@@ -132,10 +132,11 @@ type TCharScannerFunction =
  * create TScannerContext
  * 
  * @param {string} src parsing source
- * @param {true} [collectRegex]
+ * @param {true=} collectRegex
+ * @param {true=} isWalk
  * @returns {TScannerContext}
  */
-const createWhite = (src: string, collectRegex?: true, isWalk: boolean = false): TScannerContext => {
+const createWhite = (src: string, collectRegex?: true, isWalk?: true): TScannerContext => {
     // specify new line character.
     /** @type {util.TDetectedNewLines} */
     const newline: util.TDetectedNewLines = detectNewLine(src);
@@ -213,7 +214,7 @@ const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
  * @returns {boolean}
  * @throws {SyntaxError}
  */
-const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean | never => {
+const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean => {
 
     // store "next" postion character. 
     let ch: TBD<string>;
