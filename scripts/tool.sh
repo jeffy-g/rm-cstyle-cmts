@@ -47,7 +47,7 @@ patch_with_tag() {
 
 fix_import_path() {
   local target="./build/cjs/bench/index.js"
-  sed -i -E 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/' ${target}
+  sed -i -E 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\\2/' ${target}
 }
 # 
 # remove "use strict" directive
