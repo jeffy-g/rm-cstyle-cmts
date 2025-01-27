@@ -36,7 +36,7 @@ const rimraf = require("rimraf");
 // ⚠️ CAVEAT:
 //  In test for all files in node_modules,
 //  if output directory is set immediately below working directory, vscode maybe/will be freezes
-const RESULT_SRC_FILEs_OUT = "./rmc-tmp/output";
+const RESULT_SRC_FILEs_OUT = "../rmc-tmp/output";
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
