@@ -253,7 +253,13 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
 
     return null;
 };
-function check(line: string, x: number, limit = line.length): string | null {
+/**
+ * @param {string} line
+ * @param {number} x
+ * @param {number=} limit default is `line.length`
+ * @returns {TBC<string>}
+ */
+function check(line: string, x: number, limit = line.length): TBC<string> {
     const regexFlags = "dgimsuy";
     const expectAfterChars = ";,.]): \t";
     let reflags = "";
