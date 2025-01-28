@@ -134,6 +134,10 @@ const reLFCR = /[\n\r]/;
  *  + here is only validate the placement of "(" and ")" briefly.  
  *  **this will be avoid the costly "eval" quite a number of times**.
  * 
+ * NOTE: 2025/1/28
+ *  + Even if it is not written as a regular expression in the text,  
+ *    it will be detected if it is valid as a regex (this is by design).
+ * 
  * @param {string} line MUST starts with "/" string
  * @returns {TRegexDetectResult | null}
  */
@@ -188,7 +192,7 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
     }
 
     if (reBody) {
-        const re = /^([dgimsuy]{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
+        const re = /^(\w{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {

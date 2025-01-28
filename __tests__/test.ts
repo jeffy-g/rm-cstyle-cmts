@@ -86,14 +86,36 @@ function eachModule(path: KRmcImportPath) {
         ["BackQuoteScanner::incomplete backquote", "{} as string ` back quote! ` `", "{} as string ` back quote! ` `"],
         ["SlashScanner::extra slash", "const n: number = 1; /", "const n: number = 1; /"],
         ["SlashScanner::incomplete block comment", "const n: number = 1; /* comment /", "const n: number = 1; /* comment /"],
+        ["SlashScanner::regex flags strict check(2025)#1 " + ansi.magenta("note: Although it is not written as a regex in the statement, it is detected as a regex (this is by design)"),
+            "  const nn = value/(ret+)*8/gm;", "const nn = value/(ret+)*8/gm;", 1, 1],
+        ["SlashScanner::regex flags strict check(2025)#2 " + ansi.blue("(flags `gmx` are invalid, so not detect them)"), "  const nn = value/(ret+)8/gmx;", "const nn = value/(ret+)8/gmx;", 1, 0],
+        ["SlashScanner::regex flags strict check(2025)#3 " + ansi.blue("(flags `gmig` are invalid, so not detect them)"), "  const nn = value/(ret+)8/gmig;", "const nn = value/(ret+)8/gmig;", 1, 0],
     ])(
         "The input source will be returned without any processing when exception occured",
-        (title, input, output) => {
+        (title, input, output, checkRegex = 0, isDetected = 0) => {
+            function caseRegex() {
+                const result = rmc.getDetectedReContext().detectedReLiterals;
+                expect(result.length).toBe(isDetected);
+            }
             it(`[${path}] ${title}` + " (showErrorMessage)", () => {
-                validate(input, output, { showErrorMessage: true });
+                let collectRegex: true;
+                if (checkRegex) {
+                    collectRegex = true;
+                    rmc.reset();
+                }
+                // @ts-expect-error 
+                validate(input, output, { showErrorMessage: true, collectRegex });
+                caseRegex();
             });
             it(`[${path}] ${title}`, () => {
-                validate(input, output);
+                let collectRegex: true;
+                if (checkRegex) {
+                    collectRegex = true;
+                    rmc.reset();
+                }
+                // @ts-expect-error 
+                validate(input, output, { collectRegex });
+                caseRegex();
             });
         },
     );
@@ -267,20 +289,20 @@ limitations under the License.
                 );
             });
 
-            it(`[${path}] #4 with report_regex_evaluate_error: true`, () => {
+            it(`[${path}] #4 whether to detect regex`, () => {
                 validate(
                     "  return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
                     "return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);",
                 );
             });
 
-            it(`[${path}] #5 with report_regex_evaluate_error: false`, () => {
+            it(`[${path}] #5 whether to detect regex`, () => {
                 validate(
                     "  l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
                     "l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),",
                 );
             });
-            it(`[${path}] #5-2 with report_regex_evaluate_error: false`, () => {
+            it(`[${path}] #5-2 whether to detect regex`, () => {
                 validate(
                     "  const nn = value/(ret++)*8/gm;",
                     "const nn = value/(ret++)*8/gm;",
@@ -303,11 +325,11 @@ limitations under the License.
         });
 
         describe("strip text file (this case only remove kinds of comments, and blank line)", () => {
-            it(`[${path}] removing comments of ./samples/es6.js with 'report_regex_evaluate_error' flag`, () => {
+            it(`[${path}] removing comments of ./samples/es6.js`, () => {
                 stripSource("./samples/es6.js");
             });
             // DEVNOTE: 2022/1/21 3:05:02
-            // it("removing comments of ./samples/typeid-map.js with 'report_regex_evaluate_error' flag", () => {
+            // it("removing comments of ./samples/typeid-map.js", () => {
             //     stripSource("./samples/typeid-map.js");
             // });
         });

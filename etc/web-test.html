@@ -9,14 +9,20 @@
     <script type="text/javascript">
         const opts = {
             preserveBlanks: void 0, 
-            showErrorMessage: void 0
+            showErrorMessage: void 0,
+            collectRegex: true,
         };
         function getDom(id) {
             return document.getElementById(id);
         }
         function doRmc() {
             const jsonc = getDom("jsonc").value;
+            console.log(opts);
+            Rmc.reset();
             getDom("jsonc-removed").value = Rmc(jsonc, opts);
+            const regexies = Rmc.getDetectedReContext();
+            console.log(regexies);
+            getDom("rmc-result-internal").textContent = JSON.stringify(regexies, null, 2);
         }
         onload = function() {
             Object.keys(opts).forEach(opt => {
@@ -25,15 +31,29 @@
                     doRmc();
                 });
             });
+            getDom("jsonc").addEventListener("keyup", function (e) {
+                doRmc();
+            });
             doRmc();
         }
     </script>
+    <style>
+        #rmc-result-internal {
+            font-family: consolas;
+            font-size: 18px;
+            background: #f0f0f0;
+            border: solid 1px silver;
+            border-radius: 4px;
+            padding: 4px;
+        }
+    </style>
 </head>
 <body>
     <div>sample input:</div>
     <div>
         <input type="checkbox" id="preserveBlanks"> preserveBlanks,
         <input type="checkbox" id="showErrorMessage"> showErrorMessage
+        <input type="checkbox" id="collectRegex" checked> collectRegex
     </div>
     <div>
     <textarea id="jsonc" style="height: 220px; width: 720px;" onchange="doRmc()">
@@ -83,5 +103,6 @@
     <div>
         <textarea id="jsonc-removed" style="height: 220px; width: 720px;"></textarea>
     </div>
+    <pre id="rmc-result-internal"></pre>
 </body>
 </html>
