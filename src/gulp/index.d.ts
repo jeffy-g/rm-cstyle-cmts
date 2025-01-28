@@ -8,23 +8,14 @@
 // <reference types="rm-cstyle-cmts"/>
 /// <reference path="../index.d.ts"/>
 
-
 declare global {
-    /**
-     * 
-     */
     namespace NsGulpRmc {
 
-        // type StreamTransform = typeof import("stream").Transform["prototype"];
-        // type File = typeof import("vinyl")["prototype"];
         type StreamTransform = import("stream").Transform;
         type File = import("vinyl");
         type TransformCallback = (err?: any, data?: any) => void;
+        type FixTransformFunction = (this: StreamTransform, chunk: File, enc: BufferEncoding, callback: TransformCallback) => void;
 
-        /**
-         * 
-         */
-         type FixTransformFunction = (this: StreamTransform, chunk: File, enc: BufferEncoding, callback: TransformCallback) => void;
         /**
          * gulp-rm-cmts option type
          */

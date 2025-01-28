@@ -193,8 +193,7 @@ if (settings.p) {
             };
         })();
 
-        stdin.on("data", onDataHandler);
-        stdin.on("end", function () {
+        stdin.on("data", onDataHandler).on("end", function () {
             !process.env.CI && (progress(), 1) || console.log();
             emitResult();
         });

@@ -17,7 +17,7 @@ type TBC<T> = T | null;
 
 interface RegExp {
   /**
-   * es2022 feature
+   * es2022 feature: Provides the start and end indices of the captured string.
    */
   readonly indices?: Array<[number, number]>;
 }
@@ -25,7 +25,3 @@ interface RegExp {
 type TBivariant<M extends (...args: any[]) => any> = {
   bivarianceHack(...args: Parameters<M>): ReturnType<M>;
 }["bivarianceHack"];
-/**
- * @template {(...args: any[]) => any} M
- * @typedef {{ bivarianceHack(...args: Parameters<M>): ReturnType<M>; }["bivarianceHack"]} TBivariant
- */

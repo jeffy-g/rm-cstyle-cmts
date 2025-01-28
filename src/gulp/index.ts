@@ -69,34 +69,22 @@ const createContext = (options: NsGulpRmc.TOptions) => {
         showErrorMessage: true
     };
     const renderProgress = options.renderProgress;
-    // DEVNOTE: 2022/04/07
-    const extensions = (() => {
-        /* istanbul ignore if */
-        if (options.disableDefaultExtensions) {
-            return options.extraExtensions || [".js"];
-        } else {
-            return defaultExtensions.concat(
-                options.extraExtensions || []
-            );
-        }
-    })();
+    const extensions = options.disableDefaultExtensions
+        ? options.extraExtensions || [".js"]
+        : defaultExtensions.concat(options.extraExtensions || []);
     /**
      * @see {@link NsGulpRmc.TOptions.timeMeasure timeMeasure}
      */
     const timeMeasure = options.timeMeasure;
-    /**
-     * @param path 
-     */
     /* istanbul ignore next */
-    const progress = process.env.CI? (() => {
+    const progress = process.env.CI ? (() => {
         let count = 0;
         const output = process.stderr;
         return (/* path: string */) => {
             (++count % 100) === 0 && output.write("\u2708 ");
             (count % 5000) === 0 && output.write("\n");
         };
-    })(): stdProgress;
-
+    })() : stdProgress;
     const highWaterMark = options.highWaterMark || NsGulpRmc.EConstants.HWM;
 
     return [
@@ -129,29 +117,26 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
     const transform: NsGulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
 
         // plugin main
-        if (vinyl.isBuffer()) {
-            if (extensions.includes(vinyl.extname)) {
-                const path = vinyl.relative;
-                renderProgress && process.nextTick(progress, `[${encoding}]: ${path}`);
-                // renderProgress && progress(path);
-                let contents: string;
-                /* istanbul ignore else */
-                if (timeMeasure) {
-                    const a = perf.now();
-                    contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
-                    const span = perf.now() - a;
-                    timeSpans.push(
-                        `${span}:${path}`
-                    );
-                } else {
-                    contents = rmc(vinyl.contents.toString(), opt);
-                }
-                // node ^v5.10.0
-                vinyl.contents = Buffer.from(contents);
-                if (prevNoops ^ rmc.noops) {
-                    noopPaths.push(path);
-                    prevNoops = rmc.noops;
-                }
+        if (vinyl.isBuffer() && extensions.includes(vinyl.extname)) {
+            const path = vinyl.relative;
+            renderProgress && process.nextTick(progress, `[${encoding}]: ${path}`);
+            let contents: string;
+            /* istanbul ignore else */
+            if (timeMeasure) {
+                const a = perf.now();
+                contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
+                const span = perf.now() - a;
+                timeSpans.push(
+                    `${span}:${path}`
+                );
+            } else {
+                contents = rmc(vinyl.contents.toString(), opt);
+            }
+            // node ^v5.10.0
+            vinyl.contents = Buffer.from(contents);
+            if (prevNoops ^ rmc.noops) {
+                noopPaths.push(path);
+                prevNoops = rmc.noops;
             }
             return callback(null, vinyl);
         }
@@ -174,15 +159,12 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
      * @type {NsGulpRmc.FixTransformFunction}
      */
     const transformWithWalk: NsGulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
-        if (vinyl.isBuffer()) {
-            if (extensions.includes(vinyl.extname)) {
-                renderProgress && process.nextTick(progress, `[${encoding}]: ${vinyl.relative}`);
-                // renderProgress && progress(path);
-                rmc.walk(vinyl.contents.toString(), opt);
-                if (prevNoops < rmc.noops) {
-                    noopPaths.push(vinyl.relative);
-                    prevNoops = rmc.noops;
-                }
+        if (vinyl.isBuffer() && extensions.includes(vinyl.extname)) {
+            renderProgress && process.nextTick(progress, `[${encoding}]: ${vinyl.relative}`);
+            rmc.walk(vinyl.contents.toString(), opt);
+            if (prevNoops < rmc.noops) {
+                noopPaths.push(vinyl.relative);
+                prevNoops = rmc.noops;
             }
         } else /* istanbul ignore if */ if (vinyl.isStream()) {
             this.emit("error", new TypeError(`[${PLUGIN_NAME}]: Streams not supported!`));
