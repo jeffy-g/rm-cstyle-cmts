@@ -102,27 +102,27 @@ export type TRegexDetectResult = {
  */
 const reValidFirst = /^\/(?![?+])/;
 
-/**
- * if `true`, regex is invalid
- * 
- * ```js
- * // must use with /^([dgimsuy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g
- * /[^dgimsuy\d?*+\/\\]/.test(flagsPartAfter);
- * ```
- * @date 2020/5/7
- */
-// TODO: 2020/5/26 11:16:15 - need review because maybe this regex is incomplete
-const reFlagsPartAfter = /[^dgimsuy\d?*+\/\\]/;
-/**
- * strict check for regex flags
- *  + This check allows us to eliminate statements that may be arithmetic expressions.
- * 
- * ```js
- * /^(?!.*(.).*\1)[dgimsuy]*$/
- * ```
- * @date 2025/1/28
- */
-const reFixedRegexFlags = /^(?!.*(.).*\1)[dgimsuy]*$/;
+// /**
+//  * if `true`, regex is invalid
+//  * 
+//  * ```js
+//  * // must use with /^([dgimsuy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g
+//  * /[^dgimsuy\d?*+\/\\]/.test(flagsPartAfter);
+//  * ```
+//  * @date 2020/5/7
+//  */
+// // TODO: 2020/5/26 11:16:15 - need review because maybe this regex is incomplete
+// const reFlagsPartAfter = /[^dgimsuy\d?*+\/\\]/;
+// /**
+//  * strict check for regex flags
+//  *  + This check allows us to eliminate statements that may be arithmetic expressions.
+//  * 
+//  * ```js
+//  * /^(?!.*(.).*\1)[dgimsuy]*$/
+//  * ```
+//  * @date 2025/1/28
+//  */
+// const reFixedRegexFlags = /^(?!.*(.).*\1)[dgimsuy]*$/;
 const reLFCR = /[\n\r]/;
 
 /**
