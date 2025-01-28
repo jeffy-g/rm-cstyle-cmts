@@ -10,9 +10,8 @@
 import * as util from "./reutil";
 
 const {
-    detectNewLine,
-    detectRegex,
-    lookupRegexes
+    detectNewLine, detectRegex, lookupRegexes,
+    getScanRegex, resetOk
 } = util;
 
 
@@ -634,6 +633,7 @@ const getDetectedReContext = () => {
 const reset = () => {
     detectedReLiterals.length = 0;
     drlIndex = 0;
+    resetOk();
 };
 
 /**
@@ -649,4 +649,5 @@ export {
     getDetectedReContext,
     reset,
     setListener,
+    getScanRegex
 };

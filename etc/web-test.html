@@ -24,10 +24,10 @@
             console.log(regexies);
             getDom("rmc-result-internal").textContent = JSON.stringify(regexies, null, 2);
         }
-        onload = function() {
+        document.addEventListener("DOMContentLoaded", function() {
             Object.keys(opts).forEach(opt => {
                 getDom(opt).addEventListener("change", function (e) {
-                    opts[opt] = this.checked? true: void 0;
+                    opts[opt] = this.checked ? true : void 0;
                     doRmc();
                 });
             });
@@ -35,7 +35,7 @@
                 doRmc();
             });
             doRmc();
-        }
+        });
     </script>
     <style>
         #rmc-result-internal {
@@ -56,7 +56,7 @@
         <input type="checkbox" id="collectRegex" checked> collectRegex
     </div>
     <div>
-    <textarea id="jsonc" style="height: 220px; width: 720px;" onchange="doRmc()">
+    <textarea id="jsonc" style="height: 220px; width: 720px;">
 {
   "compilerOptions": {
     "newLine": "LF",

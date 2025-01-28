@@ -264,6 +264,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
                 console.log(
                     `\ntask grmc-test done, processed: ${rmc.processed}, noops: ${rmc.noops}\n` +
                     `detected inline source map: ${inlineSourceMap}\n` +
+                    `scanned regex count: ${rmc.getScannedRegexCount()}\n` +
                     `detected regex count: ${context.detectedReLiterals.length}\nunique regex count: ${context.uniqReLiterals.length}\n` +
                     `detected JSDoc tag count: ${tagPriorityEntries.length}\ndetected JSDoc tags: %o\n` +
                     `${settings.showNoops ? `noop paths: %o`: ""}`,

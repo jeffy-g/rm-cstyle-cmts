@@ -106,13 +106,13 @@ const reValidFirst = /^\/(?![?+])/;
  * if `true`, regex is invalid
  * 
  * ```js
- * // must use with /^([gimsuy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g
- * /[^gimsuy\d?*+\/\\]/.test(flagsPartAfter);
+ * // must use with /^([dgimsuy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g
+ * /[^dgimsuy\d?*+\/\\]/.test(flagsPartAfter);
  * ```
  * @date 2020/5/7
  */
 // TODO: 2020/5/26 11:16:15 - need review because maybe this regex is incomplete
-const reFlagsPartAfter = /[^gimsuyd\d?*+\/\\]/;
+const reFlagsPartAfter = /[^dgimsuy\d?*+\/\\]/;
 /**
  * strict check for regex flags
  *  + This check allows us to eliminate statements that may be arithmetic expressions.
@@ -192,7 +192,16 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
     }
 
     if (reBody) {
-        const re = /^(\w{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
+        scanRegex++;
+        /**
+         * This regex matches up to 7 word characters (letters, digits, and underscores)  
+         * that are followed by a space, semicolon, comma, period, closing bracket, closing parenthesis,  
+         * whitespace, or end of the string. The match is non-consuming, meaning it does not include  
+         * the characters that follow the word characters in the match.
+         */
+        // Is this the best choice?
+        const re = /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|\s|$)).?/g; // yarn grmc-test:cjs, about 39sec
+        // const re = /^(\w{0,7})(?=\s*(?:;|,|\.|]|\)|\s|$)).?/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
@@ -209,4 +218,12 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
     }
 
     return null;
+};
+
+let scanRegex = 0;
+export function getScanRegex() {
+    return scanRegex;
+}
+export const resetOk = () => {
+    scanRegex = 0;
 };

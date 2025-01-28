@@ -107,6 +107,11 @@ declare global {
          */
         getDetectedReContext(): TDetectedReContext;
         /**
+         * The number of times regex validation was performed
+         * @since 3.3.16
+         */
+        getScannedRegexCount(): number;
+        /**
          * listen the Scan event
          * 
          *  + When single line comment detected {@link EScannerEvent.SingleLineComment}

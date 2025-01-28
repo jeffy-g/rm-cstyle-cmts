@@ -137,6 +137,9 @@ Object.defineProperties(rmc, {
             okay = failure = 0, JsScanner.reset();
         }
     },
+    getScannedRegexCount: {
+        value: JsScanner.getScanRegex
+    },
     getDetectedReContext: {
         value: JsScanner.getDetectedReContext
     },
