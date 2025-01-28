@@ -143,9 +143,10 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
      */
     const SCAN_SRC_PREFIX = BASE_PREFIX + "/node_modules/**/";
     //*
-    const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}{*,\.*,\.*/*}`;
+    const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}{*,\.*,\.\x2a/*}`;
     /*/
-    const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{js,mjs,cjs}`;
+    const SCAN_SRC_FILEs = `./src/*\x2a/{*,\.*,\.\x2a/*}`;
+    // const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{js,mjs,cjs}`;
     // const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{js,jsx,ts,tsx}`;
     //*/
 

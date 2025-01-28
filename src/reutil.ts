@@ -200,8 +200,8 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
          * the characters that follow the word characters in the match.
          */
         // Is this the best choice?
-        const re = /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|\s|$)).?/g; // yarn grmc-test:cjs, about 39sec
-        // const re = /^(\w{0,7})(?=\s*(?:;|,|\.|]|\)|\s|$)).?/g;
+        const re = /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g; // yarn grmc-test:cjs, about 39sec
+        // const re = /^(\w{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
