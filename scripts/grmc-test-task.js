@@ -242,7 +242,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
                     isWalk: settings.isWalk,
                     timeMeasure: settings.timeMeasure,
                     extraExtensions: settings.extraExtensions,
-                    disableDefaultExtentions: settings.extraExtensions ? true: void 0,
+                    disableDefaultExtensions: settings.extraExtensions ? true: void 0,
                     // 2022/5/7
                     // @ts-ignore 
                     highWaterMark: +(settings.highWaterMark) || void 0

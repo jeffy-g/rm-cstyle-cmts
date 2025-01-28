@@ -72,7 +72,7 @@ declare global {
              * 
              * @date 2022/4/7
              */
-            disableDefaultExtentions?: true;
+            disableDefaultExtensions?: true;
 
             /**
              * Whether to record the processing time for each file (replace mode only)

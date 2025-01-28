@@ -72,7 +72,7 @@ const createContext = (options: NsGulpRmc.TOptions) => {
     // DEVNOTE: 2022/04/07
     const extensions = (() => {
         /* istanbul ignore if */
-        if (options.disableDefaultExtentions) {
+        if (options.disableDefaultExtensions) {
             return options.extraExtensions || [".js"];
         } else {
             return defaultExtensions.concat(
