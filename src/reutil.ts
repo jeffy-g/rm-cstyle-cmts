@@ -206,4 +206,3 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
 
     return null;
 };
-// 2-1722
