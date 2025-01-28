@@ -132,10 +132,12 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
     if (!reValidFirst.test(line) || reLFCR.test(line)) return null;
 
     let groupIndex = 0, inEscape = false, inClass = 0;
+    /** current line offset */
+    let i = 1;
+    /** line limit */
     const end = line.length;
     /** @type {string | undefined} */
     let reBody: TBD<string>;
-    let i = 1;
     // always starts offset is "one" because line[0] is supposed to be "/"
     for (; i < end;) {
         const ch = line[i++];
@@ -175,15 +177,38 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
         }
     }
 
+    function chk(/* line: string */) {
+        // let i = 0;
+        // const end = line.length;
+        let maybeflags = "";
+        while (i < end) {
+            const flag = line[i];
+            // @ts-expect-error 
+            if (/[dgimsuy]/.test(flag) && !maybeflags.includes(flag)) {
+                maybeflags += flag;
+            } else {
+                if (/^\s*(?:;|,|\.|]|\)|\s)/.test(line.substring(i))) {
+                    return maybeflags;
+                }
+                break;
+            }
+            i++;
+        }
+        return "";
+    }
     if (reBody) {
+        /* ctt
         const re = /^([dgimsuy]{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
             return null;
         }
-        // @ts-expect-error
+        // @ts-expect -error
         const flags = m[1] || "";
+        /*/
+        const flags = chk();
+        //*/
         return {
             body: reBody + flags,
             lastIndex: i + flags.length
