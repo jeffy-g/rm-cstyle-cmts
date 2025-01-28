@@ -17,9 +17,9 @@ const {
 
 
 type TScannerContext = {
-    /** The source offset currently being scanned is recorded. (read, write */
+    /** The source offset currently being scanned is recorded. (read, write) */
     offset: number;
-    /** new line character at source. (read */
+    /** New line character at source. (read) */
     readonly newline: util.TDetectedNewLines;
 
     /**
@@ -29,7 +29,7 @@ type TScannerContext = {
     eventDone?: true;
 
     /**
-     * Whether to record the detected regex. (read, write
+     * Whether to record the detected regex. (read, write)
      * 
      * @date 2020/5/8
      */
@@ -38,7 +38,7 @@ type TScannerContext = {
     // - - - - - - - - - - - - - - -
     // replace mode
     // - - - - - - - - - - - - - - -
-    /** replecement result (read, write */
+    /** Replacement result (read, write) */
     result: string;
 
     // - - - - - - - - - - - - - - -
@@ -140,7 +140,6 @@ const createWhite = (src: string, collectRegex?: true, isWalk?: true): TScannerC
     // specify new line character.
     /** @type {util.TDetectedNewLines} */
     const newline: util.TDetectedNewLines = detectNewLine(src);
-    /** @type {TScannerContext} */
     const ctx = /** @type {TScannerContext} */({
         offset: 0,
         // result: "",
@@ -198,7 +197,7 @@ const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
         }
     }
 
-    throw new SyntaxError(`incomplete quote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`Incomplete quote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
 };
 
 
@@ -298,7 +297,7 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
         }
     }
 
-    throw new SyntaxError(`incomplete backquote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`Incomplete backquote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
 };
 
 /** @type {string[]} */
@@ -371,7 +370,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
             ctx.offset = close + 2;
             return true;
         }
-        throw new SyntaxError("incomplete multi line comment");
+        throw new SyntaxError("Incomplete multi line comment");
     }
     // avoid jsx, tsx tag
     if (src[startOffset - 1] === "<") {
@@ -410,7 +409,6 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
                 ctx.proceed = scanListener!(eventContext);
             }
         }
-
         return true;
     }
 
@@ -423,7 +421,6 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     }
 
     if (ctx.collectRegex) {
-        // detectedReLiterals.push(m.body);
         detectedReLiterals[drlIndex++] = m.body;
     }
     // update offset.

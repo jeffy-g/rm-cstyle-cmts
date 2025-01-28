@@ -20,18 +20,24 @@ import * as JsScanner from "./js-scanner";
 const {
     apply, walk
 } = JsScanner;
+
+/**
+ * Throws a TypeError with a specific message.
+ */
 const throwTypeError = () => {
     throw new TypeError("invalid text content!");
 };
+
 /**
- * @param {TRemoveCStyleCommentsOpt} [opt] 
- * @param {unknown} [e] 
+ * Handles errors by logging a warning message and incrementing the failure count.
+ * @param {TRemoveCStyleCommentsOpt} [opt] - Options for removing comments.
+ * @param {unknown} [e] - The error that occurred.
  */
 const handleError = (opt?: TRemoveCStyleCommentsOpt, e?: unknown) => {
     if (opt) {
         console.warn(
             "\n[Exception occurred] source will be returned without processing",
-            opt.showErrorMessage? (e instanceof Error && `\nmessage: ${e.message}`): ""
+            opt.showErrorMessage ? (e instanceof Error && `\nmessage: ${e.message}`) : ""
         );
     }
     failure++;
@@ -55,8 +61,8 @@ let failure = 0;
  * 
  * @template {typeof apply | typeof walk} T
  * @template {ReturnType<T>} R
- * @param {T} fn 
- * @returns {(...args: Parameters<T>) => R}
+ * @param {T} fn - The function to apply or walk.
+ * @returns {(...args: Parameters<T>) => R} - The integrated function.
  * @date 2022/5/12
  */
 const emitMainFunction = <
@@ -65,9 +71,10 @@ const emitMainFunction = <
 >(fn: T): (...args: Parameters<T>) => R => {
 
     /**
-     * @param {string} source 
-     * @param {TRemoveCStyleCommentsOpt} [opt]
-     * @returns {R} if `options.isWalk === true`, returns original string, otherwise returns comment removed string
+     * Processes the source string and removes comments if applicable.
+     * @param {string} source - The source string to process.
+     * @param {TRemoveCStyleCommentsOpt} [opt] - Options for removing comments.
+     * @returns {R} - The processed result.
      */
     return (source: string, opt?: TRemoveCStyleCommentsOpt): R => {
 
