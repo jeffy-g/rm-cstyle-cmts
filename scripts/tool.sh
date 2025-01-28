@@ -4,7 +4,7 @@
 #  Released under the MIT license
 #  https://opensource.org/licenses/mit-license.php
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cpxopt=$([ -z $CI ] && echo "-v" || echo "")
+cpxopt=$([ -z "$CI" ] && echo "-v" || echo "")
 jstool() {
   [[ $1 == jstool ]] && {
     shift 1
@@ -15,13 +15,15 @@ jstool() {
 force-push() {
   local branch_name=$(git branch --contains=HEAD)
   branch_name=${branch_name/* /}
-  echo "current branch name: [${branch_name}]"
-  git push --tags --force --progress origin ${branch_name}:${branch_name}
+  for remote in $(git remote); do
+    echo "- - - - brach [${branch_name}], remote: [$remote] - - - -"
+    git push --tags --force --progress $remote ${branch_name}:${branch_name}
+  done
 }
 
 patch_with_tag() {
   local ret=$(jstool -cmd "version" -extras "./src/index.ts," $1)
-  local after=$(echo ${ret} | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+  local after=$(echo "${ret}" | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
   echo "version=[${after}]"
   git add -u
   git commit -m "v${after}"
@@ -51,9 +53,9 @@ fire-sed() {
 }
 
 copyfiles() {
-  cpx ${cpxopt} "./{README.md,LICENSE}" dist &
-  cpx ${cpxopt} -t "./scripts/fix-refpath" "./build/**/!(bench|gulp)/*.js" dist &
-  cpx ${cpxopt} "./build/**/gulp/*.js" dist
+  cpx "${cpxopt}" "./{README.md,LICENSE}" dist &
+  cpx "${cpxopt}" -t "./scripts/fix-refpath" "./build/**/!(bench|gulp)/*.js" dist &
+  cpx "${cpxopt}" "./build/**/gulp/*.js" dist
 }
 
 emit_pkgjson() {
@@ -90,12 +92,12 @@ copytypes() {
 
 webpack() {
   # rimraf "./dist/webpack/*" "./dist/umd/*"
-  [ -z $CI ] && npx webpack || npx webpack >/dev/null
+  [ -z "$CI" ] && npx webpack || npx webpack >/dev/null
   echo
   jstool -cmd rws
 }
 
-if [ ! -z $1 ]; then
+if [ ! -z "$1" ]; then
   [ "$1" = "patch_with_tag" ] && patch_with_tag $2 || {
     fname=$1
     shift
