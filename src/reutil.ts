@@ -113,6 +113,16 @@ const reValidFirst = /^\/(?![?+])/;
  */
 // TODO: 2020/5/26 11:16:15 - need review because maybe this regex is incomplete
 const reFlagsPartAfter = /[^gimsuyd\d?*+\/\\]/;
+/**
+ * strict check for regex flags
+ *  + This check allows us to eliminate statements that may be arithmetic expressions.
+ * 
+ * ```js
+ * /^(?!.*(.).*\1)[dgimsuy]*$/
+ * ```
+ * @date 2025/1/28
+ */
+const reFixedRegexFlags = /^(?!.*(.).*\1)[dgimsuy]*$/;
 const reLFCR = /[\n\r]/;
 
 /**
@@ -177,43 +187,23 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
         }
     }
 
-    function chk(/* line: string */) {
-        // let i = 0;
-        // const end = line.length;
-        let maybeflags = "";
-        while (i < end) {
-            const flag = line[i];
-            // @ts-expect-error 
-            if (/[dgimsuy]/.test(flag) && !maybeflags.includes(flag)) {
-                maybeflags += flag;
-            } else {
-                if (/^\s*(?:;|,|\.|]|\)|\s)/.test(line.substring(i))) {
-                    return maybeflags;
-                }
-                break;
-            }
-            i++;
-        }
-        return "";
-    }
     if (reBody) {
-        /* ctt
         const re = /^([dgimsuy]{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
             return null;
         }
-        // @ts-expect -error
+        // @ts-expect-error
         const flags = m[1] || "";
-        /*/
-        const flags = chk();
-        //*/
-        return {
-            body: reBody + flags,
-            lastIndex: i + flags.length
-        };
+        if (reFixedRegexFlags.test(flags)) {
+            return {
+                body: reBody + flags,
+                lastIndex: i + flags.length
+            };
+        }
     }
 
     return null;
 };
+// 2-1722
