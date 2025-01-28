@@ -14,7 +14,9 @@ export type TDetectedNewLines = TKnownNewLines | "";
  */
 
 /**
+ * Detects the newline character used in a given string.
  * @param {string} src 
+ * @returns {TDetectedNewLines}
  */
 export const detectNewLine = (src: string): TDetectedNewLines => {
     let index = 0, ch: TBD<string>;
@@ -30,9 +32,9 @@ export const detectNewLine = (src: string): TDetectedNewLines => {
 
 const reF = /^\s+/;
 /**
- * lookup regexes by newline character 
- *
- * @param {"" | "\r" | "\n" | "\r\n"} nl MUST be "" or "\r" or "\n" or "\r\n"
+ * Lookup regexes by newline character.
+ * @param {TDetectedNewLines} nl 
+ * @returns {object}
  */
 export const lookupRegexes = (nl: TDetectedNewLines) => {
     return {
@@ -111,7 +113,6 @@ const reValidFirst = /^\/(?![?+])/;
  */
 // TODO: 2020/5/26 11:16:15 - need review because maybe this regex is incomplete
 const reFlagsPartAfter = /[^gimsuyd\d?*+\/\\]/;
-
 const reLFCR = /[\n\r]/;
 
 /**
@@ -130,10 +131,7 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
 
     if (!reValidFirst.test(line) || reLFCR.test(line)) return null;
 
-    let groupIndex = 0,
-        inEscape = false,
-        inClass = 0;
-
+    let groupIndex = 0, inEscape = false, inClass = 0;
     const end = line.length;
     /** @type {string | undefined} */
     let reBody: TBD<string>;
@@ -147,13 +145,11 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
         if (ch === "\\") {
             inEscape = !inEscape;
         } else if (!inEscape) {
-
             if (ch === "/" && !inClass) {
                 if (groupIndex) return null;
                 reBody = line.substring(0, i);
                 break;
             }
-
             if (ch === "(") {
                 !inClass && groupIndex++;
             } else if (ch === ")") {
@@ -174,14 +170,13 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
             ) {
                 return null;
             }
-
         } else {
             inEscape = false;
         }
     }
 
     if (reBody) {
-        const re = /^([gimsuyd]{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
+        const re = /^([dgimsuy]{1,7})?(?:\s*(?:;|,|\.|]|\)|\s))?/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
