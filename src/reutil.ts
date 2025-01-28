@@ -139,9 +139,10 @@ const reLFCR = /[\n\r]/;
  *    it will be detected if it is valid as a regex (this is by design).
  * 
  * @param {string} line MUST starts with "/" string
+ * @param {true=} dontCountPlz
  * @returns {TRegexDetectResult | null}
  */
-export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
+export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetectResult> => {
 
     if (!reValidFirst.test(line) || reLFCR.test(line)) return null;
 
@@ -192,28 +193,8 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
     }
 
     if (reBody) {
-        scanRegex++;
+        !dontCountPlz && scanRegex++;
         //* ctt DEVNOTE: 2025/1/29 - Processing speed has improved by a few percent.
-        function check(line: string, x: number, limit = line.length): string | null {
-            const regexFlags = "dgimsuy";
-            const expectAfterChars = ";,.]): \t";
-            let reflags = "";
-            while (x < limit) {
-                const flag = line[x++] as string;
-                if (regexFlags.includes(flag)) {
-                    if (!reflags.includes(flag)) {
-                        reflags += flag;
-                    } else {
-                        return null; // Duplicate flag, invalid regex
-                    }
-                } else if (expectAfterChars.includes(flag) || !flag) {
-                    break; // Valid end of flags
-                } else {
-                    return null; // Invalid character in flags
-                }
-            }
-            return reflags;
-        }
         const flags = check(line, i);
         if (flags !== null) {
             return {
@@ -272,6 +253,26 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
 
     return null;
 };
+function check(line: string, x: number, limit = line.length): string | null {
+    const regexFlags = "dgimsuy";
+    const expectAfterChars = ";,.]): \t";
+    let reflags = "";
+    while (x < limit) {
+        const flag = line[x++] as string;
+        if (regexFlags.includes(flag)) {
+            if (!reflags.includes(flag)) {
+                reflags += flag;
+            } else {
+                return null; // Duplicate flag, invalid regex
+            }
+        } else if (expectAfterChars.includes(flag) || !flag) {
+            break; // Valid end of flags
+        } else {
+            return null; // Invalid character in flags
+        }
+    }
+    return reflags;
+}
 
 let scanRegex = 0;
 export function getScanRegex() {

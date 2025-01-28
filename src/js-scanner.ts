@@ -414,7 +414,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     //
     // - - - check regexp literal - - -
     //
-    const m = detectRegex(fragment);
+    const m = detectRegex(fragment, ctx.eventDone);
     if (!m) {
         return false;
     }
