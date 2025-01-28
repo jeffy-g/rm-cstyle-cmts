@@ -52,9 +52,9 @@ const defaultExtensions = [
     ".cts", ".mts"
 ];
 /**
- * @type {NsGulpRmc.TTimeSpanEntry}
+ * @type {NsGulpRmc.TTimeSpanEntries}
  */
-const timeSpans: NsGulpRmc.TTimeSpanEntry = [];
+const timeSpans: NsGulpRmc.TTimeSpanEntries = [];
 
 /**
  * @param {NsGulpRmc.TOptions} options

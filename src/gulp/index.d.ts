@@ -92,7 +92,7 @@ declare global {
          */
         type TTransformerFactory = (options?: NsGulpRmc.TOptions) => StreamTransform;
 
-        type TTimeSpanEntry = Array<(`${number}:${string}`)>;
+        type TTimeSpanEntries = Array<(`${number}:${string}`)>;
 
         const enum EConstants {
             /** highWaterMark */
@@ -115,7 +115,7 @@ declare const GulpRmc: {
      */
     getRmcInterface(): IRemoveCStyleComments;
 
-    getTimeSpans(): NsGulpRmc.TTimeSpanEntry;
+    getTimeSpans(): NsGulpRmc.TTimeSpanEntries;
 };
 
 export = GulpRmc;

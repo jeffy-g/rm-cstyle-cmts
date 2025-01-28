@@ -56,8 +56,10 @@ const preserveJSDoc = ({ event, fragment }) => {
     return false;
 };
 /**
- * @param {string[]} content
- * @param {string} name
+ * Generates source code from the given content.
+ * @param {string[]} content - The content to be included in the source code.
+ * @param {string} name - The name of the variable to hold the content.
+ * @returns {string} - The generated source code.
  */
 const generateSource = (content, name)  => {
     return `// ${content.length} entries
@@ -71,12 +73,14 @@ module.exports = {
 `;
 };
 /**
- * @param {TPriorityEntry[]} content 
+ * Formats the statistics of JSDoc tags.
+ * @param {TPriorityEntry[]} content - The content to be formatted.
+ * @returns {string} - The formatted statistics.
  */
 const formatStatictics = (content) => {
     return `const jsDocTagStatistics = [
   ${content.map(entry => `["${entry[0]}", ${entry[1]}]`)
-    .reduce((acc, value/*, idx*/) => {
+    .reduce((acc, value) => {
         return acc + value + ",\n  ";
         // return acc + value + (idx && !(idx % 5) ? ",\n  ": ", ");
     }, "")}
@@ -88,11 +92,12 @@ module.exports = {
 };
 
 /**
- * @param {TDetectedReContext} context 
- * @param {TPriorityEntry[]} tagPriorityEntries 
- * @param {NsGulpRmc.TTimeSpanEntry} timeSpans 
- * @param {number} pending 
- * @param {() => void} cb
+ * Finalizes the task by writing the results to files.
+ * @param {TDetectedReContext} context - The detected regex context.
+ * @param {TPriorityEntry[]} tagPriorityEntries - The JSDoc tag priority entries.
+ * @param {NsGulpRmc.TTimeSpanEntries} timeSpans - The time spans.
+ * @param {number} pending - The number of pending tasks.
+ * @param {() => void} cb - The callback function to be called after finalization.
  */
 const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
     /**
@@ -234,7 +239,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
         return new Promise(resolve => {
             /** @type {string | string[]} */
             console.time(`[batch-rmc-test:${mode}]`);
-            gulp.src(settings.paths || SCAN_SRC_FILEs).pipe(
+            gulp.src(settings.paths || SCAN_SRC_FILEs, { encoding: false }).pipe(
                 grmc.getTransformer({
                     // preserveBlanks: true,
                     collectRegex: settings.collectRegex,
