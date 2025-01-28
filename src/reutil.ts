@@ -193,6 +193,45 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
 
     if (reBody) {
         scanRegex++;
+        //* ctt
+        function check(/* line */) {
+            const regexFlags = "dgimsuy";
+            const expectAfterChars = ";,.]):\x20\t";
+            // A case like /\w+/gm["lastIndex"] is also possible, but this code is meaningless, so it is excluded.
+            // const expectAfterChars = ";,.[]):\x20\t";
+            //                            ->^
+            let reflags = "";
+            let x = i;
+            do {
+                const flag = line[x++] as string;
+                // "adb".includes(void 0) is false
+                if (regexFlags.includes(flag)) {
+                    if (!reflags.includes(flag)) {
+                        reflags += flag;
+                        continue;
+                    } else {
+                        // flags is invalid, means not regex
+                        return null;
+                    }
+                } else if (!flag) { // !flag is EOL
+                    break;
+                }
+                // flags is invalid, means not regex
+                if (expectAfterChars.includes(flag)) {
+                    break;
+                } else return null;
+            // } while (x < line.length);
+            } while (x < end);
+            return reflags;
+        }
+        const flags = check();
+        if (flags !== null) {
+            return {
+                body: reBody + flags,
+                lastIndex: i + flags.length
+            };
+        }
+        /*/
         /**
          * #### JavaScript regular expressions. Here is a breakdown of the pattern:
          * 
@@ -217,16 +256,20 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
          * 
          * This regex is useful for validating and extracting regular expression flags in JavaScript code.
          * 
-         */
+         * /
         // Is this the best choice?
         const re = /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
+        // A case like /\w+/gm["lastIndex"] is also possible,
+        // but this code is meaningless, so it is excluded.
+        // const re = /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\[|\s|$)).?/g;
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -^
         // const re = /^(\w{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
         const maybeFlagPart = line.substring(i);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
             return null;
         }
-        // @ts-expect-error
+        // @ts-expect -error
         const flags = m[1] || "";
         if (reFixedRegexFlags.test(flags)) {
             return {
@@ -234,6 +277,7 @@ export const detectRegex = (line: string): TBC<TRegexDetectResult> => {
                 lastIndex: i + flags.length
             };
         }
+        //*/
     }
 
     return null;

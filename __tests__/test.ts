@@ -21,6 +21,11 @@ type TRmcImport = {
 // mute the "warn"
 console.warn = () => ({});
 
+/**
+ * ```js
+ * collectRegex: true
+ * ```
+ */
 const defaultOpt: TRemoveCStyleCommentsOpt = {
     // preserveBlanks: false,
     collectRegex: true,
@@ -40,7 +45,14 @@ eachModule("../dist/esm/index.mjs"); // error
 function eachModule(path: KRmcImportPath) {
 
     let rmc: TRmcImport[typeof path];
-    const validate = (text: string, expectance: string, opt: TRemoveCStyleCommentsOpt = {}, isWalk = false): void => {
+    /**
+     * 
+     * @param text input text
+     * @param expectance expect output text
+     * @param [opt] marge with { collectRegex: true }
+     * @param {true=} isWalk 
+     */
+    const validate = (text: string, expectance: string, opt: TRemoveCStyleCommentsOpt = {}, isWalk?: true): void => {
         opt = { ...defaultOpt, ...opt };
         if (!isWalk) {
             const result = rmc(text, opt);
@@ -98,23 +110,17 @@ function eachModule(path: KRmcImportPath) {
                 expect(result.length).toBe(isDetected);
             }
             it(`[${path}] ${title}` + " (showErrorMessage)", () => {
-                let collectRegex: true;
                 if (checkRegex) {
-                    collectRegex = true;
                     rmc.reset();
                 }
-                // @ts-expect-error 
-                validate(input, output, { showErrorMessage: true, collectRegex });
+                validate(input, output, { showErrorMessage: true });
                 caseRegex();
             });
             it(`[${path}] ${title}`, () => {
-                let collectRegex: true;
                 if (checkRegex) {
-                    collectRegex = true;
                     rmc.reset();
                 }
-                // @ts-expect-error 
-                validate(input, output, { collectRegex });
+                validate(input, output);
                 caseRegex();
             });
         },
