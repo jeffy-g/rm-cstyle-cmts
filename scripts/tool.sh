@@ -15,16 +15,17 @@ jstool() {
 force-push() {
   local branch_name=$(git branch --contains=HEAD)
   branch_name=${branch_name/* /}
-  echo "current brach name: [${branch_name}]"
+  echo "current branch name: [${branch_name}]"
   git push --tags --force --progress origin ${branch_name}:${branch_name}
 }
+
 patch_with_tag() {
   local ret=$(jstool -cmd "version" -extras "./src/index.ts," $1)
   local after=$(echo ${ret} | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-  echo version=[${after}]
+  echo "version=[${after}]"
   git add -u
-  git commit -m v${after}
-  git tag v${after}
+  git commit -m "v${after}"
+  git tag "v${after}"
 }
 
 fix_import_path() {
@@ -40,13 +41,12 @@ del_usestrict() {
   files+=" "$(find ./dist/cjs/gulp/*.js)
   fire-sed "s/\"use strict\";\\n//" $files
 }
+
 fire-sed() {
   local regex=$1
   shift
   local flags="-Ei -z"
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    flags=$(echo $flags " -e")
-  fi
+  [[ "$OSTYPE" == "darwin"* ]] && flags+=" -e"
   sed $flags "$regex" "$@"
 }
 

@@ -21,17 +21,6 @@ export type TGrmcTaskArgsBase = {
     preserveJSDoc?: boolean;
 };
 export type TGrmcTaskArgs = TGrmcTaskArgsBase & NsGulpRmc.TOptions;
-/**
- * @typedef TGrmcTaskArgsBase
- * @prop {string | string[]} [paths]
- * @prop {true} [progress]
- * @prop {true} [collectJSDocTag]
- * @prop {boolean} [showNoops]
- * @prop {boolean} [cleanup] cleanup previous output then exit
- * @prop {boolean} [useExtern] scan external directory?
- *
- * @typedef {TGrmcTaskArgsBase & NsGulpRmc.TOptions} TGrmcTaskArgs
- */
 
 /**
  * #### `gulp-rm-cmts` test task Main
@@ -39,6 +28,7 @@ export type TGrmcTaskArgs = TGrmcTaskArgsBase & NsGulpRmc.TOptions;
  * @param {typeof import("../src/gulp")} grmc gulp-rm-cmts package
  * @param {TGrmcTaskArgs} settings
  * @param {"cjs" | "esm"} mode
+ * @returns {Promise<void>} 
  */
 export function task(
     grmc: typeof import("../src/gulp"),
