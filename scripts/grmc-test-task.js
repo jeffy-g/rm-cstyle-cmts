@@ -142,11 +142,13 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
      * 📝 contents that are not text or types that are not of javascript source are passed through.
      */
     const SCAN_SRC_PREFIX = BASE_PREFIX + "/node_modules/**/";
-    //*
+    /*
+    // DEVNOTE: This causes symlink-related errors in gitpod, and the behavior is terrible.
     const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}{*,\.*,\.\x2a/*}`;
     /*/
-    const SCAN_SRC_FILEs = `./src/*\x2a/{*,\.*,\.\x2a/*}`;
-    // const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{js,mjs,cjs}`;
+    // only javascript relative sources
+    const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{c(j|t)s,js,jsx,m(j|t)s,ts,tsx}`;
+    // const SCAN_SRC_FILEs = `./src/*\x2a/{*,\.*,\.\x2a/*}`;
     // const SCAN_SRC_FILEs = `${SCAN_SRC_PREFIX}*.{js,jsx,ts,tsx}`;
     //*/
 
