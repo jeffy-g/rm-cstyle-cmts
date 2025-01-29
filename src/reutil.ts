@@ -55,11 +55,11 @@ export const lookupRegexes = (nl: TDetectedNewLines) => {
          * ```
          */
         // reduce memory usage (maybe slightly
-        /* eslint-disable indent */
+
         wsqs: nl === "\n" ? /\n\s+(?=\n)|\s+(?=\n)|`|"(?:[^\\"]|\\[^])*"|'(?:[^\\']|\\[^])*'|\//g:
             nl === "\r\n" ? /\r\n\s+(?=\r\n)|\s+(?=\r\n)|`|"(?:[^\\"]|\\[^])*"|'(?:[^\\']|\\[^])*'|\//g:
-            nl === "\r" ? /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]|\\[^])*"|'(?:[^\\']|\\[^])*'|\//g:
-            /^\s+|\s+$/g,
+                nl === "\r" ? /\r\s+(?=\r)|\s+(?=\r)|`|"(?:[^\\"]|\\[^])*"|'(?:[^\\']|\\[^])*'|\//g:
+                    /^\s+|\s+$/g,
 
         /**
          * create regex for remove first newline from each newline character
@@ -72,7 +72,7 @@ export const lookupRegexes = (nl: TDetectedNewLines) => {
          */
         // DEVNOTE: 2020/4/16 - can apply `/^\s+|\s+$/g` to everything but performance will be slower
         first: nl ? reF: ""
-        /* eslint-enable indent */
+
     };
 };
 

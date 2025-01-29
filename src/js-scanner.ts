@@ -61,7 +61,7 @@ type TScannerContext = {
  * @date 2022/4/22
  * @since 3.3.1
  */
- const enum EMetaChars {
+const enum EMetaChars {
     /**
      * ```js
      * '"'.charCodeAt(0)
@@ -460,7 +460,8 @@ let scanListener: IScanEventCallback = emptyListener;
  * CHANGES: 2019-5-23
  *   + In v2.x and later, it is optimized to node v10 and later.  
  *     This works even on node v9 and earlier, but with poor performance.
- *     - &gt; The performance differs depending on whether the structure of `scanners` is a builtin hash map (e.g - { "/": <scanner function> }) or an array
+ *     - &gt; The performance differs depending on whether the structure of `scanners`  
+ *            is a builtin hash map (e.g - { "/": <scanner function> }) or an array
  *
  * @param {string} src 
  * @param {TRemoveCStyleCommentsOpt} opt

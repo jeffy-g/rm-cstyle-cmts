@@ -53,9 +53,9 @@ fire-sed() {
 }
 
 copyfiles() {
-  cpx "${cpxopt}" "./{README.md,LICENSE}" dist &
-  cpx "${cpxopt}" -t "./scripts/fix-refpath" "./build/**/!(bench|gulp)/*.js" dist &
-  cpx "${cpxopt}" "./build/**/gulp/*.js" dist
+  cpx ${cpxopt} "./{README.md,LICENSE}" dist &
+  cpx ${cpxopt} -t "./scripts/fix-refpath" "./build/**/!(bench|gulp)/*.js" dist &
+  cpx ${cpxopt} "./build/**/gulp/*.js" dist
 }
 
 emit_pkgjson() {

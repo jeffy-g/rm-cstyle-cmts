@@ -60,7 +60,7 @@ declare global {
          * @returns if `options.isWalk === true`, returns original string, otherwise returns comment removed string
          * @since 3.0
          */
-         (source: string, options?: TRemoveCStyleCommentsOpt): string;
+        (source: string, options?: TRemoveCStyleCommentsOpt): string;
     }
     interface IRemoveCStyleCommentsTypeSig extends IRemoveCStyleCommentsMain {
         /**
