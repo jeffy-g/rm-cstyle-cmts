@@ -1,10 +1,10 @@
 // // import globals from "globals";
-// import tseslint from "typescript-eslint";
+// import tsesconfig from "typescript-eslint";
 // import tsparser from "@typescript-eslint/parser";
 // import stylistic from "@stylistic/eslint-plugin";
 
 // const globals = require("globals");
-const tseslint = require("typescript-eslint");
+const tsesconfig = require("typescript-eslint");
 const tsparser = require("@typescript-eslint/parser");
 const stylistic = require("@stylistic/eslint-plugin");
 
@@ -26,9 +26,9 @@ const ignoreConfig = {
 };
 
 // /** @type {import('eslint').Linter.Config[]} */
-exports = tseslint.config( // did not work...why?
+exports = tsesconfig.config( // did not work...why?
 // // okay, but [MODULE_TYPELESS_PACKAGE_JSON] Warning will appear, which can be ignored.
-// export default tseslint.config(
+// export default tsesconfig.config(
   ignoreConfig,
   {
     ignores: ignoreConfig.ignores,
@@ -40,7 +40,7 @@ exports = tseslint.config( // did not work...why?
     },
     plugins: {
       // @ts-ignore
-      // "@typescript-eslint": tseslint,
+      // "@typescript-eslint": tseslintPlugin, // "@typescript-eslint/eslint-plugin"
       "@stylistic": stylistic,
     },
     rules: {
@@ -75,20 +75,13 @@ exports = tseslint.config( // did not work...why?
           }
       ],
       "@stylistic/comma-dangle": "off",
-      "curly": [
-          "error", "multi-line"
-      ],
-      "id-denylist": "error",
-      "id-match": "error", // see https://eslint.org/docs/rules/id-match
-      "max-classes-per-file": [
-          "error", 4
-      ],
+      // https://eslint.org/docs/rules/keyword-spacing
+      "@stylistic/keyword-spacing": "error",
       "@stylistic/max-len": [
           "error", {
               code: 250, comments: 150
           }
       ],
-      "no-cond-assign": "off",
       "@stylistic/no-trailing-spaces": [
           "error", {
               ignoreComments: true
@@ -101,9 +94,17 @@ exports = tseslint.config( // did not work...why?
               next: "return"
           }
       ],
+
+      "curly": [
+          "error", "multi-line"
+      ],
+      "id-denylist": "error",
+      "id-match": "error", // see https://eslint.org/docs/rules/id-match
+      "no-cond-assign": "off",
+      "max-classes-per-file": [
+          "error", 4
+      ],
       radix: "off",
-      // https://eslint.org/docs/rules/keyword-spacing
-      "@stylistic/keyword-spacing": "error",
     }
   }
 );
