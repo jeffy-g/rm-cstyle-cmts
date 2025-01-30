@@ -21,8 +21,8 @@ const rimraf = require("rimraf");
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * @typedef TGrmcTaskArgsBase
- * @prop {string | string[]} [paths]
- * @prop {true} [progress]
+ * @prop {string | string[]} [paths] scan file path. can accept multiple.
+ * @prop {true} [progress] synonym of `GulpRmc.TOptions.renderProgress`
  * @prop {true} [collectJSDocTag]
  * @prop {boolean} [preserveJSDoc]
  * @prop {boolean} [showNoops]
