@@ -12,7 +12,7 @@ jstool() {
   node "./scripts/tiny/tools.js" "$@"
 }
 
-force-push() {
+force_push() {
   local branch_name=$(git branch --contains=HEAD)
   branch_name=${branch_name/* /}
   for remote in $(git remote); do
