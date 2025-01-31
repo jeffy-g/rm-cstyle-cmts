@@ -9,7 +9,6 @@
 
 import * as fs from "fs";
 import * as assert from "assert";
-// depends on gulp-cli
 import * as ansi from "ansi-colors";
 
 
@@ -45,6 +44,11 @@ eachModule("../dist/esm/index.mjs"); // error
 function eachModule(path: KRmcImportPath) {
 
     let rmc: TRmcImport[typeof path];
+    beforeAll(async () => {
+        rmc = await import(path);
+        rmc.setListener(listener);
+    });
+
     /**
      * 
      * @param text input text
@@ -75,11 +79,6 @@ function eachModule(path: KRmcImportPath) {
         }
         return false;
     };
-
-    beforeAll(async () => {
-        rmc = await import(path);
-        rmc.setListener(listener);
-    });
 
     describe("Only throws invalid input content", () => {
         it(`[${path}] case invalid content`, () => {
