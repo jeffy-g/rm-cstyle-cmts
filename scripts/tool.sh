@@ -98,11 +98,9 @@ webpack() {
 }
 
 if [ ! -z "$1" ]; then
-  [ "$1" = "patch_with_tag" ] && patch_with_tag $2 || {
-    fname=$1
-    shift
-    $fname "$@"
-  }
+  fname=$1
+  shift
+  $fname "$@"
 else
   echo "no parameters..."
 fi

@@ -60,9 +60,9 @@ export default tsesconfig.config(
       "@stylistic": stylistic,
     },
     rules: {
-      // "@tseslintPlugin/array-type": ["warn", {
-      //   default: "array-simple"
-      // }],
+      "@tseslintPlugin/array-type": ["warn", {
+        default: "array-simple"
+      }],
       "@stylistic/indent": ["warn", 4, {
         SwitchCase: 1
       }],
