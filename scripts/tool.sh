@@ -22,8 +22,8 @@ force_push() {
 }
 
 patch_with_tag() {
-  local ret=$(jstool -cmd "version" -extras "./src/index.ts," $1)
-  local after=$(echo "${ret}" | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+  local ret=$(yarn jstool -cmd "version" -extras "./src/index.ts," $1)
+  local after=$(echo $ret | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
   echo "version=[${after}]"
   git add -u
   git commit -m "v${after}"
