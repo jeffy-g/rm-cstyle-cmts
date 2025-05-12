@@ -131,7 +131,7 @@ rmc.walk("<source file content>", opt);
 
 ## Playground
 
-+ [rm-cstyle-cmts Playground (powered by monaco-editor)](https://rm-cstyle-cmts-playground.netlify.com/)
++ [rm-cstyle-cmts Playground (powered by monaco-editor)](https://rm-cstyle-cmts-playground.netlify.app/)
 
 ## Performance measurement with `Benchmark.js`
 
@@ -186,40 +186,30 @@ $ npm run benchmark
 > ### node v15.8.0
 
 ```shell
-$ yarn benchmark
-yarn run v1.22.18
-$ cd etc/bench && yarn install && yarn start
-[1/4] Resolving packages...
-success Already up-to-date.
+yarn run v1.22.22
 $ node bench.mjs
 
-- - - - - - - bench mark test - - - - - - - - -
+- - - - - - - bench mark test - - - - - - - - - 
 Platform info:
 Windows_NT 10.0.19045 x64
 Node.JS: 15.8.0
 V8     : 8.6.395.17-node.23
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 11,184 ops/sec ±0.69% (84 runs sampled)
-strip-json-comments x 17,525 ops/sec ±0.86% (94 runs sampled)
-rm-cstyle-cmts x 168,734 ops/sec ±0.84% (92 runs sampled)
-rm-cstyle-cmts (webpack) x 165,568 ops/sec ±1.22% (94 runs sampled)
-rm-cstyle-cmts (umd) x 164,756 ops/sec ±0.74% (94 runs sampled)
+strip-comments x 10,221 ops/sec ±2.06% (85 runs sampled)
+strip-json-comments x 16,360 ops/sec ±0.47% (92 runs sampled)
+rm-cstyle-cmts x 162,585 ops/sec ±1.13% (94 runs sampled)
+rm-cstyle-cmts (webpack) x 153,624 ops/sec ±0.53% (93 runs sampled)
+rm-cstyle-cmts (umd) x 158,932 ops/sec ±0.71% (95 runs sampled)
 - - done - -
-all results are equals? true # see NOTE:
-Done in 28.22s.
+all results are equals? true # see NOTE
+Done in 27.58s.
 ```
 
 > ### node 22.12.0
 
 ```shell
-yarn run v1.22.18
-$ cd etc/bench && yarn install && yarn start
-[1/4] Resolving packages...
-[2/4] Fetching packages...
-[3/4] Linking dependencies...
-[4/4] Building fresh packages...
-
+yarn run v1.22.22
 $ node bench.mjs
 
 - - - - - - - bench mark test - - - - - - - - - 
@@ -229,14 +219,14 @@ Node.JS: 22.12.0
 V8     : 12.4.254.21-node.21
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 12,301 ops/sec ±0.43% (94 runs sampled)
-strip-json-comments x 17,116 ops/sec ±0.16% (95 runs sampled)
-rm-cstyle-cmts x 218,466 ops/sec ±0.31% (96 runs sampled)
-rm-cstyle-cmts (webpack) x 216,343 ops/sec ±0.74% (95 runs sampled)
-rm-cstyle-cmts (umd) x 216,291 ops/sec ±0.28% (96 runs sampled)
+strip-comments x 11,421 ops/sec ±0.35% (92 runs sampled)
+strip-json-comments x 15,390 ops/sec ±0.73% (95 runs sampled)
+rm-cstyle-cmts x 196,775 ops/sec ±1.99% (90 runs sampled)
+rm-cstyle-cmts (webpack) x 201,840 ops/sec ±0.11% (97 runs sampled)
+rm-cstyle-cmts (umd) x 204,974 ops/sec ±0.40% (96 runs sampled)
 - - done - -
-all results are equals? true # see NOTE:
-Done in 28.56s.
+all results are equals? true # see NOTE
+Done in 27.65s.
 ```
 
 + NOTE: `strip-comments` may be buggy and is excluded from comparison
@@ -455,4 +445,3 @@ console.log(result);
 //> }
 
 ```
-
