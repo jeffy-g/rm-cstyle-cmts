@@ -164,7 +164,7 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
         } else if (!inEscape) {
             if (ch === "/" && !inClass) {
                 if (groupIndex) return null;
-                reBody = line.substring(0, i);
+                reBody = line.slice(0, i);
                 break;
             }
             if (ch === "(") {
@@ -261,7 +261,7 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
  */
 function check(line: string, x: number, limit = line.length): TBC<string> {
     const regexFlags = "dgimsuy";
-    const expectAfterChars = ";,.]): \t";
+    const expectAfterChars = ";,.])}: \t"; // FIX: 2025/5/13 - incomplete chars (add "}")
     let reflags = "";
     while (x < limit) {
         const flag = line[x++] as string;

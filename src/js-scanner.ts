@@ -190,13 +190,13 @@ const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
             ctx.offset = next;
             if (!ctx.isWalk) {
                 // DEVNOTE: 2022/02/02 when working on "walk" mode, context.result is ignored
-                ctx.result += src.substring(startOffset, next);
+                ctx.result += src.slice(startOffset, next);
             }
             return true;
         }
     }
 
-    throw new SyntaxError(`Incomplete quote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`Incomplete quote, offset=${startOffset}, remaining=<[${src.slice(startOffset, startOffset + 200)}]>`);
 };
 
 
@@ -249,7 +249,7 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
                 when(startOffset);
                 /*/
                 if (!ctx.isWalk) {
-                    ctx.result += src.substring(startOffset, next);
+                    ctx.result += src.slice(startOffset, next);
                 }
                 //*/
                 while (next < limiter) {
@@ -261,7 +261,7 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
                         when(prevOffset);
                         /*/
                         if (!ctx.isWalk) {
-                            ctx.result += src.substring(prevOffset, next);
+                            ctx.result += src.slice(prevOffset, next);
                         }
                         //*/
                         continue $;
@@ -275,7 +275,7 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
                     when(prevOffset);
                     /*/
                     if (!ctx.isWalk) {
-                        ctx.result += src.substring(prevOffset, next);
+                        ctx.result += src.slice(prevOffset, next);
                     }
                     //*/
                     ctx.offset = next;
@@ -289,14 +289,14 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
             when(startOffset);
             /*/
             if (!ctx.isWalk) {
-                ctx.result += src.substring(startOffset, next);
+                ctx.result += src.slice(startOffset, next);
             }
             //*/
             return true;
         }
     }
 
-    throw new SyntaxError(`Incomplete backquote, offset=${startOffset}, remaining=<[${src.substring(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`Incomplete backquote, offset=${startOffset}, remaining=<[${src.slice(startOffset, startOffset + 200)}]>`);
 };
 
 /** @type {string[]} */
@@ -348,7 +348,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     if (ch === "*") {
         const close = src.indexOf("*/", startOffset + 2);
         if (close !== -1) {
-            fragment = src.substring(startOffset, close + 2);
+            fragment = src.slice(startOffset, close + 2);
             if (ctx.eventDone) {
                 ctx.result += fragment;
             } else {
@@ -381,7 +381,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     let nlsOrEos = ctx.newline && src.indexOf(ctx.newline, startOffset + 1) || -1;
     nlsOrEos === -1 && (nlsOrEos = src.length);
     // NOTE: It was necessary to extract the character strings of the remaining lines...
-    fragment = src.substring(startOffset, nlsOrEos);
+    fragment = src.slice(startOffset, nlsOrEos);
 
     //
     // - - - check ts reference tag or line comment - - -
@@ -425,7 +425,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     // update offset.
     ctx.offset = startOffset + m.lastIndex;
     if (!ctx.isWalk) {
-        ctx.result += src.substring(startOffset, ctx.offset);
+        ctx.result += src.slice(startOffset, ctx.offset);
     }
 
     return true;
@@ -483,7 +483,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
         if (!inspectable) {
             offset++;
         } else {
-            ctx.result += src.substring(prevOffset, offset);
+            ctx.result += src.slice(prevOffset, offset);
             ctx.offset = offset;
             prevOffset = inspectable(src, ctx)? ctx.offset: ctx.offset++;
             offset = ctx.offset;
@@ -492,7 +492,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
 
     // adjust remaining
     if (size - prevOffset > 0) {
-        ctx.result += src.substring(prevOffset, offset);
+        ctx.result += src.slice(prevOffset, offset);
     }
 
     if (opt.preserveBlanks) {
@@ -532,7 +532,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
         if (head === "/" || head === "`") {
             ctx.offset = m.index;
             if (prevOffset !== ctx.offset) {
-                ctx.result += src.substring(prevOffset, ctx.offset);
+                ctx.result += src.slice(prevOffset, ctx.offset);
             }
             prevOffset = scanners[
                 head === "/" ? EMetaChars.SLASH : EMetaChars.BACK_QUOTE
@@ -543,13 +543,13 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
 
         // DEVNOTE: check the double quote first
         const sublast = (head === '"' || head === "'")? reWsqs.lastIndex: m.index;
-        ctx.result += src.substring(prevOffset, sublast);
+        ctx.result += src.slice(prevOffset, sublast);
         prevOffset = reWsqs.lastIndex;
     }
 
     // adjust remaining
     if (src.length - prevOffset > 0) {
-        ctx.result += src.substring(prevOffset, src.length);
+        ctx.result += src.slice(prevOffset, src.length);
     }
 
     //
@@ -563,7 +563,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
         (nll === 1 && src[lidx] === ctx.newline) ||
         (nll === 2 && src[lidx] === "\r" && src[lidx + 1] === "\n")
     ) {
-        return src.substring(0, lidx);
+        return src.slice(0, lidx);
     }
 
     // DEVNOTE: which means nothing newline at head and tail in original source
