@@ -253,6 +253,11 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
 
     return null;
 };
+
+/** Constants for regex flags. */
+const REGEX_FLAGS = "dgimsuy";
+/** Expected characters after flags. */
+const EXPECT_AFTER_CHARS = ";,.])}: \t"; // FIX: 2025/5/13 - incomplete chars (add "}")
 /**
  * @param {string} line
  * @param {number} x
@@ -260,18 +265,16 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
  * @returns {TBC<string>}
  */
 function check(line: string, x: number, limit = line.length): TBC<string> {
-    const regexFlags = "dgimsuy";
-    const expectAfterChars = ";,.])}: \t"; // FIX: 2025/5/13 - incomplete chars (add "}")
     let reflags = "";
     while (x < limit) {
         const flag = line[x++] as string;
-        if (regexFlags.includes(flag)) {
+        if (REGEX_FLAGS.includes(flag)) {
             if (!reflags.includes(flag)) {
                 reflags += flag;
             } else {
                 return null; // Duplicate flag, invalid regex
             }
-        } else if (expectAfterChars.includes(flag) || !flag) {
+        } else if (EXPECT_AFTER_CHARS.includes(flag)) {
             break; // Valid end of flags
         } else {
             return null; // Invalid character in flags
