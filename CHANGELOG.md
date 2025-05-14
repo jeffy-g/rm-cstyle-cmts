@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.3.21] - 2025-05-14
+
+### 🚜 Refactor
+
+- Enhance check function in src/reutil.ts
+
+### ⚙️ Miscellaneous Tasks
+
+- Add CHANGELOG.md
+- Update README.md
+- Add permissions
+- Bump version to v3.3.21
+
 ## [3.3.20] - 2025-05-12
 
 ### 🚜 Refactor
