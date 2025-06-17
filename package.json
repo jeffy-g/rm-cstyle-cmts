@@ -79,7 +79,7 @@
     "@jeffy-g/cpx": "^1.6.6",
     "@stylistic/eslint-plugin": "^4.2.0",
     "@types/gulp": "^4.0.17",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/vinyl": "^2.0.12",
     "@typescript-eslint/parser": "^8.32.0",
     "ansi-colors": "^4.1.3",
