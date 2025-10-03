@@ -183,50 +183,46 @@ $ npm run benchmark
 
   </details>
 
-> ### node v15.8.0
+> ### node v20.10.0
 
 ```shell
 yarn run v1.22.22
 $ node bench.mjs
-
-- - - - - - - bench mark test - - - - - - - - - 
 Platform info:
 Windows_NT 10.0.19045 x64
-Node.JS: 15.8.0
-V8     : 8.6.395.17-node.23
+Node.JS: 20.10.0
+V8     : 11.3.244.8-node.25
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 10,221 ops/sec ±2.06% (85 runs sampled)
-strip-json-comments x 16,360 ops/sec ±0.47% (92 runs sampled)
-rm-cstyle-cmts x 162,585 ops/sec ±1.13% (94 runs sampled)
-rm-cstyle-cmts (webpack) x 153,624 ops/sec ±0.53% (93 runs sampled)
-rm-cstyle-cmts (umd) x 158,932 ops/sec ±0.71% (95 runs sampled)
+strip-comments x 11,238 ops/sec ±0.41% (94 runs sampled)
+strip-json-comments x 16,407 ops/sec ±0.06% (95 runs sampled)
+rm-cstyle-cmts x 179,508 ops/sec ±0.20% (94 runs sampled)
+rm-cstyle-cmts (webpack) x 171,546 ops/sec ±0.13% (95 runs sampled)
+rm-cstyle-cmts (umd) x 170,609 ops/sec ±0.17% (95 runs sampled)
 - - done - -
 all results are equals? true # see NOTE
-Done in 27.58s.
+Done in 27.91s.
 ```
 
-> ### node 22.12.0
+> ### node v24.9.0
 
 ```shell
 yarn run v1.22.22
 $ node bench.mjs
-
-- - - - - - - bench mark test - - - - - - - - - 
 Platform info:
 Windows_NT 10.0.19045 x64
-Node.JS: 22.12.0
-V8     : 12.4.254.21-node.21
+Node.JS: 24.9.0
+V8     : 13.6.233.10-node.27
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 11,421 ops/sec ±0.35% (92 runs sampled)
-strip-json-comments x 15,390 ops/sec ±0.73% (95 runs sampled)
-rm-cstyle-cmts x 196,775 ops/sec ±1.99% (90 runs sampled)
-rm-cstyle-cmts (webpack) x 201,840 ops/sec ±0.11% (97 runs sampled)
-rm-cstyle-cmts (umd) x 204,974 ops/sec ±0.40% (96 runs sampled)
+strip-comments x 11,297 ops/sec ±1.62% (93 runs sampled)
+strip-json-comments x 16,448 ops/sec ±0.60% (91 runs sampled)
+rm-cstyle-cmts x 211,197 ops/sec ±0.98% (94 runs sampled)
+rm-cstyle-cmts (webpack) x 213,817 ops/sec ±0.31% (94 runs sampled)
+rm-cstyle-cmts (umd) x 213,097 ops/sec ±0.18% (91 runs sampled)
 - - done - -
 all results are equals? true # see NOTE
-Done in 27.65s.
+Done in 27.51s.
 ```
 
 + NOTE: `strip-comments` may be buggy and is excluded from comparison

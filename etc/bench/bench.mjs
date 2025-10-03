@@ -26,21 +26,21 @@ function printPlatform() {
     const plat = `${os.type()} ${os.release()} ${os.arch()}
 Node.JS: ${node}
 V8     : ${v8}`;
-    let cpus = os.cpus().map(function(cpu){
-        return cpu.model;
-    }).reduce(function(o, model){
-        if( !o[model] ) o[model] = 0;
-        o[model]++;
-        return o;
-    }, {});
-    cpus = Object.keys(cpus).map(function( key ) {
-        // \u00d7: × "x": 0x78
-        return key + " x " + cpus[key];
+    let cpus = os.cpus().map(function (cpu) {
+      return cpu.model;
+    }).reduce(function (o, model) {
+      if (!o[model]) o[model] = 0;
+      o[model]++;
+      return o;
+    }, /** @type {Record<string, number>} */({}));
+    const cpusSummary = Object.keys(cpus).map(function (key) {
+      // \u00d7: × "x": 0x78
+      return key + " x " + cpus[key];
     }).join("\n");
 
-    console.log(`\n- - - - - - - bench mark test - - - - - - - - - `);
     console.log("Platform info:");
-    console.log(plat + "\n" + cpus + "\n");
+    const platfromSummary = plat + "\n" + cpusSummary + "\n";
+    console.log(platfromSummary);
 }
 
 const json = `// see: http://json.schemastore.org/tsconfig
@@ -105,12 +105,12 @@ suite.add("strip-comments", function(){
 .add("rm-cstyle-cmts (umd)", function() {
     return Rmc(json, rmcOpt);
 })
-.on("cycle", function(e) {
-    /** @type {TBenchmark} */
+.on("cycle", function(/** @type {Benchmark.Event} */ e) {
+    /** @type {Benchmark.Target} */
     const bench = e.target;
     console.log("" + bench);
     if (typeof bench.fn === "function") {
-        results[bench.name] = bench.fn();
+        results[bench.name || ""] = bench.fn();
     }
 }).on("complete", /** @type {(this: Benchmark.Suite, e: Event) => any} */function (e) {
     console.log("- - done - -");

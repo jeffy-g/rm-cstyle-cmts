@@ -199,7 +199,7 @@ const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
      */
     const getTagStatistics = () => {
         /**
-         * @type {Iterator<TPriorityEntry, TPriorityEntry>}
+         * @type {MapIterator<[`@${string}`, number]>}
          */
         const entries = tagStatistics.entries();
         /** @type {TPriorityEntry[]} */

@@ -438,11 +438,12 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
  * 
  * @type {TCharScannerFunction[]}
  */
-const scanners: Array<TBD<TCharScannerFunction>> = [];
-scanners[EMetaChars.BACK_QUOTE]   = backQuote;  // 96
+// DEVNOTE: 2025/10/3 - Avoid HOLEY arrays
+const scanners: TCharScannerFunction[] = Array(256).fill(0) as any;
 scanners[EMetaChars.DOUBLE_QUOTE] = quote;      // 34
 scanners[EMetaChars.SINGLE_QUOTE] = quote;      // 39
 scanners[EMetaChars.SLASH]        = slash;      // 47
+scanners[EMetaChars.BACK_QUOTE]   = backQuote;  // 96
 
 const emptyListener = () => false;
 /** @type {IScanEventCallback} */
