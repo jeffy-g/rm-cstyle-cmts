@@ -5,12 +5,12 @@
 #  https://opensource.org/licenses/mit-license.php
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 cpxopt=$([ -z "$CI" ] && echo "-v" || echo "")
-jstool() {
-  [[ $1 == jstool ]] && {
-    shift 1
-  }
-  node "./scripts/tiny/tools.js" "$@"
-}
+# js tool() {
+#   [[ $1 == js tool ]] && {
+#     shift 1
+#   }
+#   node "./scripts/tiny/tools.js" "$@"
+# }
 
 force_push() {
   local branch_name=$(git branch --contains=HEAD)
@@ -22,7 +22,7 @@ force_push() {
 }
 
 patch_with_tag() {
-  local ret=$(yarn jstool -cmd "version" -extras "./src/index.ts," $1)
+  local ret=$(jstool -cmd "version" -extras "./src/index.ts," $1)
   local after=$(echo $ret | sed -E 's/.*version updated: ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
   echo "version=[${after}]"
   git add -u

@@ -57,19 +57,18 @@
     "grmc-test:cjs": "node scripts/batch-rmc-test.js -progress -collectRegex -showNoops -timeMeasure -collectJSDocTag",
     "ic": "rimraf yarn.lock node_modules && yarn install",
     "lint": "eslint",
-    "jstool": "node ./scripts/tiny/tools",
     "patch:tag": "yarn fire:tool patch_with_tag",
-    "preserve:jsdoc": "yarn fire:tool del_usestrict && yarn jstool -cmd rmc -rmc4ts -basePath \"./dist/cjs,./dist/cjs/gulp\" -test \"/\\.(js|d\\.ts)$/\"",
+    "preserve:jsdoc": "yarn fire:tool del_usestrict && jstool -cmd rmc -rmc4ts -basePath \"./dist/cjs,./dist/cjs/gulp\" -test \"/\\.(js|d\\.ts)$/\"",
     "pretest": "rimraf -g ./coverage/*",
     "test": "bash -c \"[ -z $JEST_CONF ] && JEST_CONF=jest.config.js; jest --silent=false -c=$JEST_CONF\"",
-    "toggle:cmts": "yarn jstool -cmd cmtTrick -targets \"js-scanner.ts,\" -basePath src",
+    "toggle:cmts": "jstool -cmd cmtTrick -targets \"js-scanner.ts,\" -basePath src",
     "ts:check": "tsc --noemit",
     "up": "yarn upgrade-interactive --latest",
-    "v": "yarn jstool -cmd version -extras \"./src/index.ts,\"",
+    "v": "jstool -cmd version -extras \"./src/index.ts,\"",
     "webpack": "npm run fire:tool -- webpack",
     "git:push": "yarn fire:tool force_push",
     "postgit:push": "git gc --aggressive --prune=now",
-    "strip:strict": "yarn jstool -cmd stripSome -regex \"/.use strict.;\\s/g\" -targets \"dist/cjs/index.js,dist/cjs/js-scanner.js,dist/cjs/gulp/index.js\""
+    "strip:strict": "jstool -cmd replace -regex \"/.use strict.;\\s/g\" -targets \"dist/cjs/index.js,dist/cjs/js-scanner.js,dist/cjs/gulp/index.js\""
   },
   "//": [
     "NOTE: `strip:strict` use for publish (dist)",

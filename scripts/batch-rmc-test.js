@@ -16,7 +16,6 @@
 // Import necessary modules
 const grmc = require("../dist/cjs/gulp/");
 const getArgs = require("tin-args");
-// const getArgs = require("./tiny/get-extra-args");
 const { task } = require("./grmc-test-task");
 
 /**
