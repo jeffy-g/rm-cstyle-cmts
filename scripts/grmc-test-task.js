@@ -101,22 +101,22 @@ module.exports = {
  */
 const final = (context, tagPriorityEntries, timeSpans, pending, cb) => {
     /**
-     * @type {Parameters<typeof utils.writeTextUTF8>[2]}
+     * @type {Parameters<typeof utils.writeText>[2]}
      */
     const writeCallback = () => {
         --pending === 0 && cb();
     };
-    context.uniqReLiterals.length && utils.writeTextUTF8(
+    context.uniqReLiterals.length && utils.writeText(
         generateSource(context.uniqReLiterals, "reLiterals"),
         "./tmp/grmc-detected-reLiterals.js",
         writeCallback
     );
-    tagPriorityEntries.length && utils.writeTextUTF8(
+    tagPriorityEntries.length && utils.writeText(
         formatStatictics(tagPriorityEntries),
         "./tmp/grmc-detected-jsdocTags.js",
         writeCallback
     );
-    timeSpans.length && utils.writeTextUTF8(
+    timeSpans.length && utils.writeText(
         JSON.stringify(timeSpans, null, 2),
         "./tmp/grmc-time-spans.json",
         writeCallback

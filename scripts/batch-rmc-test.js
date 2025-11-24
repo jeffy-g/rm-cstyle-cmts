@@ -15,7 +15,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Import necessary modules
 const grmc = require("../dist/cjs/gulp/");
-const getArgs = require("tin-args");
+const utils = require("js-dev-tool/utils");
 const { task } = require("./grmc-test-task");
 
 /**
@@ -26,6 +26,6 @@ const { task } = require("./grmc-test-task");
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // [batch-rmc-test:cjs]: 17.629s
 // Get task arguments and execute the task
-/** @type {ReturnType<typeof getArgs<TGrmcTaskArgs>>} */
-const taskArgs = getArgs();
+/** @type {ReturnType<typeof utils.tinArgs<TGrmcTaskArgs>>} */
+const taskArgs = utils.tinArgs();
 task(grmc, taskArgs);

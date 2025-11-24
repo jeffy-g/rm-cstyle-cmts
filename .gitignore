@@ -113,3 +113,15 @@ bin
 
 /dist
 memo*
+
+.gemini
+
+/.pret-ignore
+/.vscode
+/cliff.toml
+/dev-process*
+/local-tool*
+/new-readme*
+/prettier.config*
+/readme.*
+/tsconfig-esm*
