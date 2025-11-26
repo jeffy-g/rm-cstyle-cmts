@@ -13,7 +13,8 @@
     "noUncheckedIndexedAccess": true,
     "removeComments": false,
 
-    "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
+    "moduleResolution": "node10",
 
     "target": "es2019",
     "module": "commonjs",

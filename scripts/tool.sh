@@ -1,16 +1,11 @@
-#!/bin/bash -x
+#!/bin/bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #  Copyright (C) 2022 jeffy-g <hirotom1107@gmail.com>
 #  Released under the MIT license
 #  https://opensource.org/licenses/mit-license.php
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 cpxopt=$([ -z "$CI" ] && echo "-v" || echo "")
-# js tool() {
-#   [[ $1 == js tool ]] && {
-#     shift 1
-#   }
-#   node "./scripts/tiny/tools.js" "$@"
-# }
+
 
 force_push() {
   local branch_name=$(git branch --contains=HEAD)
@@ -58,17 +53,6 @@ copyfiles() {
   cpx ${cpxopt} "./build/**/gulp/*.js" dist
 }
 
-emit_pkgjson() {
-  local pkgjson=$(
-    cat <<_EOT_
-{
-  "main": "./index.js",
-  "types": "../index.d.ts"
-}
-_EOT_
-  )
-  echo "${pkgjson}" >$1
-}
 
 copytypes() {
   local cpx_pre=$(echo "cpx ${cpxopt}" '"src/{index,extras}.d.ts"')
@@ -86,10 +70,15 @@ copytypes() {
   done
 
   eval ${executes}
-  emit_pkgjson "./dist/webpack/package.json" &
-  emit_pkgjson "./dist/umd/package.json"
 }
 
+#
+# scripts/tool.sh parge_webpack_cache
+#
+parge_webpack_cache() {
+  rimraf -v -g "./logs/webpack-module-ids*"
+  # rimraf -v -g "./node_modules/.cache/webpack/*"
+}
 webpack() {
   # rimraf "./dist/webpack/*" "./dist/umd/*"
   [ -z "$CI" ] && npx webpack || npx webpack >/dev/null

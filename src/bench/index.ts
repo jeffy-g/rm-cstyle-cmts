@@ -11,7 +11,7 @@ import * as readline from "readline";
 
 import * as rmc from "../";
 import * as ContractorPattern from "./contractor";
-import * as utils from "../../scripts/tiny/utils";
+import * as tinArgs from "tin-args";
 
 
 /**
@@ -91,7 +91,8 @@ function formatNumber(n: number): string {
  *   -p: read performance log from pipe
  * ```
  */
-const settings = utils.getExtraArgs<TBenchParams>();
+// @ts-ignore convert to cjs, no problem
+const settings = tinArgs<TBenchParams>();
 
 let OUTER = 20;
 let INNER = 1000;
@@ -123,6 +124,7 @@ function benchmark(preserveBlanks?: true, outputResult: boolean = true): void {
     for (let a = OUTER; a--;) {
         console.time(tag);
         for (let b = INNER; b--;) {
+            // @ts-ignore convert to cjs, no problem
             ret = rmc(source, opt);
         }
         console.timeEnd(tag);

@@ -8,9 +8,15 @@ import os from "os";
 
 import stripc from "strip-comments";
 import stripj from "strip-json-comments";
+//* cct
 import rmc from "../../dist/cjs/index.js";           // import cjs (as .js)
 import rmcPacked from "../../dist/webpack/index.js"; // import cjs?
 import Rmc from "../../dist/umd/index.js";
+/*/
+import rmc from "rm-cstyle-cmts";           // import cjs (as .js)
+import rmcPacked from "rm-cstyle-cmts/webpack"; // import cjs?
+import Rmc from "rm-cstyle-cmts/umd";
+//*/
 
 
 /**

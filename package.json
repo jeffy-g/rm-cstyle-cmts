@@ -1,12 +1,29 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "3.3.22",
+  "version": "3.3.23",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "private": false,
   "main": "./cjs/index.js",
   "types": "./index.d.ts",
   "unpkg": "./umd/index.js",
   "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./cjs/index.js",
+      "require": "./cjs/index.js",
+      "types": "./index.d.ts"
+    },
+    "./webpack": {
+      "import": "./webpack/index.js",
+      "require": "./webpack/index.js",
+      "types": "./index.d.ts"
+    },
+    "./umd": {
+      "import": "./umd/index.js",
+      "require": "./umd/index.js",
+      "types": "./index.d.ts"
+    }
+  },
   "author": "jeffy-g",
   "license": "MIT",
   "bugs": {
