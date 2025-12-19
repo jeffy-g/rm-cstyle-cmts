@@ -13,6 +13,11 @@
       "require": "./cjs/index.js",
       "types": "./index.d.ts"
     },
+    "./gulp": {
+      "import": "./cjs/gulp/index.js",
+      "require": "./cjs/gulp/index.js",
+      "types": "./cjs/gulp/index.d.ts"
+    },
     "./webpack": {
       "import": "./webpack/index.js",
       "require": "./webpack/index.js",
