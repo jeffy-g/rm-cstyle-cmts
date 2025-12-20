@@ -29,3 +29,6 @@ const { task } = require("./grmc-test-task");
 /** @type {ReturnType<typeof utils.tinArgs<TGrmcTaskArgs>>} */
 const taskArgs = utils.tinArgs();
 task(grmc, taskArgs);
+// DEVNOTE: Even if you use the following flags, there is no significant difference in processing speed...
+// node scripts/batch-rmc-test.js -progress -showNoops => [batch-rmc-test:cjs]: 7.043s
+// node scripts/batch-rmc-test.js -progress -showNoops -collectRegex -timeMeasure -collectJSDocTag => [batch-rmc-test:cjs]: 7.216s

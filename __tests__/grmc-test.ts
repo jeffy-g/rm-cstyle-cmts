@@ -10,13 +10,8 @@
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // import * as grmc from "../src/gulp/";
-import {
-    task, TGrmcTaskArgs
-} from "../scripts/grmc-test-task";
-
-/**
- * @typedef {import("../scripts/grmc-test-task").TGrmcTaskArgs} TGrmcTaskArgs
- */
+import { task } from "../scripts/grmc-test-task";
+import type { TGrmcTaskArgs } from "../scripts/grmc-test-task";
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

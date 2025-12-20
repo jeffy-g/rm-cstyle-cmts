@@ -22,7 +22,7 @@ import { performance } from "perf_hooks";
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // gulp plugin name.
 const PLUGIN_NAME = "gulp-rm-cmts";
-const perf = performance;
+const perfNow = performance.now.bind(performance);
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -56,6 +56,7 @@ const defaultExtensions = [
  */
 const timeSpans: NsGulpRmc.TTimeSpanEntries = [];
 
+type TBufferFile = import("vinyl").BufferFile;
 /**
  * @param {NsGulpRmc.TOptions} options
  * @returns {[TRemoveCStyleCommentsOpt, true | undefined, string[], true | undefined, (path: string) => void, number]}
@@ -72,10 +73,17 @@ const createContext = (options: NsGulpRmc.TOptions) => {
     const extensions = options.disableDefaultExtensions
         ? options.extraExtensions || [".js"]
         : defaultExtensions.concat(options.extraExtensions || []);
-    /**
-     * @see {@link NsGulpRmc.TOptions.timeMeasure timeMeasure}
-     */
-    const timeMeasure = options.timeMeasure;
+
+    const processBody = ((tm?: true) => {
+        return tm ? (vinyl: TBufferFile, path: string) => {
+            const a = perfNow();
+            const contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
+            const span = perfNow() - a;
+            timeSpans.push(`${span}:${path}`);
+            return contents;
+        } : (vinyl: TBufferFile, path: string) => rmc(vinyl.contents.toString(), opt);
+    })(options.timeMeasure);
+
     /* istanbul ignore next */
     const progress = process.env.CI ? (() => {
         let count = 0;
@@ -88,9 +96,9 @@ const createContext = (options: NsGulpRmc.TOptions) => {
     const highWaterMark = options.highWaterMark || NsGulpRmc.EConstants.HWM;
 
     return [
-        opt, renderProgress, extensions, timeMeasure, progress, highWaterMark
+        opt, renderProgress, extensions, processBody, progress, highWaterMark
     ] as [
-        typeof opt, typeof renderProgress, typeof extensions, typeof timeMeasure, typeof progress, typeof highWaterMark
+        typeof opt, typeof renderProgress, typeof extensions, typeof processBody, typeof progress, typeof highWaterMark
     ];
 };
 
@@ -103,7 +111,7 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
 ): NsGulpRmc.StreamTransform => {
 
     const [
-        opt, renderProgress, extensions, timeMeasure, progress, highWaterMark
+        opt, renderProgress, extensions, processBody, progress, highWaterMark
     ] = createContext(options);
     let prevNoops = rmc.noops;
 
@@ -120,20 +128,10 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
         if (vinyl.isBuffer() && extensions.includes(vinyl.extname)) {
             const path = vinyl.relative;
             renderProgress && process.nextTick(progress, `[${encoding}]: ${path}`);
-            let contents: string;
-            /* istanbul ignore else */
-            if (timeMeasure) {
-                const a = perf.now();
-                contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
-                const span = perf.now() - a;
-                timeSpans.push(
-                    `${span}:${path}`
-                );
-            } else {
-                contents = rmc(vinyl.contents.toString(), opt);
-            }
             // node ^v5.10.0
-            vinyl.contents = Buffer.from(contents);
+            vinyl.contents = Buffer.from(
+                processBody(vinyl, path)
+            );
             if (prevNoops ^ rmc.noops) {
                 noopPaths.push(path);
                 prevNoops = rmc.noops;
