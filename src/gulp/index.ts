@@ -83,15 +83,12 @@ const createContext = (options: NsGulpRmc.TOptions): [
         : defaultExtensions.concat(options.extraExtensions || []);
 
     /** @type {(vinyl: TBufferFile, path: string) => string} */
-    const processBody = ((tm?: true) => {
-        return tm ? (vinyl: TBufferFile, path: string) => {
-            const a = perfNow();
-            const contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
-            const span = perfNow() - a;
-            timeSpans.push(`${span}:${path}`);
-            return contents;
-        } : (vinyl: TBufferFile, path: string) => rmc(vinyl.contents.toString(), opt);
-    })(options.timeMeasure);
+    const processBody: (vinyl: TBufferFile, path: string) => string = options.timeMeasure ? (vinyl: TBufferFile, path: string) => {
+        const a = perfNow();
+        const contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
+        timeSpans.push(`${perfNow() - a}:${path}`);
+        return contents;
+    } : (vinyl: TBufferFile, path: string) => rmc(vinyl.contents.toString(), opt);
 
     /* istanbul ignore next */
     const progress = process.env.CI ? (() => {
