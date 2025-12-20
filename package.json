@@ -23,6 +23,11 @@
       "require": "./webpack/index.js",
       "types": "./index.d.ts"
     },
+    "./webpack/gulp": {
+      "import": "./webpack/gulp/index.js",
+      "require": "./webpack/gulp/index.js",
+      "types": "./webpack/gulp/index.d.ts"
+    },
     "./umd": {
       "import": "./umd/index.js",
       "require": "./umd/index.js",
