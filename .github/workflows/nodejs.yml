@@ -39,32 +39,32 @@ jobs:
           ~/cache
           !~/cache/exclude
           **/node_modules
-        key: node-${{ hashFiles('**/yarn.lock') }}
+        key:  node-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
           node-
 
     - name: check cache
       if: steps.cache-node.outputs.cache-hit != 'true'
-      run: yarn install
+      run: yarn install --immutable
 
     - name: lint, build
       run: |
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
         echo '                   lint -> build'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        npm run all
+        yarn all
 
     - name: Run benchmark
       run: |
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
         echo '                   run benchmark'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        npm run bench
-        npm run benchmark
+        yarn bench
+        yarn benchmark
 
     - name: Run tests
       run: |
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
         echo '                     run tests'
         echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        npm run test
+        yarn test
