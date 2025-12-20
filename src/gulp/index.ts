@@ -58,10 +58,18 @@ const timeSpans: NsGulpRmc.TTimeSpanEntries = [];
 
 type TBufferFile = import("vinyl").BufferFile;
 /**
+ * @typedef {import("vinyl").BufferFile} TBufferFile
  * @param {NsGulpRmc.TOptions} options
- * @returns {[TRemoveCStyleCommentsOpt, true | undefined, string[], true | undefined, (path: string) => void, number]}
+ * @returns {[TRemoveCStyleCommentsOpt, true | undefined, string[], (vinyl: TBufferFile, path: string) => string, (path: string) => void, number]}
  */
-const createContext = (options: NsGulpRmc.TOptions) => {
+const createContext = (options: NsGulpRmc.TOptions): [
+    TRemoveCStyleCommentsOpt,
+    true | undefined,
+    string[],
+    (vinyl: TBufferFile, path: string) => string,
+    (path: string) => void,
+    number
+] => {
 
     /** @type {TRemoveCStyleCommentsOpt} */
     const opt: TRemoveCStyleCommentsOpt = {
@@ -74,6 +82,7 @@ const createContext = (options: NsGulpRmc.TOptions) => {
         ? options.extraExtensions || [".js"]
         : defaultExtensions.concat(options.extraExtensions || []);
 
+    /** @type {(vinyl: TBufferFile, path: string) => string} */
     const processBody = ((tm?: true) => {
         return tm ? (vinyl: TBufferFile, path: string) => {
             const a = perfNow();
@@ -97,8 +106,6 @@ const createContext = (options: NsGulpRmc.TOptions) => {
 
     return [
         opt, renderProgress, extensions, processBody, progress, highWaterMark
-    ] as [
-        typeof opt, typeof renderProgress, typeof extensions, typeof processBody, typeof progress, typeof highWaterMark
     ];
 };
 
