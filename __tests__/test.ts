@@ -9,7 +9,7 @@
 
 import * as fs from "fs";
 import * as assert from "assert";
-import * as ansi from "ansi-colors";
+import "colors.ts";
 
 
 type KRmcImportPath = `../${"src" | "dist" | "dist/webpack" | "dist/umd"}/`;
@@ -97,10 +97,10 @@ function eachModule(path: KRmcImportPath) {
         ["BackQuoteScanner::incomplete backquote", "{} as string ` back quote! ` `", "{} as string ` back quote! ` `"],
         ["SlashScanner::extra slash", "const n: number = 1; /", "const n: number = 1; /"],
         ["SlashScanner::incomplete block comment", "const n: number = 1; /* comment /", "const n: number = 1; /* comment /"],
-        ["SlashScanner::regex flags strict check(2025)#1 " + ansi.magenta("note: Although it is not written as a regex in the statement, it is detected as a regex (this is by design)"),
+        ["SlashScanner::regex flags strict check(2025)#1 " + "note: Although it is not written as a regex in the statement, it is detected as a regex (this is by design)".magenta,
             "  const nn = value/(ret+)*8/gm;", "const nn = value/(ret+)*8/gm;", 1, 1],
-        ["SlashScanner::regex flags strict check(2025)#2 " + ansi.blue("(flags `gmx` are invalid, so not detect them)"), "  const nn = value/(ret+)8/gmx;", "const nn = value/(ret+)8/gmx;", 1, 0],
-        ["SlashScanner::regex flags strict check(2025)#3 " + ansi.blue("(flags `gmig` are invalid, so not detect them)"), "  const nn = value/(ret+)8/gmig;", "const nn = value/(ret+)8/gmig;", 1, 0],
+        ["SlashScanner::regex flags strict check(2025)#2 " + "(flags `gmx` are invalid, so not detect them)".blue, "  const nn = value/(ret+)8/gmx;", "const nn = value/(ret+)8/gmx;", 1, 0],
+        ["SlashScanner::regex flags strict check(2025)#3 " + "(flags `gmig` are invalid, so not detect them)".blue, "  const nn = value/(ret+)8/gmig;", "const nn = value/(ret+)8/gmig;", 1, 0],
     ])(
         "The input source will be returned without any processing when exception occured",
         (title, input, output, checkRegex = 0, isDetected = 0) => {
@@ -168,7 +168,7 @@ function eachModule(path: KRmcImportPath) {
 
         describe("multi line input (this case only remove kinds of comments, and blank line)", () => {
 
-            it(`[${path}] #1 this test source newline is ` + ansi.red("[CRLF]") + "(preserveBlanks)", () => {
+            it(`[${path}] #1 this test source newline is ` + "[CRLF]".red + "(preserveBlanks)", () => {
                 validate(`  let gg = 10;
 var re = 10000 / 111.77*gg /gg;;;;  ////// comments...
 //             ^-------------^ <- this case is match. but, not regexp literal`, `  let gg = 10;
@@ -314,13 +314,13 @@ limitations under the License.
                 );
             });
 
-            it(`[${path}] #6 newline is ` + ansi.red("[LF]"), () => {
+            it(`[${path}] #6 newline is ` + "[LF]".red, () => {
                 validate(
                     "const anonymouse = () => {\n    const x = 777 / 3;\n    /// this is line comment  \n    return x % 2;\n};\n\n/* block comments */",
                     "const anonymouse = () => {\n    const x = 777 / 3;\n    return x % 2;\n};",
                 );
             });
-            it(`[${path}] #7 newline is ` + ansi.red("[CR]"), () => {
+            it(`[${path}] #7 newline is ` + "[CR]".red, () => {
                 validate(
                     "const anonymouse = () => {\r    const x = 777 / 3;\r    /// this is line comment  \r    return x % 2;\r};\r\r/* block comments */",
                     "const anonymouse = () => {\r    const x = 777 / 3;\r    return x % 2;\r};",
@@ -339,8 +339,64 @@ limitations under the License.
             // });
         });
 
-        // describe("preserve JSDoc by TScanEventCallback", () => {
-        describe("preserve JSDoc by " + ansi.cyan("TScanEventCallback"), () => {
+        // 2025/12/22 11:40:38
+        describe(`The ${"keepJsDoc".green.bold} property controls whether jsdoc comments are kept or not. (${`Use ${"setListener".cyan} for more detailed control.`.underline})`, () => {
+            const jsSource = `/*!
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  Copyright (C) 2019 jeffy-g <hirotom1107@gmail.com>
+  Released under the MIT license
+  https://opensource.org/licenses/mit-license.php
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*/
+/// <reference path="./index.d.ts"/>
+/**
+ * @file src/gulp/index.ts
+ */
+
+// original name: gulp-rm-cmts.ts
+import * as rmc from "../";
+// import * as rmc from "rm-cstyle-cmts";
+import * as stream from "stream";
+import * as readline from "readline";
+import { performance } from "perf_hooks";
+`;
+            it(`[${path}] keepJsDoc=false`, () => {
+                const prevKj = rmc.keepJsDoc;
+                rmc.keepJsDoc = void 0;
+                validate(jsSource,
+`/// <reference path="./index.d.ts"/>
+import * as rmc from "../";
+import * as stream from "stream";
+import * as readline from "readline";
+import { performance } from "perf_hooks";`
+                );
+                rmc.keepJsDoc = prevKj;
+            });
+            it(`[${path}] keepJsDoc=true`, () => {
+                const prevKj = rmc.keepJsDoc;
+                rmc.keepJsDoc = true;
+                validate(jsSource,
+`/*!
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  Copyright (C) 2019 jeffy-g <hirotom1107@gmail.com>
+  Released under the MIT license
+  https://opensource.org/licenses/mit-license.php
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*/
+/// <reference path="./index.d.ts"/>
+/**
+ * @file src/gulp/index.ts
+ */
+import * as rmc from "../";
+import * as stream from "stream";
+import * as readline from "readline";
+import { performance } from "perf_hooks";`
+                );
+                rmc.keepJsDoc = prevKj;
+            });
+        });
+
+        describe("preserve JSDoc by " + ("TScanEventCallback".cyan), () => {
             // beforeAll(() => {
             //     return new Promise<void>(resolve => {
             //         rmc.setListener((a, b) => {
@@ -445,6 +501,7 @@ const Component = <div></div>;
 `- - - - - miscellaneous::statistics - - - - -
 noops      : ${noops}
 processed  : ${processed}
+scanned regex count: ${rmc.getScannedRegexCount()}
 detected regex count: ${context.detectedReLiterals.length}
 uniqReLiterals: [
   ${context.uniqReLiterals.join(",\n  ")}

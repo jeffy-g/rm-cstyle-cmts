@@ -14,7 +14,8 @@
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Import necessary modules
-const grmc = require("../dist/cjs/gulp/");
+const grmc = require("../dist/webpack/gulp/");
+// const grmc = require("../dist/cjs/gulp/");
 const utils = require("js-dev-tool/utils");
 const { task } = require("./grmc-test-task");
 

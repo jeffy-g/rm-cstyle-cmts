@@ -13,7 +13,7 @@ const [testRegex, collectCoverageFrom] = (() => {
     ]);
   }
   return [
-    process.env.CI? "./__tests__/test.ts$": void 0, ccfrom
+    process.env.CI? "./__tests__/test.ts$": "./__tests__/.*", ccfrom
   ];
 })();
 

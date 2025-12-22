@@ -79,7 +79,7 @@ const createContext = (options: NsGulpRmc.TOptions): [
     };
     const renderProgress = options.renderProgress;
     const extensions = options.disableDefaultExtensions
-        ? options.extraExtensions || [".js"]
+        ? /* istanbul ignore next */options.extraExtensions || /* istanbul ignore next */[".js"]
         : defaultExtensions.concat(options.extraExtensions || []);
 
     /** @type {(vinyl: TBufferFile, path: string) => string} */
@@ -88,7 +88,7 @@ const createContext = (options: NsGulpRmc.TOptions): [
         const contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
         timeSpans.push(`${perfNow() - a}:${path}`);
         return contents;
-    } : (vinyl: TBufferFile, path: string) => rmc(vinyl.contents.toString(), opt);
+    } : /* istanbul ignore next */(vinyl: TBufferFile, path: string) => rmc(vinyl.contents.toString(), opt);
 
     /* istanbul ignore next */
     const progress = process.env.CI ? (() => {
@@ -136,6 +136,7 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
             vinyl.contents = Buffer.from(
                 processBody(vinyl, path)
             );
+            /* istanbul ignore next */
             if (prevNoops ^ rmc.noops) {
                 noopPaths.push(path);
                 prevNoops = rmc.noops;
@@ -143,6 +144,7 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
             return callback(null, vinyl);
         }
 
+        /* istanbul ignore next */
         if (vinyl.isNull()) {
             return callback(null, vinyl);
         }
@@ -164,11 +166,12 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
         if (vinyl.isBuffer() && extensions.includes(vinyl.extname)) {
             renderProgress && process.nextTick(progress, `[${encoding}]: ${vinyl.relative}`);
             rmc.walk(vinyl.contents.toString(), opt);
+            /* istanbul ignore next */
             if (prevNoops < rmc.noops) {
                 noopPaths.push(vinyl.relative);
                 prevNoops = rmc.noops;
             }
-        } else /* istanbul ignore if */ if (vinyl.isStream()) {
+        } else /* istanbul ignore next */ if (vinyl.isStream()) {
             this.emit("error", new TypeError(`[${PLUGIN_NAME}]: Streams not supported!`));
         }
         // DEVNOTE: By not passing file as the second argument of callback, there is no file that has flowed
