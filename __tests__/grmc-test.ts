@@ -10,8 +10,8 @@
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // import * as grmc from "../src/gulp/";
-import { task } from "../scripts/grmc-test-task";
-import type { TGrmcTaskArgs } from "../scripts/grmc-test-task";
+import { task } from "../scripts/grmc-test-task.js";
+import type { TGrmcTaskArgs } from "../scripts/grmc-test-task.js";
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,7 +49,7 @@ function eachModule(path: string) {
         };
         const stimeout = 600 * 1000;
 
-        describe.each<[string, TGrmcTaskArgs, number]>([
+        describe.each<[title: string, opt: TGrmcTaskArgs, timeout: number, disable?: number]>([
             [`[${path}] walkthrough mode`, {
                 progress: true,
                 // showNoops: true,
@@ -62,11 +62,12 @@ function eachModule(path: string) {
                 showNoops: true,
                 timeMeasure: true,
                 // collectRegex: true,
-            }, stimeout],
+            }, stimeout/*, 1*/],
         ])(
             "Scan the js related files of `node_modules`",
-            (title, opt, timeout) => {
+            (title, opt, timeout, disable = 0) => {
                 it(title, async () => {
+                    if (disable) return;
                     !opt.isWalk && reset();
                     await tryTask(opt);
                 }, timeout);

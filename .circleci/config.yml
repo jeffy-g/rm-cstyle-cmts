@@ -3,7 +3,7 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@5.3.0
+  codecov: codecov/codecov@5.4.3
 
 jobs:
   # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
@@ -34,22 +34,22 @@ jobs:
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
             echo '                   lint -> build'
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-            npm run all
+            yarn all
       - run:
           name: Run benchmark
           command: |
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
             echo '                   run benchmark'
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-            npm run bench
-            npm run benchmark
+            yarn bench
+            yarn benchmark
       - run:
           name: Run tests
           command: |
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
             echo '                     run tests'
             echo "- - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-            npm run test
+            yarn test
 
       - codecov/upload
 

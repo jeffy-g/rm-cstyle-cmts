@@ -3160,16 +3160,16 @@ jest@^30.2.0:
     import-local "^3.2.0"
     jest-cli "30.2.0"
 
-js-dev-tool@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/js-dev-tool/-/js-dev-tool-1.0.9.tgz#174dcf1846ae13d19668dbfb7296a91bf18a05ff"
-  integrity sha512-1vOAQ1SmjcehdOnTGaT3yX6RtiEBe1hRBO3n7oCe7yw0bAiFEpkNgtgymeDqIyEH28SYSyoW+u4J43tXCcz3ZQ==
+js-dev-tool@^1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/js-dev-tool/-/js-dev-tool-1.0.12.tgz#76d41165386252f019d034f38abec5a7c138ed18"
+  integrity sha512-UgaBi6MAFDAJtA2nJCyUf1WL3CLL5ptCupC5pWaBVlEPTGgNfqKsqdQjTbjyDZQ7XrqTn5VMokdP+ZiUEcrXdw==
   dependencies:
     colors.ts "^1.0.20"
     fflate "^0.8.2"
     mini-semaphore "^1.4.4"
     replace "^1.2.2"
-    rm-cstyle-cmts "^3.3.22"
+    rm-cstyle-cmts "^3.3.25"
     terser "^5.44.1"
     tin-args "^0.1.1"
 
@@ -3843,10 +3843,10 @@ rimraf@^6.1.2:
     glob "^13.0.0"
     package-json-from-dist "^1.0.1"
 
-rm-cstyle-cmts@^3.3.22:
-  version "3.3.22"
-  resolved "https://registry.yarnpkg.com/rm-cstyle-cmts/-/rm-cstyle-cmts-3.3.22.tgz#79488e1bba5714d9664a28a915fcd76a7985a4ca"
-  integrity sha512-iBWn2g7Vwa9b+QVigzatRGgH03PlmE7iYKyjX+NmsUJx+8vZpM6766O7COoaqn3eHfOowmWZCOIlUksAWdlqqA==
+rm-cstyle-cmts@^3.3.25:
+  version "3.3.26"
+  resolved "https://registry.yarnpkg.com/rm-cstyle-cmts/-/rm-cstyle-cmts-3.3.26.tgz#e287c9fd32f048c81e52893576b91665d356a492"
+  integrity sha512-FjLU26srTn6BI68kr0EUiJV2he8XrCEmUDGIRudAig4iQTJrc5fUOG3zN1QDY8D6AKlH5vgIlBEXq9zjOxTfjg==
 
 safe-buffer@^5.1.0, safe-buffer@^5.2.1, safe-buffer@~5.2.0:
   version "5.2.1"
