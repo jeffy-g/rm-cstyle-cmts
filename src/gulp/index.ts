@@ -71,10 +71,11 @@ const createContext = (options: NsGulpRmc.TOptions): [
     number
 ] => {
 
+    const collect = options.collectRegex;
     /** @type {TRemoveCStyleCommentsOpt} */
     const opt: TRemoveCStyleCommentsOpt = {
         preserveBlanks: options.preserveBlanks,
-        collectRegex: options.collectRegex,
+        collectRegex: collect,
         showErrorMessage: true
     };
     const renderProgress = options.renderProgress;
@@ -84,6 +85,13 @@ const createContext = (options: NsGulpRmc.TOptions): [
 
     /** @type {(vinyl: TBufferFile, path: string) => string} */
     const processBody: (vinyl: TBufferFile, path: string) => string = options.timeMeasure ? (vinyl: TBufferFile, path: string) => {
+
+        // rmc `path` option test
+        if (collect) {
+            opt.path = path;    // will be relative path
+            // opt.path = vinyl.path; // get absolute path
+        }
+
         const a = perfNow();
         const contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
         timeSpans.push(`${perfNow() - a}:${path}`);

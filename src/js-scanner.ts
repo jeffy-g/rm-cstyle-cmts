@@ -15,7 +15,15 @@ const {
 } = util;
 
 
-type TScannerContext = {
+/**
+ * type for line/column data
+ */
+type TLineColumn = {
+    lastOffset: number;
+    line: number;
+    lastNewlineIndex: number;
+};
+type TScannerContext<TPath extends string | undefined> = {
     /** The source offset currently being scanned is recorded. (read, write) */
     offset: number;
     /** New line character at source. (read) */
@@ -55,6 +63,15 @@ type TScannerContext = {
      * @date 2020/5/14
      */
     proceed?: boolean;
+
+    // - - - - - - - - - - - - - - - - - - -
+    // path for regex detection (2026/1/7)
+    // - - - - - - - - - - - - - - - - - - -
+    path: TPath;
+    /**
+     * Cache for line/column calculation
+     */
+    lineInfo: TPath extends string ? TLineColumn : never;
 };
 
 /**
@@ -107,7 +124,7 @@ type TCharScannerFunction =
      * @param src  current replacement source.
      * @param ctx see {@link TScannerContext}
      */
-    (src: string, ctx: TScannerContext) => boolean;
+    (src: string, ctx: TScannerContext<any>) => boolean;
 
 
 /**
@@ -135,22 +152,30 @@ type TCharScannerFunction =
  * @param {true=} isWalk
  * @returns {TScannerContext}
  */
-const createWhite = (src: string, collectRegex?: boolean, isWalk?: true): TScannerContext => {
+const createWhite = (
+    src: string,
+    collectRegex?: boolean,
+    path?: string,
+    isWalk?: true
+): TScannerContext<typeof path> => {
     // specify new line character.
     /** @type {util.TDetectedNewLines} */
     const newline: util.TDetectedNewLines = detectNewLine(src);
-    const ctx = /** @type {TScannerContext} */({
+    const ctx = /** @type {TScannerContext<typeof path>} */({
         offset: 0,
         // result: "",
         collectRegex,
+        path,
         newline
-    }) as TScannerContext;
+    }) as TScannerContext<typeof path>;
 
     if (isWalk) {
         ctx.proceed = ctx.isWalk = true;
     } else {
         ctx.result = "";
     }
+    // 2026/1/7 4:39:06
+    if (path) ctx.lineInfo = { lastOffset: 0, line: 1, lastNewlineIndex: -1 };
 
     return ctx;
 };
@@ -168,7 +193,7 @@ const createWhite = (src: string, collectRegex?: boolean, isWalk?: true): TScann
  * @returns {boolean}
  * @throws {SyntaxError}
  */
-const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean => {
+const quote: TCharScannerFunction = (src, ctx) => {
 
     const startOffset = ctx.offset;
     const q = src[startOffset];
@@ -212,7 +237,7 @@ const quote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
  * @returns {boolean}
  * @throws {SyntaxError}
  */
-const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean => {
+const backQuote: TCharScannerFunction = (src, ctx) => {
 
     // store "next" postion character. 
     let ch: TBD<string>;
@@ -300,7 +325,7 @@ const backQuote: TCharScannerFunction = (src: string, ctx: TScannerContext): boo
 };
 
 /** @type {string[]} */
-const detectedReLiterals: string[] = [];
+const detectedReLiterals: Array<string | TDetectedRegexDetails> = [];
 let drlIndex = 0;
 /**
  * test for "<reference .../>" and "///@ts-(ignore|check|...)..."
@@ -331,7 +356,7 @@ const reTsrefOrPramga = /^\/\/(?:\/?\s*@ts-[-\w]+|\/\s*<reference)/;
  * @returns {boolean}
  * @throws {SyntaxError}
  */
-const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean => {
+const slash: TCharScannerFunction = (src, ctx) => {
 
     // cache start offset
     const startOffset = ctx.offset;
@@ -421,7 +446,13 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     }
 
     if (ctx.collectRegex) {
-        detectedReLiterals[drlIndex++] = m.body;
+        const path = ctx.path;
+        if (path) {
+            detectedReLiterals[drlIndex++] = [path, `${getLineColumnAtOffset(src, startOffset, ctx)}`, m.body as TRegExpString];
+            // detectedReLiterals[drlIndex++] = [path, startOffset, m.body];
+        } else {
+            detectedReLiterals[drlIndex++] = m.body;
+        }
         // DEVNOTE: 2026/1/6 22:39:22 - Added start offset for regex literals in code
         // detectedReLiterals[drlIndex++] = `${startOffset}:${m.body}`;
     }
@@ -432,6 +463,38 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     }
 
     return true;
+};
+
+
+/**
+ * Calculates line and column from a given offset in the source code.
+ * 
+ * @param {string} source - The source code string.
+ * @param {number} offset - Zero-based character offset.
+ * @param {TScannerContext} ctx - Scanner context for caching.
+ * @returns {TLineColumnString} Line and column numbers (1-based).
+ * @internal
+ */
+const getLineColumnAtOffset = <TPath extends string | undefined>(source: string, offset: number, ctx: TScannerContext<TPath>): TLineColumnString => {
+    /** @type {number} */
+    let line = 1;
+    /** @type {number} */
+    let lastNewline = -1;
+    let start = 0;
+
+    for (let i = start; i < offset; i++) {
+        if (source[i] === "\n") {
+            line++;
+            lastNewline = i;
+        }
+    }
+
+    const li = ctx.lineInfo;
+    li.lastOffset = offset;
+    li.line = line;
+    li.lastNewlineIndex = lastNewline;
+
+    return `line:${line},column:${offset - lastNewline}`;
 };
 
 /**
@@ -477,8 +540,8 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
     //
     // step 1. remove {line, block} comments
     //
-    const size  = src.length;
-    const ctx   = createWhite(src, opt.collectRegex);
+    const size = src.length;
+    const ctx   = createWhite(src, opt.collectRegex, opt.path);
     let offset     = 0;
     let prevOffset = 0;
 
@@ -588,9 +651,9 @@ const walk = (src: string, opt: TRemoveCStyleCommentsOpt): void => {
     //
     // run as walk through mode
     //
-    const size  = src.length;
+    const size = src.length;
     const scans = scanners;
-    const ctx   = createWhite(src, opt.collectRegex, true);
+    const ctx   = createWhite(src, opt.collectRegex, opt.path, true);
     let offset  = 0;
 
     while (ctx.proceed && offset < size) {
@@ -611,9 +674,22 @@ const walk = (src: string, opt: TRemoveCStyleCommentsOpt): void => {
  * acquire the regex detection related context
  */
 const getDetectedReContext = () => {
+    const item = detectedReLiterals[0];
+    let uniqReLiterals: string[];
+    // item type is string
+    if (typeof item === "string") {
+        uniqReLiterals = [...new Set(detectedReLiterals as string[])];
+    } else {
+        for (let idx = 0, detectedReLiteralsLen = detectedReLiterals.length; idx < detectedReLiteralsLen;) {
+            const detectDetail = detectedReLiterals[idx++] as TDetectedRegexDetails;
+            // to unix path
+            detectDetail[0] = detectDetail[0].replace(/\\/g, "/");
+        }
+        uniqReLiterals = [...new Set((detectedReLiterals as TDetectedRegexDetails[]).map(item => item[2]))];
+    }
     return {
         detectedReLiterals,
-        uniqReLiterals: [...new Set(detectedReLiterals)].sort()
+        uniqReLiterals: uniqReLiterals.sort()
     };
 };
 /**

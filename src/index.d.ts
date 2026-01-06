@@ -36,6 +36,25 @@ declare global {
          * @default undefined
          */
         preserveBlanks?: boolean;
+
+        // - - - - - - - - - - - - - - - - -
+        // file path for regex detection
+        // - - - - - - - - - - - - - - - - -
+        /**
+         * If the `collectRegex` option is `true`, the path string and the position in the regex code will be embedded.
+         * 
+         * + Until now, regex detection was supported, but since there was no information about the detected source code,  
+         *   it was not possible to know details such as how regex was used.
+         * 
+         * + `path`, `position`, `regex` will be the following array type:
+         * ```
+         * type TDetectedRegexDetails = [path: string, position: `line:${number},column:${number}`, regex: string];
+         * ```
+         * 
+         * NOTE: If no path string is provided, it will be a regex array (previous data)
+         * 
+         */
+        path?: string;
     };
 
     /**
@@ -132,12 +151,35 @@ declare global {
         setListener(listener?: IScanEventCallback): void;
     }
 
+    // 2026/1/7 2:49:16
+    // type TValidRegExpFlag = "" | "d" | "g" | "s" | "i" | "m" | "u" | "v" | "y";
+    type TRegExpString = `/${string}/${string}`; // loose type
+    type TLineColumnString = `line:${number},column:${number}`;
+    type TDetectedRegexDetails = [path: string, position: TLineColumnString, regex: TRegExpString];
+
     /**
-	 *
+	 * Context for detected regex literals
+     * 
+     * sample code:
+     * 
+     * ```js
+     * const { detectedReLiterals } = rmc.getDetectedReContext();
+     * detectedReLiterals.forEach(item => {
+     *   // Check for string type using type guard
+     *   if (typeof item === "string") {
+     *     // In this block, item can be treated as a string type.
+     *     // (Old format when the path option is not specified)
+     *     console.log("Regex string:", item);
+     *   } else {
+     *     // In this block, item can be treated as a TDetectedRegexDetails type (tuple).
+     *     const [path, position, regex] = item;
+     *     console.log(`Regex found in ${path} at ${position}:`, regex);
+     *   }
+     * });
 	 */
     type TDetectedReContext = {
-        detectedReLiterals: string[];
         uniqReLiterals: string[];
+        detectedReLiterals: Array<string | TDetectedRegexDetails>;
     };
 
     /**
