@@ -10,8 +10,8 @@
  * @caveats To enable progress, you need to install webpack in your package local.
  */
 
-import extras from "js-dev-tool/progress/progress-extras.js";
-import lib from "js-dev-tool/common/index.js";
+import extras from "js-dev-tool/progress/progress-extras";
+import lib from "js-dev-tool/common";
 // const extras = require("js-dev-tool/progress/progress-extras");
 // const lib = require("js-dev-tool/common/");
 
