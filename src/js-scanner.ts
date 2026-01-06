@@ -131,11 +131,11 @@ type TCharScannerFunction =
  * create TScannerContext
  * 
  * @param {string} src parsing source
- * @param {true=} collectRegex
+ * @param {boolean} collectRegex
  * @param {true=} isWalk
  * @returns {TScannerContext}
  */
-const createWhite = (src: string, collectRegex?: true, isWalk?: true): TScannerContext => {
+const createWhite = (src: string, collectRegex?: boolean, isWalk?: true): TScannerContext => {
     // specify new line character.
     /** @type {util.TDetectedNewLines} */
     const newline: util.TDetectedNewLines = detectNewLine(src);
@@ -307,7 +307,7 @@ let drlIndex = 0;
  * 
  * regex cache
  */
-const reTsrefOrPramga = /^(?:\/\/\/?\s*@ts-[-\w]+|\/\/\/\s*<reference)/;
+const reTsrefOrPramga = /^\/\/(?:\/?\s*@ts-[-\w]+|\/\s*<reference)/;
 
 //
 //  DEVNOTE: 2019-5-12
@@ -358,11 +358,11 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
                     offset: startOffset
                 };
                 if (!ctx.isWalk) {
-                    if (scanListener!(eventContext)) {
+                    if (scanListener(eventContext)) {
                         ctx.result += fragment;
                     }
                 } else {
-                    ctx.proceed = scanListener!(eventContext);
+                    ctx.proceed = scanListener(eventContext);
                 }
             }
             // update offset.
@@ -378,7 +378,7 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
 
     // limitation.
     // DEVNOTE: 2022/04/08 - nlsOrEos is not allow zero -> eliminate blanks process is will be fail
-    let nlsOrEos = ctx.newline && src.indexOf(ctx.newline, startOffset + 1) || -1;
+    let nlsOrEos = (ctx.newline && src.indexOf(ctx.newline, startOffset + 1)) || -1;
     nlsOrEos === -1 && (nlsOrEos = src.length);
     // NOTE: It was necessary to extract the character strings of the remaining lines...
     fragment = src.slice(startOffset, nlsOrEos);
@@ -400,17 +400,18 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
             if (!ctx.isWalk) { // replace mode
                 if (
                     // avoid ts reference tag
-                    reTsrefOrPramga.test(fragment) || scanListener!(eventContext)
+                    reTsrefOrPramga.test(fragment) || scanListener(eventContext)
                 ) {
                     ctx.result += fragment;
                 }
             } else { // walk through mode
-                ctx.proceed = scanListener!(eventContext);
+                ctx.proceed = scanListener(eventContext);
             }
         }
         return true;
     }
 
+    // means `/...`
     //
     // - - - check regexp literal - - -
     //
@@ -420,7 +421,9 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     }
 
     if (ctx.collectRegex) {
-        detectedReLiterals[drlIndex++] = m.body;
+        // DEVNOTE: 2026/1/6 22:39:22 - Added start offset for regex literals in code 
+        detectedReLiterals[drlIndex++] = `${startOffset}:${m.body}`;
+        // detectedReLiterals[drlIndex++] = m.body;
     }
     // update offset.
     ctx.offset = startOffset + m.lastIndex;
@@ -497,6 +500,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
     }
 
     if (opt.preserveBlanks) {
+        // return ctx.result.replace(/^[\x20\t]+$/gm, ""); // slower about 40%
         return ctx.result;
     }
 

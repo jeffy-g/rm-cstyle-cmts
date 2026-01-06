@@ -11,9 +11,10 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const utils = require("js-dev-tool/utils");
+const fs = require("fs");
 const gulp = require("gulp");
 const rimraf = require("rimraf");
+const utils = require("js-dev-tool/utils");
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,11 +34,18 @@ const rimraf = require("rimraf");
  * @typedef {TGrmcTaskArgsBase & NsGulpRmc.TOptions} TGrmcTaskArgs
  * @typedef {[TJSDocTag, number]} TPriorityEntry
  */
+
+const ROOT_DIR = "x:";
 // ⚠️ CAVEAT:
 //  In test for all files in node_modules,
 //  if output directory is set immediately below working directory, vscode maybe/will be freezes
-const RESULT_SRC_FILEs_OUT = "x:/rmc-tmp/output";
-
+/**
+ * @throws {Error} description
+ */
+const RESULT_SRC_FILEs_OUT = `${ROOT_DIR}/rmc-tmp/output`;
+if (!fs.existsSync(ROOT_DIR)) {
+    throw new Error("Output directory root are not available!");
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.

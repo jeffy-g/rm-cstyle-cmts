@@ -83,6 +83,9 @@ export const lookupRegexes = (nl: TDetectedNewLines) => {
  * @see {@link detectRegex}
  */
 export type TRegexDetectResult = {
+    /**
+     * regex literal string - __`/.../[dgimsuvy]`__
+     */
     body: string;
     lastIndex: number;
 };
@@ -101,28 +104,6 @@ export type TRegexDetectResult = {
  * ```
  */
 const reValidFirst = /^\/(?![?+])/;
-
-// /**
-//  * if `true`, regex is invalid
-//  * 
-//  * ```js
-//  * // must use with /^([dgimsuy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g
-//  * /[^dgimsuy\d?*+\/\\]/.test(flagsPartAfter);
-//  * ```
-//  * @date 2020/5/7
-//  */
-// // TODO: 2020/5/26 11:16:15 - need review because maybe this regex is incomplete
-// const reFlagsPartAfter = /[^dgimsuy\d?*+\/\\]/;
-// /**
-//  * strict check for regex flags
-//  *  + This check allows us to eliminate statements that may be arithmetic expressions.
-//  * 
-//  * ```js
-//  * /^(?!.*(.).*\1)[dgimsuy]*$/
-//  * ```
-//  * @date 2025/1/28
-//  */
-// const reFixedRegexFlags = /^(?!.*(.).*\1)[dgimsuy]*$/;
 const reLFCR = /[\n\r]/;
 
 /**
@@ -148,14 +129,19 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
 
     let groupIndex = 0, inEscape = false, inClass = 0;
     /** current line offset */
-    let i = 1;
+    let lineOffset = 1;
     /** line limit */
     const end = line.length;
-    /** @type {string | undefined} */
+    /**
+     * ```
+     * /.../
+     * ```
+     * @type {string | undefined}
+     */
     let reBody: TBD<string>;
     // always starts offset is "one" because line[0] is supposed to be "/"
-    for (; i < end;) {
-        const ch = line[i++];
+    for (;lineOffset < end;) {
+        const ch = line[lineOffset++];
 
         // if (ch === "\n" || ch === "\r") return null;
 
@@ -164,7 +150,8 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
         } else if (!inEscape) {
             if (ch === "/" && !inClass) {
                 if (groupIndex) return null;
-                reBody = line.slice(0, i);
+                // `lineOffset` is the position of the "/" character
+                reBody = line.slice(0, lineOffset);
                 break;
             }
             if (ch === "(") {
@@ -183,7 +170,7 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
                 groupIndex < 0 ||
                 // number (increment|decrement), calcrate exponentiation by "**"
                 // "++" is implemented in other scripting languages (e.g - PCRE (php) 
-                ((ch === "+" || ch === "*") && line[i] === ch)
+                ((ch === "+" || ch === "*") && line[lineOffset] === ch)
             ) {
                 return null;
             }
@@ -194,25 +181,49 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
 
     if (reBody) {
         !dontCountPlz && scanRegex++;
-        //* ctt DEVNOTE: 2025/1/29 - Processing speed has improved by a few percent.
-        const flags = check(line, i);
+        /**
+         * dgimsuvy
+         */
+        //* ctt
+        const flags = check(line, lineOffset);
         if (flags !== null) {
             return {
                 body: reBody + flags,
-                lastIndex: i + flags.length
+                lastIndex: lineOffset + flags.length
             };
         }
         /*/
         /**
+         * if `true`, regex is invalid
+         * 
+         * ```js
+         * // must use with /^([dgimsuvy]{1,6})?(?:\s*(?:;|,|\.|]|\)|\s))?/g
+         * /[^dgimsuvy\d?*+\/\\]/.test(flagsPartAfter);
+         * ```
+         * @date 2020/5/7
+         * /
+        // TODO: 2020/5/26 11:16:15 - need review because maybe this regex is incomplete
+        const reFlagsPartAfter = /[^dgimsuvy\d?*+\/\\]/;
+        /**
+         * strict check for regex flags
+         *  + This check allows us to eliminate statements that may be arithmetic expressions.
+         * 
+         * ```js
+         * /^(?!.*(.).*\1)[dgimsuvy]*$/
+         * ```
+         * @date 2025/1/28
+         * /
+        const reFixedRegexFlags = /^(?!.*(.).*\1)[dgimsuvy]*$/;
+        /**
          * #### JavaScript regular expressions. Here is a breakdown of the pattern:
          * 
          * ```js
-         * /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
+         * /^([dgimsuvy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
          * ```
          * 
          * 1. `^`: Asserts the position at the start of a line.
          * 
-         * 2. `([dgimsuy]{0,7})`: Matches a sequence of 0 to 7 characters that can be any of the following:  
+         * 2. `([dgimsuvy]{0,7})`: Matches a sequence of 0 to 7 characters that can be any of the following:  
          *   `d`, `g`, `i`, `m`, `s`, `u`, `y`. These are valid flags for JavaScript regular expressions.
          * 
          * 3. `(?=\s*(?:;|,|\.|]|\)|:|\s|$))`: Positive lookahead that asserts that what follows is:
@@ -229,23 +240,23 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
          * 
          * /
         // Is this the best choice?
-        const re = /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
+        const re = /^([dgimsuvy]{0,8})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
         // A case like /\w+/gm["lastIndex"] is also possible,
         // but this code is meaningless, so it is excluded.
-        // const re = /^([dgimsuy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\[|\s|$)).?/g;
+        // const re = /^([dgimsuvy]{0,7})(?=\s*(?:;|,|\.|]|\)|:|\[|\s|$)).?/g;
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -^
         // const re = /^(\w{0,7})(?=\s*(?:;|,|\.|]|\)|:|\s|$)).?/g;
-        const maybeFlagPart = line.substring(i);
+        const maybeFlagPart = line.substring(lineOffset);
         const m = re.exec(maybeFlagPart);
         if (re.lastIndex === 0 && reFlagsPartAfter.test(maybeFlagPart)) {
             return null;
         }
-        // @ts-ignore
-        const flags = m[1] || "";
+        // @ts -ignore
+        const flags = m![1] || "";
         if (reFixedRegexFlags.test(flags)) {
             return {
                 body: reBody + flags,
-                lastIndex: i + flags.length
+                lastIndex: lineOffset + flags.length
             };
         }
         //*/
@@ -255,7 +266,8 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
 };
 
 /** Constants for regex flags. */
-const REGEX_FLAGS = "dgimsuy";
+// DEVNOTE: 2026/1/6 23:18:49 - add "v" flag
+const REGEX_FLAGS = "dgimsuvy";
 /** Expected characters after flags. */
 const EXPECT_AFTER_CHARS = ";,.])}: \t"; // FIX: 2025/5/13 - incomplete chars (add "}")
 /**
@@ -264,12 +276,16 @@ const EXPECT_AFTER_CHARS = ";,.])}: \t"; // FIX: 2025/5/13 - incomplete chars (a
  * @param {number=} limit default is `line.length`
  * @returns {TBC<string>}
  */
+// DEVNOTE: 2025/1/29 - Processing speed has improved by a few percent.
 function check(line: string, x: number, limit = line.length): TBC<string> {
     let reflags = "";
     while (x < limit) {
+        // fecth one ch
         const flag = line[x++] as string;
         if (REGEX_FLAGS.includes(flag)) {
-            if (!reflags.includes(flag)) {
+            // 2026/1/6 22:27:58 - perf up ?
+            if (reflags.indexOf(flag) === -1) {
+            // if (!reflags.includes(flag)) {
                 reflags += flag;
             } else {
                 return null; // Duplicate flag, invalid regex

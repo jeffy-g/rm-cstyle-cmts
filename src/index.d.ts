@@ -17,7 +17,7 @@ declare global {
          * Whether collect detected regex
          * @default undefined
          */
-        collectRegex?: true;
+        collectRegex?: boolean;
         /**
          * Whether to display an error message
          * 
@@ -25,17 +25,17 @@ declare global {
          * but setting this option to true will also log an error message.
          * @default undefined
          */
-        showErrorMessage?: true;
+        showErrorMessage?: boolean;
 
         // - - - - - - - - - - - - - - -
         // replace mode
         // - - - - - - - - - - - - - - -
         /**
          * Whether preserve whitespace and blank lines
-         *  + this option is ignore on walk through mode
+         *  + this option is ignored in walk through mode
          * @default undefined
          */
-        preserveBlanks?: true;
+        preserveBlanks?: boolean;
     };
 
     /**
@@ -45,7 +45,7 @@ declare global {
 
     interface IRemoveCStyleCommentsMain {
         /**
-         * #### remove c style comments form "source" content.  
+         * #### remove c style comments from "source" content.  
          * 
          * step 1:  
          *  - remove line comments, multi line comments.  
@@ -86,10 +86,10 @@ declare global {
         readonly processed: number;
         /**
          * Whether to keep only jsdoc comments
-         *  + this option is ignore on walk through mode
+         *  + this option is ignored in walk through mode
          * @default undefined
          */
-        keepJsDoc?: true;
+        keepJsDoc?: boolean;
     }
 
     interface IRemoveCStyleComments extends IRemoveCStyleCommentsTypeSig, IRemoveCStyleCommentsProperties {
@@ -112,7 +112,7 @@ declare global {
          */
         getScannedRegexCount(): number;
         /**
-         * listen the Scan event
+         * listen to the Scan event
          * 
          *  + When single line comment detected {@link EScannerEvent.SingleLineComment}
          *
