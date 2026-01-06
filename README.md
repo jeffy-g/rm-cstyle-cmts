@@ -190,18 +190,18 @@ yarn run v1.22.22
 $ node bench.mjs
 Platform info:
 Windows_NT 10.0.19045 x64
-Node.JS: 20.10.0
-V8     : 11.3.244.8-node.25
+Node.JS: 22.20.0
+V8     : 12.4.254.21-node.33
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 11,238 ops/sec ±0.41% (94 runs sampled)
-strip-json-comments x 16,407 ops/sec ±0.06% (95 runs sampled)
-rm-cstyle-cmts x 179,508 ops/sec ±0.20% (94 runs sampled)
-rm-cstyle-cmts (webpack) x 171,546 ops/sec ±0.13% (95 runs sampled)
-rm-cstyle-cmts (umd) x 170,609 ops/sec ±0.17% (95 runs sampled)
+strip-comments x 11,020 ops/sec ±1.26% (88 runs sampled)
+strip-json-comments x 15,837 ops/sec ±0.60% (95 runs sampled)
+rm-cstyle-cmts x 210,011 ops/sec ±0.09% (97 runs sampled)
+rm-cstyle-cmts (webpack) x 183,336 ops/sec ±3.17% (88 runs sampled)
+rm-cstyle-cmts (umd) x 198,935 ops/sec ±0.40% (90 runs sampled)
 - - done - -
 all results are equals? true # see NOTE
-Done in 27.91s.
+Done in 27.84s.
 ```
 
 > ### node v24.9.0
@@ -211,18 +211,18 @@ yarn run v1.22.22
 $ node bench.mjs
 Platform info:
 Windows_NT 10.0.19045 x64
-Node.JS: 24.9.0
-V8     : 13.6.233.10-node.27
+Node.JS: 25.2.1
+V8     : 14.1.146.11-node.14
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 11,297 ops/sec ±1.62% (93 runs sampled)
-strip-json-comments x 16,448 ops/sec ±0.60% (91 runs sampled)
-rm-cstyle-cmts x 211,197 ops/sec ±0.98% (94 runs sampled)
-rm-cstyle-cmts (webpack) x 213,817 ops/sec ±0.31% (94 runs sampled)
-rm-cstyle-cmts (umd) x 213,097 ops/sec ±0.18% (91 runs sampled)
+strip-comments x 11,544 ops/sec ±0.25% (92 runs sampled)
+strip-json-comments x 16,512 ops/sec ±0.18% (95 runs sampled)
+rm-cstyle-cmts x 208,505 ops/sec ±0.58% (92 runs sampled)
+rm-cstyle-cmts (webpack) x 215,666 ops/sec ±0.37% (90 runs sampled)
+rm-cstyle-cmts (umd) x 214,950 ops/sec ±0.89% (90 runs sampled)
 - - done - -
 all results are equals? true # see NOTE
-Done in 27.51s.
+Done in 27.53s.
 ```
 
 + NOTE: `strip-comments` may be buggy and is excluded from comparison

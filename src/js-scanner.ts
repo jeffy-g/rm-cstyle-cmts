@@ -421,9 +421,9 @@ const slash: TCharScannerFunction = (src: string, ctx: TScannerContext): boolean
     }
 
     if (ctx.collectRegex) {
-        // DEVNOTE: 2026/1/6 22:39:22 - Added start offset for regex literals in code 
-        detectedReLiterals[drlIndex++] = `${startOffset}:${m.body}`;
-        // detectedReLiterals[drlIndex++] = m.body;
+        detectedReLiterals[drlIndex++] = m.body;
+        // DEVNOTE: 2026/1/6 22:39:22 - Added start offset for regex literals in code
+        // detectedReLiterals[drlIndex++] = `${startOffset}:${m.body}`;
     }
     // update offset.
     ctx.offset = startOffset + m.lastIndex;
@@ -608,29 +608,12 @@ const walk = (src: string, opt: TRemoveCStyleCommentsOpt): void => {
 };
 
 /**
- * @param {string[]} ra regex literal array
- */
-const uniq = (ra: string[]) => {
-    // known elements
-    /** @type {Map<string, boolean>} */
-    const ke: Map<string, boolean> = new Map<string, boolean>();
-    // uniqued Array
-    /** @type {typeof ra} */
-    const ua: typeof ra = [];
-    for (const e of ra) {
-        if (ke.has(e)) continue;
-        ua.push(e);
-        ke.set(e, true);
-    }
-    return ua;
-};
-/**
  * acquire the regex detection related context
  */
 const getDetectedReContext = () => {
     return {
         detectedReLiterals,
-        uniqReLiterals: uniq(detectedReLiterals).sort()
+        uniqReLiterals: [...new Set(detectedReLiterals)].sort()
     };
 };
 /**

@@ -1,6 +1,6 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "3.3.26",
+  "version": "3.3.27",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "private": false,
   "main": "./cjs/index.js",
