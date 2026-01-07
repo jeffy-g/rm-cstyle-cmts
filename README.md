@@ -116,6 +116,7 @@ const removed = rmc("<source file content>", opt);
   - [**opt.collectRegex**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L19) `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
   - [**opt.showErrorMessage**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L27) `{true | undefined}` -- Whether to display an error message. Default: `undefined`.
   - [**opt.preserveBlanks**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L37) `{true | undefined}` -- Whether preserve whitespace and blank lines. Default: `undefined`.
+  - [**opt.path**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L40) `{string | undefined}` -- Optional file path for regex detection details. Default: `undefined`.
 
 ### run as walkthrough mode
 
@@ -128,6 +129,41 @@ rmc.walk("<source file content>", opt);
 - **opt** `{object}`
   - [**opt.collectRegex**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L19) `{true | undefined}` -- Whether collect detected regex. Default: `undefined`.
   - [**opt.showErrorMessage**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L27) `{true | undefined}` -- Whether to display an error message. Default: `undefined`.
+  - [**opt.path**](https://github.com/jeffy-g/rm-cstyle-cmts/blob/master/src/index.d.ts#L40) `{string | undefined}` -- Optional file path for regex detection details. Default: `undefined`.
+
+### Regex detection details (since v3.4.0)
+
+When `collectRegex: true` is enabled, you can inspect detected regex literals via `rmc.getDetectedReContext()`.
+If you also provide `opt.path`, each detection includes file path and position information.
+
+```js
+const fs = require("fs");
+const rmc = require("rm-cstyle-cmts");
+
+const path = "src/demo.js";
+const opt = { collectRegex: true, path };
+const result = rmc(fs.readFileSync(path, "utf8"), opt);
+
+const { detectedReLiterals, uniqReLiterals } = rmc.getDetectedReContext();
+
+// detectedReLiterals entries are:
+// - string (legacy format, when opt.path is not provided)
+// - [path, "line:x,column:y", "/.../flags"] (when opt.path is provided)
+detectedReLiterals.forEach((item) => {
+  if (typeof item === "string") {
+    console.log("regex:", item);
+    return;
+  }
+  const [filePath, position, regex] = item;
+  console.log("regex:", regex, "at", position, "in", filePath);
+});
+
+// uniqReLiterals is the unique list of regex literal strings.
+console.log("uniq:", uniqReLiterals);
+
+// NOTE: Reset this context between independent file validations.
+rmc.reset();
+```
 
 ## Playground
 
@@ -183,7 +219,7 @@ $ npm run benchmark
 
   </details>
 
-> ### node v20.10.0
+> ### node v22.20.0
 
 ```shell
 yarn run v1.22.22
@@ -204,7 +240,7 @@ all results are equals? true # see NOTE
 Done in 27.84s.
 ```
 
-> ### node v24.9.0
+> ### node v25.2.1
 
 ```shell
 yarn run v1.22.22

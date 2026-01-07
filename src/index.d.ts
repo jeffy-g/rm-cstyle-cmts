@@ -5,6 +5,10 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
+/**
+ * @file src/index.d.ts
+ * @todo Eliminating const enums (v4?)
+ */
 /// <reference path="./extras.d.ts"/>
 
 declare global {

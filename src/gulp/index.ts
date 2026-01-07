@@ -96,7 +96,10 @@ const createContext = (options: NsGulpRmc.TOptions): [
         const contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
         timeSpans.push(`${perfNow() - a}:${path}`);
         return contents;
-    } : /* istanbul ignore next */(vinyl: TBufferFile, path: string) => rmc(vinyl.contents.toString(), opt);
+    } : /* istanbul ignore next */(vinyl: TBufferFile, path: string) => {
+        if (collect) opt.path = path;
+        return rmc(vinyl.contents.toString(), opt);
+    };
 
     /* istanbul ignore next */
     const progress = process.env.CI ? (() => {

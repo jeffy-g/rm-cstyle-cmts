@@ -491,6 +491,7 @@ const slash: TCharScannerFunction = (src, ctx) => {
  * @param {number} offset - Zero-based character offset.
  * @param {TScannerContext<string>} ctx - Scanner context for caching.
  * @returns {TLineColumnString} Line and column numbers (1-based).
+ * @since v3.4.0 
  * @internal
  */
 const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext<string>): TLineColumnString => {
@@ -502,7 +503,7 @@ const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext
     // ctx.newline
     for (let i = li.lastOffset; i < offset;) {
         //* cct
-        // 2026/1/7 8:13:48 - LF, CRLF, CR に対応
+        // 2026/1/7 8:13:48 - support LF, CRLF, CR
         const ch = src[i++];
         if (ch === "\n") {
             line++;
@@ -511,6 +512,7 @@ const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext
         }
         if (ch === "\r") {
             line++;
+            // `i` pointed next character
             if (src[i] === "\n") i += 1;
             lastNewline = i - 1;
             continue;
@@ -707,19 +709,21 @@ const walk = (src: string, opt: TRemoveCStyleCommentsOpt): void => {
  * acquire the regex detection related context
  */
 const getDetectedReContext = () => {
-    const item = detectedReLiterals[0];
-    let uniqReLiterals: string[];
-    // item type is string
-    if (typeof item === "string") {
-        uniqReLiterals = [...new Set(detectedReLiterals as string[])];
-    } else {
-        for (let idx = 0, detectedReLiteralsLen = detectedReLiterals.length; idx < detectedReLiteralsLen;) {
-            const detectDetail = /** @type {TDetectedRegexDetails } */(detectedReLiterals[idx++]) as TDetectedRegexDetails;
+
+    /** @type {string[]} */
+    let uniqReLiterals: string[] = [];
+    detectedReLiterals.forEach(item => {
+        // item type is string
+        if (typeof item === "string") {
+            uniqReLiterals.push(item);
+        } else {
             // to unix path
-            detectDetail[0] = detectDetail[0].replace(/\\/g, "/");
+            item[0] = item[0].replace(/\\/g, "/");
+            uniqReLiterals.push(item[2]);
         }
-        uniqReLiterals = [...new Set((detectedReLiterals as TDetectedRegexDetails[]).map(item => item[2]))];
-    }
+    });
+    uniqReLiterals = [...new Set(uniqReLiterals)].sort();
+
     return {
         detectedReLiterals,
         uniqReLiterals: uniqReLiterals.sort()
