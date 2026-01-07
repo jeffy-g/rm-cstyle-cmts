@@ -34,7 +34,7 @@ const reF = /^\s+/;
 /**
  * Lookup regexes by newline character.
  * @param {TDetectedNewLines} nl 
- * @returns {object}
+ * @returns {{ wsqs: RegExp; first: RegExp | string }}
  */
 export const lookupRegexes = (nl: TDetectedNewLines) => {
     return {
@@ -86,12 +86,12 @@ export type TRegexDetectResult = {
     /**
      * regex literal string - __`/.../[dgimsuvy]`__
      */
-    body: string;
+    body: TRegExpString;
     lastIndex: number;
 };
 /**
  * @typedef TRegexDetectResult
- * @prop {string} body
+ * @prop {TRegExpString} body regex literal string - __`/.../[dgimsuvy]`__
  * @prop {number} lastIndex
  */
 
@@ -136,7 +136,7 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
      * ```
      * /.../
      * ```
-     * @type {string | undefined}
+     * @type {TBD<string>}
      */
     let reBody: TBD<string>;
     // always starts offset is "one" because line[0] is supposed to be "/"
@@ -151,6 +151,7 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
             if (ch === "/" && !inClass) {
                 if (groupIndex) return null;
                 // `lineOffset` is the position of the "/" character
+                // `/${string}/
                 reBody = line.slice(0, lineOffset);
                 break;
             }
@@ -188,7 +189,7 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
         const flags = check(line, lineOffset);
         if (flags !== null) {
             return {
-                body: reBody + flags,
+                body: /** @type {TRegExpString} */(reBody + flags) as TRegExpString,
                 lastIndex: lineOffset + flags.length
             };
         }

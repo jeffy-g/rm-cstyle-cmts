@@ -1,6 +1,6 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "private": false,
   "main": "./cjs/index.js",
@@ -77,7 +77,8 @@
     "benchmark": "cd etc/bench && yarn install && yarn start",
     "build:test": "tsc -m commonjs -t es2019 __tests__/test.ts",
     "build": "tsc && yarn fire:tool fix_import_path",
-    "clean": "rimraf -g build/* dist/* logs/*.tsbuildinfo",
+    "clean": "rimraf -g dist/*",
+    "reset:ts:cache": "rimraf -g build/* logs/*.tsbuildinfo",
     "copy:files": "yarn fire:tool copyfiles",
     "copy:types": "yarn fire:tool copytypes",
     "dist": "rimraf -g \"dist/!(webpack|umd)\" && yarn build && yarn copy:files && orgpkg -p -k defs",

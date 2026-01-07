@@ -19,8 +19,17 @@ const {
  * type for line/column data
  */
 type TLineColumn = {
+    /**
+     * initail value: __`0`__
+     */
     lastOffset: number;
+    /**
+     * initail value: __`1`__
+     */
     line: number;
+    /**
+     * initail value: __`-1`__
+     */
     lastNewlineIndex: number;
 };
 type TScannerContext<TPath extends string | undefined> = {
@@ -128,6 +137,15 @@ type TCharScannerFunction =
 
 
 /**
+ * type for line/column data
+ *
+ * @typedef TLineColumn
+ * @prop {number} lastOffset initail value: __`0`__
+ * @prop {number} line initail value: __`1`__
+ * @prop {number} lastNewlineIndex initail value: __`-1`__
+ */
+/**
+ * @template {string | undefined} TPath
  * @typedef {object} TScannerContext
  * @prop {number} offset The source offset currently being scanned is recorded.(read, write
  * @prop {util.TDetectedNewLines} newline new line character at source. (read
@@ -136,10 +154,12 @@ type TCharScannerFunction =
  * @prop {boolean} [isWalk] always true if running at walk through mode
  * @prop {boolean} [proceed] whether to continue walk through
  * @prop {true} [eventDone] suppress secondary scan event
+ * @prop {TPath} path suppress secondary scan event
+ * @prop {TPath extends string ? TLineColumn : never} lineInfo suppress secondary scan event
  */
 /**
  * @typedef {(
- *   source: string, context: TScannerContext
+ *   source: string, context: TScannerContext<any>
  * ) => boolean} TCharScannerFunction if returns true then context has been changed.
  */
 
@@ -148,9 +168,10 @@ type TCharScannerFunction =
  * create TScannerContext
  * 
  * @param {string} src parsing source
- * @param {boolean} collectRegex
+ * @param {boolean=} collectRegex
+ * @param {string=} path
  * @param {true=} isWalk
- * @returns {TScannerContext}
+ * @returns {TScannerContext<any>}
  */
 const createWhite = (
     src: string,
@@ -163,7 +184,6 @@ const createWhite = (
     const newline: util.TDetectedNewLines = detectNewLine(src);
     const ctx = /** @type {TScannerContext<typeof path>} */({
         offset: 0,
-        // result: "",
         collectRegex,
         path,
         newline
@@ -189,7 +209,7 @@ const createWhite = (
  * case '"': // double quote
  * ```
  * @param {string} src 
- * @param {TScannerContext} ctx
+ * @param {TScannerContext<any>} ctx
  * @returns {boolean}
  * @throws {SyntaxError}
  */
@@ -233,7 +253,7 @@ const quote: TCharScannerFunction = (src, ctx) => {
  * case "`": // back quote
  * ```
  * @param {string} src 
- * @param {TScannerContext} ctx
+ * @param {TScannerContext<any>} ctx
  * @returns {boolean}
  * @throws {SyntaxError}
  */
@@ -324,7 +344,7 @@ const backQuote: TCharScannerFunction = (src, ctx) => {
     throw new SyntaxError(`Incomplete backquote, offset=${startOffset}, remaining=<[${src.slice(startOffset, startOffset + 200)}]>`);
 };
 
-/** @type {string[]} */
+/** @type {Array<string | TDetectedRegexDetails>} */
 const detectedReLiterals: Array<string | TDetectedRegexDetails> = [];
 let drlIndex = 0;
 /**
@@ -352,7 +372,7 @@ const reTsrefOrPramga = /^\/\/(?:\/?\s*@ts-[-\w]+|\/\s*<reference)/;
  * case "/": // slash
  * ```
  * @param {string} src 
- * @param {TScannerContext} ctx
+ * @param {TScannerContext<any>} ctx
  * @returns {boolean}
  * @throws {SyntaxError}
  */
@@ -445,16 +465,14 @@ const slash: TCharScannerFunction = (src, ctx) => {
         return false;
     }
 
+    // DEVNOTE: 2026/1/6 22:39:22 - Added `Deteacted regex details` for regex literals in code
     if (ctx.collectRegex) {
         const path = ctx.path;
         if (path) {
             detectedReLiterals[drlIndex++] = [path, `${getLineColumnAtOffset(src, startOffset, ctx)}`, m.body as TRegExpString];
-            // detectedReLiterals[drlIndex++] = [path, startOffset, m.body];
         } else {
             detectedReLiterals[drlIndex++] = m.body;
         }
-        // DEVNOTE: 2026/1/6 22:39:22 - Added start offset for regex literals in code
-        // detectedReLiterals[drlIndex++] = `${startOffset}:${m.body}`;
     }
     // update offset.
     ctx.offset = startOffset + m.lastIndex;
@@ -469,27 +487,42 @@ const slash: TCharScannerFunction = (src, ctx) => {
 /**
  * Calculates line and column from a given offset in the source code.
  * 
- * @param {string} source - The source code string.
+ * @param {string} src - The source code string.
  * @param {number} offset - Zero-based character offset.
- * @param {TScannerContext} ctx - Scanner context for caching.
+ * @param {TScannerContext<string>} ctx - Scanner context for caching.
  * @returns {TLineColumnString} Line and column numbers (1-based).
  * @internal
  */
-const getLineColumnAtOffset = <TPath extends string | undefined>(source: string, offset: number, ctx: TScannerContext<TPath>): TLineColumnString => {
-    /** @type {number} */
-    let line = 1;
-    /** @type {number} */
-    let lastNewline = -1;
-    let start = 0;
-
-    for (let i = start; i < offset; i++) {
-        if (source[i] === "\n") {
-            line++;
-            lastNewline = i;
-        }
-    }
+const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext<string>): TLineColumnString => {
 
     const li = ctx.lineInfo;
+    let line = li.line;
+    let lastNewline = li.lastNewlineIndex;
+
+    // ctx.newline
+    for (let i = li.lastOffset; i < offset;) {
+        //* cct
+        // 2026/1/7 8:13:48 - LF, CRLF, CR に対応
+        const ch = src[i++];
+        if (ch === "\n") {
+            line++;
+            lastNewline = i - 1;
+            continue;
+        }
+        if (ch === "\r") {
+            line++;
+            if (src[i] === "\n") i += 1;
+            lastNewline = i - 1;
+            continue;
+        }
+        /*/
+        if (src[i++] === "\n") {
+            line++;
+            lastNewline = i - 1;
+        }
+        //*/
+    }
+
     li.lastOffset = offset;
     li.line = line;
     li.lastNewlineIndex = lastNewline;
@@ -681,7 +714,7 @@ const getDetectedReContext = () => {
         uniqReLiterals = [...new Set(detectedReLiterals as string[])];
     } else {
         for (let idx = 0, detectedReLiteralsLen = detectedReLiterals.length; idx < detectedReLiteralsLen;) {
-            const detectDetail = detectedReLiterals[idx++] as TDetectedRegexDetails;
+            const detectDetail = /** @type {TDetectedRegexDetails } */(detectedReLiterals[idx++]) as TDetectedRegexDetails;
             // to unix path
             detectDetail[0] = detectDetail[0].replace(/\\/g, "/");
         }
