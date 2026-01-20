@@ -76,12 +76,17 @@ copytypes() {
 # scripts/tool.sh parge_webpack_cache
 #
 parge_webpack_cache() {
-  rimraf -v -g "./logs/webpack-module-ids*"
-  # rimraf -v -g "./node_modules/.cache/webpack/*"
+  rimraf -v -g "./logs/webpack-module-ids*" "./node_modules/.cache/webpack/*"
 }
 webpack() {
-  # rimraf "./dist/webpack/*" "./dist/umd/*"
-  [ -z "$CI" ] && npx webpack || npx webpack >/dev/null
+  [ -z "$CI" ] && {
+    [ ! -z $WP_REFINE_MODID ] && {
+      parge_webpack_cache
+      git checkout ./logs/webpack-size.json
+    }
+    npx webpack
+  } || npx webpack >/dev/null
+
   echo
   jstool -cmd rws
 }

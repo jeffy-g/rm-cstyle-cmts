@@ -131,6 +131,6 @@ suite.add("strip-comments", function(){
         equals &= +(base === results[key]);
     });
 
-    console.log(`all results are equals? ${!!equals}`);
+    console.log(`all results are equals? ${!!equals} # see NOTE`);
 
 }).run();

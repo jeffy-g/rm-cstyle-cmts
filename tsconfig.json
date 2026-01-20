@@ -19,6 +19,21 @@
     "target": "es2019",
     "module": "commonjs",
 
+    "plugins": [
+      {
+        "name": "typescript-jsdoctag-completions-plugin",
+
+        "verbose": true,
+        "preset": "default", // default or closure
+        // DEVNOTE: 2023/10/05 - fix locale problem for latest ts v5.x
+        "locale": "ja",
+        // DEVNOTE: 2020/9/6 - OK, Always succeed if the path is accessible when executing vscode
+        // "preset": "../server/typescript-jsdoctag-completions-plugin/dist/lib/preset/closure",
+        "betaMark": "👍",
+        // 2026/1/18 1:40:29
+        // "enableQuickInfo": false,
+      }
+    ],
     // Avoid explicitly setting the `sourceMap` option, for code coverage to indicate the exact line.
     // "sourceMap": false,
     "paths": {

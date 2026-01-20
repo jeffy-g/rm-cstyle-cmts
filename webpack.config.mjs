@@ -152,7 +152,13 @@ const createWebpackConfig = (target, output, mode = "production", extraOpt = {})
       // ]
     },
     profile: !!0,
-    cache: true,
+    // cache: true,
+    cache: {
+      type: "filesystem",
+      buildDependencies: {
+        config: [__filename],
+      },
+    },
     recordsPath: `${__dirname}/logs/webpack-module-ids_${mainName}.json`
   };
 };
