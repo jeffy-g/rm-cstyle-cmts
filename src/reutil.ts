@@ -280,10 +280,11 @@ const EXPECT_AFTER_CHARS = ";,.])}: \t"; // FIX: 2025/5/13 - incomplete chars (a
 // DEVNOTE: 2025/1/29 - Processing speed has improved by a few percent.
 function check(line: string, x: number, limit = line.length): TBC<string> {
     let reflags = "";
+    const _flg = REGEX_FLAGS;
     while (x < limit) {
         // fecth one ch
         const flag = line[x++] as string;
-        if (REGEX_FLAGS.includes(flag)) {
+        if (_flg.includes(flag)) {
             // 2026/1/6 22:27:58 - perf up ?
             if (reflags.indexOf(flag) === -1) {
             // if (!reflags.includes(flag)) {

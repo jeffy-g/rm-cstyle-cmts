@@ -200,6 +200,22 @@ const createWhite = (
     return ctx;
 };
 
+/**
+ * 
+ * @param {string} src
+ * @param {number} offset
+ * @param {TScannerContext<any>} ctx
+ * @returns {`info: ${string}#line:${number},column:${number}`}
+ * @since v3.4.2
+ */
+// /path/to/source#L${number},C${number}
+// /path/to/source#${number}:${number}
+// TODO: line,column format
+const createErrorInfo = (src: string, offset: number, ctx: TScannerContext<any>): `info: ${string | "/source/path/unspecified"}#line:${number},column:${number}` => {
+    // path: actually, string | undefined
+    const path = ctx.path || "/source/path/unspecified";
+    return `info: ${path}#${getLineColumnAtOffset(src, offset, ctx)}`;
+};
 
 /**
  * correctly evaluate single quote and double quote string,  
@@ -241,7 +257,7 @@ const quote: TCharScannerFunction = (src, ctx) => {
         }
     }
 
-    throw new SyntaxError(`Incomplete quote, offset=${startOffset}, remaining=<[${src.slice(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`Incomplete quote, offset=${startOffset}, ${createErrorInfo(src, startOffset, ctx)}`);
 };
 
 
@@ -341,7 +357,7 @@ const backQuote: TCharScannerFunction = (src, ctx) => {
         }
     }
 
-    throw new SyntaxError(`Incomplete backquote, offset=${startOffset}, remaining=<[${src.slice(startOffset, startOffset + 200)}]>`);
+    throw new SyntaxError(`Incomplete backquote, offset=${startOffset}, ${createErrorInfo(src, startOffset, ctx)}`);
 };
 
 /** @type {Array<string | TDetectedRegexDetails>} */
@@ -414,7 +430,7 @@ const slash: TCharScannerFunction = (src, ctx) => {
             ctx.offset = close + 2;
             return true;
         }
-        throw new SyntaxError("Incomplete multi line comment");
+        throw new SyntaxError(`Incomplete multi line comment, ${createErrorInfo(src, startOffset, ctx)}`);
     }
     // avoid jsx, tsx tag
     if (src[startOffset - 1] === "<") {
@@ -487,6 +503,11 @@ const slash: TCharScannerFunction = (src, ctx) => {
 /**
  * Calculates line and column from a given offset in the source code.
  * 
+ * + returns string format are:
+ * ```ts
+ * `line:${number},column:${number}`
+ * ```
+ * 
  * @param {string} src - The source code string.
  * @param {number} offset - Zero-based character offset.
  * @param {TScannerContext<string>} ctx - Scanner context for caching.
@@ -506,8 +527,7 @@ const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext
         // 2026/1/7 8:13:48 - support LF, CRLF, CR
         const ch = src[i++];
         if (ch === "\n") {
-            line++;
-            lastNewline = i - 1;
+            line++, lastNewline = i - 1;
             continue;
         }
         if (ch === "\r") {
@@ -519,8 +539,7 @@ const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext
         }
         /*/
         if (src[i++] === "\n") {
-            line++;
-            lastNewline = i - 1;
+            line++, lastNewline = i - 1;
         }
         //*/
     }
@@ -709,9 +728,10 @@ const walk = (src: string, opt: TRemoveCStyleCommentsOpt): void => {
  * acquire the regex detection related context
  */
 const getDetectedReContext = () => {
-
     /** @type {string[]} */
     let uniqReLiterals: string[] = [];
+    // DEVNOTE: 2026/1/20 5:01:13
+    // Here, the code considers the case where the `detectedReLiterals` item is a mixture of `string` and `TDetectedRegexDetails`.
     detectedReLiterals.forEach(item => {
         // item type is string
         if (typeof item === "string") {
@@ -723,11 +743,7 @@ const getDetectedReContext = () => {
         }
     });
     uniqReLiterals = [...new Set(uniqReLiterals)].sort();
-
-    return {
-        detectedReLiterals,
-        uniqReLiterals: uniqReLiterals.sort()
-    };
+    return { detectedReLiterals, uniqReLiterals };
 };
 /**
 * reset the regex detection related context

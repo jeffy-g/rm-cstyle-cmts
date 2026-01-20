@@ -125,6 +125,38 @@ function eachModule(path: KRmcImportPath) {
         },
     );
 
+    describe("SyntaxError info includes correct line/column", () => {
+        const captureWarn = (run: () => void) => {
+            const prevWarn = console.warn;
+            const logs: string[] = [];
+            console.warn = (...args: unknown[]) => {
+                logs.push(args.map(arg => String(arg)).join(" "));
+            };
+            try {
+                run();
+            } finally {
+                console.warn = prevWarn;
+            }
+            return logs.join("\n");
+        };
+
+        it(`[${path}] quote error reports line/column (LF)`, () => {
+            const input = "const a = 1;\nconst b = 'oops\nconst c = 3;";
+            const log = captureWarn(() => {
+                rmc(input, { showErrorMessage: true, path: "path/to/file.js" });
+            });
+            expect(log).toContain("info: path/to/file.js#line:2,column:11");
+        });
+
+        it(`[${path}] block comment error reports line/column (CRLF)`, () => {
+            const input = "const a = 1;\r\n/* comment";
+            const log = captureWarn(() => {
+                rmc(input, { showErrorMessage: true, path: "C:/tmp/test.js" });
+            });
+            expect(log).toContain("info: C:/tmp/test.js#line:2,column:1");
+        });
+    });
+
     describe("Input and Result Verification", () => {
 
         it(`[${path}] remove comments with default options`, () => {
