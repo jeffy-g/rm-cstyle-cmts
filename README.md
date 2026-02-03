@@ -230,14 +230,14 @@ Node.JS: 22.20.0
 V8     : 12.4.254.21-node.33
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 11,020 ops/sec ±1.26% (88 runs sampled)
-strip-json-comments x 15,837 ops/sec ±0.60% (95 runs sampled)
-rm-cstyle-cmts x 210,011 ops/sec ±0.09% (97 runs sampled)
-rm-cstyle-cmts (webpack) x 183,336 ops/sec ±3.17% (88 runs sampled)
-rm-cstyle-cmts (umd) x 198,935 ops/sec ±0.40% (90 runs sampled)
+strip-comments x 11,292 ops/sec ±0.38% (92 runs sampled)
+strip-json-comments x 16,135 ops/sec ±0.09% (97 runs sampled)
+rm-cstyle-cmts x 212,989 ops/sec ±0.20% (96 runs sampled)
+rm-cstyle-cmts (webpack) x 193,731 ops/sec ±0.33% (94 runs sampled)
+rm-cstyle-cmts (umd) x 196,735 ops/sec ±0.87% (94 runs sampled)
 - - done - -
-all results are equals? true # see NOTE
-Done in 27.84s.
+all results are equals? true # see NOTE # see NOTE
+Done in 27.76s.
 ```
 
 > ### node v25.2.1
@@ -251,14 +251,14 @@ Node.JS: 25.2.1
 V8     : 14.1.146.11-node.14
 Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz x 8
 
-strip-comments x 11,544 ops/sec ±0.25% (92 runs sampled)
-strip-json-comments x 16,512 ops/sec ±0.18% (95 runs sampled)
-rm-cstyle-cmts x 208,505 ops/sec ±0.58% (92 runs sampled)
-rm-cstyle-cmts (webpack) x 215,666 ops/sec ±0.37% (90 runs sampled)
-rm-cstyle-cmts (umd) x 214,950 ops/sec ±0.89% (90 runs sampled)
+strip-comments x 11,643 ops/sec ±0.41% (93 runs sampled)
+strip-json-comments x 17,205 ops/sec ±0.08% (98 runs sampled)
+rm-cstyle-cmts x 209,221 ops/sec ±0.24% (95 runs sampled)
+rm-cstyle-cmts (webpack) x 215,559 ops/sec ±0.86% (91 runs sampled)
+rm-cstyle-cmts (umd) x 213,347 ops/sec ±0.93% (92 runs sampled)
 - - done - -
-all results are equals? true # see NOTE
-Done in 27.53s.
+all results are equals? true # see NOTE # see NOTE
+Done in 27.71s.
 ```
 
 + NOTE: `strip-comments` may be buggy and is excluded from comparison

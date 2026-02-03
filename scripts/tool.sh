@@ -91,6 +91,13 @@ webpack() {
   jstool -cmd rws
 }
 
+#
+# scripts/tool.sh fix_directives
+#
+fix_directives() {
+  jstool -cmd rmc -rmc4ts -basePath "./dist/cjs,./dist/cjs/gulp" -test "re/\\.(js|d\\.ts)$/" # -debug
+}
+
 if [ ! -z "$1" ]; then
   fname=$1
   shift

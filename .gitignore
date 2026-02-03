@@ -112,7 +112,7 @@ bin
 .netlify
 
 /dist
-memo*
+*memo*
 
 .gemini
 

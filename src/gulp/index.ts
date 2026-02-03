@@ -34,6 +34,7 @@ const perfNow = performance.now.bind(performance);
 /* istanbul ignore next */
 const stdProgress = (() => {
     const output = process.stderr;
+    /** @type {(path: string) => void} */
     return (path: string) => {
         // move cursor to line head
         readline.cursorTo(output, 0);
