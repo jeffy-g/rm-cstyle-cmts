@@ -70,6 +70,7 @@ copytypes() {
   done
 
   eval ${executes}
+  cpx ${cpxopt} "src/umd/index.d.ts" dist/umd
 }
 
 #

@@ -1,6 +1,6 @@
 {
   "name": "rm-cstyle-cmts",
-  "version": "3.4.3",
+  "version": "3.4.4",
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "private": false,
   "main": "./cjs/index.js",
@@ -31,7 +31,7 @@
     "./umd": {
       "import": "./umd/index.js",
       "require": "./umd/index.js",
-      "types": "./index.d.ts"
+      "types": "./umd/index.d.ts"
     }
   },
   "author": "jeffy-g",
@@ -111,10 +111,10 @@
     "@types/vinyl": "^2.0.12",
     "@typescript-eslint/parser": "^8.54.0",
     "colors.ts": "^1.0.20",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.0",
     "gulp": "^5.0.1",
     "jest": "^30.2.0",
-    "js-dev-tool": "^1.2.3",
+    "js-dev-tool": "^1.2.4",
     "organize-pkg": "^1.3.2",
     "replace": "^1.2.2",
     "rimraf": "^6.1.2",
@@ -122,7 +122,7 @@
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
-    "webpack": "^5.104.1",
+    "webpack": "^5.105.0",
     "webpack-cli": "^6.0.1"
   }
 }

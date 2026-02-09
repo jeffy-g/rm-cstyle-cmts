@@ -222,11 +222,8 @@ declare global {
     interface IScanEventCallback {
         (context: TScannerEventContext): boolean;
     }
-
-    /**
-     * umd module
-     */
-    const Rmc: IRemoveCStyleComments;
 }
-
+declare const Rmc: IRemoveCStyleComments & {
+    default: IRemoveCStyleComments;
+};
 export = Rmc;
