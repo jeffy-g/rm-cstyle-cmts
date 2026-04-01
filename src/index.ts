@@ -23,8 +23,9 @@ const {
 
 /**
  * Throws a TypeError with a specific message.
+ * @returns {never}
  */
-const throwTypeError = () => {
+const throwTypeError = (): never => {
     throw new TypeError("invalid text content!");
 };
 
