@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./build/jest",
+    "tsBuildInfoFile": "./logs/jest.tsbuildinfo",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "types": [
+      "jest",
+      "node"
+    ],
+    "allowJs": true
+  },
+  "include": [
+    "./src",
+    "./__tests__",
+    "./scripts/grmc-test-task.js"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/.*/"
+  ]
+}

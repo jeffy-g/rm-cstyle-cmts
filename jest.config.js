@@ -21,9 +21,10 @@ module.exports = {
   testEnvironment: "node",
   verbose: true,
   collectCoverage: true,
-  // `transform` property implicitly sets preset to "ts-jest"
   transform: {
-    "^.+\\.ts$": "ts-jest"
+    "^.+\\.tsx?$": ["ts-jest", {
+      tsconfig: "<rootDir>/tsconfig.jest.json"
+    }]
   },
   // default: (/__tests__/.*|(\\.|/)(test|spec))\\.[jt]sx?$
   testRegex,
@@ -31,6 +32,5 @@ module.exports = {
   moduleFileExtensions: [
     "ts",
     "js"
-  ],
-  projects: ["<rootDir>"]
+  ]
 };

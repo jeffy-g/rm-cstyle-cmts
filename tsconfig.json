@@ -16,6 +16,7 @@
     "moduleResolution": "node16",
     "target": "es2019",
     "module": "node16",
+    // "isolatedModules": true,
 
     "plugins": [
       {

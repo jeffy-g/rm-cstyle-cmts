@@ -25,8 +25,8 @@ eachModule("../dist/webpack/gulp/");
 function eachModule(path: string) {
 
     let grmc: typeof import("../src/gulp/");
-    beforeAll(async () => {
-        grmc = await import(path);
+    beforeAll(() => {
+        grmc = require(path) as typeof import("../src/gulp/");
     });
 
     describe("rm-cstyle-cmts gulp plugin test", () => {

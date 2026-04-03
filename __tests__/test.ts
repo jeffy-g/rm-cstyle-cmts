@@ -44,8 +44,8 @@ eachModule("../dist/esm/index.mjs"); // error
 function eachModule(path: KRmcImportPath) {
 
     let rmc: TRmcImport[typeof path];
-    beforeAll(async () => {
-        rmc = await import(path);
+    beforeAll(() => {
+        rmc = require(path) as TRmcImport[typeof path];
         rmc.setListener(listener);
     });
 
