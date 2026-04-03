@@ -31,7 +31,9 @@ import { performance } from "perf_hooks";
 // gulp plugin name.
 const PLUGIN_NAME = "gulp-rm-cmts";
 const perfNow = performance.now.bind(performance);
-
+const isJest = typeof process.env.JEST_WORKER_ID === "string";
+/** @type {Console["log"]} */
+const log = (() => isJest ? () => {} : console.log)();
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
@@ -139,7 +141,7 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
     ] = createContext(options);
     let prevNoops = rmc.noops;
 
-    renderProgress && console.log("rm-cstyle-cmts:", {
+    renderProgress && log("rm-cstyle-cmts:", {
         version: rmc.version,
     });
 
@@ -151,7 +153,9 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
         // plugin main
         if (vinyl.isBuffer() && extensions.includes(vinyl.extname)) {
             const path = vinyl.relative;
-            renderProgress && process.nextTick(progress, `[${encoding}]: ${path}`);
+            // DEVNOTE: 2026/04/03 - Since `encoding` is always undefined, I stopped referencing it.
+            renderProgress && process.nextTick(progress, path);
+            // renderProgress && process.nextTick(progress, `[${encoding}]: ${path}`);
             // node ^v5.10.0
             vinyl.contents = Buffer.from(
                 processBody(vinyl, path)
@@ -184,7 +188,8 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
      */
     const transformWithWalk: NsGulpRmc.FixTransformFunction = function (vinyl, encoding, callback) {
         if (vinyl.isBuffer() && extensions.includes(vinyl.extname)) {
-            renderProgress && process.nextTick(progress, `[${encoding}]: ${vinyl.relative}`);
+            renderProgress && process.nextTick(progress, vinyl.relative);
+            // renderProgress && process.nextTick(progress, `[${encoding}]: ${vinyl.relative}`);
             rmc.walk(vinyl.contents.toString(), opt);
             /* istanbul ignore next */
             if (prevNoops < rmc.noops) {
