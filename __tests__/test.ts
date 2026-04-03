@@ -5,6 +5,8 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
+/// <reference types="node" preserve="true"/>
+/// <reference types="jest" preserve="true"/>
 ///<reference path="../src/index.d.ts"/>
 
 import * as fs from "fs";

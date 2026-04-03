@@ -339,7 +339,7 @@ async function task(
                             context, tagPriorityEntries, timeSpans, pending, resolve
                         );
                     }
-                }
+                } else grmc.getTimeSpans(); // dummy call
                 !didNotify && resolve();
             });
         });

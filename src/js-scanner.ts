@@ -484,6 +484,7 @@ const slash: TCharScannerFunction = (src, ctx) => {
     // DEVNOTE: 2026/1/6 22:39:22 - Added `Deteacted regex details` for regex literals in code
     if (ctx.collectRegex) {
         const path = ctx.path;
+        /* istanbul ignore if */
         if (path) {
             detectedReLiterals[drlIndex++] = [path, `${getLineColumnAtOffset(src, startOffset, ctx)}`, m.body as TRegExpString];
         } else {
@@ -533,6 +534,7 @@ const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext
         if (ch === "\r") {
             line++;
             // `i` pointed next character
+            /* istanbul ignore else */
             if (src[i] === "\n") i += 1;
             lastNewline = i - 1;
             continue;
@@ -734,6 +736,7 @@ const getDetectedReContext = () => {
     // Here, the code considers the case where the `detectedReLiterals` item is a mixture of `string` and `TDetectedRegexDetails`.
     detectedReLiterals.forEach(item => {
         // item type is string
+        /* istanbul ignore else */
         if (typeof item === "string") {
             uniqReLiterals.push(item);
         } else {

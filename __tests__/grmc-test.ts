@@ -5,6 +5,8 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
+/// <reference types="node" preserve="true"/>
+/// <reference types="jest" preserve="true"/>
 // <reference path="../src/gulp/index.d.ts"/>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.

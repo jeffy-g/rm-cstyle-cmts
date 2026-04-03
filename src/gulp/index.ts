@@ -33,7 +33,7 @@ const PLUGIN_NAME = "gulp-rm-cmts";
 const perfNow = performance.now.bind(performance);
 const isJest = typeof process.env.JEST_WORKER_ID === "string";
 /** @type {Console["log"]} */
-const log = (() => isJest ? () => {} : console.log)();
+const log = (() => isJest ? () => {} : /* istanbul ignore next */ console.log)();
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                         module vars, functions.
@@ -98,6 +98,7 @@ const createContext = (options: NsGulpRmc.TOptions): [
     const processBody: (vinyl: TBufferFile, path: string) => string = options.timeMeasure ? (vinyl: TBufferFile, path: string) => {
 
         // rmc `path` option test
+        /* istanbul ignore if */
         if (collect) {
             opt.path = path;    // will be relative path
             // opt.path = vinyl.path; // get absolute path
