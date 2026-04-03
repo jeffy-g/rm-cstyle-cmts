@@ -8,16 +8,14 @@
     "skipDefaultLibCheck": true,
 
     "strict": true,
-    "alwaysStrict": false,
     // "noImplicitUseStrict": true,
     "noUncheckedIndexedAccess": true,
     "removeComments": false,
 
-    "ignoreDeprecations": "5.0",
-    "moduleResolution": "node10",
-
+    // "ignoreDeprecations": "6.0",
+    "moduleResolution": "node16",
     "target": "es2019",
-    "module": "commonjs",
+    "module": "node16",
 
     "plugins": [
       {
@@ -41,6 +39,7 @@
         "./*"
       ]
     },
+    "rootDir": "./src",
     "outDir": "./build/cjs"
   },
   "exclude": [

@@ -5,6 +5,15 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
+//* cct
+import fs = require("fs");
+import path = require("path");
+import readline = require("readline");
+import tinArgs = require("tin-args");
+
+import rmc = require("../");
+import ContractorPattern = require("./contractor");
+/*/
 import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
@@ -12,6 +21,7 @@ import * as readline from "readline";
 import * as rmc from "../";
 import * as ContractorPattern from "./contractor";
 import * as tinArgs from "tin-args";
+//*/
 
 
 /**
@@ -60,7 +70,7 @@ declare interface ISourcePath {
  * addSuffix  : function addSuffix
  * }
  * ```
- * @param file_path 
+ * @param {string} file_path 
  */
 function parseFilePath(file_path: string): ISourcePath {
     const parsed_p = path.parse(file_path);
@@ -69,15 +79,11 @@ function parseFilePath(file_path: string): ISourcePath {
         basename: path.resolve(parsed_p.dir, parsed_p.name),
         simple_name: parsed_p.base,
         ext: parsed_p.ext,
+        /** @type {function(string): string} */
         addSuffix: function (suffix: string) {
             return path.resolve(parsed_p.dir, parsed_p.name + suffix + parsed_p.ext);
         }
     };
-}
-
-function formatNumber(n: number): string {
-    return n.toLocaleString();
-    // return n.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
 /**
@@ -113,7 +119,7 @@ function benchmark(preserveBlanks?: true, outputResult: boolean = true): void {
     const tag = `${src.simple_name}, preserveBlanks=${preserveBlanks}, loop=${INNER}`;
 
     console.log(`version: ${rmc.version}, case: { source: ${src.simple_name}@${
-        formatNumber(fs.statSync(src.full_path).size)
+        (fs.statSync(src.full_path).size).toLocaleString()
     } bytes, preserveBlanks=${preserveBlanks} }, outerloop=${OUTER}, innerloop=${INNER}`);
 
     const opt: TRemoveCStyleCommentsOpt = {

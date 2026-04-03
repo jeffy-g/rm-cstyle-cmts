@@ -11,11 +11,19 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//* cct
+import rmc = require("../");
+import stream = require("stream");
+import readline = require("readline");
+import ph = require("perf_hooks");
+const { performance } = ph;
+/*/
 import * as rmc from "../";
 // import * as rmc from "rm-cstyle-cmts";
 import * as stream from "stream";
 import * as readline from "readline";
 import { performance } from "perf_hooks";
+//*/
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                            constants, types

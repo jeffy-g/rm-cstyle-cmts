@@ -7,7 +7,7 @@
 */
 /// <reference path="./index.d.ts"/>
 
-import * as util from "./reutil";
+import util = require("./reutil");
 
 const {
     detectNewLine, detectRegex, lookupRegexes,

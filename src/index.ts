@@ -11,7 +11,7 @@
 //                                imports.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /** character scanner module */
-import * as JsScanner from "./js-scanner";
+import JsScanner = require("./js-scanner");
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
