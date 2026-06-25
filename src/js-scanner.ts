@@ -5,6 +5,7 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
+/// <reference types="ts-cc-map/ECC_MAP" preserve="true"/>
 /// <reference path="./index.d.ts"/>
 
 import util = require("./reutil");
@@ -17,6 +18,7 @@ const {
 
 /**
  * type for line/column data
+ * @internal
  */
 type TLineColumn = {
     /**
@@ -32,6 +34,9 @@ type TLineColumn = {
      */
     lastNewlineIndex: number;
 };
+/**
+ * @internal
+ */
 type TScannerContext<TPath extends string | undefined> = {
     /** The source offset currently being scanned is recorded. (read, write) */
     offset: number;
@@ -81,49 +86,22 @@ type TScannerContext<TPath extends string | undefined> = {
      * Cache for line/column calculation
      */
     lineInfo: TPath extends string ? TLineColumn : never;
-};
 
-/**
- * @date 2022/4/22
- * @since 3.3.1
- */
-const enum EMetaChars {
+    // - - - - - - - - - - - - - - - - - - -
+    // force remove source map meta line (2026/06/25)
+    // - - - - - - - - - - - - - - - - - - -
     /**
-     * ```js
-     * '"'.charCodeAt(0)
-     * ```
+     * canonical name __`removeSourceMapMeta`__
+     * @experimental 2026/06/25 10:59:56
      */
-    DOUBLE_QUOTE = 34,
-    /**
-     * ```js
-     * "'".charCodeAt(0)
-     * ```
-     */
-    SINGLE_QUOTE = 39,
-    /**
-     * ```js
-     * "/".charCodeAt(0)
-     * ```
-     */
-    SLASH = 47,
-    /**
-     * ```js
-     * "`".charCodeAt(0)
-     * ```
-     */
-    BACK_QUOTE = 96,
-    /**
-     * ```js
-     * "}".charCodeAt(0)
-     * ```
-     */
-    RIGHT_CURLY = 125,
-}
+    dropMap?: true;
+};
 
 /**
  * #### main function.
  * 
  * if returns true then context has been changed.
+ * @internal
  */
 type TCharScannerFunction =
     /**
@@ -204,14 +182,14 @@ const createWhite = (
  * 
  * @param {string} src
  * @param {number} offset
- * @param {TScannerContext<any>} ctx
+ * @param {TScannerContext<string>} ctx
  * @returns {`info: ${string}#line:${number},column:${number}`}
  * @since v3.4.2
  */
 // /path/to/source#L${number},C${number}
 // /path/to/source#${number}:${number}
 // TODO: line,column format
-const createErrorInfo = (src: string, offset: number, ctx: TScannerContext<any>): `info: ${string | "/source/path/unspecified"}#line:${number},column:${number}` => {
+const createErrorInfo = (src: string, offset: number, ctx: TScannerContext<string>): `info: ${string | "/source/path/unspecified"}#line:${number},column:${number}` => {
     // path: actually, string | undefined
     const path = ctx.path || "/source/path/unspecified";
     return `info: ${path}#${getLineColumnAtOffset(src, offset, ctx)}`;
@@ -316,7 +294,7 @@ const backQuote: TCharScannerFunction = (src, ctx) => {
                 while (next < limiter) {
                     const code = src[next]!.charCodeAt(0);
                     // "}".charCodeAt(0) === 125
-                    if (code === EMetaChars.RIGHT_CURLY) {
+                    if (code === ECC_MAP.RIGHT_BRACE) {
                         startOffset = ++next;
                         /* https://coderwall
                         when(prevOffset);
@@ -364,11 +342,19 @@ const backQuote: TCharScannerFunction = (src, ctx) => {
 const detectedReLiterals: Array<string | TDetectedRegexDetails> = [];
 let drlIndex = 0;
 /**
- * test for "<reference .../>" and "///@ts-(ignore|check|...)..."
- * 
- * regex cache
+ * test for `"<reference .../>" and "///@ts-(ignore|check|...)..."`
+ * ```
+ * /^\/\/(?:\/?\s*@ts-[-\w]+|\/\s*<reference)/;
+ * ```
  */
 const reTsrefOrPramga = /^\/\/(?:\/?\s*@ts-[-\w]+|\/\s*<reference)/;
+// /**
+//  * test for `"//# sourceMappingURL=souceMapName.js.map"`
+//  * ```
+//  * /^\/\/[@#]\s*sourceMappingURL=/;
+//  * ```
+//  */
+// const reSmMap = /^\/\/[@#]\s*sourceMappingURL=/;
 
 //
 //  DEVNOTE: 2019-5-12
@@ -408,29 +394,40 @@ const slash: TCharScannerFunction = (src, ctx) => {
     //
     if (ch === "*") {
         const close = src.indexOf("*/", startOffset + 2);
-        if (close !== -1) {
-            fragment = src.slice(startOffset, close + 2);
-            if (ctx.eventDone) {
-                ctx.result += fragment;
+        if (close === -1) throw new SyntaxError(`Incomplete multi line comment, ${createErrorInfo(src, startOffset, ctx)}`);
+        // if (close !== -1) {
+        fragment = src.slice(startOffset, close + 2);
+        if (ctx.eventDone) {
+            ctx.result += fragment;
+        } else {
+            // const eventContext: TScannerEventContext = {
+            //     event: EScannerEvent.MultiLineComment,
+            //     fragment,
+            //     offset: startOffset
+            // };
+            const ok = scanListener({
+                event: EScannerEvent.MultiLineComment,
+                fragment,
+                offset: startOffset
+            });
+            if (ctx.isWalk) {
+                ctx.proceed = ok;
             } else {
-                const eventContext: TScannerEventContext = {
-                    event: EScannerEvent.MultiLineComment,
-                    fragment,
-                    offset: startOffset
-                };
-                if (!ctx.isWalk) {
-                    if (scanListener(eventContext)) {
-                        ctx.result += fragment;
-                    }
-                } else {
-                    ctx.proceed = scanListener(eventContext);
-                }
+                if (ok) ctx.result += fragment;
             }
-            // update offset.
-            ctx.offset = close + 2;
-            return true;
+            // if (!ctx.isWalk) {
+            //     if (scanListener(eventContext)) {
+            //         ctx.result += fragment;
+            //     }
+            // } else {
+            //     ctx.proceed = scanListener(eventContext);
+            // }
         }
-        throw new SyntaxError(`Incomplete multi line comment, ${createErrorInfo(src, startOffset, ctx)}`);
+        // update offset.
+        ctx.offset = close + 2;
+        return true;
+        // }
+        // throw new SyntaxError(`Incomplete multi line comment, ${createErrorInfo(src, startOffset, ctx)}`);
     }
     // avoid jsx, tsx tag
     if (src[startOffset - 1] === "<") {
@@ -453,21 +450,47 @@ const slash: TCharScannerFunction = (src, ctx) => {
         if (ctx.eventDone) {
             ctx.result += fragment;
         } else {
-            const eventContext: TScannerEventContext = {
-                event: EScannerEvent.SingleLineComment,
-                fragment,
-                offset: startOffset
-            };
-            if (!ctx.isWalk) { // replace mode
+            // const eventContext: TScannerEventContext = {
+            //     event: EScannerEvent.SingleLineComment,
+            //     fragment,
+            //     offset: startOffset
+            // };
+            // const ok = scanListener({
+            //     event: EScannerEvent.SingleLineComment,
+            //     fragment,
+            //     offset: startOffset
+            // });
+            if (ctx.isWalk) { // walk through mode
+                // maybe less needs
+                ctx.proceed = scanListener({
+                    event: EScannerEvent.SingleLineComment,
+                    fragment,
+                    offset: startOffset
+                });
+            } else { // replace mode
                 if (
-                    // avoid ts reference tag
-                    reTsrefOrPramga.test(fragment) || scanListener(eventContext)
+                    // avoid ts pragma
+                    reTsrefOrPramga.test(fragment) ||
+                    // reSmMap.test(fragment) || // 2026/06/25 10:47:53
+                    scanListener({
+                        event: EScannerEvent.SingleLineComment,
+                        fragment,
+                        offset: startOffset
+                    })
                 ) {
                     ctx.result += fragment;
                 }
-            } else { // walk through mode
-                ctx.proceed = scanListener(eventContext);
             }
+            // if (!ctx.isWalk) { // replace mode
+            //     if (
+            //         // avoid ts reference tag
+            //         reTsrefOrPramga.test(fragment) || scanListener(eventContext)
+            //     ) {
+            //         ctx.result += fragment;
+            //     }
+            // } else { // walk through mode
+            //     ctx.proceed = scanListener(eventContext);
+            // }
         }
         return true;
     }
@@ -562,10 +585,10 @@ const getLineColumnAtOffset = (src: string, offset: number, ctx: TScannerContext
  */
 // DEVNOTE: 2025/10/3 - Avoid HOLEY arrays
 const scanners: TCharScannerFunction[] = Array(256).fill(0) as any;
-scanners[EMetaChars.DOUBLE_QUOTE] = quote;      // 34
-scanners[EMetaChars.SINGLE_QUOTE] = quote;      // 39
-scanners[EMetaChars.SLASH]        = slash;      // 47
-scanners[EMetaChars.BACK_QUOTE]   = backQuote;  // 96
+scanners[ECC_MAP.DOUBLE_QUOTE] = quote;      // 34
+scanners[ECC_MAP.SINGLE_QUOTE] = quote;      // 39
+scanners[ECC_MAP.SLASH]        = slash;      // 47
+scanners[ECC_MAP.GRAVE]        = backQuote;  // 96
 
 const emptyListener = () => false;
 /** @type {IScanEventCallback} */
@@ -659,7 +682,7 @@ const apply = (src: string, opt: TRemoveCStyleCommentsOpt): string => {
                 ctx.result += src.slice(prevOffset, ctx.offset);
             }
             prevOffset = scanners[
-                head === "/" ? EMetaChars.SLASH : EMetaChars.BACK_QUOTE
+                head === "/" ? ECC_MAP.SLASH : ECC_MAP.GRAVE
             ]!(src, ctx)? ctx.offset: ctx.offset++;
             reWsqs.lastIndex = ctx.offset;
             continue;

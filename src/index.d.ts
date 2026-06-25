@@ -156,9 +156,12 @@ declare global {
     }
 
     // 2026/1/7 2:49:16
-    // type TValidRegExpFlag = "" | "d" | "g" | "s" | "i" | "m" | "u" | "v" | "y";
+    // type TValidRegExpFlag = "" | "d" | "g" | "i" | "m" | "s" | "u" | "v" | "y";
+    /** @internal */
     type TRegExpString = `/${string}/${string}`; // loose type
+    /** @internal */
     type TLineColumnString = `line:${number},column:${number}`;
+    /** @internal */
     type TDetectedRegexDetails = [path: string, position: TLineColumnString, regex: TRegExpString];
 
     /**

@@ -30,7 +30,6 @@ export const detectNewLine = (src: string): TDetectedNewLines => {
     return "";
 };
 
-const reF = /^\s+/;
 /**
  * Lookup regexes by newline character.
  * @param {TDetectedNewLines} nl 
@@ -71,7 +70,7 @@ export const lookupRegexes = (nl: TDetectedNewLines) => {
          * ```
          */
         // DEVNOTE: 2020/4/16 - can apply `/^\s+|\s+$/g` to everything but performance will be slower
-        first: nl ? reF: ""
+        first: nl ? /^\s+/: ""
 
     };
 };
@@ -173,6 +172,7 @@ export const detectRegex = (line: string, dontCountPlz?: true): TBC<TRegexDetect
                 // "++" is implemented in other scripting languages (e.g - PCRE (php) 
                 ((ch === "+" || ch === "*") && line[lineOffset] === ch)
             ) {
+                // means invalid regex
                 return null;
             }
         } else {
