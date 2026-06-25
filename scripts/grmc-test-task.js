@@ -145,7 +145,7 @@ async function task(grmc, settings, mode = "cjs") {
                         tagPriorityEntries, settings.showNoops ? grmc.noopPaths : ""
                     );
 
-                    const timeSpans = grmc.getTimeSpans();
+                    const timeSpans = grmc.getTimeSpans(true);
                     let pending = +(!!context.uniqReLiterals.length) + +(!!tagPriorityEntries.length) + +(!!timeSpans.length);
                     if (pending) {
                         didNotify = true;
@@ -153,7 +153,7 @@ async function task(grmc, settings, mode = "cjs") {
                             context, tagPriorityEntries, timeSpans, pending, resolve, { LOG_ROOT, platfromSummary: settings.platfromSummary }
                         );
                     }
-                } else grmc.getTimeSpans(); // dummy call
+                } else grmc.getTimeSpans(true); // dummy call
                 !didNotify && resolve();
             });
         });
