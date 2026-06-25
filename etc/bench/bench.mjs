@@ -4,7 +4,6 @@
 //   esm imports
 //
 import Benchmark from "benchmark";
-import os from "os";
 
 import stripc from "strip-comments";
 import stripj from "strip-json-comments";
@@ -17,39 +16,16 @@ import rmc from "rm-cstyle-cmts";           // import cjs (as .js)
 import rmcPacked from "rm-cstyle-cmts/webpack"; // import cjs?
 import Rmc from "rm-cstyle-cmts/umd";
 //*/
+import { common } from "js-dev-tool";
+import { printPlatform, log } from "./print-platform.mjs";
 
 
 /**
  * @typedef { InstanceType<typeof import("benchmark")> & { name: string; } } TBenchmark
  */
-/**
- * show running node platform info
- */
-function printPlatform() {
 
-    const v8 = process.versions.v8;
-    const node = process.versions.node;
-    const plat = `${os.type()} ${os.release()} ${os.arch()}
-Node.JS: ${node}
-V8     : ${v8}`;
-    let cpus = os.cpus().map(function (cpu) {
-      return cpu.model;
-    }).reduce(function (o, model) {
-      if (!o[model]) o[model] = 0;
-      o[model]++;
-      return o;
-    }, /** @type {Record<string, number>} */({}));
-    const cpusSummary = Object.keys(cpus).map(function (key) {
-      // \u00d7: × "x": 0x78
-      return key + " x " + cpus[key];
-    }).join("\n");
-
-    console.log("Platform info:");
-    const platfromSummary = plat + "\n" + cpusSummary + "\n";
-    console.log(platfromSummary);
-}
-
-const json = `// see: http://json.schemastore.org/tsconfig
+if (common.isMain(import.meta)) {
+  const json = `// see: http://json.schemastore.org/tsconfig
 {
   "compilerOptions": {
     /* Basic Options */
@@ -84,53 +60,54 @@ const json = `// see: http://json.schemastore.org/tsconfig
     "y"
   ]
 }`;
-//
-// start bench script
-//
-printPlatform();
+  //
+  // start bench script
+  //
+  printPlatform();
 
-/** @type {Record<string, string>} */
-const results = {};
-const suite = new Benchmark.Suite();
-const stripjOpt = { whitespace: false };
-/** @type {TRemoveCStyleCommentsOpt} */
-const rmcOpt = { preserveBlanks: true };
+  /** @type {Record<string, string>} */
+  const results = {};
+  const suite = new Benchmark.Suite();
+  const stripjOpt = { whitespace: false };
+  /** @type {TRemoveCStyleCommentsOpt} */
+  const rmcOpt = { preserveBlanks: true };
 
-suite.add("strip-comments", function(){
+  suite.add("strip-comments", function () {
     return stripc(json);
-})
-.add("strip-json-comments", function(){
-    return stripj(json, stripjOpt);
-})
-.add("rm-cstyle-cmts", function() {
-    return rmc(json, rmcOpt);
-})
-.add("rm-cstyle-cmts (webpack)", function() {
-    return rmcPacked(json, rmcOpt);
-})
-.add("rm-cstyle-cmts (umd)", function() {
-    return Rmc(json, rmcOpt);
-})
-.on("cycle", function(/** @type {Benchmark.Event} */ e) {
-    /** @type {Benchmark.Target} */
-    const bench = e.target;
-    console.log("" + bench);
-    if (typeof bench.fn === "function") {
+  })
+    .add("strip-json-comments", function () {
+      return stripj(json, stripjOpt);
+    })
+    .add("rm-cstyle-cmts", function () {
+      return rmc(json, rmcOpt);
+    })
+    .add("rm-cstyle-cmts (webpack)", function () {
+      return rmcPacked(json, rmcOpt);
+    })
+    .add("rm-cstyle-cmts (umd)", function () {
+      return Rmc(json, rmcOpt);
+    })
+    .on("cycle", function (/** @type {Benchmark.Event} */ e) {
+      /** @type {Benchmark.Target} */
+      const bench = e.target;
+      log("" + bench);
+      if (typeof bench.fn === "function") {
         results[bench.name || ""] = bench.fn();
-    }
-}).on("complete", /** @type {(this: Benchmark.Suite, e: Event) => any} */function (e) {
-    console.log("- - done - -");
-    const modNames = Object.keys(results);
-    let equals = 1;
-    // DEVNOTE: 2022/04/06 - remove "strip-comments" result because its has buggy
-    modNames.shift();
-    const base = results[modNames[0]];
-    modNames.forEach(key => {
+      }
+    }).on("complete", /** @type {(this: Benchmark.Suite, e: Event) => any} */function (e) {
+      log("- - done - -");
+      const modNames = Object.keys(results);
+      let equals = 1;
+      // DEVNOTE: 2022/04/06 - remove "strip-comments" result because its has buggy
+      modNames.shift();
+      const base = results[modNames[0]];
+      modNames.forEach(key => {
         // DEVNOTE: convert whitespaces - " " to "·"(183), "\n" to "¶"(182) + "\n"
-        // console.log(`"${key}":${results[key].replace(/\x20/g, "·").replace(/\n/g, "¶\n")}`);
+        // log(`"${key}":${results[key].replace(/\x20/g, "·").replace(/\n/g, "¶\n")}`);
         equals &= +(base === results[key]);
-    });
+      });
 
-    console.log(`all results are equals? ${!!equals} # see NOTE`);
+      log(`all results are equals? ${!!equals} # see NOTE`);
 
-}).run();
+    }).run();
+}

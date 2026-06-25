@@ -63,9 +63,9 @@ const defaultExtensions = [
     ".cts", ".mts"
 ];
 /**
- * @type {NsGulpRmc.TTimeSpanEntries}
+ * @type {NsGulpRmc.TGetTimeSpansReturn}
  */
-const timeSpans: NsGulpRmc.TTimeSpanEntries = [];
+const timeSpans: NsGulpRmc.TGetTimeSpansReturn = [];
 
 type TBufferFile = import("vinyl").BufferFile;
 /**
@@ -106,7 +106,8 @@ const createContext = (options: NsGulpRmc.TOptions): [
 
         const a = perfNow();
         const contents = rmc(vinyl.contents.toString(/* default: utf8 */), opt);
-        timeSpans.push(`${perfNow() - a}:${path}`);
+        timeSpans.push(`${(perfNow() - a).toFixed(4)}:${path}`);
+        // timeSpans.push(`${(perfNow() - a)}:${path}`);
         return contents;
     } : /* istanbul ignore next */(vinyl: TBufferFile, path: string) => {
         if (collect) opt.path = path;
@@ -210,20 +211,43 @@ const getTransformer: NsGulpRmc.TTransformerFactory = (
     });
 };
 
-const getTimeSpans = () => {
-    const ret = timeSpans.slice().sort((a, b) => {
-        const [atime, apath] = a.split(":");
-        const [btime, bpath] = b.split(":");
+/**
+ * @param {true=} [clear=undefined]
+ * @returns {NsGulpRmc.TGetTimeSpansReturn}
+ */
+const getTimeSpans = (clear?: true): NsGulpRmc.TGetTimeSpansReturn => {
+    const ret = timeSpans.slice(0).sort((a, b) => {
+        // NOTE: not split use indexOf + slice
+        const aIdx = a.indexOf(":");
+        const bIdx = b.indexOf(":");
+        const atime = a.slice(0, aIdx);
+        const btime = b.slice(0, bIdx);
         const diff = +atime! - +btime!;
-        //*
-        return diff === 0? apath!.localeCompare(bpath!): diff < 0? -1: 1;
-        /*/
-        return diff < 0 ? -1: +(diff > 0);
-        //*/
+        if (diff) {
+            return diff < 0? -1: 1;
+        }
+        return a.slice(aIdx + 1).localeCompare(b.slice(bIdx + 1));
+        // const [atime, apath] = a.split(":");
+        // const [btime, bpath] = b.split(":");
+        // const diff = +atime! - +btime!;
+        // //*
+        // return diff === 0? apath!.localeCompare(bpath!): diff < 0? -1: 1;
+        // /*/
+        // return diff < 0 ? -1: +(diff > 0);
+        // //*/
     });
+
+    // calc total time
+    const total = ret.reduce((acc, token) => {
+        const x = token.indexOf(":");
+        return acc + +token.slice(0, x);
+    }, 0);
+
+    ret.unshift(`${total.toFixed(4)}:totalTime(ms)`);
     // DEVNOTE: 2022/05/06 - clear `timeSpans`
-    timeSpans.length = 0;
-    return ret;
+    clear && (timeSpans.length = 0);
+
+    return /** @type {NsGulpRmc.TGetTimeSpansReturn} */(ret) as NsGulpRmc.TGetTimeSpansReturn;
 };
 /**
  * get IRemoveCStyleComments interface

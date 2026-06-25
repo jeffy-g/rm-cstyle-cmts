@@ -125,3 +125,7 @@ bin
 /prettier.config*
 /readme.*
 /tsconfig-esm*
+/etc/bench/publish
+*.cpu*
+scripts/*.json
+scripts/*.md

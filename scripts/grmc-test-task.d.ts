@@ -19,8 +19,16 @@ export type TGrmcTaskArgsBase = {
      */
     useExtern?: boolean;
     preserveJSDoc?: boolean;
+
+    //  - - - - - - - - - -
+    // 2026/06/25 15:26:42
+    //  - - - - - - - - - -
+    printDtails?: boolean;
+    platfromSummary?: string;
 };
 export type TGrmcTaskArgs = TGrmcTaskArgsBase & NsGulpRmc.TOptions;
+export type TJSDocTag = `@${string}`;
+export type TPriorityEntry = [TJSDocTag, number];
 
 /**
  * #### `gulp-rm-cmts` test task Main

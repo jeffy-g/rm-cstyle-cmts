@@ -83,12 +83,15 @@ declare global {
          */
         type TTransformerFactory = (options?: NsGulpRmc.TOptions) => StreamTransform;
 
-        type TTimeSpanEntries = Array<(`${number}:${string}`)>;
+        type TTimeSpanEntries = Array<(`${number | string}:${string}`)>;
 
         const enum EConstants {
             /** highWaterMark */
             HWM = 512, // DEVNOTE: 2022/05/07 - In my PC environment, `4096` seemed to be the best
         }
+    }
+    namespace NsGulpRmc {
+        export type TGetTimeSpansReturn = NsGulpRmc.TTimeSpanEntries & { [fisrtIndex: number]: `${number | string}:totalTime(ms)` };
     }
 }
 
@@ -105,8 +108,10 @@ declare const GulpRmc: {
      * get IRemoveCStyleComments interface
      */
     getRmcInterface(): IRemoveCStyleComments;
-
-    getTimeSpans(): NsGulpRmc.TTimeSpanEntries;
+    /**
+     * @param clear default is __`undefined`__
+     */
+    getTimeSpans(clear?: true): NsGulpRmc.TGetTimeSpansReturn;
 };
 
 export = GulpRmc;
