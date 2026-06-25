@@ -13,7 +13,7 @@ import * as fs from "fs";
 import * as assert from "assert";
 import "colors.ts";
 
-const isJest = typeof process.env.JEST_WORKER_ID === "string";
+// const isJest = typeof process.env.JEST_WORKER_ID === "string";
 
 type KRmcImportPath = `../${"src" | "dist" | "dist/webpack" | "dist/umd"}/`;
 type TRmcImport = {

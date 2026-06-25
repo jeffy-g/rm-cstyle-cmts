@@ -209,7 +209,7 @@ const getTagStatistics = (tagStats) => {
 const emitListener = (settings, tagStats) => {
 
   const collectTag = settings.collectJSDocTag;
-  const iswalk = settings.isWalk ?? false;
+  const isWalk = settings.isWalk ?? false;
   const reJsDocTag = /(?<=[\s\*{])@\w+(?=\s)/g;
   let inlineSourceMap = 0;
   /**
@@ -238,7 +238,7 @@ const emitListener = (settings, tagStats) => {
         inlineSourceMap++;
       }
     }
-    return iswalk;
+    return isWalk;
   };
   const getInlineSourceMapCount = () => inlineSourceMap;
 

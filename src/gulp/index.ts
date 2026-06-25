@@ -59,8 +59,7 @@ const stdProgress = (() => {
  */
 const noopPaths: string[] = [];
 const defaultExtensions = [
-    ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs",
-    ".cts", ".mts"
+    ".js", ".jsx", ".ts", ".tsx", ".cjs", ".mjs", ".cts", ".mts"
 ];
 /**
  * @type {NsGulpRmc.TGetTimeSpansReturn}
@@ -74,12 +73,12 @@ type TBufferFile = import("vinyl").BufferFile;
  * @returns {[TRemoveCStyleCommentsOpt, true | undefined, string[], (vinyl: TBufferFile, path: string) => string, (path: string) => void, number]}
  */
 const createContext = (options: NsGulpRmc.TOptions): [
-    TRemoveCStyleCommentsOpt,
-    true | undefined,
-    string[],
-    (vinyl: TBufferFile, path: string) => string,
-    (path: string) => void,
-    number
+    opt            : TRemoveCStyleCommentsOpt,
+    renderProgress : true | undefined,
+    extensions     : string[],
+    processBody    : (vinyl: TBufferFile, path: string) => string,
+    progress       : (path: string) => void,
+    highWaterMark  : number
 ] => {
 
     const collect = options.collectRegex;

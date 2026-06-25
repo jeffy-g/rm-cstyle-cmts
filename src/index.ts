@@ -79,9 +79,7 @@ const emitMainFunction = <
      */
     return (source: string, opt?: TRemoveCStyleCommentsOpt): R => {
 
-        if (typeof source !== "string") {
-            throwTypeError();
-        }
+        if (typeof source !== "string") throwTypeError();
         if (!source.length) {
             // DEVNOTE: 2022/04/24 - check empty contents
             handleError();
@@ -89,7 +87,7 @@ const emitMainFunction = <
             return /** @type {R} */(fn === apply ? source : void 0) as R;
         }
 
-        opt = opt || {};
+        if (!opt) opt = {};
         /** @type {TBD<R>} */
         let result: TBD<R>;
         try {
