@@ -109,9 +109,9 @@ let keepJsDoc: TBD<true>;
 /**
  * @type {TBivariant< Required<Parameters<IRemoveCStyleComments["setListener"]>>[0] >}
  */
-const preserveJSDoc: TBivariant<Required<Parameters<IRemoveCStyleComments["setListener"]>>[0]> = ({ event, fragment }) => {
-    if (event === /*EScannerEvent.MultiLineComment*/1) {
-        return /^\/\*(\*|!)\s|^\/\*(?!-).+\*\/$/.test(fragment);
+const preserveJSDoc: TBivariant<Required<Parameters<IRemoveCStyleComments["setListener"]>>[0]> = (ctx: TScannerEventContext) => {
+    if (ctx.event === EScannerEvent.MultiLineComment) {
+        return /^\/\*(\*|!)\s|^\/\*(?!-).+\*\/$/.test(ctx.fragment);
     }
     return false;
 };

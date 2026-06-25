@@ -393,18 +393,14 @@ const slash: TCharScannerFunction = (src, ctx) => {
     // - - - check multiline comment. - - -
     //
     if (ch === "*") {
+
         const close = src.indexOf("*/", startOffset + 2);
         if (close === -1) throw new SyntaxError(`Incomplete multi line comment, ${createErrorInfo(src, startOffset, ctx)}`);
-        // if (close !== -1) {
+
         fragment = src.slice(startOffset, close + 2);
         if (ctx.eventDone) {
             ctx.result += fragment;
         } else {
-            // const eventContext: TScannerEventContext = {
-            //     event: EScannerEvent.MultiLineComment,
-            //     fragment,
-            //     offset: startOffset
-            // };
             const ok = scanListener({
                 event: EScannerEvent.MultiLineComment,
                 fragment,
@@ -415,13 +411,6 @@ const slash: TCharScannerFunction = (src, ctx) => {
             } else {
                 if (ok) ctx.result += fragment;
             }
-            // if (!ctx.isWalk) {
-            //     if (scanListener(eventContext)) {
-            //         ctx.result += fragment;
-            //     }
-            // } else {
-            //     ctx.proceed = scanListener(eventContext);
-            // }
         }
         // update offset.
         ctx.offset = close + 2;
@@ -450,16 +439,6 @@ const slash: TCharScannerFunction = (src, ctx) => {
         if (ctx.eventDone) {
             ctx.result += fragment;
         } else {
-            // const eventContext: TScannerEventContext = {
-            //     event: EScannerEvent.SingleLineComment,
-            //     fragment,
-            //     offset: startOffset
-            // };
-            // const ok = scanListener({
-            //     event: EScannerEvent.SingleLineComment,
-            //     fragment,
-            //     offset: startOffset
-            // });
             if (ctx.isWalk) { // walk through mode
                 // maybe less needs
                 ctx.proceed = scanListener({
@@ -481,17 +460,8 @@ const slash: TCharScannerFunction = (src, ctx) => {
                     ctx.result += fragment;
                 }
             }
-            // if (!ctx.isWalk) { // replace mode
-            //     if (
-            //         // avoid ts reference tag
-            //         reTsrefOrPramga.test(fragment) || scanListener(eventContext)
-            //     ) {
-            //         ctx.result += fragment;
-            //     }
-            // } else { // walk through mode
-            //     ctx.proceed = scanListener(eventContext);
-            // }
         }
+
         return true;
     }
 
