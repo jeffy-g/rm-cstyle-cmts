@@ -89,7 +89,7 @@ webpack() {
   } || npx webpack >/dev/null
 
   echo
-  jstool -cmd rws
+  jstool -cmd rws -rws-tags:"webpack/gulp:./dist/webpack/gulp/index.js"
 }
 
 #
