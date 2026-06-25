@@ -4,8 +4,8 @@
     "rootDir": ".",
     "outDir": "./build/jest",
     "tsBuildInfoFile": "./logs/jest.tsbuildinfo",
-    "module": "commonjs",
-    "moduleResolution": "node10",
+    "module": "node16",
+    "moduleResolution": "node16",
     "types": [
       "jest",
       "node"

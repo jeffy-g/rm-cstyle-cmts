@@ -199,7 +199,7 @@ const mode = debug && "development" || void 0;
 /** @type {TExtraOptions} */
 const extraOpt = {
   beautify: debug || void 0,
-  // forceSourceMap: true
+  forceSourceMap: true
 };
 
 const wpConfigs = configParameters.map(config => {

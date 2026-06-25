@@ -219,5 +219,10 @@
     "webpack": 6214,
     "umd": 6405,
     "webpack/gulp": 2534
+  },
+  "3.4.5": {
+    "webpack": 6304,
+    "umd": 6495,
+    "webpack/gulp": 2568
   }
 }

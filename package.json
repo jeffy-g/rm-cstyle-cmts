@@ -4,6 +4,7 @@
   "description": "remove c style comments from text file(javascript source, json file etc...",
   "private": false,
   "main": "./cjs/index.js",
+  "type": "commonjs",
   "types": "./index.d.ts",
   "unpkg": "./umd/index.js",
   "sideEffects": false,
@@ -76,12 +77,13 @@
     "bench": "node -v && node ./build/cjs/bench/ -f samples/es6.js -l 2000 -ol 10 | node ./build/cjs/bench/ -p",
     "benchmark": "cd etc/bench && yarn install && yarn start",
     "build:test": "tsc -m commonjs -t es2019 __tests__/test.ts",
-    "build": "tsc && yarn fire:tool fix_import_path",
+    "build": "tsc",
+    "postbuild": "yarn copy:files && orgpkg -p -k defs",
     "clean": "rimraf -g dist/*",
     "reset:ts:cache": "rimraf -g build/* logs/*.tsbuildinfo",
     "copy:files": "yarn fire:tool copyfiles",
     "copy:types": "yarn fire:tool copytypes",
-    "dist": "rimraf -g \"dist/!(webpack|umd)\" && yarn build && yarn copy:files && orgpkg -p -k defs",
+    "dist": "rimraf -g \"dist/!(webpack|umd)\" && yarn build",
     "fire:tool": "bash scripts/tool.sh",
     "grmc-test:cjs": "node scripts/batch-rmc-test.js -progress -collectRegex -showNoops -timeMeasure -collectJSDocTag",
     "ic": "rimraf yarn.lock node_modules && yarn install",
@@ -99,8 +101,8 @@
     "strip:strict": "jstool -cmd replace -regex \"/.use strict.;\\s/g\" -targets \"dist/cjs/index.js,dist/cjs/js-scanner.js,dist/cjs/gulp/index.js\""
   },
   "//": [
-    "NOTE: `strip:strict` use for publish (dist)",
     "preserve:jsdoc - yarn fire:tool del_usestrict && jstool -cmd rmc -rmc4ts -basePath \"./dist/cjs,./dist/cjs/gulp\" -test \"/\\.(js|d\\.ts)$/\"",
+    "build - tsc && yarn fire:tool fix_import_path",
     "ESLint JavaScript Plugin(rules): @eslint/js"
   ],
   "devDependencies": {

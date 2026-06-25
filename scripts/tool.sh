@@ -25,27 +25,27 @@ patch_with_tag() {
   git tag "v${after}"
 }
 
-fix_import_path() {
-  local target="./build/cjs/bench/index.js"
-  fire-sed 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/' $target
-}
-#
-# remove "use strict" directive
-# because typescript reference doesn't work
-#
-del_usestrict() {
-  local files=$(find ./dist/cjs/*.js)
-  files+=" "$(find ./dist/cjs/gulp/*.js)
-  fire-sed "s/\"use strict\";\\n//" $files
-}
+# fix_import_path() {
+#   local target="./build/cjs/bench/index.js"
+#   fire-sed 's/([./]+)(scripts\/tiny)/\.\.\/\.\.\/\.\.\/\2/' $target
+# }
+# #
+# # remove "use strict" directive
+# # because typescript reference doesn't work
+# #
+# del_usestrict() {
+#   local files=$(find ./dist/cjs/*.js)
+#   files+=" "$(find ./dist/cjs/gulp/*.js)
+#   fire-sed "s/\"use strict\";\\n//" $files
+# }
 
-fire-sed() {
-  local regex=$1
-  shift
-  local flags="-Ei -z"
-  [[ "$OSTYPE" == "darwin"* ]] && flags+=" -e"
-  sed $flags "$regex" "$@"
-}
+# fire-sed() {
+#   local regex=$1
+#   shift
+#   local flags="-Ei -z"
+#   [[ "$OSTYPE" == "darwin"* ]] && flags+=" -e"
+#   sed $flags "$regex" "$@"
+# }
 
 copyfiles() {
   cpx ${cpxopt} "./{README.md,LICENSE}" dist &
